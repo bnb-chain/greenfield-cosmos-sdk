@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"sigs.k8s.io/yaml"
@@ -485,4 +486,29 @@ func (s *addressTestSuite) TestGetFromBech32() {
 	_, err = types.GetFromBech32("cosmos1qqqsyqcyq5rqwzqfys8f67", "x")
 	s.Require().Error(err)
 	s.Require().Equal("invalid Bech32 prefix; expected x, got cosmos", err.Error())
+}
+
+func TestSmartChainAddress(t *testing.T) {
+	priKey, _ := ethsecp256k1.GenerateKey()
+	pubKey := priKey.PubKey()
+	address := pubKey.Address()
+	fmt.Println("Generated address:", address)
+
+	sca := types.GetSmartChainAddressFromPubKey(pubKey)
+	require.Equal(t, sca.Bytes(), address.Bytes(), "address should be equal")
+
+	sca, err := types.SmartChainAddressFromHexUnsafe(address.String())
+	require.Nil(t, err, "err should be nil")
+	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
+
+	sca, err = types.SmartChainAddressFromHexUnsafe("0x" + address.String())
+	require.Nil(t, err, "err should be nil")
+	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
+
+	bz, err := sca.Marshal()
+	require.Nil(t, err, "err should be nil")
+	var unmarshalAddress types.SmartChainAddress
+	err = unmarshalAddress.Unmarshal(bz)
+	require.Nil(t, err, "err should be nil")
+	require.Equal(t, sca, unmarshalAddress, "address should be equal")
 }

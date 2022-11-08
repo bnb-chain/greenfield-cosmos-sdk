@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"strings"
 	"sync"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/hashicorp/golang-lru/simplelru"
+	"github.com/tendermint/crypto/sha3"
 	"sigs.k8s.io/yaml"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -71,6 +74,9 @@ const (
 	Bech32PrefixConsAddr = Bech32MainPrefix + PrefixValidator + PrefixConsensus
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
+
+	// SmartChainAddressLength defines a valid smart chain address length
+	SmartChainAddressLength = 20
 )
 
 // cache variables
@@ -121,6 +127,7 @@ var (
 	_ Address = AccAddress{}
 	_ Address = ValAddress{}
 	_ Address = ConsAddress{}
+	_ Address = SmartChainAddress{}
 )
 
 // ----------------------------------------------------------------------------
@@ -636,6 +643,113 @@ func (ca ConsAddress) Format(s fmt.State, verb rune) {
 	}
 }
 
+// SmartChainAddress defines a standard smart chain address
+type SmartChainAddress [SmartChainAddressLength]byte
+
+// SmartChainAddressFromHexUnsafe is a constructor function for SmartChainAddress
+//
+// Note, this function is considered unsafe as it may produce an SmartChainAddress from
+// otherwise invalid input, such as a transaction hash.
+func SmartChainAddressFromHexUnsafe(addr string) (SmartChainAddress, error) {
+	addr = strings.ToLower(addr)
+	if len(addr) >= 2 && addr[:2] == "0x" {
+		addr = addr[2:]
+	}
+	if length := len(addr); length != 2*SmartChainAddressLength {
+		return SmartChainAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*SmartChainAddressLength)
+	}
+
+	bin, err := hex.DecodeString(addr)
+	if err != nil {
+		return SmartChainAddress{}, err
+	}
+	var address SmartChainAddress
+	address.SetBytes(bin)
+	return address, nil
+}
+
+func (sca *SmartChainAddress) SetBytes(buf []byte) {
+	if len(buf) > len(sca) {
+		buf = buf[len(buf)-20:]
+	}
+	copy(sca[20-len(buf):], buf)
+}
+
+// Equals Returns boolean for whether two SmartChainAddress are Equal
+func (sca SmartChainAddress) Equals(address Address) bool {
+	if sca.Empty() && address.Empty() {
+		return true
+	}
+
+	return bytes.Equal(sca.Bytes(), address.Bytes())
+}
+
+// Empty Returns boolean for whether an SmartChainAddress is empty
+func (sca SmartChainAddress) Empty() bool {
+	addrValue := big.NewInt(0)
+	addrValue.SetBytes(sca[:])
+
+	return addrValue.Cmp(big.NewInt(0)) == 0
+}
+
+// Marshal returns the raw address bytes. It is needed for protobuf
+// compatibility.
+func (sca SmartChainAddress) Marshal() ([]byte, error) {
+	return sca[:], nil
+}
+
+// Unmarshal sets the address to the given data. It is needed for protobuf
+// compatibility.
+func (sca *SmartChainAddress) Unmarshal(data []byte) error {
+	sca.SetBytes(data)
+	return nil
+}
+
+// MarshalJSON marshals to JSON.
+func (sca SmartChainAddress) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("\"%v\"", sca.String())), nil
+
+}
+
+// Bytes returns the raw address bytes.
+func (sca SmartChainAddress) Bytes() []byte {
+	return sca[:]
+}
+
+// String implements the Stringer interface.
+func (sca SmartChainAddress) String() string {
+	uncheckSummed := hex.EncodeToString(sca[:])
+	sha := sha3.NewLegacyKeccak256()
+	sha.Write([]byte(uncheckSummed))
+	hash := sha.Sum(nil)
+
+	result := []byte(uncheckSummed)
+	for i := 0; i < len(result); i++ {
+		hashByte := hash[i/2]
+		if i%2 == 0 {
+			hashByte = hashByte >> 4
+		} else {
+			hashByte &= 0xf
+		}
+		if result[i] > '9' && hashByte > 7 {
+			result[i] -= 32
+		}
+	}
+	return "0x" + string(result)
+}
+
+// Format implements the fmt.Formatter interface.
+func (sca SmartChainAddress) Format(state fmt.State, verb rune) {
+	switch verb {
+	case 's':
+		_, _ = state.Write([]byte(sca.String()))
+	case 'p':
+		_, _ = state.Write([]byte(fmt.Sprintf("%p", sca[:])))
+	default:
+		_, _ = state.Write([]byte(fmt.Sprintf("%X", sca[:])))
+	}
+}
+
 // ----------------------------------------------------------------------------
 // auxiliary
 // ----------------------------------------------------------------------------
@@ -676,4 +790,11 @@ func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey 
 	}
 	cache.Add(cacheKey, bech32Addr)
 	return bech32Addr
+}
+
+// GetSmartChainAddressFromPubKey returns SmartChainAddress by the pubkey
+func GetSmartChainAddressFromPubKey(pubkey cryptotypes.PubKey) SmartChainAddress {
+	var sca SmartChainAddress
+	sca.SetBytes(pubkey.(*ethsecp256k1.PubKey).Address())
+	return sca
 }

@@ -1,6 +1,7 @@
 package codec
 
 import (
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/encoding"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
@@ -19,7 +20,7 @@ func FromTmProtoPublicKey(protoPk tmprotocrypto.PublicKey) (cryptotypes.PubKey, 
 			Key: protoPk.Ed25519,
 		}, nil
 	case *tmprotocrypto.PublicKey_Secp256K1:
-		return &secp256k1.PubKey{
+		return &ethsecp256k1.PubKey{
 			Key: protoPk.Secp256K1,
 		}, nil
 	default:
@@ -37,6 +38,12 @@ func ToTmProtoPublicKey(pk cryptotypes.PubKey) (tmprotocrypto.PublicKey, error) 
 			},
 		}, nil
 	case *secp256k1.PubKey:
+		return tmprotocrypto.PublicKey{
+			Sum: &tmprotocrypto.PublicKey_Secp256K1{
+				Secp256K1: pk.Key,
+			},
+		}, nil
+	case *ethsecp256k1.PubKey:
 		return tmprotocrypto.PublicKey{
 			Sum: &tmprotocrypto.PublicKey_Secp256K1{
 				Secp256K1: pk.Key,

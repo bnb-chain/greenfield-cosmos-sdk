@@ -10,8 +10,8 @@ import (
 	tmbtcec "github.com/tendermint/btcd/btcec"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 // discoverLedger defines a function to be invoked at runtime for discovering
@@ -27,11 +27,11 @@ type (
 	// SECP256K1 reflects an interface a Ledger API must implement for SECP256K1
 	SECP256K1 interface {
 		Close() error
-		// Returns an uncompressed pubkey
+		// GetPublicKeySECP256K1 returns an uncompressed pubkey
 		GetPublicKeySECP256K1([]uint32) ([]byte, error)
-		// Returns a compressed pubkey and bech32 address (requires user confirmation)
+		// GetAddressPubKeySECP256K1 returns a compressed pubkey and bech32 address (requires user confirmation)
 		GetAddressPubKeySECP256K1([]uint32, string) ([]byte, string, error)
-		// Signs a message (requires user confirmation)
+		// SignSECP256K1 signs a message (requires user confirmation)
 		SignSECP256K1([]uint32, []byte) ([]byte, error)
 	}
 
@@ -243,10 +243,10 @@ func getPubKeyUnsafe(device SECP256K1, path hd.BIP44Params) (types.PubKey, error
 		return nil, fmt.Errorf("error parsing public key: %v", err)
 	}
 
-	compressedPublicKey := make([]byte, secp256k1.PubKeySize)
+	compressedPublicKey := make([]byte, ethsecp256k1.PubKeySize)
 	copy(compressedPublicKey, cmp.SerializeCompressed())
 
-	return &secp256k1.PubKey{Key: compressedPublicKey}, nil
+	return &ethsecp256k1.PubKey{Key: compressedPublicKey}, nil
 }
 
 // getPubKeyAddr reads the pubkey and the address from a ledger device.
@@ -267,8 +267,8 @@ func getPubKeyAddrSafe(device SECP256K1, path hd.BIP44Params, hrp string) (types
 		return nil, "", fmt.Errorf("error parsing public key: %v", err)
 	}
 
-	compressedPublicKey := make([]byte, secp256k1.PubKeySize)
+	compressedPublicKey := make([]byte, ethsecp256k1.PubKeySize)
 	copy(compressedPublicKey, cmp.SerializeCompressed())
 
-	return &secp256k1.PubKey{Key: compressedPublicKey}, addr, nil
+	return &ethsecp256k1.PubKey{Key: compressedPublicKey}, addr, nil
 }
