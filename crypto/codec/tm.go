@@ -20,7 +20,7 @@ func FromTmProtoPublicKey(protoPk tmprotocrypto.PublicKey) (cryptotypes.PubKey, 
 			Key: protoPk.Ed25519,
 		}, nil
 	case *tmprotocrypto.PublicKey_Secp256K1:
-		return &ethsecp256k1.PubKey{
+		return &secp256k1.PubKey{
 			Key: protoPk.Secp256K1,
 		}, nil
 	default:

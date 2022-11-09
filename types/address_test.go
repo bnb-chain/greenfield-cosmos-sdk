@@ -494,20 +494,20 @@ func TestSmartChainAddress(t *testing.T) {
 	address := pubKey.Address()
 	fmt.Println("Generated address:", address)
 
-	sca := types.GetSmartChainAddressFromPubKey(pubKey)
+	sca := types.GetETHAddressFromPubKey(pubKey)
 	require.Equal(t, sca.Bytes(), address.Bytes(), "address should be equal")
 
-	sca, err := types.SmartChainAddressFromHexUnsafe(address.String())
+	sca, err := types.ETHAddressFromHexUnsafe(address.String())
 	require.Nil(t, err, "err should be nil")
 	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
 
-	sca, err = types.SmartChainAddressFromHexUnsafe("0x" + address.String())
+	sca, err = types.ETHAddressFromHexUnsafe("0x" + address.String())
 	require.Nil(t, err, "err should be nil")
 	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
 
 	bz, err := sca.Marshal()
 	require.Nil(t, err, "err should be nil")
-	var unmarshalAddress types.SmartChainAddress
+	var unmarshalAddress types.ETHAddress
 	err = unmarshalAddress.Unmarshal(bz)
 	require.Nil(t, err, "err should be nil")
 	require.Equal(t, sca, unmarshalAddress, "address should be equal")
