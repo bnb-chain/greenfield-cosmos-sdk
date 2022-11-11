@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,7 +13,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -23,7 +23,8 @@ import (
 
 func TestNewMultiSig(t *testing.T) {
 	require := require.New(t)
-	pk1 := secp256k1.GenPrivKey().PubKey()
+	privKey, _ := ethsecp256k1.GenerateKey()
+	pk1 := privKey.PubKey()
 	pks := []cryptotypes.PubKey{pk1, pk1}
 
 	require.NotNil(kmultisig.NewLegacyAminoPubKey(1, pks),
@@ -38,8 +39,12 @@ func TestAddress(t *testing.T) {
 }
 
 func TestEquals(t *testing.T) {
-	pubKey1 := secp256k1.GenPrivKey().PubKey()
-	pubKey2 := secp256k1.GenPrivKey().PubKey()
+	privKey1, _ := ethsecp256k1.GenerateKey()
+	privKey2, _ := ethsecp256k1.GenerateKey()
+	privKey3, _ := ethsecp256k1.GenerateKey()
+
+	pubKey1 := privKey1.PubKey()
+	pubKey2 := privKey2.PubKey()
 
 	multisigKey := kmultisig.NewLegacyAminoPubKey(1, []cryptotypes.PubKey{pubKey1, pubKey2})
 	otherMultisigKey := kmultisig.NewLegacyAminoPubKey(1, []cryptotypes.PubKey{pubKey1, multisigKey})
@@ -71,7 +76,7 @@ func TestEquals(t *testing.T) {
 		},
 		{
 			"different types",
-			secp256k1.GenPrivKey().PubKey(),
+			privKey3.PubKey(),
 			false,
 		},
 		{
@@ -295,7 +300,8 @@ func TestPubKeyMultisigThresholdAminoToIface(t *testing.T) {
 func generatePubKeys(n int) []cryptotypes.PubKey {
 	pks := make([]cryptotypes.PubKey, n)
 	for i := 0; i < n; i++ {
-		pks[i] = secp256k1.GenPrivKey().PubKey()
+		privKey, _ := ethsecp256k1.GenerateKey()
+		pks[i] = privKey.PubKey()
 	}
 	return pks
 }
@@ -305,7 +311,7 @@ func generatePubKeysAndSignatures(n int, msg []byte) (pubKeys []cryptotypes.PubK
 	signatures = make([]signing.SignatureData, n)
 
 	for i := 0; i < n; i++ {
-		privkey := secp256k1.GenPrivKey()
+		privkey, _ := ethsecp256k1.GenerateKey()
 		pubKeys[i] = privkey.PubKey()
 
 		sig, _ := privkey.Sign(msg)
@@ -359,10 +365,10 @@ func TestDisplay(t *testing.T) {
 	ccfg := simapp.MakeTestEncodingConfig()
 	bz, err := ccfg.Codec.MarshalInterfaceJSON(msig)
 	require.NoError(err)
-	expectedPrefix := `{"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/cosmos.crypto.secp256k1.PubKey"`
+	expectedPrefix := `{"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey"`
 	require.True(strings.HasPrefix(string(bz), expectedPrefix))
 	// Example output:
-	// {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AymUY3J2HKIyy9cbpGKcBFUTuDQsRH9NO/orKF/0WQ76"},{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AkvnCDzSYF+tQV/FoI217V7CDIRPzjJj7zBE2nw7x3xT"},{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A0yiqgcM5EB1i0h79+sQp+C0jLPFnT3+dFmdZmGa+H1s"}]}
+	// {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AymUY3J2HKIyy9cbpGKcBFUTuDQsRH9NO/orKF/0WQ76"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AkvnCDzSYF+tQV/FoI217V7CDIRPzjJj7zBE2nw7x3xT"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0yiqgcM5EB1i0h79+sQp+C0jLPFnT3+dFmdZmGa+H1s"}]}
 }
 
 func TestAminoBinary(t *testing.T) {
@@ -437,7 +443,7 @@ func TestAminoUnmarshalJSON(t *testing.T) {
 
 	for _, key := range pk.(*kmultisig.LegacyAminoPubKey).PubKeys {
 		require.NotNil(t, key)
-		pk := secp256k1.PubKey{}
+		pk := ethsecp256k1.PubKey{}
 		err := pk.Unmarshal(key.Value)
 		require.NoError(t, err)
 	}

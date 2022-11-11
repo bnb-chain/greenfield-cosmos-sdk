@@ -5,7 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -40,7 +40,7 @@ func RandomAccounts(r *rand.Rand, n int) []Account {
 		privkeySeed := make([]byte, 15)
 		r.Read(privkeySeed)
 
-		accs[i].PrivKey = secp256k1.GenPrivKeyFromSecret(privkeySeed)
+		accs[i].PrivKey = ethsecp256k1.GenPrivKeyFromSecret(privkeySeed)
 		accs[i].PubKey = accs[i].PrivKey.PubKey()
 		accs[i].Address = sdk.AccAddress(accs[i].PubKey.Address())
 

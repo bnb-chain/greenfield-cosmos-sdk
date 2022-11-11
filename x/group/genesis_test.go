@@ -4,17 +4,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	memberPub  = secp256k1.GenPrivKey().PubKey()
-	accPub     = secp256k1.GenPrivKey().PubKey()
-	accAddr    = sdk.AccAddress(accPub.Address())
-	memberAddr = sdk.AccAddress(memberPub.Address())
+	memberPriv, _ = ethsecp256k1.GenerateKey()
+	accPubPriv, _ = ethsecp256k1.GenerateKey()
+	memberPub     = memberPriv.PubKey()
+	accPub        = accPubPriv.PubKey()
+	accAddr       = sdk.AccAddress(accPub.Address())
+	memberAddr    = sdk.AccAddress(memberPub.Address())
 )
 
 func TestGenesisStateValidate(t *testing.T) {

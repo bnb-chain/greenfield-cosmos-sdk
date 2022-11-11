@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -30,10 +30,12 @@ func (suite *GenesisTestSuite) SetupTest() {
 }
 
 var (
-	granteePub  = secp256k1.GenPrivKey().PubKey()
-	granterPub  = secp256k1.GenPrivKey().PubKey()
-	granteeAddr = sdk.AccAddress(granteePub.Address())
-	granterAddr = sdk.AccAddress(granterPub.Address())
+	granteePriv, _ = ethsecp256k1.GenerateKey()
+	granterPriv, _ = ethsecp256k1.GenerateKey()
+	granteePub     = granteePriv.PubKey()
+	granterPub     = granterPriv.PubKey()
+	granteeAddr    = sdk.AccAddress(granteePub.Address())
+	granterAddr    = sdk.AccAddress(granterPub.Address())
 )
 
 func (suite *GenesisTestSuite) TestImportExportGenesis() {

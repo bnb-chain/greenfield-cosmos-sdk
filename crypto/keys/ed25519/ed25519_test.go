@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
@@ -14,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
@@ -49,6 +49,7 @@ func TestSignAndValidateEd25519(t *testing.T) {
 
 func TestPubKeyEquals(t *testing.T) {
 	ed25519PubKey := ed25519.GenPrivKey().PubKey().(*ed25519.PubKey)
+	privKey, _ := ethsecp256k1.GenerateKey()
 
 	testCases := []struct {
 		msg      string
@@ -73,7 +74,7 @@ func TestPubKeyEquals(t *testing.T) {
 		{
 			"different types",
 			ed25519PubKey,
-			secp256k1.GenPrivKey().PubKey(),
+			privKey.PubKey(),
 			false,
 		},
 	}
@@ -94,6 +95,7 @@ func TestAddressEd25519(t *testing.T) {
 
 func TestPrivKeyEquals(t *testing.T) {
 	ed25519PrivKey := ed25519.GenPrivKey()
+	privKey, _ := ethsecp256k1.GenerateKey()
 
 	testCases := []struct {
 		msg      string
@@ -118,7 +120,7 @@ func TestPrivKeyEquals(t *testing.T) {
 		{
 			"different types",
 			ed25519PrivKey,
-			secp256k1.GenPrivKey(),
+			privKey,
 			false,
 		},
 	}

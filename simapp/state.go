@@ -13,7 +13,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ethsecp256k1"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -230,7 +230,7 @@ func AppStateFromGenesisFileFn(r io.Reader, cdc codec.JSONCodec, genesisFile str
 			panic(err)
 		}
 
-		privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
+		privKey := ethsecp256k1.GenPrivKeyFromSecret(privkeySeed)
 
 		a, ok := acc.GetCachedValue().(authtypes.AccountI)
 		if !ok {

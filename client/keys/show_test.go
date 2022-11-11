@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -12,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -21,7 +22,7 @@ import (
 )
 
 func Test_multiSigKey_Properties(t *testing.T) {
-	tmpKey1 := secp256k1.GenPrivKeyFromSecret([]byte("mySecret"))
+	tmpKey1, _ := ethsecp256k1.GenerateKey()
 	pk := multisig.NewLegacyAminoPubKey(
 		1,
 		[]cryptotypes.PubKey{tmpKey1.PubKey()},
@@ -77,11 +78,11 @@ func Test_runShowCmd(t *testing.T) {
 	})
 
 	path := hd.NewFundraiserParams(1, sdk.CoinType, 0).String()
-	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, hd.Secp256k1)
+	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	path2 := hd.NewFundraiserParams(1, sdk.CoinType, 1).String()
-	_, err = kb.NewAccount(fakeKeyName2, testdata.TestMnemonic, "", path2, hd.Secp256k1)
+	_, err = kb.NewAccount(fakeKeyName2, testdata.TestMnemonic, "", path2, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	// Now try single key

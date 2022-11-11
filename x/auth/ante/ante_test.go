@@ -9,12 +9,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -901,7 +901,8 @@ func generatePubKeysAndSignatures(n int, msg []byte, _ bool) (pubkeys []cryptoty
 	pubkeys = make([]cryptotypes.PubKey, n)
 	signatures = make([][]byte, n)
 	for i := 0; i < n; i++ {
-		var privkey cryptotypes.PrivKey = secp256k1.GenPrivKey()
+		var privkey cryptotypes.PrivKey
+		privkey, _ = ethsecp256k1.GenerateKey()
 
 		// TODO: also generate ed25519 keys as below when ed25519 keys are
 		//  actually supported, https://github.com/cosmos/cosmos-sdk/issues/4789
@@ -938,16 +939,19 @@ func TestCountSubkeys(t *testing.T) {
 	genPubKeys := func(n int) []cryptotypes.PubKey {
 		var ret []cryptotypes.PubKey
 		for i := 0; i < n; i++ {
-			ret = append(ret, secp256k1.GenPrivKey().PubKey())
+			privKey, _ := ethsecp256k1.GenerateKey()
+			ret = append(ret, privKey.PubKey())
 		}
 		return ret
 	}
-	singleKey := secp256k1.GenPrivKey().PubKey()
+	privKey1, _ := ethsecp256k1.GenerateKey()
+	privKey2, _ := ethsecp256k1.GenerateKey()
+	singleKey := privKey1.PubKey()
 	singleLevelMultiKey := kmultisig.NewLegacyAminoPubKey(4, genPubKeys(5))
 	multiLevelSubKey1 := kmultisig.NewLegacyAminoPubKey(4, genPubKeys(5))
 	multiLevelSubKey2 := kmultisig.NewLegacyAminoPubKey(4, genPubKeys(5))
 	multiLevelMultiKey := kmultisig.NewLegacyAminoPubKey(2, []cryptotypes.PubKey{
-		multiLevelSubKey1, multiLevelSubKey2, secp256k1.GenPrivKey().PubKey(),
+		multiLevelSubKey1, multiLevelSubKey2, privKey2.PubKey(),
 	})
 	type args struct {
 		pub cryptotypes.PubKey

@@ -3,10 +3,10 @@ package ante_test
 import (
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256r1"
 )
 
@@ -15,7 +15,7 @@ func BenchmarkSig(b *testing.B) {
 	require := require.New(b)
 	msg := tmcrypto.CRandBytes(1000)
 
-	skK := secp256k1.GenPrivKey()
+	skK, _ := ethsecp256k1.GenerateKey()
 	pkK := skK.PubKey()
 	skR, _ := secp256r1.GenPrivKey()
 	pkR := skR.PubKey()

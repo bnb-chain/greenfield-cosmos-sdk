@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -36,10 +36,12 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 var (
-	memberPub  = secp256k1.GenPrivKey().PubKey()
-	accPub     = secp256k1.GenPrivKey().PubKey()
-	accAddr    = sdk.AccAddress(accPub.Address())
-	memberAddr = sdk.AccAddress(memberPub.Address())
+	memberPriv, _ = ethsecp256k1.GenerateKey()
+	accPubPriv, _ = ethsecp256k1.GenerateKey()
+	memberPub     = memberPriv.PubKey()
+	accPub        = accPubPriv.PubKey()
+	accAddr       = sdk.AccAddress(accPub.Address())
+	memberAddr    = sdk.AccAddress(memberPub.Address())
 )
 
 func (s *GenesisTestSuite) SetupSuite() {

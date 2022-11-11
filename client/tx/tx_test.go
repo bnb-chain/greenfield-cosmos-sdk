@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 
@@ -103,7 +104,7 @@ func TestBuildSimTx(t *testing.T) {
 	require.NoError(t, err)
 
 	path := hd.CreateHDPath(118, 0, 0).String()
-	_, _, err = kb.NewMnemonic("test_key1", keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kb.NewMnemonic("test_key1", keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	txf := tx.Factory{}.
@@ -129,7 +130,7 @@ func TestBuildUnsignedTx(t *testing.T) {
 
 	path := hd.CreateHDPath(118, 0, 0).String()
 
-	_, _, err = kb.NewMnemonic("test_key1", keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kb.NewMnemonic("test_key1", keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	txf := tx.Factory{}.
@@ -162,13 +163,13 @@ func TestSign(t *testing.T) {
 	from2 := "test_key2"
 
 	// create a new key using a mnemonic generator and test if we can reuse seed to recreate that account
-	_, seed, err := kb.NewMnemonic(from1, keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	_, seed, err := kb.NewMnemonic(from1, keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	requireT.NoError(err)
 	requireT.NoError(kb.Delete(from1))
-	k1, _, err := kb.NewMnemonic(from1, keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k1, _, err := kb.NewMnemonic(from1, keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	requireT.NoError(err)
 
-	k2, err := kb.NewAccount(from2, seed, "", path, hd.Secp256k1)
+	k2, err := kb.NewAccount(from2, seed, "", path, ethHd.EthSecp256k1)
 	requireT.NoError(err)
 
 	pubKey1, err := k1.GetPubKey()

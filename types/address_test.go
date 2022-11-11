@@ -14,7 +14,6 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32/legacybech32"
@@ -71,7 +70,8 @@ func (s *addressTestSuite) TestEmptyAddresses() {
 }
 
 func (s *addressTestSuite) TestYAMLMarshalers() {
-	addr := secp256k1.GenPrivKey().PubKey().Address()
+	privKey, _ := ethsecp256k1.GenerateKey()
+	addr := privKey.PubKey().Address()
 
 	acc := types.AccAddress(addr)
 	val := types.ValAddress(addr)
@@ -427,12 +427,14 @@ func (s *addressTestSuite) TestMustBech32ifyAddressBytes() {
 }
 
 func (s *addressTestSuite) TestAddressTypesEquals() {
-	addr1 := secp256k1.GenPrivKey().PubKey().Address()
+	privKey1, _ := ethsecp256k1.GenerateKey()
+	addr1 := privKey1.PubKey().Address()
 	accAddr1 := types.AccAddress(addr1)
 	consAddr1 := types.ConsAddress(addr1)
 	valAddr1 := types.ValAddress(addr1)
 
-	addr2 := secp256k1.GenPrivKey().PubKey().Address()
+	privKey2, _ := ethsecp256k1.GenerateKey()
+	addr2 := privKey2.PubKey().Address()
 	accAddr2 := types.AccAddress(addr2)
 	consAddr2 := types.ConsAddress(addr2)
 	valAddr2 := types.ValAddress(addr2)
@@ -473,7 +475,8 @@ func (s *addressTestSuite) TestNilAddressTypesEmpty() {
 }
 
 func (s *addressTestSuite) TestGetConsAddress() {
-	pk := secp256k1.GenPrivKey().PubKey()
+	privKey, _ := ethsecp256k1.GenerateKey()
+	pk := privKey.PubKey()
 	s.Require().NotEqual(types.GetConsAddress(pk), pk.Address())
 	s.Require().True(bytes.Equal(types.GetConsAddress(pk).Bytes(), pk.Address().Bytes()))
 	s.Require().Panics(func() { types.GetConsAddress(cryptotypes.PubKey(nil)) })

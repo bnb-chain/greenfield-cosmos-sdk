@@ -10,7 +10,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,7 +17,7 @@ func TestInMemoryCreateLedger(t *testing.T) {
 	cdc := getCodec()
 	kb := NewInMemory(cdc)
 
-	k, err := kb.SaveLedgerKey("some_account", hd.Secp256k1, "cosmos", 118, 3, 1)
+	k, err := kb.SaveLedgerKey("some_account", ethHd.EthSecp256k1, "cosmos", 118, 3, 1)
 	if err != nil {
 		require.Error(t, err)
 		require.Equal(t, "ledger nano S: support for ledger devices is not available in this executable", err.Error())
@@ -57,7 +56,7 @@ func TestSignVerifyKeyRingWithLedger(t *testing.T) {
 	kb, err := New("keybasename", "test", dir, nil, cdc)
 	require.NoError(t, err)
 
-	k, err := kb.SaveLedgerKey("key", hd.Secp256k1, "cosmos", 118, 0, 0)
+	k, err := kb.SaveLedgerKey("key", ethHd.EthSecp256k1, "cosmos", 118, 0, 0)
 	if err != nil {
 		require.Equal(t, "ledger nano S: support for ledger devices is not available in this executable", err.Error())
 		t.Skip("ledger nano S: support for ledger devices is not available in this executable")
@@ -84,7 +83,7 @@ func TestSignVerifyKeyRingWithLedger(t *testing.T) {
 	require.True(t, key1.VerifySignature(d1, s1))
 	require.True(t, bytes.Equal(s1, s2))
 
-	k, _, err = kb.NewMnemonic("test", English, types.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err = kb.NewMnemonic("test", English, types.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	_, _, err = SignWithLedger(k, d1)
 	require.Error(t, err)
@@ -103,7 +102,7 @@ func TestAltKeyring_SaveLedgerKey(t *testing.T) {
 	require.Error(t, err)
 	require.True(t, strings.Contains(err.Error(), ErrUnsupportedSigningAlgo.Error()))
 
-	k, err := kr.SaveLedgerKey("some_account", hd.Secp256k1, "cosmos", 118, 3, 1)
+	k, err := kr.SaveLedgerKey("some_account", ethHd.EthSecp256k1, "cosmos", 118, 3, 1)
 	if err != nil {
 		require.Equal(t, "ledger nano S: support for ledger devices is not available in this executable", err.Error())
 		t.Skip("ledger nano S: support for ledger devices is not available in this executable")

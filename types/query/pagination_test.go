@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -75,7 +75,8 @@ func (s *paginationTestSuite) TestPagination() {
 	}
 
 	balances = balances.Sort()
-	addr1 := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
+	privKey1, _ := ethsecp256k1.GenerateKey()
+	addr1 := sdk.AccAddress(privKey1.PubKey().Address())
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
 	app.AccountKeeper.SetAccount(ctx, acc1)
 	s.Require().NoError(testutil.FundAccount(app.BankKeeper, ctx, addr1, balances))
@@ -184,7 +185,8 @@ func (s *paginationTestSuite) TestReversePagination() {
 	}
 
 	balances = balances.Sort()
-	addr1 := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
+	privKey1, _ := ethsecp256k1.GenerateKey()
+	addr1 := sdk.AccAddress(privKey1.PubKey().Address())
 	acc1 := app.AccountKeeper.NewAccountWithAddress(ctx, addr1)
 	app.AccountKeeper.SetAccount(ctx, acc1)
 	s.Require().NoError(testutil.FundAccount(app.BankKeeper, ctx, addr1, balances))

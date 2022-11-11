@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/btcsuite/btcd/btcec"
 	rosettatypes "github.com/coinbase/rosetta-sdk-go/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmcoretypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -17,7 +18,6 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	crgerrs "github.com/cosmos/cosmos-sdk/server/rosetta/lib/errors"
 	crgtypes "github.com/cosmos/cosmos-sdk/server/rosetta/lib/types"
@@ -654,10 +654,10 @@ func (c converter) PubKey(pubKey *rosettatypes.PublicKey) (cryptotypes.PubKey, e
 		return nil, crgerrs.WrapError(crgerrs.ErrBadArgument, err.Error())
 	}
 
-	compressedPublicKey := make([]byte, secp256k1.PubKeySize)
+	compressedPublicKey := make([]byte, ethsecp256k1.PubKeySize)
 	copy(compressedPublicKey, cmp.SerializeCompressed())
 
-	pk := &secp256k1.PubKey{Key: compressedPublicKey}
+	pk := &ethsecp256k1.PubKey{Key: compressedPublicKey}
 
 	return pk, nil
 }

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -43,7 +43,7 @@ func Test_runListCmd(t *testing.T) {
 	ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
 
 	path := "" // sdk.GetConfig().GetFullBIP44Path()
-	_, err = kb.NewAccount("something", testdata.TestMnemonic, "", path, hd.Secp256k1)
+	_, err = kb.NewAccount("something", testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	t.Cleanup(cleanupKeys(t, kb, "something"))

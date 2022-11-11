@@ -3,9 +3,9 @@ package legacytx
 import (
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -13,9 +13,9 @@ import (
 )
 
 func TestLegacyAminoJSONHandler_GetSignBytes(t *testing.T) {
-	priv1 := secp256k1.GenPrivKey()
+	priv1, _ := ethsecp256k1.GenerateKey()
 	addr1 := sdk.AccAddress(priv1.PubKey().Address())
-	priv2 := secp256k1.GenPrivKey()
+	priv2, _ := ethsecp256k1.GenerateKey()
 	addr2 := sdk.AccAddress(priv2.PubKey().Address())
 
 	coins := sdk.Coins{sdk.NewInt64Coin("foocoin", 10)}

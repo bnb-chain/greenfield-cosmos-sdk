@@ -7,6 +7,7 @@ import (
 	"io"
 	"testing"
 
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/cli"
 
@@ -122,8 +123,8 @@ func Test_runAddCmdBasic(t *testing.T) {
 }
 
 func Test_runAddCmdDryRun(t *testing.T) {
-	pubkey1 := `{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AtObiFVE4s+9+RX5SP8TN9r2mxpoaT4eGj9CJfK7VRzN"}`
-	pubkey2 := `{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A/se1vkqgdQ7VJQCM4mxN+L+ciGhnnJ4XYsQCRBMrdRi"}`
+	pubkey1 := `{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AtObiFVE4s+9+RX5SP8TN9r2mxpoaT4eGj9CJfK7VRzN"}`
+	pubkey2 := `{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A/se1vkqgdQ7VJQCM4mxN+L+ciGhnnJ4XYsQCRBMrdRi"}`
 	cdc := simapp.MakeTestEncodingConfig().Codec
 
 	testData := []struct {
@@ -203,7 +204,7 @@ func Test_runAddCmdDryRun(t *testing.T) {
 			ctx := context.WithValue(context.Background(), client.ClientContextKey, &clientCtx)
 
 			path := sdk.GetConfig().GetFullBIP44Path()
-			_, err = kb.NewAccount("subkey", testdata.TestMnemonic, "", path, hd.Secp256k1)
+			_, err = kb.NewAccount("subkey", testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
 			require.NoError(t, err)
 
 			t.Cleanup(func() {

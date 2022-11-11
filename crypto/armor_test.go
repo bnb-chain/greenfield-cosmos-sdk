@@ -73,7 +73,10 @@ func TestArmorUnarmorPrivKey(t *testing.T) {
 func TestArmorUnarmorPubKey(t *testing.T) {
 	// Select the encryption and storage for your cryptostore
 	encCfg := simapp.MakeTestEncodingConfig()
-	cstore := sdkkeyring.NewInMemory(encCfg.Codec, keyring.ETHAlgoOption())
+	cstore := sdkkeyring.NewInMemory(encCfg.Codec, func(options *keyring.Options) {
+		options.SupportedAlgos = keyring.SigningAlgoList{ethHd.EthSecp256k1}
+		options.SupportedAlgosLedger = keyring.SigningAlgoList{ethHd.EthSecp256k1}
+	})
 
 	// Add keys and see they return in alphabetical order
 	k, _, err := cstore.NewMnemonic("Bob", sdkkeyring.English, types.FullFundraiserPath, sdkkeyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)

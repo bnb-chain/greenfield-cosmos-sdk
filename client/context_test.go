@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
@@ -172,7 +173,7 @@ func TestGetFromFields(t *testing.T) {
 			keyring: func() keyring.Keyring {
 				kb := keyring.NewInMemory(cfg.Codec)
 
-				_, _, err := kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+				_, _, err := kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 				require.NoError(t, err)
 
 				return kb
@@ -184,7 +185,7 @@ func TestGetFromFields(t *testing.T) {
 				kb, err := keyring.New(t.Name(), keyring.BackendTest, t.TempDir(), nil, cfg.Codec)
 				require.NoError(t, err)
 
-				_, _, err = kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+				_, _, err = kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 				require.NoError(t, err)
 
 				return kb
@@ -242,7 +243,7 @@ func TestGetFromFields(t *testing.T) {
 				kb, err := keyring.New(t.Name(), keyring.BackendTest, t.TempDir(), nil, cfg.Codec)
 				require.NoError(t, err)
 
-				_, _, err = kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+				_, _, err = kb.NewMnemonic("alice", keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 				require.NoError(t, err)
 
 				return kb

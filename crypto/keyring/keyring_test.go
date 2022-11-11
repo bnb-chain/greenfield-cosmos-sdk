@@ -10,6 +10,8 @@ import (
 
 	"github.com/99designs/keyring"
 	"github.com/cosmos/go-bip39"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,7 +56,7 @@ func TestNewKeyring(t *testing.T) {
 	require.Equal(t, "unknown keyring backend fuzzy", err.Error())
 
 	mockIn.Reset("password\npassword\n")
-	k, _, err := kr.NewMnemonic("foo", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := kr.NewMnemonic("foo", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	require.Equal(t, "foo", k.Name)
 }
@@ -67,7 +68,7 @@ func TestKeyManagementKeyRing(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cdc)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2, n3 := "personal", "business", "other"
 
 	// Check empty state
@@ -174,7 +175,7 @@ func TestSignVerifyKeyRing(t *testing.T) {
 
 	kb, err := New("keybasename", "test", dir, nil, cdc)
 	require.NoError(t, err)
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 
 	n1, n2, n3 := "some dude", "a dudette", "dude-ish"
 
@@ -260,7 +261,7 @@ func TestExportImportKeyRing(t *testing.T) {
 	kb, err := New("keybasename", "test", t.TempDir(), nil, cdc)
 	require.NoError(t, err)
 
-	k, _, err := kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	name := k.Name
 	require.NoError(t, err)
 	require.Equal(t, name, "john")
@@ -304,7 +305,7 @@ func TestExportImportPubKeyKeyRing(t *testing.T) {
 	cdc := getCodec()
 	kb, err := New("keybasename", "test", t.TempDir(), nil, cdc)
 	require.NoError(t, err)
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 
 	// CreateMnemonic a private-public key pair and ensure consistency
 	k, _, err := kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, algo)
@@ -353,7 +354,7 @@ func TestAdvancedKeyManagementKeyRing(t *testing.T) {
 	kb, err := New("keybasename", "test", dir, nil, cdc)
 	require.NoError(t, err)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2 := "old-name", "new name"
 
 	// make sure key works with initial password
@@ -389,7 +390,7 @@ func TestSeedPhraseKeyRing(t *testing.T) {
 	kb, err := New("keybasename", "test", dir, nil, cdc)
 	require.NoError(t, err)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2 := "lost-key", "found-again"
 
 	// make sure key works with initial password
@@ -408,7 +409,7 @@ func TestSeedPhraseKeyRing(t *testing.T) {
 
 	// let us re-create it from the mnemonic-phrase
 	hdPath := hd.NewFundraiserParams(0, sdk.CoinType, 0).String()
-	k1, err := kb.NewAccount(n2, mnemonic, DefaultBIP39Passphrase, hdPath, hd.Secp256k1)
+	k1, err := kb.NewAccount(n2, mnemonic, DefaultBIP39Passphrase, hdPath, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	require.Equal(t, n2, k1.Name)
 	newKey, err := k1.GetPubKey()
@@ -423,7 +424,7 @@ func TestKeyringKeybaseExportImportPrivKey(t *testing.T) {
 	kb, err := New("keybasename", "test", t.TempDir(), nil, cdc)
 	require.NoError(t, err)
 
-	_, _, err = kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	keystr, err := kb.ExportPrivKeyArmor("john", "somepassword")
@@ -451,13 +452,14 @@ func TestKeyringKeybaseExportImportPrivKey(t *testing.T) {
 func TestInMemoryLanguage(t *testing.T) {
 	cdc := getCodec()
 	kb := NewInMemory(cdc)
-	_, _, err := kb.NewMnemonic("something", Japanese, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err := kb.NewMnemonic("something", Japanese, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.Error(t, err)
 	require.Equal(t, "unsupported language: only english is supported", err.Error())
 }
 
 func TestInMemoryWithKeyring(t *testing.T) {
-	priv := cryptotypes.PrivKey(secp256k1.GenPrivKey())
+	privKey, _ := ethsecp256k1.GenerateKey()
+	priv := cryptotypes.PrivKey(privKey)
 	pub := priv.PubKey()
 
 	cdc := getCodec()
@@ -503,9 +505,10 @@ func TestInMemoryCreateMultisig(t *testing.T) {
 	cdc := getCodec()
 	kb, err := New("keybasename", "memory", "", nil, cdc)
 	require.NoError(t, err)
+	privKey, _ := ethsecp256k1.GenerateKey()
 	multi := multisig.NewLegacyAminoPubKey(
 		1, []types.PubKey{
-			secp256k1.GenPrivKey().PubKey(),
+			privKey.PubKey(),
 		},
 	)
 	_, err = kb.SaveMultisig("multi", multi)
@@ -518,7 +521,7 @@ func TestInMemoryCreateAccountInvalidMnemonic(t *testing.T) {
 	_, err := kb.NewAccount(
 		"some_account",
 		"malarkey pair crucial catch public canyon evil outer stage ten gym tornado",
-		"", hd.CreateHDPath(118, 0, 0).String(), hd.Secp256k1)
+		"", hd.CreateHDPath(118, 0, 0).String(), ethHd.EthSecp256k1)
 	require.Error(t, err)
 	require.Equal(t, "Invalid mnemonic", err.Error())
 }
@@ -529,7 +532,7 @@ func TestInMemoryKeyManagement(t *testing.T) {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2, n3 := "personal", "business", "other"
 
 	// Check empty state
@@ -624,7 +627,7 @@ func TestInMemoryKeyManagement(t *testing.T) {
 func TestInMemorySignVerify(t *testing.T) {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 
 	n1, n2, n3 := "some dude", "a dudette", "dude-ish"
 
@@ -708,7 +711,7 @@ func TestInMemoryExportImport(t *testing.T) {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
 
-	k, _, err := cstore.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := cstore.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	require.Equal(t, k.Name, "john")
 
@@ -748,7 +751,7 @@ func TestInMemoryExportImportPrivKey(t *testing.T) {
 	cdc := getCodec()
 	kb := NewInMemory(cdc)
 
-	k, _, err := kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := kb.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	require.Equal(t, k.Name, "john")
 	priv1, err := kb.Key("john")
@@ -781,7 +784,7 @@ func TestInMemoryExportImportPubKey(t *testing.T) {
 	cstore := NewInMemory(cdc)
 
 	// CreateMnemonic a private-public key pair and ensure consistency
-	k, _, err := cstore.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := cstore.NewMnemonic("john", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	require.NotNil(t, k)
 	require.Equal(t, k.Name, "john")
@@ -823,7 +826,7 @@ func TestInMemoryAdvancedKeyManagement(t *testing.T) {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2 := "old-name", "new name"
 
 	// make sure key works with initial password
@@ -859,7 +862,7 @@ func TestInMemorySeedPhrase(t *testing.T) {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
 
-	algo := hd.Secp256k1
+	algo := ethHd.EthSecp256k1
 	n1, n2 := "lost-key", "found-again"
 
 	// make sure key works with initial password
@@ -893,17 +896,17 @@ func TestKeyChain_ShouldFailWhenAddingSameGeneratedAccount(t *testing.T) {
 	require.NoError(t, err)
 
 	// Given we create a mnemonic
-	_, seed, err := kr.NewMnemonic("test", English, "", DefaultBIP39Passphrase, hd.Secp256k1)
+	_, seed, err := kr.NewMnemonic("test", English, "", DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	require.NoError(t, kr.Delete("test"))
 
 	path := hd.CreateHDPath(118, 0, 0).String()
-	_, err = kr.NewAccount("test1", seed, "", path, hd.Secp256k1)
+	_, err = kr.NewAccount("test1", seed, "", path, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	// Creating another account with different uid but same seed should fail due to have same pub address
-	_, err = kr.NewAccount("test2", seed, "", path, hd.Secp256k1)
+	_, err = kr.NewAccount("test2", seed, "", path, ethHd.EthSecp256k1)
 	require.Error(t, err)
 }
 
@@ -912,7 +915,7 @@ func ExampleNew() {
 	cdc := getCodec()
 	cstore := NewInMemory(cdc)
 
-	sec := hd.Secp256k1
+	sec := ethHd.EthSecp256k1
 
 	// Add keys and see they return in alphabetical order
 	bob, _, err := cstore.NewMnemonic("Bob", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, sec)
@@ -977,11 +980,11 @@ func TestAltKeyring_List(t *testing.T) {
 
 	// Create 3 keys
 	uid1, uid2, uid3 := "Zkey", "Bkey", "Rkey"
-	_, _, err = kr.NewMnemonic(uid1, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid1, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
-	_, _, err = kr.NewMnemonic(uid2, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid2, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
-	_, _, err = kr.NewMnemonic(uid3, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid3, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	list, err = kr.List()
@@ -1011,7 +1014,7 @@ func TestAltKeyring_NewAccount(t *testing.T) {
 	_, err = kr.NewAccount(uid, mnemonic, DefaultBIP39Passphrase, sdk.FullFundraiserPath, notSupportedAlgo{})
 	require.EqualError(t, err, ErrUnsupportedSigningAlgo.Error())
 
-	k, err := kr.NewAccount(uid, mnemonic, DefaultBIP39Passphrase, sdk.FullFundraiserPath, hd.Secp256k1)
+	k, err := kr.NewAccount(uid, mnemonic, DefaultBIP39Passphrase, sdk.FullFundraiserPath, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	require.Equal(t, uid, k.Name)
@@ -1027,7 +1030,7 @@ func TestAltKeyring_Get(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := someKey
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	key, err := kr.Key(uid)
@@ -1041,7 +1044,7 @@ func TestAltKeyring_KeyByAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := someKey
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	addr, err := mnemonic.GetAddress()
@@ -1057,7 +1060,7 @@ func TestAltKeyring_Delete(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := someKey
-	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	list, err := kr.List()
@@ -1078,7 +1081,7 @@ func TestAltKeyring_DeleteByAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := someKey
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	list, err := kr.List()
@@ -1162,9 +1165,9 @@ func TestAltKeyring_SaveMultisig(t *testing.T) {
 	kr, err := New(t.Name(), BackendTest, t.TempDir(), nil, cdc)
 	require.NoError(t, err)
 
-	mnemonic1, _, err := kr.NewMnemonic("key1", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic1, _, err := kr.NewMnemonic("key1", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
-	mnemonic2, _, err := kr.NewMnemonic("key2", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic2, _, err := kr.NewMnemonic("key2", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	key := "multi"
@@ -1175,8 +1178,8 @@ func TestAltKeyring_SaveMultisig(t *testing.T) {
 	pub := multisig.NewLegacyAminoPubKey(
 		2,
 		[]types.PubKey{
-			&secp256k1.PubKey{Key: key1.Bytes()},
-			&secp256k1.PubKey{Key: key2.Bytes()},
+			&ethsecp256k1.PubKey{Key: key1.Bytes()},
+			&ethsecp256k1.PubKey{Key: key2.Bytes()},
 		},
 	)
 
@@ -1198,7 +1201,7 @@ func TestAltKeyring_Sign(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := "jack"
-	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	msg := []byte("some message")
@@ -1215,7 +1218,7 @@ func TestAltKeyring_SignByAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := "jack"
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	msg := []byte("some message")
@@ -1234,7 +1237,7 @@ func TestAltKeyring_ImportExportPrivKey(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := theID
-	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	passphrase := "somePass"
@@ -1261,7 +1264,7 @@ func TestAltKeyring_ImportExportPrivKey_ByAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := theID
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	passphrase := "somePass"
@@ -1291,7 +1294,7 @@ func TestAltKeyring_ImportExportPubKey(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := theID
-	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	armor, err := kr.ExportPubKeyArmor(uid)
@@ -1314,7 +1317,7 @@ func TestAltKeyring_ImportExportPubKey_ByAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	uid := theID
-	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	mnemonic, _, err := kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	addr, err := mnemonic.GetAddress()
@@ -1340,7 +1343,7 @@ func TestAltKeyring_UnsafeExportPrivKeyHex(t *testing.T) {
 
 	uid := theID
 
-	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic(uid, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	privKey, err := kr.(keystore).ExportPrivateKeyObject(uid)
@@ -1363,7 +1366,7 @@ func TestAltKeyring_ConstructorSupportedAlgos(t *testing.T) {
 	require.EqualError(t, err, "unsupported signing algo")
 
 	// but works with default signing algo.
-	_, _, err = kr.NewMnemonic("test", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	_, _, err = kr.NewMnemonic("test", English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 
 	// but we can create a new keybase with our provided algos.
@@ -1475,7 +1478,7 @@ func newKeyring(t *testing.T, name string) Keyring {
 }
 
 func newKeyRecord(t *testing.T, kr Keyring, name string) *Record {
-	k, _, err := kr.NewMnemonic(name, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := kr.NewMnemonic(name, English, sdk.FullFundraiserPath, DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	return k
 }

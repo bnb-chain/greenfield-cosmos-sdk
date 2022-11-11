@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/99designs/keyring"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/pkg/errors"
 	"github.com/tendermint/crypto/bcrypt"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
@@ -205,8 +206,8 @@ func newKeystore(kr keyring.Keyring, cdc codec.Codec, backend string, opts ...Op
 	// Default options for keybase, these can be overwritten using the
 	// Option function
 	options := Options{
-		SupportedAlgos:       SigningAlgoList{hd.Secp256k1},
-		SupportedAlgosLedger: SigningAlgoList{hd.Secp256k1},
+		SupportedAlgos:       SigningAlgoList{ethHd.EthSecp256k1},
+		SupportedAlgosLedger: SigningAlgoList{ethHd.EthSecp256k1},
 	}
 
 	for _, optionFn := range opts {
