@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -40,10 +40,10 @@ func Test_runDeleteCmd(t *testing.T) {
 	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc)
 	require.NoError(t, err)
 
-	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
+	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, hd.Secp256k1)
 	require.NoError(t, err)
 
-	_, _, err = kb.NewMnemonic(fakeKeyName2, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	_, _, err = kb.NewMnemonic(fakeKeyName2, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 	require.NoError(t, err)
 
 	clientCtx := client.Context{}.

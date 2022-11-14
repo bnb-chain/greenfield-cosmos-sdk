@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/simapp/helpers"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
@@ -23,14 +23,14 @@ import (
 )
 
 var (
-	priv1, _ = ethsecp256k1.GenerateKey()
-	priv2, _ = ethsecp256k1.GenerateKey()
-	pk1      = priv1.PubKey()
-	pk2      = priv2.PubKey()
-	addr1    = sdk.AccAddress(pk1.Address())
-	addr2    = sdk.AccAddress(pk2.Address())
-	desc     = stakingtypes.NewDescription("testname", "", "", "", "")
-	comm     = stakingtypes.CommissionRates{}
+	priv1 = secp256k1.GenPrivKey()
+	priv2 = secp256k1.GenPrivKey()
+	pk1   = priv1.PubKey()
+	pk2   = priv2.PubKey()
+	addr1 = sdk.AccAddress(pk1.Address())
+	addr2 = sdk.AccAddress(pk2.Address())
+	desc  = stakingtypes.NewDescription("testname", "", "", "", "")
+	comm  = stakingtypes.CommissionRates{}
 )
 
 // GenTxTestSuite is a test suite to be used with gentx tests.

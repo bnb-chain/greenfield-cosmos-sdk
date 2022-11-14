@@ -75,8 +75,8 @@ const (
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
 
-	// SmartChainAddressLength defines a valid smart chain address length
-	SmartChainAddressLength = 20
+	// EthAddressLength defines a valid Ethereum compatible chain address length
+	EthAddressLength = 20
 )
 
 // cache variables
@@ -643,8 +643,8 @@ func (ca ConsAddress) Format(s fmt.State, verb rune) {
 	}
 }
 
-// ETHAddress defines a standard smart chain address
-type ETHAddress [SmartChainAddressLength]byte
+// ETHAddress defines a standard Ethereum compatible chain address
+type ETHAddress [EthAddressLength]byte
 
 // ETHAddressFromHexUnsafe is a constructor function for ETHAddress
 //
@@ -655,8 +655,8 @@ func ETHAddressFromHexUnsafe(addr string) (ETHAddress, error) {
 	if len(addr) >= 2 && addr[:2] == "0x" {
 		addr = addr[2:]
 	}
-	if length := len(addr); length != 2*SmartChainAddressLength {
-		return ETHAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*SmartChainAddressLength)
+	if length := len(addr); length != 2*EthAddressLength {
+		return ETHAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
 	}
 
 	bin, err := hex.DecodeString(addr)

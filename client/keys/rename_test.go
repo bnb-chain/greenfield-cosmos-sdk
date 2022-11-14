@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -37,7 +37,7 @@ func Test_runRenameCmd(t *testing.T) {
 	require.NoError(t, err)
 
 	// put fakeKeyName1 in keyring
-	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
+	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, hd.Secp256k1)
 	require.NoError(t, err)
 
 	clientCtx := client.Context{}.

@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	design99keyring "github.com/99designs/keyring"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -15,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -38,8 +38,7 @@ func (s *MigrateTestSuite) SetupSuite() {
 	s.dir = s.T().TempDir()
 	s.cdc = simapp.MakeTestEncodingConfig().Codec
 	s.appName = "cosmos"
-	privKey, _ := ethsecp256k1.GenerateKey()
-	s.priv = cryptotypes.PrivKey(privKey)
+	s.priv = cryptotypes.PrivKey(secp256k1.GenPrivKey())
 	s.pub = s.priv.PubKey()
 }
 

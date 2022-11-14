@@ -8,7 +8,6 @@ import (
 	"sort"
 
 	"github.com/cosmos/go-bip39"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -208,7 +207,7 @@ func runAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 	// If we're using ledger, only thing we need is the path and the bech32 prefix.
 	if useLedger {
 		bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-		k, err := kb.SaveLedgerKey(name, ethHd.EthSecp256k1, bech32PrefixAccAddr, coinType, account, index)
+		k, err := kb.SaveLedgerKey(name, hd.Secp256k1, bech32PrefixAccAddr, coinType, account, index)
 		if err != nil {
 			return err
 		}

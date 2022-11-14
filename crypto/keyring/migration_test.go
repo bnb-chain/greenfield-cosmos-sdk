@@ -5,14 +5,13 @@ import (
 	"testing"
 
 	"github.com/99designs/keyring"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -42,13 +41,12 @@ func (s *MigrationTestSuite) SetupSuite() {
 	s.kb = kb
 	s.ks = ks
 
-	privKey, _ := ethsecp256k1.GenerateKey()
-	s.priv = cryptotypes.PrivKey(privKey)
+	s.priv = cryptotypes.PrivKey(secp256k1.GenPrivKey())
 	s.pub = s.priv.PubKey()
 }
 
 func (s *MigrationTestSuite) TestMigrateLegacyLocalKey() {
-	legacyLocalInfo := newLegacyLocalInfo(n1, s.pub, string(legacy.Cdc.MustMarshal(s.priv)), ethHd.EthSecp256k1.Name())
+	legacyLocalInfo := newLegacyLocalInfo(n1, s.pub, string(legacy.Cdc.MustMarshal(s.priv)), hd.Secp256k1.Name())
 	serializedLegacyLocalInfo := MarshalInfo(legacyLocalInfo)
 
 	item := keyring.Item{
@@ -66,7 +64,7 @@ func (s *MigrationTestSuite) TestMigrateLegacyLocalKey() {
 func (s *MigrationTestSuite) TestMigrateLegacyLedgerKey() {
 	account, coinType, index := uint32(118), uint32(0), uint32(0)
 	hdPath := hd.NewFundraiserParams(account, coinType, index)
-	legacyLedgerInfo := newLegacyLedgerInfo(n1, s.pub, *hdPath, ethHd.EthSecp256k1.Name())
+	legacyLedgerInfo := newLegacyLedgerInfo(n1, s.pub, *hdPath, hd.Secp256k1.Name())
 	serializedLegacyLedgerInfo := MarshalInfo(legacyLedgerInfo)
 
 	item := keyring.Item{
@@ -82,7 +80,7 @@ func (s *MigrationTestSuite) TestMigrateLegacyLedgerKey() {
 }
 
 func (s *MigrationTestSuite) TestMigrateLegacyOfflineKey() {
-	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, ethHd.EthSecp256k1.Name())
+	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, hd.Secp256k1.Name())
 	serializedLegacyOfflineInfo := MarshalInfo(legacyOfflineInfo)
 
 	item := keyring.Item{
@@ -182,7 +180,7 @@ func (s *MigrationTestSuite) TestMigrateAllLegacyMultiOffline() {
 
 	s.Require().NoError(s.ks.SetItem(item))
 
-	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, ethHd.EthSecp256k1.Name())
+	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, hd.Secp256k1.Name())
 	serializedLegacyOfflineInfo := MarshalInfo(legacyOfflineInfo)
 
 	item = keyring.Item{
@@ -203,7 +201,7 @@ func (s *MigrationTestSuite) TestMigrateAllNoItem() {
 }
 
 func (s *MigrationTestSuite) TestMigrateErrUnknownItemKey() {
-	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, ethHd.EthSecp256k1.Name())
+	legacyOfflineInfo := newLegacyOfflineInfo(n1, s.pub, hd.Secp256k1.Name())
 	serializedLegacyOfflineInfo := MarshalInfo(legacyOfflineInfo)
 
 	item := keyring.Item{

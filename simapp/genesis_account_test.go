@@ -4,19 +4,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 )
 
 func TestSimGenesisAccountValidate(t *testing.T) {
-	privKey1, _ := ethsecp256k1.GenerateKey()
-	privKey2, _ := ethsecp256k1.GenerateKey()
-	pubkey := privKey1.PubKey()
+	pubkey := secp256k1.GenPrivKey().PubKey()
 	addr := sdk.AccAddress(pubkey.Address())
 
 	vestingStart := time.Now().UTC()
@@ -39,7 +37,7 @@ func TestSimGenesisAccountValidate(t *testing.T) {
 		{
 			"invalid basic account with mismatching address/pubkey",
 			simapp.SimGenesisAccount{
-				BaseAccount: authtypes.NewBaseAccount(addr, privKey2.PubKey(), 0, 0),
+				BaseAccount: authtypes.NewBaseAccount(addr, secp256k1.GenPrivKey().PubKey(), 0, 0),
 			},
 			true,
 		},

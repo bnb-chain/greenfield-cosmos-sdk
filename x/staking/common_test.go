@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -22,10 +22,10 @@ func init() {
 
 // nolint:deadcode,unused,varcheck
 var (
-	priv1, _ = ethsecp256k1.GenerateKey()
-	addr1    = sdk.AccAddress(priv1.PubKey().Address())
-	priv2, _ = ethsecp256k1.GenerateKey()
-	addr2    = sdk.AccAddress(priv2.PubKey().Address())
+	priv1 = secp256k1.GenPrivKey()
+	addr1 = sdk.AccAddress(priv1.PubKey().Address())
+	priv2 = secp256k1.GenPrivKey()
+	addr2 = sdk.AccAddress(priv2.PubKey().Address())
 
 	valKey  = ed25519.GenPrivKey()
 	valAddr = sdk.AccAddress(valKey.PubKey().Address())

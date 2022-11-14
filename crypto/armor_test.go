@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdkkeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -26,7 +25,7 @@ import (
 
 func TestArmorUnarmorPrivKey(t *testing.T) {
 	priv, _ := ethsecp256k1.GenerateKey()
-	armored := crypto.EncryptArmorPrivKey(priv, "passphrase", "")
+	armored := crypto.EncryptArmorPrivKey(priv, "passphrase", string(ethHd.EthSecp256k1Type))
 	_, _, err := crypto.UnarmorDecryptPrivKey(armored, "wrongpassphrase")
 	require.Error(t, err)
 	decrypted, algo, err := crypto.UnarmorDecryptPrivKey(armored, "passphrase")
@@ -73,17 +72,14 @@ func TestArmorUnarmorPrivKey(t *testing.T) {
 func TestArmorUnarmorPubKey(t *testing.T) {
 	// Select the encryption and storage for your cryptostore
 	encCfg := simapp.MakeTestEncodingConfig()
-	cstore := sdkkeyring.NewInMemory(encCfg.Codec, func(options *keyring.Options) {
-		options.SupportedAlgos = keyring.SigningAlgoList{ethHd.EthSecp256k1}
-		options.SupportedAlgosLedger = keyring.SigningAlgoList{ethHd.EthSecp256k1}
-	})
+	cstore := keyring.NewInMemory(encCfg.Codec, ethHd.EthSecp256k1Option())
 
 	// Add keys and see they return in alphabetical order
-	k, _, err := cstore.NewMnemonic("Bob", sdkkeyring.English, types.FullFundraiserPath, sdkkeyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := cstore.NewMnemonic("Bob", keyring.English, types.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	key, err := k.GetPubKey()
 	require.NoError(t, err)
-	armored := crypto.ArmorPubKeyBytes(legacy.Cdc.Amino.MustMarshalBinaryBare(key), "")
+	armored := crypto.ArmorPubKeyBytes(legacy.Cdc.Amino.MustMarshalBinaryBare(key), string(ethHd.EthSecp256k1Type))
 	pubBytes, algo, err := crypto.UnarmorPubKeyBytes(armored)
 	require.NoError(t, err)
 	pub, err := legacy.PubKeyFromBytes(pubBytes)
@@ -113,8 +109,8 @@ func TestArmorUnarmorPubKey(t *testing.T) {
 	armored = crypto.EncodeArmor("TENDERMINT PUBLIC KEY", header, pubBytes)
 	_, algo, err = crypto.UnarmorPubKeyBytes(armored)
 	require.NoError(t, err)
-	// return eth_secp256k1 if version is 0.0.0
-	require.Equal(t, "eth_secp256k1", algo)
+	// return secp256k1 if version is 0.0.0
+	require.Equal(t, "secp256k1", algo)
 
 	// missing version header
 	header = map[string]string{

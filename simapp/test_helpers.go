@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -25,6 +24,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp/helpers"
@@ -90,7 +90,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
 	// generate genesis account
-	senderPrivKey, _ := ethsecp256k1.GenerateKey()
+	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
@@ -132,7 +132,7 @@ func Setup(t *testing.T, isCheckTx bool) *SimApp {
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
 	// generate genesis account
-	senderPrivKey, _ := ethsecp256k1.GenerateKey()
+	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
@@ -272,7 +272,7 @@ func GenesisStateWithSingleValidator(t *testing.T, app *SimApp) GenesisState {
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
 	// generate genesis account
-	senderPrivKey, _ := ethsecp256k1.GenerateKey()
+	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balances := []banktypes.Balance{
 		{

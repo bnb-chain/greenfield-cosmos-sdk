@@ -8,11 +8,11 @@ import (
 	"testing"
 
 	"github.com/cosmos/go-bip39"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 )
 
 type addrData struct {
@@ -64,7 +64,7 @@ func TestFundraiserCompatibility(t *testing.T) {
 		priv, err := hd.DerivePrivateKeyForPath(master, ch, "m/44'/118'/0'/0/0")
 		require.NoError(t, err)
 
-		privKey := &ethsecp256k1.PrivKey{Key: priv}
+		privKey := &secp256k1.PrivKey{Key: priv}
 		pub := privKey.PubKey()
 
 		t.Log("\tNODEJS GOLANG\n")
@@ -76,9 +76,9 @@ func TestFundraiserCompatibility(t *testing.T) {
 		require.Equal(t, seedB, seed)
 		require.Equal(t, master[:], masterB, fmt.Sprintf("Expected masters to match for %d", i))
 		require.Equal(t, priv[:], privB, "Expected priv keys to match")
-		pubBFixed := make([]byte, ethsecp256k1.PubKeySize)
+		pubBFixed := make([]byte, secp256k1.PubKeySize)
 		copy(pubBFixed, pubB)
-		require.Equal(t, pub, &ethsecp256k1.PubKey{Key: pubBFixed}, fmt.Sprintf("Expected pub keys to match for %d", i))
+		require.Equal(t, pub, &secp256k1.PubKey{Key: pubBFixed}, fmt.Sprintf("Expected pub keys to match for %d", i))
 
 		addr := pub.Address()
 		t.Logf("ADDR  \t%X %X\n", addrB, addr)

@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	"sigs.k8s.io/yaml"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -84,10 +84,9 @@ func TestBaseAccountMarshal(t *testing.T) {
 }
 
 func TestGenesisAccountValidate(t *testing.T) {
-	privKey1, _ := ethsecp256k1.GenerateKey()
-	privKey2, _ := ethsecp256k1.GenerateKey()
-	addr := sdk.AccAddress(privKey1.PubKey().Address())
-	baseAcc := types.NewBaseAccount(addr, privKey1.PubKey(), 0, 0)
+	pubkey := secp256k1.GenPrivKey().PubKey()
+	addr := sdk.AccAddress(pubkey.Address())
+	baseAcc := types.NewBaseAccount(addr, pubkey, 0, 0)
 
 	tests := []struct {
 		name   string
@@ -101,7 +100,7 @@ func TestGenesisAccountValidate(t *testing.T) {
 		},
 		{
 			"invalid base valid account",
-			types.NewBaseAccount(addr, privKey2.PubKey(), 0, 0),
+			types.NewBaseAccount(addr, secp256k1.GenPrivKey().PubKey(), 0, 0),
 			true,
 		},
 	}
@@ -149,8 +148,7 @@ func TestHasPermissions(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	privKey, _ := ethsecp256k1.GenerateKey()
-	addr := sdk.AccAddress(privKey.PubKey().Address())
+	addr := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 	baseAcc := types.NewBaseAccount(addr, nil, 0, 0)
 	tests := []struct {
 		name   string
@@ -183,8 +181,7 @@ func TestValidate(t *testing.T) {
 }
 
 func TestModuleAccountJSON(t *testing.T) {
-	privKey, _ := ethsecp256k1.GenerateKey()
-	pubkey := privKey.PubKey()
+	pubkey := secp256k1.GenPrivKey().PubKey()
 	addr := sdk.AccAddress(pubkey.Address())
 	baseAcc := types.NewBaseAccount(addr, nil, 10, 50)
 	acc := types.NewModuleAccount(baseAcc, "test", "burner")
@@ -202,11 +199,9 @@ func TestModuleAccountJSON(t *testing.T) {
 }
 
 func TestGenesisAccountsContains(t *testing.T) {
-	privKey1, _ := ethsecp256k1.GenerateKey()
-	pubkey := privKey1.PubKey()
+	pubkey := secp256k1.GenPrivKey().PubKey()
 	addr := sdk.AccAddress(pubkey.Address())
-	privKey2, _ := ethsecp256k1.GenerateKey()
-	acc := types.NewBaseAccount(addr, privKey2.PubKey(), 0, 0)
+	acc := types.NewBaseAccount(addr, secp256k1.GenPrivKey().PubKey(), 0, 0)
 
 	genAccounts := types.GenesisAccounts{}
 	require.False(t, genAccounts.Contains(acc.GetAddress()))

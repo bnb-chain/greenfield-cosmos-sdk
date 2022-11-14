@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -19,7 +19,7 @@ func TestMigrateMapAccAddressToAccNumberKey(t *testing.T) {
 	app := simapp.Setup(t, false)
 
 	// new base account
-	senderPrivKey, _ := ethsecp256k1.GenerateKey()
+	senderPrivKey := secp256k1.GenPrivKey()
 	randAccNumber := uint64(rand.Intn(100000-10000) + 10000)
 	acc := types.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), randAccNumber, 0)
 

@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -85,7 +84,7 @@ func TestAddGenesisAccountCmd(t *testing.T) {
 				path := hd.CreateHDPath(118, 0, 0).String()
 				kr, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, home, nil, appCodec)
 				require.NoError(t, err)
-				_, _, err = kr.NewMnemonic(tc.addr, keyring.English, path, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+				_, _, err = kr.NewMnemonic(tc.addr, keyring.English, path, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 				require.NoError(t, err)
 				clientCtx = clientCtx.WithKeyring(kr)
 			}

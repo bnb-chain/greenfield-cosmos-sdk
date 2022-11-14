@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256r1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
@@ -17,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 func (suite *AnteTestSuite) TestSetPubKey() {
@@ -89,7 +89,6 @@ func (suite *AnteTestSuite) TestConsumeSignatureVerificationGas() {
 		pubkey cryptotypes.PubKey
 		params types.Params
 	}
-	privKey, _ := ethsecp256k1.GenerateKey()
 	tests := []struct {
 		name        string
 		args        args
@@ -97,7 +96,7 @@ func (suite *AnteTestSuite) TestConsumeSignatureVerificationGas() {
 		shouldErr   bool
 	}{
 		{"PubKeyEd25519", args{sdk.NewInfiniteGasMeter(), nil, ed25519.GenPrivKey().PubKey(), params}, p.SigVerifyCostED25519, true},
-		{"PubKeyEthSecp256k1", args{sdk.NewInfiniteGasMeter(), nil, privKey.PubKey(), params}, p.SigVerifyCostSecp256k1, false},
+		{"PubKeySecp256k1", args{sdk.NewInfiniteGasMeter(), nil, secp256k1.GenPrivKey().PubKey(), params}, p.SigVerifyCostSecp256k1, false},
 		{"PubKeySecp256r1", args{sdk.NewInfiniteGasMeter(), nil, skR1.PubKey(), params}, p.SigVerifyCostSecp256r1(), false},
 		{"Multisig", args{sdk.NewInfiniteGasMeter(), multisignature1, multisigKey1, params}, expectedCost1, false},
 		{"unknown key", args{sdk.NewInfiniteGasMeter(), nil, nil, params}, 0, true},
@@ -300,13 +299,10 @@ func (suite *AnteTestSuite) TestSigVerification_ExplicitAmino() {
 
 func (suite *AnteTestSuite) TestSigIntegration() {
 	// generate private keys
-	privKey1, _ := ethsecp256k1.GenerateKey()
-	privKey2, _ := ethsecp256k1.GenerateKey()
-	privKey3, _ := ethsecp256k1.GenerateKey()
 	privs := []cryptotypes.PrivKey{
-		privKey1,
-		privKey2,
-		privKey3,
+		secp256k1.GenPrivKey(),
+		secp256k1.GenPrivKey(),
+		secp256k1.GenPrivKey(),
 	}
 
 	params := types.DefaultParams()

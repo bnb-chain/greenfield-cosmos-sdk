@@ -21,7 +21,7 @@ const (
 	blockTypeKeyInfo = "TENDERMINT KEY INFO"
 	blockTypePubKey  = "TENDERMINT PUBLIC KEY"
 
-	defaultAlgo = "eth_secp256k1"
+	defaultAlgo = "secp256k1"
 
 	headerVersion = "version"
 	headerType    = "type"

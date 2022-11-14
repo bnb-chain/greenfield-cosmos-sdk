@@ -10,34 +10,37 @@ import (
 
 // Default parameter values
 const (
-	DefaultMaxMemoCharacters      uint64 = 256
-	DefaultTxSigLimit             uint64 = 7
-	DefaultTxSizeCostPerByte      uint64 = 10
-	DefaultSigVerifyCostED25519   uint64 = 590
-	DefaultSigVerifyCostSecp256k1 uint64 = 1000
+	DefaultMaxMemoCharacters         uint64 = 256
+	DefaultTxSigLimit                uint64 = 7
+	DefaultTxSizeCostPerByte         uint64 = 10
+	DefaultSigVerifyCostED25519      uint64 = 590
+	DefaultSigVerifyCostSecp256k1    uint64 = 1000
+	DefaultSigVerifyCostEthSecp256k1 uint64 = 5000
 )
 
 // Parameter keys
 var (
-	KeyMaxMemoCharacters      = []byte("MaxMemoCharacters")
-	KeyTxSigLimit             = []byte("TxSigLimit")
-	KeyTxSizeCostPerByte      = []byte("TxSizeCostPerByte")
-	KeySigVerifyCostED25519   = []byte("SigVerifyCostED25519")
-	KeySigVerifyCostSecp256k1 = []byte("SigVerifyCostSecp256k1")
+	KeyMaxMemoCharacters         = []byte("MaxMemoCharacters")
+	KeyTxSigLimit                = []byte("TxSigLimit")
+	KeyTxSizeCostPerByte         = []byte("TxSizeCostPerByte")
+	KeySigVerifyCostED25519      = []byte("SigVerifyCostED25519")
+	KeySigVerifyCostSecp256k1    = []byte("SigVerifyCostSecp256k1")
+	KeySigVerifyCostEthSecp256k1 = []byte("SigVerifyCostEthSecp256k1")
 )
 
 var _ paramtypes.ParamSet = &Params{}
 
 // NewParams creates a new Params object
 func NewParams(
-	maxMemoCharacters, txSigLimit, txSizeCostPerByte, sigVerifyCostED25519, sigVerifyCostSecp256k1 uint64,
+	maxMemoCharacters, txSigLimit, txSizeCostPerByte, sigVerifyCostED25519, sigVerifyCostSecp256k1, sigVerifyCostEthSecp256k1 uint64,
 ) Params {
 	return Params{
-		MaxMemoCharacters:      maxMemoCharacters,
-		TxSigLimit:             txSigLimit,
-		TxSizeCostPerByte:      txSizeCostPerByte,
-		SigVerifyCostED25519:   sigVerifyCostED25519,
-		SigVerifyCostSecp256k1: sigVerifyCostSecp256k1,
+		MaxMemoCharacters:         maxMemoCharacters,
+		TxSigLimit:                txSigLimit,
+		TxSizeCostPerByte:         txSizeCostPerByte,
+		SigVerifyCostED25519:      sigVerifyCostED25519,
+		SigVerifyCostSecp256k1:    sigVerifyCostSecp256k1,
+		SigVerifyCostEthSecp256k1: sigVerifyCostEthSecp256k1,
 	}
 }
 
@@ -55,17 +58,19 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyTxSizeCostPerByte, &p.TxSizeCostPerByte, validateTxSizeCostPerByte),
 		paramtypes.NewParamSetPair(KeySigVerifyCostED25519, &p.SigVerifyCostED25519, validateSigVerifyCostED25519),
 		paramtypes.NewParamSetPair(KeySigVerifyCostSecp256k1, &p.SigVerifyCostSecp256k1, validateSigVerifyCostSecp256k1),
+		paramtypes.NewParamSetPair(KeySigVerifyCostEthSecp256k1, &p.SigVerifyCostEthSecp256k1, validateSigVerifyCostEthSecp256k1),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		MaxMemoCharacters:      DefaultMaxMemoCharacters,
-		TxSigLimit:             DefaultTxSigLimit,
-		TxSizeCostPerByte:      DefaultTxSizeCostPerByte,
-		SigVerifyCostED25519:   DefaultSigVerifyCostED25519,
-		SigVerifyCostSecp256k1: DefaultSigVerifyCostSecp256k1,
+		MaxMemoCharacters:         DefaultMaxMemoCharacters,
+		TxSigLimit:                DefaultTxSigLimit,
+		TxSizeCostPerByte:         DefaultTxSizeCostPerByte,
+		SigVerifyCostED25519:      DefaultSigVerifyCostED25519,
+		SigVerifyCostSecp256k1:    DefaultSigVerifyCostSecp256k1,
+		SigVerifyCostEthSecp256k1: DefaultSigVerifyCostEthSecp256k1,
 	}
 }
 
@@ -126,6 +131,19 @@ func validateSigVerifyCostSecp256k1(i interface{}) error {
 	return nil
 }
 
+func validateSigVerifyCostEthSecp256k1(i interface{}) error {
+	v, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("invalid EthSECK256k1 signature verification cost: %d", v)
+	}
+
+	return nil
+}
+
 func validateMaxMemoCharacters(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
@@ -161,6 +179,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateSigVerifyCostSecp256k1(p.SigVerifyCostSecp256k1); err != nil {
+		return err
+	}
+	if err := validateSigVerifyCostEthSecp256k1(p.SigVerifyCostEthSecp256k1); err != nil {
 		return err
 	}
 	if err := validateMaxMemoCharacters(p.MaxMemoCharacters); err != nil {

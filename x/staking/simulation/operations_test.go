@@ -7,12 +7,12 @@ import (
 	"time"
 
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -319,7 +319,7 @@ func createTestApp(t *testing.T, isCheckTx bool, r *rand.Rand, n int) (*simapp.S
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
 	// generate genesis account
-	senderPrivKey, _ := ethsecp256k1.GenerateKey()
+	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),

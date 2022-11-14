@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"strings"
 
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -66,7 +66,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	val := s.network.Validators[0]
 
 	// create a new account
-	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 	s.Require().NoError(err)
 
 	pk, err := info.GetPubKey()
@@ -2472,7 +2472,7 @@ func (s *IntegrationTestSuite) createAccounts(quantity int) []string {
 		memberNumber := uuid.New().String()
 
 		info, _, err := clientCtx.Keyring.NewMnemonic(fmt.Sprintf("member%s", memberNumber), keyring.English, sdk.FullFundraiserPath,
-			keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+			keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 		s.Require().NoError(err)
 
 		pk, err := info.GetPubKey()

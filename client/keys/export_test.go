@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"testing"
 
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 
@@ -92,7 +92,7 @@ func Test_runExportCmd(t *testing.T) {
 			t.Cleanup(cleanupKeys(t, kb, "keyname1"))
 
 			path := sdk.GetConfig().GetFullBIP44Path()
-			_, err = kb.NewAccount("keyname1", testdata.TestMnemonic, "", path, ethHd.EthSecp256k1)
+			_, err = kb.NewAccount("keyname1", testdata.TestMnemonic, "", path, hd.Secp256k1)
 			require.NoError(t, err)
 
 			clientCtx := client.Context{}.

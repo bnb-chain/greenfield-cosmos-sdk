@@ -3,9 +3,9 @@ package cli
 import (
 	"testing"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/spf13/pflag"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -28,8 +28,7 @@ func Test_splitAndCall_NoMessages(t *testing.T) {
 func Test_splitAndCall_Splitting(t *testing.T) {
 	clientCtx := client.Context{}
 
-	privKey, _ := ethsecp256k1.GenerateKey()
-	addr := sdk.AccAddress(privKey.PubKey().Address())
+	addr := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
 	// Add five messages
 	msgs := []sdk.Msg{

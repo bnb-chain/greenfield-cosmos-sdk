@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -678,9 +678,7 @@ func TestTrackUndelegationPermLockedVestingAcc(t *testing.T) {
 }
 
 func TestGenesisAccountValidate(t *testing.T) {
-	privKey1, _ := ethsecp256k1.GenerateKey()
-	privKey2, _ := ethsecp256k1.GenerateKey()
-	pubkey := privKey1.PubKey()
+	pubkey := secp256k1.GenPrivKey().PubKey()
 	addr := sdk.AccAddress(pubkey.Address())
 	baseAcc := authtypes.NewBaseAccount(addr, pubkey, 0, 0)
 	initialVesting := sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 50))
@@ -697,7 +695,7 @@ func TestGenesisAccountValidate(t *testing.T) {
 		},
 		{
 			"invalid base valid account",
-			authtypes.NewBaseAccount(addr, privKey2.PubKey(), 0, 0),
+			authtypes.NewBaseAccount(addr, secp256k1.GenPrivKey().PubKey(), 0, 0),
 			true,
 		},
 		{

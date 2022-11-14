@@ -5,12 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/tests/mocks"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -146,8 +146,7 @@ func (s *contextTestSuite) TestContextHeader() {
 
 	height := int64(5)
 	time := time.Now()
-	privKey, _ := ethsecp256k1.GenerateKey()
-	addr := privKey.PubKey().Address()
+	addr := secp256k1.GenPrivKey().PubKey().Address()
 	proposer := types.ConsAddress(addr)
 
 	ctx = types.NewContext(nil, tmproto.Header{}, false, nil)
