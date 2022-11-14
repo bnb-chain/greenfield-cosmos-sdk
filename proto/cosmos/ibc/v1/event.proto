@@ -1,0 +1,18 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.authz.v1beta1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/ibc/types";
+
+message EventIBCPackage {
+  uint32 src_chain_id = 1;
+  uint32 dest_chain_id = 2;
+  uint32 channel_id = 3;
+  uint64 sequence = 4;
+  uint32 package_type = 5;
+  uint64 timestamp = 6;
+  bytes package_load = 7;
+  string relayer_fee = 8;
+}
