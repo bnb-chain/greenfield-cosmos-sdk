@@ -24,6 +24,8 @@ const (
 	SequenceLength       = 8
 
 	GovChannelId = sdk.ChannelID(9)
+
+	QueryParameters = "parameters"
 )
 
 var (

@@ -1,6 +1,7 @@
 package params
 
 import (
+	"context"
 	"encoding/json"
 	"math/rand"
 
@@ -47,7 +48,9 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, config client.TxEncodin
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the params module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	// TODO: fix this
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns no root tx command for the params module.
@@ -58,9 +61,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.NewQueryCmd()
 }
 
-func (am AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	// TODO: fix this
-}
+func (am AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {}
 
 // AppModule implements an application module for the distribution module.
 type AppModule struct {
@@ -103,14 +104,13 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers a gRPC query service to respond to the
 // module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	// TODO: fix this
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
 // ProposalContents returns all the params content functions used to
 // simulate governance proposals.
 func (am AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
-	return nil // TODO:  fill this
-	//return simulation.ProposalContents(simState.ParamChanges)
+	return nil
 }
 
 // RandomizedParams creates randomized distribution param changes for the simulator.
