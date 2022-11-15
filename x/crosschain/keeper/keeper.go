@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/types"
+	"github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -91,7 +91,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.Chai
 
 	k.IncrSendSequence(ctx, destChainID, channelID)
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventIBCPackage{
+	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChainPackage{
 		SrcChainId:  uint32(k.GetSrcChainID()),
 		DestChainId: uint32(destChainID),
 		ChannelId:   uint32(channelID),
