@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ModuleName   = "ibc"
+	ModuleName   = "crosschain"
 	StoreKey     = ModuleName
 	QuerierRoute = StoreKey
 
@@ -50,14 +50,14 @@ func BuildIBCPackageKey(srcChainID, destChainID sdk.ChainID, channelID sdk.Chann
 }
 
 type ChannelPermissionSetting struct {
-	SideChainId string                `json:"side_chain_id"`
+	DestChainId string                `json:"dest_chain_id"`
 	ChannelId   sdk.ChannelID         `json:"channel_id"`
 	Permission  sdk.ChannelPermission `json:"permission"`
 }
 
 func (c *ChannelPermissionSetting) Check() error {
-	if len(c.SideChainId) == 0 || len(c.SideChainId) > MaxSideChainIdLength {
-		return fmt.Errorf("invalid side chain id")
+	if len(c.DestChainId) == 0 || len(c.DestChainId) > MaxSideChainIdLength {
+		return fmt.Errorf("invalid dest chain id")
 	}
 	if c.ChannelId == GovChannelId {
 		return fmt.Errorf("gov channel id is forbidden to set")
