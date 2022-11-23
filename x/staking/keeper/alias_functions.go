@@ -133,6 +133,26 @@ func (k Keeper) IterateDelegations(ctx sdk.Context, delAddr sdk.AccAddress,
 	}
 }
 
+// iterate through all of the delegations to a validator
+func (k Keeper) IterateDelegationsToValidator(ctx sdk.Context, valAddr sdk.AccAddress,
+	fn func(del types.DelegationI) (stop bool),
+) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.DelegationKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		del := types.MustUnmarshalDelegation(k.cdc, iterator.Value())
+		if del.ValidatorAddress != valAddr.String() {
+			continue
+		}
+		stop := fn(del)
+		if stop {
+			break
+		}
+	}
+}
+
 // return all delegations used during genesis dump
 // TODO: remove this func, change all usage for iterate functionality
 func (k Keeper) GetAllSDKDelegations(ctx sdk.Context) (delegations []types.Delegation) {

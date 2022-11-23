@@ -467,6 +467,7 @@ func (v *Validator) Equal(v2 *Validator) bool {
 func (v Validator) IsJailed() bool        { return v.Jailed }
 func (v Validator) GetMoniker() string    { return v.Description.Moniker }
 func (v Validator) GetStatus() BondStatus { return v.Status }
+func (v Validator) GetBlsPubkey() string  { return v.BlsPubkey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil

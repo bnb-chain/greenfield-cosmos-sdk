@@ -33,6 +33,18 @@ func (k Keeper) mustGetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Val
 	return validator
 }
 
+// get a single validator by bls pubkey
+func (k Keeper) GetValidatorByBlsPubkey(ctx sdk.Context, blsKey string) (validator types.Validator, found bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	opAddr := store.Get(types.GetValidatorByBlsPubkey(blsKey))
+	if opAddr == nil {
+		return validator, false
+	}
+
+	return k.GetValidator(ctx, opAddr)
+}
+
 // get a single validator by consensus address
 func (k Keeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
@@ -59,6 +71,21 @@ func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	bz := types.MustMarshalValidator(k.cdc, &validator)
 	store.Set(types.GetValidatorKey(validator.GetOperator()), bz)
+}
+
+// validator index
+func (k Keeper) SetValidatorByBlsPubkey(ctx sdk.Context, validator types.Validator) error {
+	blsPk := validator.GetBlsPubkey()
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByBlsPubkey(blsPk), validator.GetOperator())
+	return nil
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByBlsPubkey(ctx sdk.Context, validator types.Validator) {
+	blsPk := validator.GetBlsPubkey()
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByBlsPubkey(blsPk))
 }
 
 // validator index

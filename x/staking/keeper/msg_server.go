@@ -33,7 +33,12 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	err := k.govKeeper.CheckCreateProposal(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +50,10 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	// check to see if the pubkey or sender has been registered before
 	if _, found := k.GetValidator(ctx, valAddr); found {
 		return nil, types.ErrValidatorOwnerExists
+	}
+
+	if _, found := k.GetValidatorByBlsPubkey(ctx, msg.BlsPubkey); found {
+		return nil, types.ErrValidatorBlsPubkeyExists
 	}
 
 	pk, ok := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
@@ -106,8 +115,10 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	validator.MinSelfDelegation = msg.MinSelfDelegation
+	validator.BlsPubkey = msg.BlsPubkey
 
 	k.SetValidator(ctx, validator)
+	k.SetValidatorByBlsPubkey(ctx, validator)
 	k.SetValidatorByConsAddr(ctx, validator)
 	k.SetNewValidatorByPowerIndex(ctx, validator)
 
@@ -151,6 +162,19 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return nil, types.ErrNoValidatorFound
+	}
+
+	// replace bls pubkey
+	if len(msg.BlsPubkey) != 0 {
+		if tmpValidator, found := k.GetValidatorByBlsPubkey(ctx, msg.BlsPubkey); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorBlsPubkeyExists
+			}
+		} else {
+			k.DeleteValidatorByBlsPubkey(ctx, validator)
+			validator.BlsPubkey = msg.BlsPubkey
+			k.SetValidatorByBlsPubkey(ctx, validator)
+		}
 	}
 
 	// replace all editable fields (clients should autofill existing values)
@@ -203,6 +227,57 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 	})
 
 	return &types.MsgEditValidatorResponse{}, nil
+}
+
+// RemoveValidator defines a method for removing an existing validator
+func (k msgServer) RemoveValidator(goCtx context.Context, msg *types.MsgRemoveValidator) (*types.MsgRemoveValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	err := k.govKeeper.CheckRemoveProposal(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	// validator must already be registered
+	_, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return nil, types.ErrNoValidatorFound
+	}
+
+	k.IterateDelegationsToValidator(ctx, sdk.MustAccAddressFromBech32(msg.ValidatorAddress), func(del types.DelegationI) (stop bool) {
+		_, err = k.Keeper.Undelegate(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr(), del.GetShares())
+		if err != nil {
+			return true
+		}
+
+		// TODO: emit events for undelegation?
+		return false
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgRemoveValidatorResponse{}, nil
+}
+
+// SelfDelegate defines a method for performing a delegation of coins for a validator itself
+func (k msgServer) SelfDelegate(goCtx context.Context, msg *types.MsgSelfDelegate) (*types.MsgSelfDelegateResponse, error) {
+	msgDelegate := &types.MsgDelegate{
+		DelegatorAddress: msg.ValidatorAddress,
+		ValidatorAddress: msg.ValidatorAddress,
+		Amount:           msg.Amount,
+	}
+	_, err := k.Delegate(goCtx, msgDelegate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgSelfDelegateResponse{}, nil
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
