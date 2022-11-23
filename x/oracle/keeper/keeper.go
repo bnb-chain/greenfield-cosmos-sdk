@@ -74,7 +74,7 @@ func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	}
 
 	// Verify the aggregated signature.
-	aggSig, err := bls.SignatureFromBytes(claim.AggSignature[:])
+	aggSig, err := bls.SignatureFromBytes(claim.AggSignature)
 	if err != nil {
 		return sdkerrors.Wrapf(types.ErrInvalidBlsSignature, fmt.Sprintf("BLS signature converts failed: %v", err))
 	}

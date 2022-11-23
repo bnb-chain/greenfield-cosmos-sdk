@@ -15,7 +15,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// Keeper of the ibc store
+// Keeper of the cross chain store
 type Keeper struct {
 	cdc codec.BinaryCodec
 
@@ -28,28 +28,38 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
 ) Keeper {
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return Keeper{
 		cdc:        cdc,
 		storeKey:   key,
+		cfg:        newCrossChainCfg(),
 		paramSpace: paramSpace,
 	}
 }
 
+// Logger inits the logger for cross chain module
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+// GetRelayerFeeParam returns the default relayer fee for cross chain tx
 func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) (relayerFee *big.Int, err error) {
-	var relayerFeeParam int64
+	var relayerFeeParam uint64
 	k.paramSpace.Get(ctx, types.KeyParamRelayerFee, &relayerFeeParam)
-	relayerFee = bsc.ConvertBCAmountToBSCAmount(relayerFeeParam)
+	relayerFee = bsc.ConvertBCAmountToBSCAmount(int64(relayerFeeParam))
 	return
 }
 
+// SetParams sets the params of cross chain module
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
 
+// CreateRawIBCPackage creates a cross chain package with default cross chain fee
 func (k Keeper) CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
 	packageType sdk.CrossChainPackageType, packageLoad []byte) (uint64, error) {
 
@@ -61,15 +71,7 @@ func (k Keeper) CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, ch
 	return k.CreateRawIBCPackageWithFee(ctx, destChainID, channelID, packageType, packageLoad, *relayerFee)
 }
 
-func (k Keeper) GetChannelSendPermission(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) sdk.ChannelPermission {
-	kvStore := ctx.KVStore(k.storeKey)
-	bz := kvStore.Get(types.BuildChannelPermissionKey(destChainID, channelID))
-	if bz == nil {
-		return sdk.ChannelForbidden
-	}
-	return sdk.ChannelPermission(bz[0])
-}
-
+// CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
 	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee big.Int) (uint64, error) {
 
@@ -108,6 +110,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.Chai
 	return sequence, nil
 }
 
+// RegisterChannel register a channel to the cross chain module with the cross chain app
 func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error {
 	_, ok := k.cfg.nameToChannelID[name]
 	if ok {
@@ -117,12 +120,16 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 	if ok {
 		return fmt.Errorf("duplicated channel id")
 	}
+	if app == nil {
+		return fmt.Errorf("nil cross chain app")
+	}
 	k.cfg.nameToChannelID[name] = id
 	k.cfg.channelIDToName[id] = name
 	k.cfg.channelIDToApp[id] = app
 	return nil
 }
 
+// RegisterDestChain registers a chain with name
 func (k Keeper) RegisterDestChain(name string, chainID sdk.ChainID) error {
 	_, ok := k.cfg.destChainNameToID[name]
 	if ok {
@@ -137,19 +144,33 @@ func (k Keeper) RegisterDestChain(name string, chainID sdk.ChainID) error {
 	return nil
 }
 
+// SetChannelSendPermission sets the channel send permission
 func (k Keeper) SetChannelSendPermission(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID, permission sdk.ChannelPermission) {
 	kvStore := ctx.KVStore(k.storeKey)
 	kvStore.Set(types.BuildChannelPermissionKey(destChainID, channelID), []byte{byte(permission)})
 }
 
+// GetChannelSendPermission gets the channel send permission by channel id
+func (k Keeper) GetChannelSendPermission(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) sdk.ChannelPermission {
+	kvStore := ctx.KVStore(k.storeKey)
+	bz := kvStore.Get(types.BuildChannelPermissionKey(destChainID, channelID))
+	if bz == nil {
+		return sdk.ChannelForbidden
+	}
+	return sdk.ChannelPermission(bz[0])
+}
+
+// SetSrcChainID sets the current chain id
 func (k Keeper) SetSrcChainID(srcChainID sdk.ChainID) {
 	k.cfg.srcChainID = srcChainID
 }
 
+// GetSrcChainID gets the current  chain id
 func (k Keeper) GetSrcChainID() sdk.ChainID {
 	return k.cfg.srcChainID
 }
 
+// GetDestChainID returns the chain id by name
 func (k Keeper) GetDestChainID(name string) (sdk.ChainID, error) {
 	destChainID, exist := k.cfg.destChainNameToID[name]
 	if !exist {
@@ -158,28 +179,34 @@ func (k Keeper) GetDestChainID(name string) (sdk.ChainID, error) {
 	return destChainID, nil
 }
 
+// GetIBCPackage returns the ibc package by sequence
 func (k Keeper) GetIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelId sdk.ChannelID, sequence uint64) ([]byte, error) {
 	kvStore := ctx.KVStore(k.storeKey)
 	key := types.BuildIBCPackageKey(k.GetSrcChainID(), destChainID, channelId, sequence)
 	return kvStore.Get(key), nil
 }
 
+// GetSendSequence returns the sending sequence of the channel
 func (k Keeper) GetSendSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) uint64 {
 	return k.getSequence(ctx, destChainID, channelID, types.PrefixForSendSequenceKey)
 }
 
+// IncrSendSequence increases the sending sequence of the channel
 func (k Keeper) IncrSendSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) {
 	k.incrSequence(ctx, destChainID, channelID, types.PrefixForSendSequenceKey)
 }
 
+// GetReceiveSequence returns the receiving sequence of the channel
 func (k Keeper) GetReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) uint64 {
 	return k.getSequence(ctx, destChainID, channelID, types.PrefixForReceiveSequenceKey)
 }
 
+// IncrReceiveSequence increases the receiving sequence of the channel
 func (k Keeper) IncrReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) {
 	k.incrSequence(ctx, destChainID, channelID, types.PrefixForReceiveSequenceKey)
 }
 
+// getSequence returns the sequence with a prefix
 func (k Keeper) getSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID, prefix []byte) uint64 {
 	kvStore := ctx.KVStore(k.storeKey)
 	bz := kvStore.Get(types.BuildChannelSequenceKey(destChainID, channelID, prefix))
@@ -189,6 +216,7 @@ func (k Keeper) getSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID 
 	return binary.BigEndian.Uint64(bz)
 }
 
+// incrSequence increases the sequence with a prefix
 func (k Keeper) incrSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID, prefix []byte) {
 	var sequence uint64
 	kvStore := ctx.KVStore(k.storeKey)
@@ -204,11 +232,13 @@ func (k Keeper) incrSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID
 	kvStore.Set(types.BuildChannelSequenceKey(destChainID, channelID, prefix), sequenceBytes)
 }
 
+// GetParams returns the current params
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
 	return params
 }
 
+// GetCrossChainApp returns the cross chain app by channel id
 func (k Keeper) GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication {
 	return k.cfg.channelIDToApp[channelID]
 }

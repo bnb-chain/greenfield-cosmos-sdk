@@ -85,11 +85,3 @@ func BuildChannelPermissionKey(destChainID sdk.ChainID, channelID sdk.ChannelID)
 	copy(key[prefixLength+destChainIDLength:], []byte{byte(channelID)})
 	return key
 }
-
-func BuildChannelPermissionsPrefixKey(destChainID sdk.ChainID) []byte {
-	key := make([]byte, prefixLength+destChainIDLength)
-
-	copy(key[:prefixLength], PrefixForChannelPermissionKey)
-	binary.BigEndian.PutUint16(key[prefixLength:prefixLength+destChainIDLength], uint16(destChainID))
-	return key
-}
