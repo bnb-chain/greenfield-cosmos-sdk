@@ -7,7 +7,11 @@ import (
 	"math/big"
 	"strconv"
 
-	"cosmossdk.io/errors"
+	"github.com/tendermint/tendermint/crypto"
+)
+
+var (
+	PegAccount = AccAddress(crypto.AddressHash([]byte("BFSPegAccount"))) // TODO: update if needed
 )
 
 type CrossChainPackageType uint8
@@ -63,8 +67,19 @@ type CrossChainApplication interface {
 
 // TODO: define the execute result
 type ExecuteResult struct {
-	Err     errors.Error
+	Err     error
 	Payload []byte
+}
+
+func (c ExecuteResult) IsOk() bool {
+	return c.Err == nil
+}
+
+func (c ExecuteResult) ErrMsg() string {
+	if c.Err == nil {
+		return ""
+	}
+	return c.Err.Error()
 }
 
 const (

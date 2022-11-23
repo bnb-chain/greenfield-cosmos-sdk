@@ -208,3 +208,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
 	return params
 }
+
+func (k Keeper) GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication {
+	return k.cfg.channelIDToApp[channelID]
+}

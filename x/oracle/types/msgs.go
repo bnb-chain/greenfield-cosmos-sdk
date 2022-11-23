@@ -1,0 +1,96 @@
+package types
+
+import (
+	"fmt"
+	"math"
+
+	"github.com/cosmos/cosmos-sdk/bsc/rlp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/prysmaticlabs/prysm/crypto/hash"
+)
+
+const (
+	ValidatorBitSetLength = 4
+	BLSPublicKeyLength    = 48
+	BLSSignatureLength    = 96
+)
+
+type BLSPublicKey [BLSPublicKeyLength]byte
+type BLSSignature [BLSSignatureLength]byte
+
+// Route implements the LegacyMsg interface.
+func (m MsgClaim) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type implements the LegacyMsg interface.
+func (m MsgClaim) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgClaim) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (m *MsgClaim) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.FromAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", err)
+	}
+
+	if m.ChainId > math.MaxUint16 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("chain id should not be larger than %d", math.MaxUint16))
+	}
+
+	if len(m.VoteAddressSet) != ValidatorBitSetLength {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("length of vote addresse set should be %d", ValidatorBitSetLength))
+	}
+
+	if len(m.AggSignature) != BLSSignatureLength {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("length of vote addresse set should be %d", BLSSignatureLength),
+		)
+	}
+
+	return nil
+}
+
+// GetSigners returns the expected signers for MsgCancelUpgrade.
+func (m *MsgClaim) GetSigners() []sdk.AccAddress {
+	fromAddress, _ := sdk.AccAddressFromBech32(m.FromAddress)
+	return []sdk.AccAddress{fromAddress}
+}
+
+// GetBlsSignBytes returns the sign bytes of bls signature
+func (m *MsgClaim) GetBlsSignBytes() [32]byte {
+	blsClaim := &BlsClaim{
+		ChainId:  m.ChainId,
+		Sequence: m.Sequence,
+		Payload:  m.Payload,
+	}
+	return blsClaim.GetSignBytes()
+}
+
+type BlsClaim struct {
+	ChainId  uint32
+	Sequence uint64
+	Payload  []byte
+}
+
+func (c *BlsClaim) GetSignBytes() [32]byte {
+	bts, err := rlp.EncodeToBytes(c)
+	if err != nil {
+		panic("encode bls claim error")
+	}
+
+	btsHash := hash.Hash(bts)
+	return btsHash
+}
+
+type Packages []Package
+
+type Package struct {
+	ChannelId sdk.ChannelID
+	Sequence  uint64
+	Payload   []byte
+}

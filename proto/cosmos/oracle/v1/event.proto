@@ -1,0 +1,18 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+message EventPackageClaim {
+  uint32 chain_id = 1;
+  uint32 channel_id = 2;
+  uint32 package_type = 3;
+  uint64 receive_sequence = 4;
+  int64 send_sequence = 5;
+  bool crash = 6;
+  string error_msg = 7;
+  int64 fee = 8;
+}
