@@ -41,6 +41,10 @@ func (m *MsgClaim) ValidateBasic() error {
 			fmt.Sprintf("chain id should not be larger than %d", math.MaxUint16))
 	}
 
+	if len(m.Payload) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("payload should not be empty"))
+	}
+
 	if len(m.VoteAddressSet) != ValidatorBitSetLength {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
 			fmt.Sprintf("length of vote addresse set should be %d", ValidatorBitSetLength))
@@ -48,7 +52,7 @@ func (m *MsgClaim) ValidateBasic() error {
 
 	if len(m.AggSignature) != BLSSignatureLength {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
-			fmt.Sprintf("length of vote addresse set should be %d", BLSSignatureLength),
+			fmt.Sprintf("length of signature should be %d", BLSSignatureLength),
 		)
 	}
 
