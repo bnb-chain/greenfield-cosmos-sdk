@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ValidatorBitSetLength = 4
+	ValidatorBitSetLength = 4 // 256 bits
 	BLSPublicKeyLength    = 48
 	BLSSignatureLength    = 96
 )
@@ -56,6 +56,12 @@ func (m *MsgClaim) ValidateBasic() error {
 		)
 	}
 
+	if m.Timestamp == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("timestamp should not be 0"),
+		)
+	}
+
 	return nil
 }
 
@@ -68,17 +74,19 @@ func (m *MsgClaim) GetSigners() []sdk.AccAddress {
 // GetBlsSignBytes returns the sign bytes of bls signature
 func (m *MsgClaim) GetBlsSignBytes() [32]byte {
 	blsClaim := &BlsClaim{
-		ChainId:  m.ChainId,
-		Sequence: m.Sequence,
-		Payload:  m.Payload,
+		ChainId:   m.ChainId,
+		Timestamp: m.Timestamp,
+		Sequence:  m.Sequence,
+		Payload:   m.Payload,
 	}
 	return blsClaim.GetSignBytes()
 }
 
 type BlsClaim struct {
-	ChainId  uint32
-	Sequence uint64
-	Payload  []byte
+	ChainId   uint32
+	Timestamp uint64
+	Sequence  uint64
+	Payload   []byte
 }
 
 func (c *BlsClaim) GetSignBytes() [32]byte {

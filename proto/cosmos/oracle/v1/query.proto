@@ -3,7 +3,7 @@ package cosmos.crosschain.v1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/crosschain/v1/crosschain.proto";
+import "cosmos/crosschain/v1/oracle.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
 

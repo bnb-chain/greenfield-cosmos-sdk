@@ -50,7 +50,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 	events := make([]proto.Message, 0, len(packages))
 	for _, pack := range packages {
-		event, err := handlePackage(ctx, k.oracleKeeper, sdk.ChainID(req.ChainId), &pack)
+		event, err := handlePackage(ctx, req, k.oracleKeeper, sdk.ChainID(req.ChainId), &pack)
 		if err != nil {
 			// only do log, but let reset package get chance to execute.
 			ctx.Logger().With("module", "oracle").Error(fmt.Sprintf("process package failed, channel=%d, sequence=%d, error=%v", pack.ChannelId, pack.Sequence, err))
@@ -69,7 +69,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	return &types.MsgClaimResponse{}, nil
 }
 
-func handlePackage(ctx sdk.Context, oracleKeeper Keeper, chainId sdk.ChainID, pack *types.Package) (*types.EventPackageClaim, error) {
+func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, chainId sdk.ChainID, pack *types.Package) (*types.EventPackageClaim, error) {
 	logger := ctx.Logger().With("module", "x/oracle")
 
 	crossChainApp := oracleKeeper.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
@@ -82,13 +82,17 @@ func handlePackage(ctx sdk.Context, oracleKeeper Keeper, chainId sdk.ChainID, pa
 		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", pack.ChannelId, sequence))
 	}
 
-	packageType, _, relayFee, err := sdk.DecodePackageHeader(pack.Payload)
+	packageType, timestamp, relayFee, err := sdk.DecodePackageHeader(pack.Payload)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader, "payload header is invalid")
 	}
 
+	if timestamp != req.Timestamp {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader, "timestamp is not the same in payload header")
+	}
+
 	if !sdk.IsValidCrossChainPackageType(packageType) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidPackageType, fmt.Sprintf("pcakge type %d is invalid", packageType))
+		return nil, sdkerrors.Wrapf(types.ErrInvalidPackageType, fmt.Sprintf("package type %d is invalid", packageType))
 	}
 
 	feeAmount := relayFee.Int64()

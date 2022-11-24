@@ -14,4 +14,6 @@ var (
 	ErrBlsPubKey              = sdkerrors.Register(ModuleName, 9, "public key is invalid")
 	ErrBlsVotesNotEnough      = sdkerrors.Register(ModuleName, 10, "bls votes is not enough")
 	ErrInvalidBlsSignature    = sdkerrors.Register(ModuleName, 11, "bls signature is invalid")
+	ErrNotValidator           = sdkerrors.Register(ModuleName, 12, "sender is not validator")
+	ErrValidatorNotInTurn     = sdkerrors.Register(ModuleName, 13, "validator is not in turn")
 )

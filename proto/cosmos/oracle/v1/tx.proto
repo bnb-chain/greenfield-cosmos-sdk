@@ -23,9 +23,10 @@ message MsgClaim {
   string from_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   uint32 chain_id = 2;
   uint64 sequence = 3;
-  bytes payload = 4;
-  repeated uint64 vote_address_set  = 5;
-  bytes agg_signature  = 6;
+  uint64 timestamp = 4;
+  bytes payload = 5;
+  repeated fixed64 vote_address_set  = 6;
+  bytes agg_signature  = 7;
 }
 
 // MsgClaimResponse defines the Msg/Claim response type

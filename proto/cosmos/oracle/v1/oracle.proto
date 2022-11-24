@@ -1,0 +1,12 @@
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+// Params holds parameters for the oracle module.
+message Params {
+  uint64 relayer_timeout = 1;
+}

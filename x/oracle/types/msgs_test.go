@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -15,14 +16,15 @@ import (
 
 func TestBlsClaim(t *testing.T) {
 	claim := &BlsClaim{
-		ChainId:  1,
-		Sequence: 1,
-		Payload:  []byte("test payload"),
+		ChainId:   1,
+		Sequence:  1,
+		Timestamp: 1000,
+		Payload:   []byte("test payload"),
 	}
 
 	signBytes := claim.GetSignBytes()
 
-	require.Equal(t, "3b0858e23a9ca1335fff8539c8a27037ed29a4e5c2258a92c590ca9ad319abe0",
+	require.Equal(t, "954d4fe4c768c275f14ef32929ab83e182a4de3c0aef38964efdf0bc8f76eaff",
 		hex.EncodeToString(signBytes[:]))
 }
 
@@ -42,7 +44,7 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        1,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{1, 2},
+				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
@@ -54,7 +56,7 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        math.MaxUint16 + 1,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{1, 2},
+				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
@@ -66,7 +68,7 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        100,
 				Sequence:       1,
 				Payload:        []byte{},
-				VoteAddressSet: []uint64{1, 2},
+				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
@@ -78,7 +80,7 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        100,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{1, 2},
+				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
@@ -90,7 +92,7 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        100,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{1, 2, 3, 4},
+				VoteAddressSet: []uint64{0, 1, 2, 3},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
@@ -102,8 +104,21 @@ func TestValidateBasic(t *testing.T) {
 				ChainId:        100,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{1, 2, 3, 4},
+				VoteAddressSet: []uint64{0, 1, 2, 3},
 				AggSignature:   bytes.Repeat([]byte{0}, BLSSignatureLength),
+			},
+			false,
+			"timestamp should not be 0",
+		},
+		{
+			MsgClaim{
+				FromAddress:    addr.String(),
+				ChainId:        100,
+				Sequence:       1,
+				Payload:        []byte("test payload"),
+				VoteAddressSet: []uint64{0, 1, 2, 3},
+				AggSignature:   bytes.Repeat([]byte{0}, BLSSignatureLength),
+				Timestamp:      uint64(time.Now().Unix()),
 			},
 			true,
 			"",

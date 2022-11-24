@@ -86,6 +86,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
 	nftmodule "github.com/cosmos/cosmos-sdk/x/nft/module"
+	oraclekeeper "github.com/cosmos/cosmos-sdk/x/oracle/keeper"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -187,6 +189,7 @@ type SimApp struct {
 	NFTKeeper        nftkeeper.Keeper
 	GashubKeeper     gashubkeeper.Keeper
 	CrossChainKeeper crosschainkeeper.Keeper
+	OracleKeeper     oraclekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -227,7 +230,8 @@ func NewSimApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, gashubtypes.StoreKey,crosschaintypes.StoreKey
+		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, gashubtypes.StoreKey, crosschaintypes.StoreKey,
+		oracletypes.ModuleName,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	// NOTE: The testingkey is just mounted for testing purposes. Actual applications should
@@ -331,6 +335,8 @@ func NewSimApp(
 	app.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper)
 
 	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], app.GetSubspace(crosschaintypes.ModuleName))
+	app.OracleKeeper = oraclekeeper.NewKeeper(appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), authtypes.FeeCollectorName,
+		app.CrossChainKeeper, app.BankKeeper, app.StakingKeeper)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -708,6 +714,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(gashubtypes.ModuleName)
 	paramsKeeper.Subspace(crosschaintypes.ModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
 }

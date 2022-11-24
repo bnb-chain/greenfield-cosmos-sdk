@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/metrics"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/willf/bitset"
 )
@@ -31,6 +32,11 @@ func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace, feeCollector string,
 	crossChainKeeper types.CrossChainKeeper, bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper,
 ) Keeper {
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return Keeper{
 		cdc:              cdc,
 		storeKey:         key,
@@ -45,9 +51,54 @@ func NewKeeper(
 	}
 }
 
+// GetRelayerTimeoutParam returns the default relayer timeout for oracle claim
+func (k Keeper) GetRelayerTimeoutParam(ctx sdk.Context) uint64 {
+	var relayerTimeoutParam uint64
+	k.paramSpace.Get(ctx, types.KeyParamRelayerTimeout, &relayerTimeoutParam)
+	return relayerTimeoutParam
+}
+
+func (k Keeper) isValidatorInTurn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
+	var validatorIndex int64 = -1
+	for index, validator := range validators {
+		consAddr, err := validator.GetConsAddr()
+		if err != nil {
+			return false, err
+		}
+		if consAddr.String() == claim.FromAddress {
+			validatorIndex = int64(index)
+			break
+		}
+	}
+
+	if validatorIndex < 0 {
+		return false, sdkerrors.Wrapf(types.ErrNotValidator, fmt.Sprintf("sender is not validator"))
+	}
+
+	curTime := ctx.BlockTime().Unix()
+	relayerTimeout := k.GetRelayerTimeoutParam(ctx)
+	// check block time with package timestamp
+	if uint64(curTime)-claim.Timestamp > relayerTimeout {
+		return true, nil
+	}
+
+	// check inturn validator index
+	inturnValidatorIndex := claim.Timestamp % uint64(len(validators))
+	return uint64(validatorIndex) == inturnValidatorIndex, nil
+}
+
 // ProcessClaim checks the bls signature
 func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	validators := k.StakingKeeper.GetLastValidators(ctx)
+
+	inturn, err := k.isValidatorInTurn(ctx, validators, claim)
+	if err != nil {
+		return err
+	}
+	if !inturn {
+		return sdkerrors.Wrapf(types.ErrValidatorNotInTurn, fmt.Sprintf("validator is not in turn"))
+	}
+
 	validatorsBitSet := bitset.From(claim.VoteAddressSet)
 	if validatorsBitSet.Count() > uint(len(validators)) {
 		return sdkerrors.Wrapf(types.ErrValidatorSet, fmt.Sprintf("number of validator set is larger than validators"))
