@@ -1,7 +1,11 @@
 package keeper
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"fmt"
+
+	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -260,5 +264,49 @@ func (keeper Keeper) UnmarshalProposal(bz []byte, proposal *v1.Proposal) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// ExecLegacyContentProposal executes the legacy content proposal in another transaction.
+func (keeper Keeper) ExecLegacyContentProposal(ctx sdk.Context, proposalID uint64, contentHash [][]byte) error {
+	// Checks to see if proposal exists
+	proposal, ok := keeper.GetProposal(ctx, proposalID)
+	if !ok {
+		return sdkerrors.Wrapf(types.ErrUnknownProposal, "%d", proposalID)
+	}
+
+	if proposal.Status != v1.StatusPassed {
+		return fmt.Errorf("propasal status isn't passed")
+	}
+
+	messages, err := sdktx.GetMsgs(proposal.Messages, "proposal")
+	if err != nil {
+		return err
+	}
+
+	if len(contentHash) != len(messages) {
+		return fmt.Errorf("messages number mismatch")
+	}
+
+	for index, msg := range messages {
+		legacyMsg, ok := msg.(*v1.MsgExecLegacyContent)
+		if !ok {
+			return fmt.Errorf("unsupported message type")
+		}
+
+		content, err := v1.LegacyContentFromMessage(legacyMsg)
+		if err != nil {
+			return sdkerrors.Wrapf(types.ErrInvalidProposalContent, "%+v", err)
+		}
+
+		hasher := sha256.New()
+		hasher.Write([]byte(content.GetDescription()))
+		if !bytes.Equal(hasher.Sum(nil), contentHash[index]) {
+			return fmt.Errorf("content hash mismatch")
+		}
+	}
+
+	proposal.Status = v1.StatusExecuted
+	keeper.SetProposal(ctx, proposal)
 	return nil
 }

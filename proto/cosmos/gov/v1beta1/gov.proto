@@ -102,9 +102,12 @@ enum ProposalStatus {
   // PROPOSAL_STATUS_REJECTED defines a proposal status of a proposal that has
   // been rejected.
   PROPOSAL_STATUS_REJECTED = 4 [(gogoproto.enumvalue_customname) = "StatusRejected"];
+  // PROPOSAL_STATUS_EXECUTED defines a proposal status of a proposal that has
+  // been executed.
+  PROPOSAL_STATUS_EXECUTED = 5 [(gogoproto.enumvalue_customname) = "StatusExecuted"];
   // PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
   // failed.
-  PROPOSAL_STATUS_FAILED = 5 [(gogoproto.enumvalue_customname) = "StatusFailed"];
+  PROPOSAL_STATUS_FAILED = 6 [(gogoproto.enumvalue_customname) = "StatusFailed"];
 }
 
 // TallyResult defines a standard tally for a governance proposal.

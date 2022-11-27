@@ -19,6 +19,7 @@ const (
 	StatusVotingPeriod  = ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD
 	StatusPassed        = ProposalStatus_PROPOSAL_STATUS_PASSED
 	StatusRejected      = ProposalStatus_PROPOSAL_STATUS_REJECTED
+	StatusExecuted      = ProposalStatus_PROPOSAL_STATUS_EXECUTED
 	StatusFailed        = ProposalStatus_PROPOSAL_STATUS_FAILED
 )
 
