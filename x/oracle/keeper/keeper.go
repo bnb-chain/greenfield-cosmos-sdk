@@ -4,6 +4,9 @@ import (
 	"fmt"
 
 	sdkerrors "cosmossdk.io/errors"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/willf/bitset"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,8 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-	"github.com/willf/bitset"
 )
 
 type Keeper struct {
@@ -51,17 +52,24 @@ func NewKeeper(
 	}
 }
 
-// GetRelayerTimeoutParam returns the default relayer timeout for oracle claim
-func (k Keeper) GetRelayerTimeoutParam(ctx sdk.Context) uint64 {
-	var relayerTimeoutParam uint64
-	k.paramSpace.Get(ctx, types.KeyParamRelayerTimeout, &relayerTimeoutParam)
-	return relayerTimeoutParam
+// SetParams sets the params of oarcle module
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	k.paramSpace.SetParamSet(ctx, &params)
 }
 
-func (k Keeper) isValidatorInTurn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
+// GetRelayerParam returns the relayer timeout and backoff time for oracle claim
+func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
+	var relayerTimeoutParam uint64
+	var relayerBackoffTimeParam uint64
+	k.paramSpace.Get(ctx, types.KeyParamRelayerTimeout, &relayerTimeoutParam)
+	k.paramSpace.Get(ctx, types.KeyParamRelayerBackoffTime, &relayerBackoffTimeParam)
+	return relayerTimeoutParam, relayerBackoffTimeParam
+}
+
+func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
 	var validatorIndex int64 = -1
 	for index, validator := range validators {
-		consAddr, err := validator.GetConsAddr()
+		consAddr, err := validator.GetConsAddr() // TODO: update this
 		if err != nil {
 			return false, err
 		}
@@ -75,23 +83,30 @@ func (k Keeper) isValidatorInTurn(ctx sdk.Context, validators []stakingtypes.Val
 		return false, sdkerrors.Wrapf(types.ErrNotValidator, fmt.Sprintf("sender is not validator"))
 	}
 
-	curTime := ctx.BlockTime().Unix()
-	relayerTimeout := k.GetRelayerTimeoutParam(ctx)
-	// check block time with package timestamp
-	if uint64(curTime)-claim.Timestamp > relayerTimeout {
-		return true, nil
-	}
-
 	// check inturn validator index
 	inturnValidatorIndex := claim.Timestamp % uint64(len(validators))
-	return uint64(validatorIndex) == inturnValidatorIndex, nil
+
+	curTime := ctx.BlockTime().Unix()
+	relayerTimeout, relayerBackoffTime := k.GetRelayerParam(ctx)
+
+	// check block time with package timestamp
+	if uint64(curTime)-claim.Timestamp <= relayerTimeout {
+		if uint64(validatorIndex) == inturnValidatorIndex {
+			return true, nil
+		}
+		return false, nil
+	}
+
+	backoffIndex := (uint64(curTime)-claim.Timestamp-relayerTimeout-1)/relayerBackoffTime + 1
+
+	return uint64(validatorIndex) == (inturnValidatorIndex+backoffIndex)%uint64(len(validators)), nil
 }
 
 // ProcessClaim checks the bls signature
 func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	validators := k.StakingKeeper.GetLastValidators(ctx)
 
-	inturn, err := k.isValidatorInTurn(ctx, validators, claim)
+	inturn, err := k.IsValidatorInturn(ctx, validators, claim)
 	if err != nil {
 		return err
 	}

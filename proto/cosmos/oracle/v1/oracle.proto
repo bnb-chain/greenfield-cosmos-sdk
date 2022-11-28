@@ -8,5 +8,6 @@ import "cosmos_proto/cosmos.proto";
 
 // Params holds parameters for the oracle module.
 message Params {
-  uint64 relayer_timeout = 1;
+  uint64 relayer_timeout = 1; // in s
+  uint64 relayer_backoff_time = 2; // in s
 }
