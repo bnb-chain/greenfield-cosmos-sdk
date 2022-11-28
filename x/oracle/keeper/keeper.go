@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
+
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/willf/bitset"
@@ -152,7 +154,7 @@ func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	return nil
 }
 
-// SendCoinsFromAccountToFeeCollector transfers amt to the fee collector account.
-func (k Keeper) SendCoinsFromAccountToFeeCollector(ctx sdk.Context, senderAddr sdk.AccAddress, amt sdk.Coins) error {
-	return k.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, k.feeCollectorName, amt)
+// SendCoinsToFeeCollector transfers amt to the fee collector account.
+func (k Keeper) SendCoinsToFeeCollector(ctx sdk.Context, amt sdk.Coins) error {
+	return k.BankKeeper.SendCoinsFromModuleToModule(ctx, crosschaintypes.ModuleName, k.feeCollectorName, amt)
 }

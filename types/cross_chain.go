@@ -6,12 +6,6 @@ import (
 	"math"
 	"math/big"
 	"strconv"
-
-	"github.com/tendermint/tendermint/crypto"
-)
-
-var (
-	PegAccount = AccAddress(crypto.AddressHash([]byte("BFSPegAccount"))) // TODO: update if needed
 )
 
 type CrossChainPackageType uint8
