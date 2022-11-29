@@ -24,7 +24,7 @@ func (msg MsgVerifyInvariant) Type() string  { return "verify_invariant" }
 
 // get the bytes for the message signer to sign on
 func (msg MsgVerifyInvariant) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	sender, _ := sdk.AccAddressFromHexUnsafe(msg.Sender)
 	return []sdk.AccAddress{sender}
 }
 
@@ -36,7 +36,7 @@ func (msg MsgVerifyInvariant) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgVerifyInvariant) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Sender); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 	return nil

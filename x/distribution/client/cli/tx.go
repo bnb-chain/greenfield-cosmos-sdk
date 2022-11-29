@@ -76,7 +76,7 @@ func newSplitAndApply(
 
 // NewWithdrawRewardsCmd returns a CLI command handler for creating a MsgWithdrawDelegatorReward transaction.
 func NewWithdrawRewardsCmd() *cobra.Command {
-	bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "withdraw-rewards [validator-addr]",
@@ -86,10 +86,10 @@ func NewWithdrawRewardsCmd() *cobra.Command {
 and optionally withdraw validator commission if the delegation address given is a validator operator.
 
 Example:
-$ %s tx distribution withdraw-rewards %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj --from mykey
-$ %s tx distribution withdraw-rewards %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj --from mykey --commission
+$ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey
+$ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey --commission
 `,
-				version.AppName, bech32PrefixValAddr, version.AppName, bech32PrefixValAddr,
+				version.AppName, version.AppName,
 			),
 		),
 		Args: cobra.ExactArgs(1),
@@ -99,7 +99,7 @@ $ %s tx distribution withdraw-rewards %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}
@@ -159,7 +159,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 			// build multi-message transaction
 			msgs := make([]sdk.Msg, 0, len(validators))
 			for _, valAddr := range validators {
-				val, err := sdk.ValAddressFromBech32(valAddr)
+				val, err := sdk.ValAddressFromHex(valAddr)
 				if err != nil {
 					return err
 				}
@@ -186,7 +186,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 
 // NewSetWithdrawAddrCmd returns a CLI command handler for creating a MsgSetWithdrawAddress transaction.
 func NewSetWithdrawAddrCmd() *cobra.Command {
-	bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "set-withdraw-addr [withdraw-addr]",
@@ -195,9 +195,9 @@ func NewSetWithdrawAddrCmd() *cobra.Command {
 			fmt.Sprintf(`Set the withdraw address for rewards associated with a delegator address.
 
 Example:
-$ %s tx distribution set-withdraw-addr %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p --from mykey
+$ %s tx distribution set-withdraw-addr 0x91D7d.. --from mykey
 `,
-				version.AppName, bech32PrefixAccAddr,
+				version.AppName,
 			),
 		),
 		Args: cobra.ExactArgs(1),
@@ -207,7 +207,7 @@ $ %s tx distribution set-withdraw-addr %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			withdrawAddr, err := sdk.AccAddressFromBech32(args[0])
+			withdrawAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -262,7 +262,7 @@ $ %s tx distribution fund-community-pool 100uatom --from mykey
 
 // GetCmdSubmitProposal implements the command to submit a community-pool-spend proposal
 func GetCmdSubmitProposal() *cobra.Command {
-	bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "community-pool-spend [proposal-file]",
@@ -280,12 +280,12 @@ Where proposal.json contains:
 {
   "title": "Community Pool Spend",
   "description": "Pay me some Atoms!",
-  "recipient": "%s1s5afhd6gxevu37mkqcvvsj8qeylhn0rz46zdlq",
+  "recipient": "0x91D7d..",
   "amount": "1000stake",
   "deposit": "1000stake"
 }
 `,
-				version.AppName, bech32PrefixAccAddr,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -309,7 +309,7 @@ Where proposal.json contains:
 			}
 
 			from := clientCtx.GetFromAddress()
-			recpAddr, err := sdk.AccAddressFromBech32(proposal.Recipient)
+			recpAddr, err := sdk.AccAddressFromHexUnsafe(proposal.Recipient)
 			if err != nil {
 				return err
 			}

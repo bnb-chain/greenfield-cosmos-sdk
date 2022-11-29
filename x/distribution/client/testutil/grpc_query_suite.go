@@ -99,7 +99,7 @@ func (s *GRPCQueryTestSuite) TestQueryOutstandingRewardsGRPC() {
 		},
 		{
 			"gRPC request params valid address",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/outstanding_rewards", baseURL, val.ValAddress.String()),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/outstanding_rewards", baseURL, sdk.AccAddress(val.ValAddress).String()),
 			map[string]string{
 				grpctypes.GRPCBlockHeightHeader: "2",
 			},
@@ -153,7 +153,7 @@ func (s *GRPCQueryTestSuite) TestQueryValidatorCommissionGRPC() {
 		},
 		{
 			"gRPC request params valid address",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/commission", baseURL, val.ValAddress.String()),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/commission", baseURL, sdk.AccAddress(val.ValAddress).String()),
 			map[string]string{
 				grpctypes.GRPCBlockHeightHeader: "2",
 			},
@@ -202,21 +202,21 @@ func (s *GRPCQueryTestSuite) TestQuerySlashesGRPC() {
 		},
 		{
 			"invalid start height",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, val.ValAddress.String(), "-1", "3"),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, sdk.AccAddress(val.ValAddress).String(), "-1", "3"),
 			true,
 			&types.QueryValidatorSlashesResponse{},
 			nil,
 		},
 		{
 			"invalid start height",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, val.ValAddress.String(), "1", "-3"),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, sdk.AccAddress(val.ValAddress).String(), "1", "-3"),
 			true,
 			&types.QueryValidatorSlashesResponse{},
 			nil,
 		},
 		{
 			"valid request get slashes",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, val.ValAddress.String(), "1", "3"),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/validators/%s/slashes?starting_height=%s&ending_height=%s", baseURL, sdk.AccAddress(val.ValAddress).String(), "1", "3"),
 			false,
 			&types.QueryValidatorSlashesResponse{},
 			&types.QueryValidatorSlashesResponse{
@@ -289,7 +289,7 @@ func (s *GRPCQueryTestSuite) TestQueryDelegatorRewardsGRPC() {
 		},
 		{
 			"valid request(specific validator rewards)",
-			fmt.Sprintf("%s/cosmos/distribution/v1beta1/delegators/%s/rewards/%s", baseURL, val.Address.String(), val.ValAddress.String()),
+			fmt.Sprintf("%s/cosmos/distribution/v1beta1/delegators/%s/rewards/%s", baseURL, val.Address.String(), sdk.AccAddress(val.ValAddress).String()),
 			map[string]string{
 				grpctypes.GRPCBlockHeightHeader: "2",
 			},
@@ -348,7 +348,7 @@ func (s *GRPCQueryTestSuite) TestQueryDelegatorValidatorsGRPC() {
 			false,
 			&types.QueryDelegatorValidatorsResponse{},
 			&types.QueryDelegatorValidatorsResponse{
-				Validators: []string{val.ValAddress.String()},
+				Validators: []string{sdk.AccAddress(val.ValAddress).String()},
 			},
 		},
 	}

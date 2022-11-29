@@ -27,7 +27,7 @@
       },
       "balances": [
         {
-          "address": "cosmos106vrzv5xkheqhjm023pxcxlqmcjvuhtfyachz4",
+          "address": "0x7e98313286b5f20bcb6f54426c1be0de24ce5d69",
           "coins": [
             {
               "denom": "nametoken",
@@ -40,7 +40,7 @@
           ]
         },
         {
-          "address": "cosmos1xztun2634zplhajda7tmjaxy488qj44n765t58",
+          "address": "0x3097c9ab51a883fbf64def97b974c4a9ce0956b3",
           "coins": [
             {
               "denom": "nametoken",

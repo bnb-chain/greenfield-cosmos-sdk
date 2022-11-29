@@ -481,7 +481,7 @@ func MsgUpdateGroupPolicyDecisionPolicyCmd() *cobra.Command {
 				return err
 			}
 
-			accountAddress, err := sdk.AccAddressFromBech32(args[1])
+			accountAddress, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -557,18 +557,18 @@ Parameters:
 	Where proposal.json contains:
 
 {
-	"group_policy_address": "cosmos1...",
+	"group_policy_address": "0x91D7d..",
 	// array of proto-JSON-encoded sdk.Msgs
 	"messages": [
 	{
 		"@type": "/cosmos.bank.v1beta1.MsgSend",
-		"from_address": "cosmos1...",
-		"to_address": "cosmos1...",
+		"from_address": "0x9fB29..",
+		"to_address": "0x7dE36..",
 		"amount":[{"denom": "stake","amount": "10"}]
 	}
 	],
 	"metadata": "4pIMOgIGx1vZGU=", // base64-encoded metadata
-	"proposers": ["cosmos1...", "cosmos1..."],
+	"proposers": ["0x7dE36..", "0x9fB29.."],
 }`, version.AppName),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

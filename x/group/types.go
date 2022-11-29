@@ -283,7 +283,7 @@ func (g GroupInfo) ValidateBasic() error {
 		return sdkerrors.Wrap(errors.ErrEmpty, "group's GroupId")
 	}
 
-	_, err := sdk.AccAddressFromBech32(g.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(g.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -298,7 +298,7 @@ func (g GroupInfo) ValidateBasic() error {
 }
 
 func (g GroupPolicyInfo) PrimaryKeyFields() []interface{} {
-	addr := sdk.MustAccAddressFromBech32(g.Address)
+	addr := sdk.MustAccAddressFromHex(g.Address)
 
 	return []interface{}{addr.Bytes()}
 }
@@ -308,11 +308,11 @@ func (g Proposal) PrimaryKeyFields() []interface{} {
 }
 
 func (g GroupPolicyInfo) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(g.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(g.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy admin")
 	}
-	_, err = sdk.AccAddressFromBech32(g.Address)
+	_, err = sdk.AccAddressFromHexUnsafe(g.Address)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy account address")
 	}
@@ -335,7 +335,7 @@ func (g GroupPolicyInfo) ValidateBasic() error {
 }
 
 func (g GroupMember) PrimaryKeyFields() []interface{} {
-	addr := sdk.MustAccAddressFromBech32(g.Member.Address)
+	addr := sdk.MustAccAddressFromHex(g.Member.Address)
 
 	return []interface{}{g.GroupId, addr.Bytes()}
 }
@@ -368,7 +368,7 @@ func (p Proposal) ValidateBasic() error {
 	if p.Id == 0 {
 		return sdkerrors.Wrap(errors.ErrEmpty, "proposal id")
 	}
-	_, err := sdk.AccAddressFromBech32(p.GroupPolicyAddress)
+	_, err := sdk.AccAddressFromHexUnsafe(p.GroupPolicyAddress)
 	if err != nil {
 		return sdkerrors.Wrap(err, "proposal group policy address")
 	}
@@ -398,7 +398,7 @@ func (p Proposal) ValidateBasic() error {
 }
 
 func (v Vote) PrimaryKeyFields() []interface{} {
-	addr := sdk.MustAccAddressFromBech32(v.Voter)
+	addr := sdk.MustAccAddressFromHex(v.Voter)
 
 	return []interface{}{v.ProposalId, addr.Bytes()}
 }
@@ -406,7 +406,7 @@ func (v Vote) PrimaryKeyFields() []interface{} {
 var _ orm.Validateable = Vote{}
 
 func (v Vote) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(v.Voter)
+	_, err := sdk.AccAddressFromHexUnsafe(v.Voter)
 	if err != nil {
 		return sdkerrors.Wrap(err, "voter")
 	}

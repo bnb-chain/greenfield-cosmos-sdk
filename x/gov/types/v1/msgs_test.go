@@ -29,7 +29,7 @@ func TestMsgDepositGetSignBytes(t *testing.T) {
 	msg := v1.NewMsgDeposit(addr, 0, coinsPos)
 	res := msg.GetSignBytes()
 
-	expected := `{"type":"cosmos-sdk/v1/MsgDeposit","value":{"amount":[{"amount":"1000","denom":"stake"}],"depositor":"cosmos1v9jxgu33kfsgr5","proposal_id":"0"}}`
+	expected := `{"type":"cosmos-sdk/v1/MsgDeposit","value":{"amount":[{"amount":"1000","denom":"stake"}],"depositor":"0x0000000000000000000000000000006164647231","proposal_id":"0"}}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -176,6 +176,6 @@ func TestMsgSubmitProposal_GetSignBytes(t *testing.T) {
 	require.NotPanics(t, func() {
 		bz = msg.GetSignBytes()
 	})
-	require.Equal(t, "{\"type\":\"cosmos-sdk/v1/MsgSubmitProposal\",\"value\":{\"initial_deposit\":[],\"messages\":[{\"type\":\"cosmos-sdk/v1/MsgVote\",\"value\":{\"option\":1,\"proposal_id\":\"1\",\"voter\":\"cosmos1w3jhxap3gempvr\"}}]}}",
+	require.Equal(t, "{\"type\":\"cosmos-sdk/v1/MsgSubmitProposal\",\"value\":{\"initial_deposit\":[],\"messages\":[{\"type\":\"cosmos-sdk/v1/MsgVote\",\"value\":{\"option\":1,\"proposal_id\":\"1\",\"voter\":\"0x0000000000000000000000000000007465737431\"}}]}}",
 		string(bz))
 }

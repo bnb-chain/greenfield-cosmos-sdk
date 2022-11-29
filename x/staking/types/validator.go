@@ -471,7 +471,7 @@ func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
-	addr, err := sdk.ValAddressFromBech32(v.OperatorAddress)
+	addr, err := sdk.ValAddressFromHex(v.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

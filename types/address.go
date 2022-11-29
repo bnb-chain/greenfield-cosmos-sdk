@@ -138,14 +138,23 @@ var (
 // When marshaled to a string or JSON, it uses Bech32.
 type AccAddress []byte
 
+// MustAccAddressFromHex calls AccAddressFromHexUnsafe and panics on error.
+func MustAccAddressFromHex(address string) AccAddress {
+	addr, err := AccAddressFromHexUnsafe(address)
+	if err != nil {
+		panic(err)
+	}
+
+	return addr
+}
+
 // AccAddressFromHexUnsafe creates an AccAddress from a HEX-encoded string.
 //
 // Note, this function is considered unsafe as it may produce an AccAddress from
-// otherwise invalid input, such as a transaction hash. Please use
-// AccAddressFromBech32.
+// otherwise invalid input, such as a transaction hash.
 func AccAddressFromHexUnsafe(address string) (addr AccAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
-	return AccAddress(bz), err
+	ethAddr, err := ETHAddressFromHexUnsafe(address)
+	return AccAddress(ethAddr.Bytes()), err
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
@@ -250,7 +259,7 @@ func (aa *AccAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	aa2, err := AccAddressFromBech32(s)
+	aa2, err := AccAddressFromHexUnsafe(s)
 	if err != nil {
 		return err
 	}
@@ -271,7 +280,7 @@ func (aa *AccAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	aa2, err := AccAddressFromBech32(s)
+	aa2, err := AccAddressFromHexUnsafe(s)
 	if err != nil {
 		return err
 	}
@@ -291,14 +300,9 @@ func (aa AccAddress) String() string {
 		return ""
 	}
 
-	key := conv.UnsafeBytesToStr(aa)
-	accAddrMu.Lock()
-	defer accAddrMu.Unlock()
-	addr, ok := accAddrCache.Get(key)
-	if ok {
-		return addr.(string)
-	}
-	return cacheBech32Addr(GetConfig().GetBech32AccountAddrPrefix(), aa, accAddrCache, key)
+	var ethAddr ETHAddress
+	ethAddr.SetBytes(aa.Bytes())
+	return ethAddr.String()
 }
 
 // Format implements the fmt.Formatter interface.
@@ -324,7 +328,7 @@ type ValAddress []byte
 
 // ValAddressFromHex creates a ValAddress from a hex string.
 func ValAddressFromHex(address string) (addr ValAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
+	bz, err := AccAddressFromHexUnsafe(address)
 	return ValAddress(bz), err
 }
 
@@ -399,7 +403,7 @@ func (va *ValAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	va2, err := ValAddressFromBech32(s)
+	va2, err := ValAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -421,7 +425,7 @@ func (va *ValAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	va2, err := ValAddressFromBech32(s)
+	va2, err := ValAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -441,14 +445,9 @@ func (va ValAddress) String() string {
 		return ""
 	}
 
-	key := conv.UnsafeBytesToStr(va)
-	valAddrMu.Lock()
-	defer valAddrMu.Unlock()
-	addr, ok := valAddrCache.Get(key)
-	if ok {
-		return addr.(string)
-	}
-	return cacheBech32Addr(GetConfig().GetBech32ValidatorAddrPrefix(), va, valAddrCache, key)
+	var ethAddr ETHAddress
+	ethAddr.SetBytes(va.Bytes())
+	return ethAddr.String()
 }
 
 // Format implements the fmt.Formatter interface.
@@ -655,6 +654,9 @@ func ETHAddressFromHexUnsafe(addr string) (ETHAddress, error) {
 	if len(addr) >= 2 && addr[:2] == "0x" {
 		addr = addr[2:]
 	}
+	if len(strings.TrimSpace(addr)) == 0 {
+		return ETHAddress{}, errors.New("empty address string is not allowed")
+	}
 	if length := len(addr); length != 2*EthAddressLength {
 		return ETHAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
 	}
@@ -665,6 +667,9 @@ func ETHAddressFromHexUnsafe(addr string) (ETHAddress, error) {
 	}
 	var eAddr ETHAddress
 	eAddr.SetBytes(bin)
+	if eAddr.Empty() {
+		return ETHAddress{}, errors.New("empty address string is not allowed")
+	}
 	return eAddr, nil
 }
 

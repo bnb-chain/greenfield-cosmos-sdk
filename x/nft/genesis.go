@@ -16,7 +16,7 @@ func ValidateGenesis(data GenesisState) error {
 			if err := ValidateNFTID(nft.Id); err != nil {
 				return err
 			}
-			if _, err := sdk.AccAddressFromBech32(entry.Owner); err != nil {
+			if _, err := sdk.AccAddressFromHexUnsafe(entry.Owner); err != nil {
 				return err
 			}
 		}

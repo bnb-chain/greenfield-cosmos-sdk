@@ -28,10 +28,10 @@ func (suite *AnteTestSuite) TestSetPubKey() {
 	// keys and addresses
 	priv1, pub1, addr1 := testdata.KeyTestPubAddr()
 	priv2, pub2, addr2 := testdata.KeyTestPubAddr()
-	priv3, pub3, addr3 := testdata.KeyTestPubAddrSecp256R1(require)
+	//priv3, pub3, addr3 := testdata.KeyTestPubAddrSecp256R1(require)
 
-	addrs := []sdk.AccAddress{addr1, addr2, addr3}
-	pubs := []cryptotypes.PubKey{pub1, pub2, pub3}
+	addrs := []sdk.AccAddress{addr1, addr2}
+	pubs := []cryptotypes.PubKey{pub1, pub2}
 
 	msgs := make([]sdk.Msg, len(addrs))
 	// set accounts and create msg for each address
@@ -45,7 +45,7 @@ func (suite *AnteTestSuite) TestSetPubKey() {
 	suite.txBuilder.SetFeeAmount(testdata.NewTestFeeAmount())
 	suite.txBuilder.SetGasLimit(testdata.NewTestGasLimit())
 
-	privs, accNums, accSeqs := []cryptotypes.PrivKey{priv1, priv2, priv3}, []uint64{0, 1, 2}, []uint64{0, 0, 0}
+	privs, accNums, accSeqs := []cryptotypes.PrivKey{priv1, priv2}, []uint64{0, 1}, []uint64{0, 0}
 	tx, err := suite.CreateTestTx(privs, accNums, accSeqs, suite.ctx.ChainID())
 	require.NoError(err)
 

@@ -15,7 +15,7 @@ import (
 
 const (
 	OwnerName  = "owner"
-	Owner      = "cosmos1kznrznww4pd6gx0zwrpthjk68fdmqypjpkj5hp"
+	Owner      = "0xb0a6314dcea85ba419e270c2bbcada3a5bb01032"
 	OwnerArmor = `-----BEGIN TENDERMINT PRIVATE KEY-----
 salt: C3586B75587D2824187D2CDA22B6AFB6
 type: secp256k1

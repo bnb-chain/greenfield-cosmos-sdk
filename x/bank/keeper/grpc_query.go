@@ -29,7 +29,7 @@ func (k BaseKeeper) Balance(ctx context.Context, req *types.QueryBalanceRequest)
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	address, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid address: %s", err.Error())
 	}
@@ -49,7 +49,7 @@ func (k BaseKeeper) AllBalances(ctx context.Context, req *types.QueryAllBalances
 		return nil, status.Error(codes.InvalidArgument, "address cannot be empty")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid address: %s", err.Error())
 	}
@@ -82,7 +82,7 @@ func (k BaseKeeper) SpendableBalances(ctx context.Context, req *types.QuerySpend
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid address: %s", err.Error())
 	}

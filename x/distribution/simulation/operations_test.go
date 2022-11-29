@@ -75,8 +75,8 @@ func (suite *SimTestSuite) TestSimulateMsgSetWithdrawAddress() {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	suite.Require().True(operationMsg.OK)
-	suite.Require().Equal("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r", msg.DelegatorAddress)
-	suite.Require().Equal("cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.WithdrawAddress)
+	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.DelegatorAddress)
+	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.WithdrawAddress)
 	suite.Require().Equal(types.TypeMsgSetWithdrawAddress, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -116,8 +116,8 @@ func (suite *SimTestSuite) TestSimulateMsgWithdrawDelegatorReward() {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	suite.Require().True(operationMsg.OK)
-	suite.Require().Equal("cosmosvaloper1l4s054098kk9hmr5753c6k3m2kw65h686d3mhr", msg.ValidatorAddress)
-	suite.Require().Equal("cosmos1d6u7zhjwmsucs678d7qn95uqajd4ucl9jcjt26", msg.DelegatorAddress)
+	suite.Require().Equal("0xFD60fA55E53DAc5bEC74f5238D5A3B559DAa5f47", msg.ValidatorAddress)
+	suite.Require().Equal("0x6eb9e15e4edC39886bc76f8132D380Ec9B5e63e5", msg.DelegatorAddress)
 	suite.Require().Equal(types.TypeMsgWithdrawDelegatorReward, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -177,7 +177,7 @@ func (suite *SimTestSuite) testSimulateMsgWithdrawValidatorCommission(tokenName 
 		types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 		suite.Require().True(operationMsg.OK)
-		suite.Require().Equal("cosmosvaloper1tnh2q55v8wyygtt9srz5safamzdengsn9dsd7z", msg.ValidatorAddress)
+		suite.Require().Equal("0x5cEEa0528c3b88442d6580c548753DD89b99a213", msg.ValidatorAddress)
 		suite.Require().Equal(types.TypeMsgWithdrawValidatorCommission, msg.Type())
 		suite.Require().Equal(types.ModuleName, msg.Route())
 		suite.Require().Len(futureOperations, 0)
@@ -205,7 +205,7 @@ func (suite *SimTestSuite) TestSimulateMsgFundCommunityPool() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("4896096stake", msg.Amount.String())
-	suite.Require().Equal("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r", msg.Depositor)
+	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Depositor)
 	suite.Require().Equal(types.TypeMsgFundCommunityPool, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)

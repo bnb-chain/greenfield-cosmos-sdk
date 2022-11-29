@@ -14,7 +14,7 @@ import (
 
 func TestConvertToLegacyProposal(t *testing.T) {
 	propTime := time.Unix(1e9, 0)
-	legacyContentMsg, err := v1.NewLegacyContent(v1beta1.NewTextProposal("title", "description"), "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
+	legacyContentMsg, err := v1.NewLegacyContent(v1beta1.NewTextProposal("title", "description"), "0x4feA76427B8345861e80A3540a8a9D936FD39391")
 	require.NoError(t, err)
 	msgs := []sdk.Msg{legacyContentMsg}
 	msgsAny, err := tx.SetMsgs(msgs)
@@ -126,7 +126,7 @@ func TestConvertToLegacyTallyResult(t *testing.T) {
 func TestConvertToLegacyVote(t *testing.T) {
 	vote := v1.Vote{
 		ProposalId: 1,
-		Voter:      "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+		Voter:      "0x4feA76427B8345861e80A3540a8a9D936FD39391",
 		Metadata:   "vote metadata",
 	}
 
@@ -163,7 +163,7 @@ func TestConvertToLegacyVote(t *testing.T) {
 func TestConvertToLegacyDeposit(t *testing.T) {
 	deposit := v1.Deposit{
 		ProposalId: 1,
-		Depositor:  "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+		Depositor:  "0x4feA76427B8345861e80A3540a8a9D936FD39391",
 		Amount:     sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(1))),
 	}
 

@@ -156,7 +156,7 @@ $ %s query %s nfts <class-id> --owner=<owner>
 			}
 
 			if len(owner) > 0 {
-				if _, err := sdk.AccAddressFromBech32(owner); err != nil {
+				if _, err := sdk.AccAddressFromHexUnsafe(owner); err != nil {
 					return err
 				}
 			}

@@ -1077,8 +1077,8 @@ func (s *IntegrationTestSuite) TestSignWithMultisig() {
 	s.Require().NoError(err)
 
 	// Create an address that is not in the keyring, will be used to simulate `--multisig`
-	multisig := "cosmos1hd6fsrvnz6qkp87s3u86ludegq97agxsdkwzyh"
-	multisigAddr, err := sdk.AccAddressFromBech32(multisig)
+	multisig := "0xbb74980d931681609fd08f0faff1b9400beea0d0"
+	multisigAddr, err := sdk.AccAddressFromHexUnsafe(multisig)
 	s.Require().NoError(err)
 
 	// Generate a transaction for testing --multisig with an address not in the keyring.
@@ -1478,9 +1478,9 @@ func TestGetBroadcastCommandWithoutOfflineFlag(t *testing.T) {
 	// Create new file with tx
 	builder := txCfg.NewTxBuilder()
 	builder.SetGasLimit(200000)
-	from, err := sdk.AccAddressFromBech32("cosmos1cxlt8kznps92fwu3j6npahx4mjfutydyene2qw")
+	from, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
 	require.NoError(t, err)
-	to, err := sdk.AccAddressFromBech32("cosmos1cxlt8kznps92fwu3j6npahx4mjfutydyene2qw")
+	to, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
 	require.NoError(t, err)
 	err = builder.SetMsgs(banktypes.NewMsgSend(from, to, sdk.Coins{sdk.NewInt64Coin("stake", 10000)}))
 	require.NoError(t, err)

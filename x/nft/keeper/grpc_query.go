@@ -22,7 +22,7 @@ func (k Keeper) Balance(goCtx context.Context, r *nft.QueryBalanceRequest) (*nft
 		return nil, err
 	}
 
-	owner, err := sdk.AccAddressFromBech32(r.Owner)
+	owner, err := sdk.AccAddressFromHexUnsafe(r.Owner)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (k Keeper) NFTs(goCtx context.Context, r *nft.QueryNFTsRequest) (*nft.Query
 	}
 
 	if len(r.Owner) > 0 {
-		owner, err = sdk.AccAddressFromBech32(r.Owner)
+		owner, err = sdk.AccAddressFromHexUnsafe(r.Owner)
 		if err != nil {
 			return nil, err
 		}

@@ -14,9 +14,9 @@ import (
 
 func TestGrant(t *testing.T) {
 	app := simapp.Setup(t, false)
-	addr, err := sdk.AccAddressFromBech32("cosmos1qk93t4j0yyzgqgt6k5qf8deh8fq6smpn3ntu3x")
+	addr, err := sdk.AccAddressFromHexUnsafe("0x058b15d64f210480217ab50093b7373a41a86c33")
 	require.NoError(t, err)
-	addr2, err := sdk.AccAddressFromBech32("cosmos1p9qh4ldfd6n0qehujsal4k7g0e37kel90rc4ts")
+	addr2, err := sdk.AccAddressFromHexUnsafe("0x09417afda96ea6f066fc943bfadbc87e63eb67e5")
 	require.NoError(t, err)
 	atom := sdk.NewCoins(sdk.NewInt64Coin("atom", 555))
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{

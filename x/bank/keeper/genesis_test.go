@@ -20,7 +20,7 @@ func (suite *IntegrationTestSuite) TestExportGenesis() {
 
 	for i := range []int{1, 2} {
 		app.BankKeeper.SetDenomMetaData(ctx, expectedMetadata[i])
-		accAddr, err1 := sdk.AccAddressFromBech32(expectedBalances[i].Address)
+		accAddr, err1 := sdk.AccAddressFromHexUnsafe(expectedBalances[i].Address)
 		if err1 != nil {
 			panic(err1)
 		}
@@ -44,8 +44,8 @@ func (suite *IntegrationTestSuite) TestExportGenesis() {
 }
 
 func (suite *IntegrationTestSuite) getTestBalancesAndSupply() ([]types.Balance, sdk.Coins) {
-	addr2, _ := sdk.AccAddressFromBech32("cosmos1f9xjhxm0plzrh9cskf4qee4pc2xwp0n0556gh0")
-	addr1, _ := sdk.AccAddressFromBech32("cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd")
+	addr2, _ := sdk.AccAddressFromHexUnsafe("0x494d2b9b6f0fc43b9710b26a0ce6a1c28ce0be6f")
+	addr1, _ := sdk.AccAddressFromHexUnsafe("0x5d38f92511fca121dd5b2e6be6d66455f3df6737")
 	addr1Balance := sdk.Coins{sdk.NewInt64Coin("testcoin3", 10)}
 	addr2Balance := sdk.Coins{sdk.NewInt64Coin("testcoin1", 32), sdk.NewInt64Coin("testcoin2", 34)}
 
@@ -74,9 +74,9 @@ func (suite *IntegrationTestSuite) TestTotalSupply() {
 	// Prepare some test data.
 	defaultGenesis := types.DefaultGenesisState()
 	balances := []types.Balance{
-		{Coins: sdk.NewCoins(sdk.NewCoin("foocoin", sdk.NewInt(1))), Address: "cosmos1f9xjhxm0plzrh9cskf4qee4pc2xwp0n0556gh0"},
-		{Coins: sdk.NewCoins(sdk.NewCoin("barcoin", sdk.NewInt(1))), Address: "cosmos1t5u0jfg3ljsjrh2m9e47d4ny2hea7eehxrzdgd"},
-		{Coins: sdk.NewCoins(sdk.NewCoin("foocoin", sdk.NewInt(10)), sdk.NewCoin("barcoin", sdk.NewInt(20))), Address: "cosmos1m3h30wlvsf8llruxtpukdvsy0km2kum8g38c8q"},
+		{Coins: sdk.NewCoins(sdk.NewCoin("foocoin", sdk.NewInt(1))), Address: "0x494d2b9b6f0fc43b9710b26a0ce6a1c28ce0be6f"},
+		{Coins: sdk.NewCoins(sdk.NewCoin("barcoin", sdk.NewInt(1))), Address: "0x5d38f92511fca121dd5b2e6be6d66455f3df6737"},
+		{Coins: sdk.NewCoins(sdk.NewCoin("foocoin", sdk.NewInt(10)), sdk.NewCoin("barcoin", sdk.NewInt(20))), Address: "0xdc6f17bbec824fff8f86587966b2047db6ab7367"},
 	}
 	totalSupply := sdk.NewCoins(sdk.NewCoin("foocoin", sdk.NewInt(11)), sdk.NewCoin("barcoin", sdk.NewInt(21)))
 

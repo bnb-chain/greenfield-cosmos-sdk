@@ -75,7 +75,7 @@ func (s *TestSuite) SetupTest() {
 	policyRes, err := s.keeper.CreateGroupPolicy(s.ctx, policyReq)
 	s.Require().NoError(err)
 	s.policy = policy
-	addr, err := sdk.AccAddressFromBech32(policyRes.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(policyRes.Address)
 	s.Require().NoError(err)
 	s.groupPolicyAddr = addr
 	s.Require().NoError(testutil.FundAccount(s.app.BankKeeper, s.sdkCtx, s.groupPolicyAddr, sdk.Coins{sdk.NewInt64Coin("test", 10000)}))
@@ -227,9 +227,9 @@ func (s *TestSuite) TestCreateGroup() {
 			s.Require().Equal(len(members), len(loadedMembers))
 			// we reorder members by address to be able to compare them
 			sort.Slice(members, func(i, j int) bool {
-				addri, err := sdk.AccAddressFromBech32(members[i].Address)
+				addri, err := sdk.AccAddressFromHexUnsafe(members[i].Address)
 				s.Require().NoError(err)
-				addrj, err := sdk.AccAddressFromBech32(members[j].Address)
+				addrj, err := sdk.AccAddressFromHexUnsafe(members[j].Address)
 				s.Require().NoError(err)
 				return bytes.Compare(addri, addrj) < 0
 			})
@@ -686,9 +686,9 @@ func (s *TestSuite) TestUpdateGroupMembers() {
 			s.Require().Equal(len(spec.expMembers), len(loadedMembers))
 			// we reorder group members by address to be able to compare them
 			sort.Slice(spec.expMembers, func(i, j int) bool {
-				addri, err := sdk.AccAddressFromBech32(spec.expMembers[i].Member.Address)
+				addri, err := sdk.AccAddressFromHexUnsafe(spec.expMembers[i].Member.Address)
 				s.Require().NoError(err)
-				addrj, err := sdk.AccAddressFromBech32(spec.expMembers[j].Member.Address)
+				addrj, err := sdk.AccAddressFromHexUnsafe(spec.expMembers[j].Member.Address)
 				s.Require().NoError(err)
 				return bytes.Compare(addri, addrj) < 0
 			})
@@ -864,9 +864,9 @@ func (s *TestSuite) TestCreateGroupWithPolicy() {
 			s.Require().Equal(len(members), len(loadedMembers))
 			// we reorder members by address to be able to compare them
 			sort.Slice(members, func(i, j int) bool {
-				addri, err := sdk.AccAddressFromBech32(members[i].Address)
+				addri, err := sdk.AccAddressFromHexUnsafe(members[i].Address)
 				s.Require().NoError(err)
-				addrj, err := sdk.AccAddressFromBech32(members[j].Address)
+				addrj, err := sdk.AccAddressFromHexUnsafe(members[j].Address)
 				s.Require().NoError(err)
 				return bytes.Compare(addri, addrj) < 0
 			})
@@ -1793,7 +1793,7 @@ func (s *TestSuite) TestVote() {
 	policyRes, err := s.keeper.CreateGroupPolicy(s.ctx, policyReq)
 	s.Require().NoError(err)
 	accountAddr := policyRes.Address
-	groupPolicy, err := sdk.AccAddressFromBech32(accountAddr)
+	groupPolicy, err := sdk.AccAddressFromHexUnsafe(accountAddr)
 	s.Require().NoError(err)
 	s.Require().NotNil(groupPolicy)
 

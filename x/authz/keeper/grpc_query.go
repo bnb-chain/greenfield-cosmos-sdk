@@ -23,12 +23,12 @@ func (k Keeper) Grants(c context.Context, req *authz.QueryGrantsRequest) (*authz
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
-	granter, err := sdk.AccAddressFromBech32(req.Granter)
+	granter, err := sdk.AccAddressFromHexUnsafe(req.Granter)
 	if err != nil {
 		return nil, err
 	}
 
-	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
+	grantee, err := sdk.AccAddressFromHexUnsafe(req.Grantee)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (k Keeper) GranterGrants(c context.Context, req *authz.QueryGranterGrantsRe
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
-	granter, err := sdk.AccAddressFromBech32(req.Granter)
+	granter, err := sdk.AccAddressFromHexUnsafe(req.Granter)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (k Keeper) GranteeGrants(c context.Context, req *authz.QueryGranteeGrantsRe
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
-	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
+	grantee, err := sdk.AccAddressFromHexUnsafe(req.Grantee)
 	if err != nil {
 		return nil, err
 	}

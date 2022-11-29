@@ -11,9 +11,9 @@ import (
 )
 
 func TestMarshalAndUnmarshalFeegrantKey(t *testing.T) {
-	grantee, err := sdk.AccAddressFromBech32("cosmos1qk93t4j0yyzgqgt6k5qf8deh8fq6smpn3ntu3x")
+	grantee, err := sdk.AccAddressFromHexUnsafe("0x058b15d64f210480217ab50093b7373a41a86c33")
 	require.NoError(t, err)
-	granter, err := sdk.AccAddressFromBech32("cosmos1p9qh4ldfd6n0qehujsal4k7g0e37kel90rc4ts")
+	granter, err := sdk.AccAddressFromHexUnsafe("0x09417afda96ea6f066fc943bfadbc87e63eb67e5")
 	require.NoError(t, err)
 
 	key := feegrant.FeeAllowanceKey(granter, grantee)
@@ -26,9 +26,9 @@ func TestMarshalAndUnmarshalFeegrantKey(t *testing.T) {
 }
 
 func TestMarshalAndUnmarshalFeegrantKeyQueueKey(t *testing.T) {
-	grantee, err := sdk.AccAddressFromBech32("cosmos1qk93t4j0yyzgqgt6k5qf8deh8fq6smpn3ntu3x")
+	grantee, err := sdk.AccAddressFromHexUnsafe("0x058b15d64f210480217ab50093b7373a41a86c33")
 	require.NoError(t, err)
-	granter, err := sdk.AccAddressFromBech32("cosmos1p9qh4ldfd6n0qehujsal4k7g0e37kel90rc4ts")
+	granter, err := sdk.AccAddressFromHexUnsafe("0x09417afda96ea6f066fc943bfadbc87e63eb67e5")
 	require.NoError(t, err)
 
 	exp := time.Now()

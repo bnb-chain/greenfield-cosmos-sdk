@@ -526,7 +526,7 @@ func (s *IntegrationTestSuite) TestNewSendTxCmd() {
 
 func (s *IntegrationTestSuite) TestNewMultiSendTxCmd() {
 	val := s.network.Validators[0]
-	testAddr := sdk.AccAddress("cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5")
+	testAddr := sdk.AccAddress("0x8953eb4f1b47c7982a698deb7c557d6e4f4cd923")
 
 	testCases := []struct {
 		name         string

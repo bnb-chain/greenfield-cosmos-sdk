@@ -173,7 +173,7 @@ func (bva BaseVestingAccount) String() string {
 
 // MarshalYAML returns the YAML representation of a BaseVestingAccount.
 func (bva BaseVestingAccount) MarshalYAML() (interface{}, error) {
-	accAddr, err := sdk.AccAddressFromBech32(bva.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(bva.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +288,7 @@ func (cva ContinuousVestingAccount) String() string {
 
 // MarshalYAML returns the YAML representation of a ContinuousVestingAccount.
 func (cva ContinuousVestingAccount) MarshalYAML() (interface{}, error) {
-	accAddr, err := sdk.AccAddressFromBech32(cva.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(cva.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +433,7 @@ func (pva PeriodicVestingAccount) String() string {
 
 // MarshalYAML returns the YAML representation of a PeriodicVestingAccount.
 func (pva PeriodicVestingAccount) MarshalYAML() (interface{}, error) {
-	accAddr, err := sdk.AccAddressFromBech32(pva.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(pva.Address)
 	if err != nil {
 		return nil, err
 	}

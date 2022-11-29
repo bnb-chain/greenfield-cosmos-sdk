@@ -138,7 +138,7 @@ func CollectTxs(cdc codec.JSONCodec, txJSONDecoder sdk.TxDecoder, moniker, genTx
 
 		// validate delegator and validator addresses and funds against the accounts in the state
 		delAddr := msg.DelegatorAddress
-		valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+		valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
 		if err != nil {
 			return appGenTxs, persistentPeers, err
 		}

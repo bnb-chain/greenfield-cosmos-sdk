@@ -14,7 +14,7 @@ var _ exported.GenesisBalance = (*Balance)(nil)
 
 // GetAddress returns the account address of the Balance object.
 func (b Balance) GetAddress() sdk.AccAddress {
-	return sdk.MustAccAddressFromBech32(b.Address)
+	return sdk.MustAccAddressFromHex(b.Address)
 }
 
 // GetCoins returns the account coins of the Balance object.
@@ -24,7 +24,7 @@ func (b Balance) GetCoins() sdk.Coins {
 
 // Validate checks for address and coins correctness.
 func (b Balance) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(b.Address); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(b.Address); err != nil {
 		return err
 	}
 
@@ -64,7 +64,7 @@ func SanitizeGenesisBalances(balances []Balance) []Balance {
 	// 1. Retrieve the address equivalents for each Balance's address.
 	addresses := make([]sdk.AccAddress, len(balances))
 	for i := range balances {
-		addr, _ := sdk.AccAddressFromBech32(balances[i].Address)
+		addr, _ := sdk.AccAddressFromHexUnsafe(balances[i].Address)
 		addresses[i] = addr
 	}
 

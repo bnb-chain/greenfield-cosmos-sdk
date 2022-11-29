@@ -44,8 +44,8 @@ func GetCmdQueryGrants() *cobra.Command {
 			fmt.Sprintf(`Query authorization grants for a granter-grantee pair. If msg-type-url
 is set, it will select grants only for that msg type.
 Examples:
-$ %s query %s grants cosmos1skj.. cosmos1skjwj..
-$ %s query %s grants cosmos1skjw.. cosmos1skjwj.. %s
+$ %s query %s grants 0x9fB29.. 0x7dE36..
+$ %s query %s grants 0x91D7d.. 0x7dE36.. %s
 `,
 				version.AppName, authz.ModuleName,
 				version.AppName, authz.ModuleName, bank.SendAuthorization{}.MsgTypeURL()),
@@ -57,11 +57,11 @@ $ %s query %s grants cosmos1skjw.. cosmos1skjwj.. %s
 			}
 			queryClient := authz.NewQueryClient(clientCtx)
 
-			granter, err := sdk.AccAddressFromBech32(args[0])
+			granter, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
-			grantee, err := sdk.AccAddressFromBech32(args[1])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -104,7 +104,7 @@ func GetQueryGranterGrants() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query authorization grants granted by granter.
 Examples:
-$ %s q %s grants-by-granter cosmos1skj..
+$ %s q %s grants-by-granter 0x9fB29..
 `,
 				version.AppName, authz.ModuleName),
 		),
@@ -114,7 +114,7 @@ $ %s q %s grants-by-granter cosmos1skj..
 				return err
 			}
 
-			granter, err := sdk.AccAddressFromBech32(args[0])
+			granter, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -153,7 +153,7 @@ func GetQueryGranteeGrants() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query authorization grants granted to a grantee.
 Examples:
-$ %s q %s grants-by-grantee cosmos1skj..
+$ %s q %s grants-by-grantee 0x9fB29..
 `,
 				version.AppName, authz.ModuleName),
 		),
@@ -163,7 +163,7 @@ $ %s q %s grants-by-grantee cosmos1skj..
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

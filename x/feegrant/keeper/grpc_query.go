@@ -22,12 +22,12 @@ func (q Keeper) Allowance(c context.Context, req *feegrant.QueryAllowanceRequest
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	granterAddr, err := sdk.AccAddressFromBech32(req.Granter)
+	granterAddr, err := sdk.AccAddressFromHexUnsafe(req.Granter)
 	if err != nil {
 		return nil, err
 	}
 
-	granteeAddr, err := sdk.AccAddressFromBech32(req.Grantee)
+	granteeAddr, err := sdk.AccAddressFromHexUnsafe(req.Grantee)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (q Keeper) Allowances(c context.Context, req *feegrant.QueryAllowancesReque
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	granteeAddr, err := sdk.AccAddressFromBech32(req.Grantee)
+	granteeAddr, err := sdk.AccAddressFromHexUnsafe(req.Grantee)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (q Keeper) AllowancesByGranter(c context.Context, req *feegrant.QueryAllowa
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	granterAddr, err := sdk.AccAddressFromBech32(req.Granter)
+	granterAddr, err := sdk.AccAddressFromHexUnsafe(req.Granter)
 	if err != nil {
 		return nil, err
 	}

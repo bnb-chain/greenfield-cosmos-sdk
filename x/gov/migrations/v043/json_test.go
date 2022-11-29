@@ -20,7 +20,7 @@ func TestMigrateJSON(t *testing.T) {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithCodec(encodingConfig.Codec)
 
-	voter, err := sdk.AccAddressFromBech32("cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
+	voter, err := sdk.AccAddressFromHexUnsafe("0x4fea76427b8345861e80a3540a8a9d936fd39391")
 	require.NoError(t, err)
 	govGenState := &v1beta1.GenesisState{
 		Votes: v1beta1.Votes{
@@ -69,7 +69,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "1",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391"
 		},
 		{
 			"option": "VOTE_OPTION_UNSPECIFIED",
@@ -80,7 +80,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "2",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391"
 		},
 		{
 			"option": "VOTE_OPTION_UNSPECIFIED",
@@ -91,7 +91,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "3",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391"
 		},
 		{
 			"option": "VOTE_OPTION_UNSPECIFIED",
@@ -102,7 +102,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "4",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391"
 		},
 		{
 			"option": "VOTE_OPTION_UNSPECIFIED",
@@ -113,7 +113,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "5",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391"
 		}
 	],
 	"voting_params": {

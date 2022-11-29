@@ -1562,7 +1562,7 @@ func (s *IntegrationTestSuite) TestTxSubmitProposal() {
 				s.commonFlags...,
 			),
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 			nil,
 			0,
 		},
@@ -2550,7 +2550,7 @@ func (s *IntegrationTestSuite) createGroupThresholdPolicyWithBalance(adminAddres
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &res))
 	groupPolicyAddress := res.GroupPolicies[0].Address
 
-	addr, err := sdk.AccAddressFromBech32(groupPolicyAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(groupPolicyAddress)
 	s.Require().NoError(err)
 	_, err = banktestutil.MsgSendExec(clientCtx, val.Address, addr,
 		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(tokens))),
@@ -2572,7 +2572,7 @@ func (s *IntegrationTestSuite) fundAllGroupPolicies(groupID string, tokens sdk.C
 
 	for _, policy := range res.GroupPolicies {
 		address := policy.Address
-		addr, err := sdk.AccAddressFromBech32(address)
+		addr, err := sdk.AccAddressFromHexUnsafe(address)
 		s.Require().NoError(err)
 		_, err = banktestutil.MsgSendExec(clientCtx, val.Address, addr,
 			sdk.NewCoins(tokens),

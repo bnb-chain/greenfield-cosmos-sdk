@@ -49,7 +49,7 @@ func (s *IntegrationTestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Error: Invalid granter",
@@ -59,7 +59,7 @@ func (s *IntegrationTestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Valid txn (json)",
@@ -200,7 +200,7 @@ func (s *IntegrationTestSuite) TestQueryGranterGrants() {
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 			0,
 		},
 		{

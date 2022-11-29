@@ -14,8 +14,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *authz.GenesisState) {
 			continue
 		}
 
-		grantee := sdk.MustAccAddressFromBech32(entry.Grantee)
-		granter := sdk.MustAccAddressFromBech32(entry.Granter)
+		grantee := sdk.MustAccAddressFromHex(entry.Grantee)
+		granter := sdk.MustAccAddressFromHex(entry.Granter)
 
 		a, ok := entry.Authorization.GetCachedValue().(authz.Authorization)
 		if !ok {
