@@ -24,36 +24,29 @@ service Msg {
   // RemoveValidator defines a method for removing an existing validator.
   rpc RemoveValidator(MsgRemoveValidator) returns (MsgRemoveValidatorResponse);
 
-  // SelfDelegate defines a method for performing a delegation of coins
-  // for a validator itself.
-  rpc SelfDelegate(MsgSelfDelegate) returns (MsgSelfDelegateResponse);
-
   // Delegate defines a method for performing a delegation of coins
   // from a delegator to a validator.
-  // rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
+  rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
 
   // BeginRedelegate defines a method for performing a redelegation
   // of coins from a delegator and source validator to a destination validator.
-  // rpc BeginRedelegate(MsgBeginRedelegate) returns (MsgBeginRedelegateResponse);
+  rpc BeginRedelegate(MsgBeginRedelegate) returns (MsgBeginRedelegateResponse);
 
   // Undelegate defines a method for performing an undelegation from a
   // delegate and a validator.
-  // rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
+  rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
 
   // CancelUnbondingDelegation defines a method for performing canceling the unbonding delegation
   // and delegate back to previous validator.
   //
   // Since: cosmos-sdk 0.46
-  // rpc CancelUnbondingDelegation(MsgCancelUnbondingDelegation) returns (MsgCancelUnbondingDelegationResponse);
+  rpc CancelUnbondingDelegation(MsgCancelUnbondingDelegation) returns (MsgCancelUnbondingDelegationResponse);
 }
 
 // MsgCreateValidator defines a SDK message for creating a new validator.
 message MsgCreateValidator {
-  // NOTE(fdymylja): this is a particular case in which
-  // if validator_address == delegator_address then only one
-  // is expected to sign, otherwise both are.
-  option (cosmos.msg.v1.signer) = "delegator_address";
-  option (cosmos.msg.v1.signer) = "validator_address";
+  // NOTE: The validator should be created by the gov module account after the proposal passes.
+  option (cosmos.msg.v1.signer) = "from";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -67,10 +60,12 @@ message MsgCreateValidator {
   ];
   string                   delegator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string                   validator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string                   bls_pubkey        = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  google.protobuf.Any      pubkey            = 7 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
-  cosmos.base.v1beta1.Coin value             = 8 [(gogoproto.nullable) = false];
-  uint64                   proposal_id       = 9;
+  google.protobuf.Any      pubkey            = 6 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
+  cosmos.base.v1beta1.Coin value             = 7 [(gogoproto.nullable) = false];
+
+  // For BNB Inscription
+  string  from        = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string  bls_pubkey  = 9;
 }
 
 // MsgCreateValidatorResponse defines the Msg/CreateValidator response type.
@@ -85,16 +80,19 @@ message MsgEditValidator {
 
   Description description       = 1 [(gogoproto.nullable) = false];
   string      validator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string      bls_pubkey        = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // We pass a reference to the new commission rate and min self delegation as
   // it's not mandatory to update. If not updated, the deserialized rate will be
   // zero with no way to distinguish if an update was intended.
   // REF: #2373
-  string commission_rate = 4
+  string commission_rate = 3
       [(cosmos_proto.scalar) = "cosmos.Dec", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
-  string min_self_delegation = 5
+  string min_self_delegation = 4
       [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+
+  // For BNB Inscription
+  string self_delegation_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string bls_pubkey              = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgEditValidatorResponse defines the Msg/EditValidator response type.
@@ -102,31 +100,18 @@ message MsgEditValidatorResponse {}
 
 // MsgRemoveValidator defines a SDK message for removing an existing validator.
 message MsgRemoveValidator {
-  option (cosmos.msg.v1.signer) = "validator_address";
+  // NOTE: The validator should be removed by the gov module account after the proposal passes.
+  option (cosmos.msg.v1.signer) = "from";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
   string      validator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  uint64       proposal_id      = 2;
+  string      from              = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgRemoveValidatorResponse defines the Msg/RemoveValidator response type.
 message MsgRemoveValidatorResponse {}
-
-// MsgSelfDelegate defines a SDK message for performing a delegation of coins
-// for a validator itself.
-message MsgSelfDelegate {
-  option (cosmos.msg.v1.signer) = "validator_address";
-
-  option (gogoproto.equal) = false;
-
-  string                   validator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  cosmos.base.v1beta1.Coin amount            = 2 [(gogoproto.nullable) = false];
-}
-
-// MsgSelfDelegateResponse defines the Msg/SelfDelegate response type.
-message MsgSelfDelegateResponse {}
 
 // MsgDelegate defines a SDK message for performing a delegation of coins
 // from a delegator to a validator.

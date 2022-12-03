@@ -51,5 +51,9 @@ var (
 	ErrEmptyValidatorPubKey            = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	ErrCommissionLTMinRate             = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
 
-	ErrValidatorBlsPubkeyExists = sdkerrors.Register(ModuleName, 41, "validator already exist for this bls pubkey; must use new validator bls pubkey")
+	ErrSignerNotGovModule       = sdkerrors.Register(ModuleName, 41, "signer is not gov module account")
+	ErrValidatorBlsPubkeyEmpty  = sdkerrors.Register(ModuleName, 42, "validator bls pubkey is empty")
+	ErrValidatorBlsPubkeyExists = sdkerrors.Register(ModuleName, 43, "validator already exist for this bls pubkey; must use new validator bls pubkey")
+	ErrDelegationNotAllowed     = sdkerrors.Register(ModuleName, 44, "delegation is not allowed")
+	ErrRedelegationNotAllowed   = sdkerrors.Register(ModuleName, 45, "redelegation is not allowed")
 )

@@ -50,11 +50,11 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers 
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	val1, err := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
+	val1, err := stakingtypes.NewSimpleValidator(valAddrs[0], pks[0], stakingtypes.Description{})
 	require.NoError(t, err)
-	val2, err := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
+	val2, err := stakingtypes.NewSimpleValidator(valAddrs[1], pks[1], stakingtypes.Description{})
 	require.NoError(t, err)
-	val3, err := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
+	val3, err := stakingtypes.NewSimpleValidator(valAddrs[2], pks[2], stakingtypes.Description{})
 	require.NoError(t, err)
 
 	app.StakingKeeper.SetValidator(ctx, val1)

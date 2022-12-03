@@ -34,10 +34,10 @@ func (k Keeper) mustGetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Val
 }
 
 // get a single validator by bls pubkey
-func (k Keeper) GetValidatorByBlsPubkey(ctx sdk.Context, blsKey string) (validator types.Validator, found bool) {
+func (k Keeper) GetValidatorByBlsPubkey(ctx sdk.Context, blsPk []byte) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	opAddr := store.Get(types.GetValidatorByBlsPubkey(blsKey))
+	opAddr := store.Get(types.GetValidatorByBlsPubkey(blsPk))
 	if opAddr == nil {
 		return validator, false
 	}
@@ -103,6 +103,11 @@ func (k Keeper) SetValidatorByConsAddr(ctx sdk.Context, validator types.Validato
 func (k Keeper) SetValidatorByPowerIndex(ctx sdk.Context, validator types.Validator) {
 	// jailed validators are not kept in the power index
 	if validator.Jailed {
+		return
+	}
+
+	// removed validators are not kept in the power index
+	if validator.Removed {
 		return
 	}
 
@@ -206,6 +211,7 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, address sdk.ValAddress) {
 	// delete the old validator record
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorKey(address))
+	store.Delete(types.GetValidatorByBlsPubkey(validator.BlsPubkey))
 	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)))
 

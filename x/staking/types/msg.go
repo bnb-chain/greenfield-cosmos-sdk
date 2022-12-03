@@ -14,6 +14,7 @@ const (
 	TypeMsgCancelUnbondingDelegation = "cancel_unbond"
 	TypeMsgEditValidator             = "edit_validator"
 	TypeMsgCreateValidator           = "create_validator"
+	TypeMsgRemoveValidator           = "remove_validator"
 	TypeMsgDelegate                  = "delegate"
 	TypeMsgBeginRedelegate           = "begin_redelegate"
 )
@@ -23,6 +24,7 @@ var (
 	_ codectypes.UnpackInterfacesMessage = (*MsgCreateValidator)(nil)
 	_ sdk.Msg                            = &MsgCreateValidator{}
 	_ sdk.Msg                            = &MsgEditValidator{}
+	_ sdk.Msg                            = &MsgRemoveValidator{}
 	_ sdk.Msg                            = &MsgDelegate{}
 	_ sdk.Msg                            = &MsgUndelegate{}
 	_ sdk.Msg                            = &MsgBeginRedelegate{}
@@ -189,6 +191,47 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		if msg.CommissionRate.GT(sdk.OneDec()) || msg.CommissionRate.IsNegative() {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "commission rate must be between 0 and 1 (inclusive)")
 		}
+	}
+
+	return nil
+}
+
+// NewMsgRemoveValidator creates a new MsgRemoveValidator instance
+//
+//nolint:interfacer
+func NewMsgRemoveValidator(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgRemoveValidator {
+	return &MsgRemoveValidator{
+		ValidatorAddress: valAddr.String(),
+		From:             from.String(),
+	}
+}
+
+// Route implements the sdk.Msg interface.
+func (msg MsgRemoveValidator) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface.
+func (msg MsgRemoveValidator) Type() string { return TypeMsgRemoveValidator }
+
+// GetSigners implements the sdk.Msg interface.
+func (msg MsgRemoveValidator) GetSigners() []sdk.AccAddress {
+	fromAddr, _ := sdk.AccAddressFromBech32(msg.From)
+	return []sdk.AccAddress{fromAddr}
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (msg MsgRemoveValidator) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (msg MsgRemoveValidator) ValidateBasic() error {
+	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.From); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
 	return nil

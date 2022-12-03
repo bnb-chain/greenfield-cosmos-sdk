@@ -40,12 +40,6 @@ type BankKeeper interface {
 	BurnCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 }
 
-// GovKeeper defines the expected interface needed to check proposal.
-type GovKeeper interface {
-	CheckCreateProposal(ctx sdk.Context, msg *MsgCreateValidator) error
-	CheckRemoveProposal(ctx sdk.Context, msg *MsgRemoveValidator) error
-}
-
 // ValidatorSet expected properties for the set of all validators (noalias)
 type ValidatorSet interface {
 	// iterate through validators by operator address, execute func for each validator

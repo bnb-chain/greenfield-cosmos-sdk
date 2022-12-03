@@ -105,7 +105,7 @@ func (s *IntegrationTestSuite) TestNewCreateValidatorCmd() {
 	require.NoError(err)
 	require.NotNil(consPubKeyBz)
 
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewSimpleValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
 	require.NoError(err)
 
 	pub, err := k.GetPubKey()
@@ -191,7 +191,7 @@ func (s *IntegrationTestSuite) TestNewCreateValidatorCmd() {
 			[]string{
 				fmt.Sprintf("--%s=%s", cli.FlagPubKey, consPubKeyBz),
 				fmt.Sprintf("--%s=%dstake", cli.FlagAmount, 100),
-				fmt.Sprintf("--%s=NewValidator", cli.FlagMoniker),
+				fmt.Sprintf("--%s=NewSimpleValidator", cli.FlagMoniker),
 				fmt.Sprintf("--%s=AFAF00C4", cli.FlagIdentity),
 				fmt.Sprintf("--%s=https://newvalidator.io", cli.FlagWebsite),
 				fmt.Sprintf("--%s=contact@newvalidator.io", cli.FlagSecurityContact),

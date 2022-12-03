@@ -25,7 +25,6 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	authKeeper types.AccountKeeper
 	bankKeeper types.BankKeeper
-	govKeeper  types.GovKeeper // TODO: how to init this keeper?
 	hooks      types.StakingHooks
 	paramstore paramtypes.Subspace
 }

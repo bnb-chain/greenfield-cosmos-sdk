@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -33,12 +35,17 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := k.govKeeper.CheckCreateProposal(ctx, msg)
+	signers := msg.GetSigners()
+	if len(signers) != 1 || !signers[0].Equals(k.authKeeper.GetModuleAddress(gov.ModuleName)) {
+		return nil, types.ErrSignerNotGovModule
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +59,12 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, types.ErrValidatorOwnerExists
 	}
 
-	if _, found := k.GetValidatorByBlsPubkey(ctx, msg.BlsPubkey); found {
+	blsPk := []byte(msg.BlsPubkey)
+	if len(blsPk) == 0 {
+		return nil, types.ErrValidatorBlsPubkeyEmpty
+	}
+
+	if _, found := k.GetValidatorByBlsPubkey(ctx, blsPk); found {
 		return nil, types.ErrValidatorBlsPubkeyExists
 	}
 
@@ -94,7 +106,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	validator, err := types.NewValidator(valAddr, pk, msg.Description)
+	validator, err := types.NewValidator(valAddr, pk, msg.Description, delegatorAddress, blsPk)
 	if err != nil {
 		return nil, err
 	}
@@ -109,13 +121,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
-	if err != nil {
-		return nil, err
-	}
-
 	validator.MinSelfDelegation = msg.MinSelfDelegation
-	validator.BlsPubkey = msg.BlsPubkey
 
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByBlsPubkey(ctx, validator)
@@ -130,6 +136,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	// move coins from the msg.Address account to a (self-delegation) delegator account
 	// the validator account and global shares are updated within here
 	// NOTE source will always be from a wallet which are unbonded
+	// TODO: remove delegate and msg.value
 	_, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Value.Amount, types.Unbonded, validator, true)
 	if err != nil {
 		return nil, err
@@ -139,12 +146,14 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		sdk.NewEvent(
 			types.EventTypeCreateValidator,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
+			sdk.NewAttribute(types.AttributeKeySelfDelegationAddress, validator.SelfDelegationAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsPubkey, string(validator.BlsPubkey)),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.DelegatorAddress),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.From),
 		),
 	})
 
@@ -164,15 +173,23 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		return nil, types.ErrNoValidatorFound
 	}
 
+	// replace self delegation address
+	selfDelegatorAddr, err := sdk.AccAddressFromBech32(msg.SelfDelegationAddress)
+	if err != nil {
+		return nil, err
+	}
+	validator.SelfDelegationAddress = selfDelegatorAddr.String()
+
 	// replace bls pubkey
-	if len(msg.BlsPubkey) != 0 {
-		if tmpValidator, found := k.GetValidatorByBlsPubkey(ctx, msg.BlsPubkey); found {
+	blsPk := []byte(msg.BlsPubkey)
+	if len(blsPk) != 0 {
+		if tmpValidator, found := k.GetValidatorByBlsPubkey(ctx, blsPk); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
 				return nil, types.ErrValidatorBlsPubkeyExists
 			}
 		} else {
 			k.DeleteValidatorByBlsPubkey(ctx, validator)
-			validator.BlsPubkey = msg.BlsPubkey
+			validator.BlsPubkey = blsPk
 			k.SetValidatorByBlsPubkey(ctx, validator)
 		}
 	}
@@ -218,6 +235,8 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			types.EventTypeEditValidator,
 			sdk.NewAttribute(types.AttributeKeyCommissionRate, validator.Commission.String()),
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
+			sdk.NewAttribute(types.AttributeKeySelfDelegationAddress, validator.SelfDelegationAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsPubkey, string(validator.BlsPubkey)),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -233,9 +252,9 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 func (k msgServer) RemoveValidator(goCtx context.Context, msg *types.MsgRemoveValidator) (*types.MsgRemoveValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := k.govKeeper.CheckRemoveProposal(ctx, msg)
-	if err != nil {
-		return nil, err
+	signers := msg.GetSigners()
+	if len(signers) != 1 || !signers[0].Equals(k.authKeeper.GetModuleAddress(gov.ModuleName)) {
+		return nil, types.ErrSignerNotGovModule
 	}
 
 	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
@@ -243,41 +262,28 @@ func (k msgServer) RemoveValidator(goCtx context.Context, msg *types.MsgRemoveVa
 		return nil, err
 	}
 	// validator must already be registered
-	_, found := k.GetValidator(ctx, valAddr)
+	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return nil, types.ErrNoValidatorFound
 	}
 
-	k.IterateDelegationsToValidator(ctx, sdk.MustAccAddressFromBech32(msg.ValidatorAddress), func(del types.DelegationI) (stop bool) {
-		_, err = k.Keeper.Undelegate(ctx, del.GetDelegatorAddr(), del.GetValidatorAddr(), del.GetShares())
-		if err != nil {
-			return true
-		}
+	validator.Removed = true
+	k.SetValidator(ctx, validator)
+	k.DeleteValidatorByPowerIndex(ctx, validator)
 
-		// TODO: emit events for undelegation?
-		return false
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeRemoveValidator,
+			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.From),
+		),
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
 	return &types.MsgRemoveValidatorResponse{}, nil
-}
-
-// SelfDelegate defines a method for performing a delegation of coins for a validator itself
-func (k msgServer) SelfDelegate(goCtx context.Context, msg *types.MsgSelfDelegate) (*types.MsgSelfDelegateResponse, error) {
-	msgDelegate := &types.MsgDelegate{
-		DelegatorAddress: msg.ValidatorAddress,
-		ValidatorAddress: msg.ValidatorAddress,
-		Amount:           msg.Amount,
-	}
-	_, err := k.Delegate(goCtx, msgDelegate)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgSelfDelegateResponse{}, nil
 }
 
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
@@ -296,6 +302,11 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	// Note: only allow self delegation for now
+	if !delegatorAddress.Equals(validator.GetSelfDelegator()) {
+		return nil, sdkerrors.Wrapf(types.ErrDelegationNotAllowed, "only self delegation is allowed for now")
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -367,6 +378,16 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	valDstAddr, err := sdk.ValAddressFromHex(msg.ValidatorDstAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	dstValidator, found := k.GetValidator(ctx, valDstAddr)
+	if !found {
+		return nil, types.ErrNoValidatorFound
+	}
+
+	// Note: only allow self redelegation for now
+	if !delegatorAddress.Equals(dstValidator.GetSelfDelegator()) {
+		return nil, types.ErrRedelegationNotAllowed
 	}
 
 	completionTime, err := k.BeginRedelegation(

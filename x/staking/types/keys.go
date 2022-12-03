@@ -60,8 +60,8 @@ func GetValidatorKey(operatorAddr sdk.ValAddress) []byte {
 
 // GetValidatorByBlsPubkey creates the key for the validator with bls pubkey
 // VALUE: validator operator address ([]byte)
-func GetValidatorByBlsPubkey(blsKey string) []byte {
-	return append(ValidatorsByBlsKey, address.MustLengthPrefix([]byte(blsKey))...)
+func GetValidatorByBlsPubkey(blsPk []byte) []byte {
+	return append(ValidatorsByBlsKey, address.MustLengthPrefix(blsPk)...)
 }
 
 // GetValidatorByConsAddrKey creates the key for the validator with pubkey
