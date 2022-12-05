@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -29,7 +30,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
@@ -121,8 +121,8 @@ func DefaultConfig() Config {
 		BondedTokens:      sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
 		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
-		SigningAlgo:       string(hd.Secp256k1Type),
-		KeyringOptions:    []keyring.Option{},
+		SigningAlgo:       string(ethHd.EthSecp256k1Type),
+		KeyringOptions:    []keyring.Option{ethHd.EthSecp256k1Option()},
 		PrintMnemonic:     false,
 	}
 }

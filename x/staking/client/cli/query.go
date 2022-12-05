@@ -46,7 +46,7 @@ func GetQueryCmd() *cobra.Command {
 
 // GetCmdQueryValidator implements the validator query command.
 func GetCmdQueryValidator() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "validator [validator-addr]",
@@ -134,7 +134,7 @@ $ %s query staking validators
 
 // GetCmdQueryValidatorUnbondingDelegations implements the query all unbonding delegatations from a validator command.
 func GetCmdQueryValidatorUnbondingDelegations() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "unbonding-delegations-from [validator-addr]",
@@ -189,7 +189,7 @@ $ %s query staking unbonding-delegations-from 0x91D7d..
 // GetCmdQueryValidatorRedelegations implements the query all redelegatations
 // from a validator command.
 func GetCmdQueryValidatorRedelegations() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "redelegations-from [validator-addr]",
@@ -243,8 +243,8 @@ $ %s query staking redelegations-from 0x91D7d..
 
 // GetCmdQueryDelegation the query delegation command.
 func GetCmdQueryDelegation() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "delegation [delegator-addr] [validator-addr]",
@@ -298,7 +298,7 @@ $ %s query staking delegation 0x9fB29.. 0x91D7d..
 // GetCmdQueryDelegations implements the command to query all the delegations
 // made from one delegator.
 func GetCmdQueryDelegations() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "delegations [delegator-addr]",
@@ -353,7 +353,7 @@ $ %s query staking delegations 0x9fB29..
 // GetCmdQueryValidatorDelegations implements the command to query all the
 // delegations to a specific validator.
 func GetCmdQueryValidatorDelegations() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "delegations-to [validator-addr]",
@@ -408,8 +408,8 @@ $ %s query staking delegations-to 0x91D7d..
 // GetCmdQueryUnbondingDelegation implements the command to query a single
 // unbonding-delegation record.
 func GetCmdQueryUnbondingDelegation() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "unbonding-delegation [delegator-addr] [validator-addr]",
@@ -463,7 +463,7 @@ $ %s query staking unbonding-delegation 0x9fB29.. 0x91D7d..
 // GetCmdQueryUnbondingDelegations implements the command to query all the
 // unbonding-delegation records for a delegator.
 func GetCmdQueryUnbondingDelegations() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "unbonding-delegations [delegator-addr]",
@@ -518,8 +518,8 @@ $ %s query staking unbonding-delegations 0x9fB29..
 // GetCmdQueryRedelegation implements the command to query a single
 // redelegation record.
 func GetCmdQueryRedelegation() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "redelegation [delegator-addr] [src-validator-addr] [dst-validator-addr]",
@@ -579,7 +579,7 @@ $ %s query staking redelegation 0x9fB29.. 0x91D7d.. 0x7dE36..
 // GetCmdQueryRedelegations implements the command to query all the
 // redelegation records for a delegator.
 func GetCmdQueryRedelegations() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "redelegations [delegator-addr]",

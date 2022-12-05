@@ -28,7 +28,7 @@ func (suite *AnteTestSuite) TestSetPubKey() {
 	// keys and addresses
 	priv1, pub1, addr1 := testdata.KeyTestPubAddr()
 	priv2, pub2, addr2 := testdata.KeyTestPubAddr()
-	//priv3, pub3, addr3 := testdata.KeyTestPubAddrSecp256R1(require)
+	// priv3, pub3, addr3 := testdata.KeyTestPubAddrSecp256R1(require)
 
 	addrs := []sdk.AccAddress{addr1, addr2}
 	pubs := []cryptotypes.PubKey{pub1, pub2}

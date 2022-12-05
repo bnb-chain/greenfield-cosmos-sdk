@@ -463,18 +463,18 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 		respType             proto.Message
 		expectedResponseType []string
 	}{
-		//{
-		//	"invalid validator address",
-		//	val.Address,
-		//	[]string{
-		//		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-		//		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		//		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		//		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		//	},
-		//	true, 0, nil,
-		//	[]string{},
-		//},
+		// {
+		// 	 "invalid validator address",
+		// 	 val.Address,
+		// 	 []string{
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+		// 		 fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+		// 	 },
+		// 	 true, 0, nil,
+		// 	 []string{},
+		// },
 		{
 			"valid transaction",
 			sdk.ValAddress(val.Address),

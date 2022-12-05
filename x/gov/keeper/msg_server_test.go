@@ -484,7 +484,7 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 	res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res.ProposalId)
-	//proposalId := res.ProposalId
+	// proposalId := res.ProposalId
 
 	cases := map[string]struct {
 		preRun    func() uint64
@@ -586,7 +586,7 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 	res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res.ProposalId)
-	//proposalId := res.ProposalId
+	// proposalId := res.ProposalId
 
 	cases := map[string]struct {
 		preRun    func() uint64

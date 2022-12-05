@@ -127,7 +127,7 @@ var (
 	_ Address = AccAddress{}
 	_ Address = ValAddress{}
 	_ Address = ConsAddress{}
-	_ Address = ETHAddress{}
+	_ Address = EthAddress{}
 )
 
 // ----------------------------------------------------------------------------
@@ -300,9 +300,14 @@ func (aa AccAddress) String() string {
 		return ""
 	}
 
-	var ethAddr ETHAddress
-	ethAddr.SetBytes(aa.Bytes())
-	return ethAddr.String()
+	key := conv.UnsafeBytesToStr(aa)
+	accAddrMu.Lock()
+	defer accAddrMu.Unlock()
+	addr, ok := accAddrCache.Get(key)
+	if ok {
+		return addr.(string)
+	}
+	return cacheEthAddr(aa, accAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -445,9 +450,14 @@ func (va ValAddress) String() string {
 		return ""
 	}
 
-	var ethAddr ETHAddress
-	ethAddr.SetBytes(va.Bytes())
-	return ethAddr.String()
+	key := conv.UnsafeBytesToStr(va)
+	valAddrMu.Lock()
+	defer valAddrMu.Unlock()
+	addr, ok := valAddrCache.Get(key)
+	if ok {
+		return addr.(string)
+	}
+	return cacheEthAddr(va, valAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -642,88 +652,87 @@ func (ca ConsAddress) Format(s fmt.State, verb rune) {
 	}
 }
 
-// ETHAddress defines a standard Ethereum compatible chain address
-type ETHAddress [EthAddressLength]byte
+// EthAddress defines a standard Ethereum compatible chain address
+type EthAddress [EthAddressLength]byte
 
-// ETHAddressFromHexUnsafe is a constructor function for ETHAddress
+// ETHAddressFromHexUnsafe is a constructor function for EthAddress
 //
-// Note, this function is considered unsafe as it may produce an ETHAddress from
+// Note, this function is considered unsafe as it may produce an EthAddress from
 // otherwise invalid input, such as a transaction hash.
-func ETHAddressFromHexUnsafe(addr string) (ETHAddress, error) {
+func ETHAddressFromHexUnsafe(addr string) (EthAddress, error) {
 	addr = strings.ToLower(addr)
 	if len(addr) >= 2 && addr[:2] == "0x" {
 		addr = addr[2:]
 	}
 	if len(strings.TrimSpace(addr)) == 0 {
-		return ETHAddress{}, errors.New("empty address string is not allowed")
+		return EthAddress{}, errors.New("empty address string is not allowed")
 	}
 	if length := len(addr); length != 2*EthAddressLength {
-		return ETHAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
+		return EthAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
 	}
 
 	bin, err := hex.DecodeString(addr)
 	if err != nil {
-		return ETHAddress{}, err
+		return EthAddress{}, err
 	}
-	var eAddr ETHAddress
+	var eAddr EthAddress
 	eAddr.SetBytes(bin)
 	if eAddr.Empty() {
-		return ETHAddress{}, errors.New("empty address string is not allowed")
+		return EthAddress{}, errors.New("empty address string is not allowed")
 	}
 	return eAddr, nil
 }
 
-func (sca *ETHAddress) SetBytes(buf []byte) {
-	if len(buf) > len(sca) {
+func (ea *EthAddress) SetBytes(buf []byte) {
+	if len(buf) > len(ea) {
 		buf = buf[len(buf)-20:]
 	}
-	copy(sca[20-len(buf):], buf)
+	copy(ea[20-len(buf):], buf)
 }
 
-// Equals Returns boolean for whether two ETHAddress are Equal
-func (sca ETHAddress) Equals(address Address) bool {
-	if sca.Empty() && address.Empty() {
+// Equals Returns boolean for whether two EthAddress are Equal
+func (ea EthAddress) Equals(address Address) bool {
+	if ea.Empty() && address.Empty() {
 		return true
 	}
 
-	return bytes.Equal(sca.Bytes(), address.Bytes())
+	return bytes.Equal(ea.Bytes(), address.Bytes())
 }
 
-// Empty Returns boolean for whether an ETHAddress is empty
-func (sca ETHAddress) Empty() bool {
+// Empty Returns boolean for whether an EthAddress is empty
+func (ea EthAddress) Empty() bool {
 	addrValue := big.NewInt(0)
-	addrValue.SetBytes(sca[:])
+	addrValue.SetBytes(ea[:])
 
 	return addrValue.Cmp(big.NewInt(0)) == 0
 }
 
 // Marshal returns the raw address bytes. It is needed for protobuf
 // compatibility.
-func (sca ETHAddress) Marshal() ([]byte, error) {
-	return sca[:], nil
+func (ea EthAddress) Marshal() ([]byte, error) {
+	return ea[:], nil
 }
 
 // Unmarshal sets the address to the given data. It is needed for protobuf
 // compatibility.
-func (sca *ETHAddress) Unmarshal(data []byte) error {
-	sca.SetBytes(data)
+func (ea *EthAddress) Unmarshal(data []byte) error {
+	ea.SetBytes(data)
 	return nil
 }
 
 // MarshalJSON marshals to JSON.
-func (sca ETHAddress) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf("\"%v\"", sca.String())), nil
-
+func (ea EthAddress) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("\"%v\"", ea.String())), nil
 }
 
 // Bytes returns the raw address bytes.
-func (sca ETHAddress) Bytes() []byte {
-	return sca[:]
+func (ea EthAddress) Bytes() []byte {
+	return ea[:]
 }
 
 // String implements the Stringer interface.
-func (sca ETHAddress) String() string {
-	uncheckSummed := hex.EncodeToString(sca[:])
+func (ea EthAddress) String() string {
+	uncheckSummed := hex.EncodeToString(ea[:])
 	sha := sha3.NewLegacyKeccak256()
 	sha.Write([]byte(uncheckSummed))
 	hash := sha.Sum(nil)
@@ -732,7 +741,7 @@ func (sca ETHAddress) String() string {
 	for i := 0; i < len(result); i++ {
 		hashByte := hash[i/2]
 		if i%2 == 0 {
-			hashByte = hashByte >> 4
+			hashByte >>= 4
 		} else {
 			hashByte &= 0xf
 		}
@@ -744,14 +753,14 @@ func (sca ETHAddress) String() string {
 }
 
 // Format implements the fmt.Formatter interface.
-func (sca ETHAddress) Format(state fmt.State, verb rune) {
+func (ea EthAddress) Format(state fmt.State, verb rune) {
 	switch verb {
 	case 's':
-		_, _ = state.Write([]byte(sca.String()))
+		_, _ = state.Write([]byte(ea.String()))
 	case 'p':
-		_, _ = state.Write([]byte(fmt.Sprintf("%p", sca[:])))
+		_, _ = state.Write([]byte(fmt.Sprintf("%p", ea[:])))
 	default:
-		_, _ = state.Write([]byte(fmt.Sprintf("%X", sca[:])))
+		_, _ = state.Write([]byte(fmt.Sprintf("%X", ea[:])))
 	}
 }
 
@@ -761,7 +770,7 @@ func (sca ETHAddress) Format(state fmt.State, verb rune) {
 
 var errBech32EmptyAddress = errors.New("decoding Bech32 address failed: must provide a non empty address")
 
-// GetFromBech32 decodes a bytestring from a Bech32 encoded string.
+// GetFromBech32 decodes a byte string from a Bech32 encoded string.
 func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	if len(bech32str) == 0 {
 		return nil, errBech32EmptyAddress
@@ -797,9 +806,18 @@ func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey 
 	return bech32Addr
 }
 
-// GetETHAddressFromPubKey returns ETHAddress by the pubkey
-func GetETHAddressFromPubKey(pubkey cryptotypes.PubKey) ETHAddress {
-	var sca ETHAddress
+// cacheEthAddr is not concurrency safe. Concurrent access to cache causes race condition.
+func cacheEthAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
+	var ethAddr EthAddress
+	ethAddr.SetBytes(addr)
+	addrString := ethAddr.String()
+	cache.Add(cacheKey, addrString)
+	return addrString
+}
+
+// GetETHAddressFromPubKey returns EthAddress by the pubkey
+func GetETHAddressFromPubKey(pubkey cryptotypes.PubKey) EthAddress {
+	var sca EthAddress
 	sca.SetBytes(pubkey.(*ethsecp256k1.PubKey).Address())
 	return sca
 }

@@ -52,15 +52,6 @@ func (b balanceByAddress) Swap(i, j int) {
 
 // SanitizeGenesisBalances sorts addresses and coin sets.
 func SanitizeGenesisBalances(balances []Balance) []Balance {
-	// Given that this function sorts balances, using the standard library's
-	// Quicksort based algorithms, we have algorithmic complexities of:
-	// * Best case: O(nlogn)
-	// * Worst case: O(n^2)
-	// The comparator used MUST be cheap to use lest we incur expenses like we had
-	// before whereby sdk.AccAddressFromBech32, which is a very expensive operation
-	// compared n * n elements yet discarded computations each time, as per:
-	//  https://github.com/cosmos/cosmos-sdk/issues/7766#issuecomment-786671734
-
 	// 1. Retrieve the address equivalents for each Balance's address.
 	addresses := make([]sdk.AccAddress, len(balances))
 	for i := range balances {

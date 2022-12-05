@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -35,8 +33,6 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	cfg := network.DefaultConfig()
-	cfg.SigningAlgo = string(ethHd.EthSecp256k1Type)
-	cfg.KeyringOptions = []keyring.Option{ethHd.EthSecp256k1Option()}
 	cfg.NumValidators = 1
 
 	s.cfg = cfg
@@ -93,7 +89,7 @@ func (s *IntegrationTestSuite) TestQueryLatestBlock() {
 	var blockInfoRes tmservice.GetLatestBlockResponse
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(restRes, &blockInfoRes))
 	s.Require().Equal(types.ValAddress(blockInfoRes.Block.Header.ProposerAddress).String(), blockInfoRes.SdkBlock.Header.ProposerAddress)
-	//s.Require().Contains(blockInfoRes.SdkBlock.Header.ProposerAddress, "cosmosvaloper")
+	// s.Require().Contains(blockInfoRes.SdkBlock.Header.ProposerAddress, "cosmosvaloper")
 }
 
 func (s *IntegrationTestSuite) TestQueryBlockByHeight() {
@@ -105,7 +101,7 @@ func (s *IntegrationTestSuite) TestQueryBlockByHeight() {
 	s.Require().NoError(err)
 	var blockInfoRes tmservice.GetBlockByHeightResponse
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(restRes, &blockInfoRes))
-	//s.Require().Contains(blockInfoRes.SdkBlock.Header.ProposerAddress, "cosmosvaloper")
+	// s.Require().Contains(blockInfoRes.SdkBlock.Header.ProposerAddress, "cosmosvaloper")
 }
 
 func (s *IntegrationTestSuite) TestQueryLatestValidatorSet() {

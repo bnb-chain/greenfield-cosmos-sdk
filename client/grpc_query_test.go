@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -31,10 +29,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 
 	var err error
-	cfg := network.DefaultConfig()
-	cfg.SigningAlgo = string(ethHd.EthSecp256k1Type)
-	cfg.KeyringOptions = []keyring.Option{ethHd.EthSecp256k1Option()}
-	s.network, err = network.New(s.T(), s.T().TempDir(), cfg)
+	s.network, err = network.New(s.T(), s.T().TempDir(), network.DefaultConfig())
 	s.Require().NoError(err)
 
 	_, err = s.network.WaitForHeight(2)

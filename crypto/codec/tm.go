@@ -20,7 +20,7 @@ func FromTmProtoPublicKey(protoPk tmprotocrypto.PublicKey) (cryptotypes.PubKey, 
 			Key: protoPk.Ed25519,
 		}, nil
 	case *tmprotocrypto.PublicKey_Secp256K1:
-		return &secp256k1.PubKey{
+		return &ethsecp256k1.PubKey{
 			Key: protoPk.Secp256K1,
 		}, nil
 	default:
@@ -62,27 +62,6 @@ func FromTmPubKeyInterface(tmPk tmcrypto.PubKey) (cryptotypes.PubKey, error) {
 	}
 
 	return FromTmProtoPublicKey(tmProtoPk)
-}
-
-// FromTmPubKeyInterfaceToEthSecp256k1 converts TM's tmcrypto.PubKey to EthSecp256k1PubKey.
-func FromTmPubKeyInterfaceToEthSecp256k1(tmPk tmcrypto.PubKey) (cryptotypes.PubKey, error) {
-	tmProtoPk, err := encoding.PubKeyToProto(tmPk)
-	if err != nil {
-		return nil, err
-	}
-
-	switch protoPk := tmProtoPk.Sum.(type) {
-	case *tmprotocrypto.PublicKey_Ed25519:
-		return &ed25519.PubKey{
-			Key: protoPk.Ed25519,
-		}, nil
-	case *tmprotocrypto.PublicKey_Secp256K1:
-		return &ethsecp256k1.PubKey{
-			Key: protoPk.Secp256K1,
-		}, nil
-	default:
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "cannot convert %v from Tendermint public key", protoPk)
-	}
 }
 
 // ToTmPubKeyInterface converts our own PubKey to TM's tmcrypto.PubKey.

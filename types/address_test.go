@@ -486,7 +486,7 @@ func (s *addressTestSuite) TestGetFromBech32() {
 	s.Require().Equal("invalid Bech32 prefix; expected x, got cosmos", err.Error())
 }
 
-func TestSmartChainAddress(t *testing.T) {
+func TestEthAddress(t *testing.T) {
 	priKey, _ := ethsecp256k1.GenerateKey()
 	pubKey := priKey.PubKey()
 	address := pubKey.Address()
@@ -505,7 +505,7 @@ func TestSmartChainAddress(t *testing.T) {
 
 	bz, err := sca.Marshal()
 	require.Nil(t, err, "err should be nil")
-	var unmarshalAddress types.ETHAddress
+	var unmarshalAddress types.EthAddress
 	err = unmarshalAddress.Unmarshal(bz)
 	require.Nil(t, err, "err should be nil")
 	require.Equal(t, sca, unmarshalAddress, "address should be equal")

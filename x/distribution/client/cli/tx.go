@@ -76,7 +76,7 @@ func newSplitAndApply(
 
 // NewWithdrawRewardsCmd returns a CLI command handler for creating a MsgWithdrawDelegatorReward transaction.
 func NewWithdrawRewardsCmd() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "withdraw-rewards [validator-addr]",
@@ -186,7 +186,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 
 // NewSetWithdrawAddrCmd returns a CLI command handler for creating a MsgSetWithdrawAddress transaction.
 func NewSetWithdrawAddrCmd() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "set-withdraw-addr [withdraw-addr]",
@@ -262,7 +262,7 @@ $ %s tx distribution fund-community-pool 100uatom --from mykey
 
 // GetCmdSubmitProposal implements the command to submit a community-pool-spend proposal
 func GetCmdSubmitProposal() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "community-pool-spend [proposal-file]",

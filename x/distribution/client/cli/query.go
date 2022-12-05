@@ -65,7 +65,7 @@ func GetCmdQueryParams() *cobra.Command {
 // GetCmdQueryValidatorOutstandingRewards implements the query validator
 // outstanding rewards command.
 func GetCmdQueryValidatorOutstandingRewards() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "validator-outstanding-rewards [validator]",
@@ -110,7 +110,7 @@ $ %s query distribution validator-outstanding-rewards 0x91D7d..
 
 // GetCmdQueryValidatorCommission implements the query validator commission command.
 func GetCmdQueryValidatorCommission() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "commission [validator]",
@@ -155,7 +155,7 @@ $ %s query distribution commission 0x91D7d..
 
 // GetCmdQueryValidatorSlashes implements the query validator slashes command.
 func GetCmdQueryValidatorSlashes() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "slashes [validator] [start-height] [end-height]",
@@ -221,8 +221,8 @@ $ %s query distribution slashes 0x91D7d.. 0 100
 
 // GetCmdQueryDelegatorRewards implements the query delegator rewards command.
 func GetCmdQueryDelegatorRewards() *cobra.Command {
-	//bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "rewards [delegator-addr] [validator-addr]",

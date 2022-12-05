@@ -20,6 +20,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/iavl v0.19.4
 	github.com/cosmos/ledger-cosmos-go v0.11.1
+	github.com/evmos/ethermint v0.19.3
 	github.com/gogo/gateway v1.1.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/mock v1.6.0
@@ -61,8 +62,6 @@ require (
 	pgregory.net/rapid v0.4.7
 	sigs.k8s.io/yaml v1.3.0
 )
-
-require github.com/evmos/ethermint v0.19.3
 
 require (
 	cloud.google.com/go v0.102.1 // indirect

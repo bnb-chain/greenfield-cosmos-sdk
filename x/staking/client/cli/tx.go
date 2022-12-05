@@ -150,7 +150,7 @@ func NewEditValidatorCmd() *cobra.Command {
 
 // NewDelegateCmd returns a CLI command handler for creating a MsgDelegate transaction.
 func NewDelegateCmd() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "delegate [validator-addr] [amount]",
@@ -194,7 +194,7 @@ $ %s tx staking delegate 0x91D7d.. 1000stake --from mykey
 
 // NewRedelegateCmd returns a CLI command handler for creating a MsgBeginRedelegate transaction.
 func NewRedelegateCmd() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "redelegate [src-validator-addr] [dst-validator-addr] [amount]",
@@ -243,7 +243,7 @@ $ %s tx staking redelegate 0x91D7d.. 0x9fB29.. 100stake --from mykey
 
 // NewUnbondCmd returns a CLI command handler for creating a MsgUndelegate transaction.
 func NewUnbondCmd() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "unbond [validator-addr] [amount]",
@@ -287,7 +287,7 @@ $ %s tx staking unbond 0x91D7d.. 100stake --from mykey
 
 // NewCancelUnbondingDelegation returns a CLI command handler for creating a MsgCancelUnbondingDelegation transaction.
 func NewCancelUnbondingDelegation() *cobra.Command {
-	//bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
+	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
 
 	cmd := &cobra.Command{
 		Use:   "cancel-unbond [validator-addr] [amount] [creation-height]",
