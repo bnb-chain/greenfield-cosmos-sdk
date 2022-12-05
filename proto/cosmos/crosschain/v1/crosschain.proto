@@ -8,5 +8,5 @@ import "cosmos_proto/cosmos.proto";
 
 // Params holds parameters for the cross chain module.
 message Params {
-  uint64 relayer_fee = 1;
+  string relayer_fee = 1;
 }

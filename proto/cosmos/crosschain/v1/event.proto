@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
-message EventCrossChainPackage {
+message EventCrossChain {
   uint32 src_chain_id = 1;
   uint32 dest_chain_id = 2;
   uint32 channel_id = 3;

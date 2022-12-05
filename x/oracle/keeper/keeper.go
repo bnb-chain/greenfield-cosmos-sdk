@@ -3,8 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
-
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/willf/bitset"
@@ -12,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	"github.com/cosmos/cosmos-sdk/x/oracle/metrics"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"

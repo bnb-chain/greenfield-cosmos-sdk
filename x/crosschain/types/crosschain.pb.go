@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params holds parameters for the cross chain module.
 type Params struct {
-	RelayerFee uint64 `protobuf:"varint,1,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
+	RelayerFee string `protobuf:"bytes,1,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -62,11 +62,11 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *Params) GetRelayerFee() uint64 {
+func (m *Params) GetRelayerFee() string {
 	if m != nil {
 		return m.RelayerFee
 	}
-	return 0
+	return ""
 }
 
 func init() {
@@ -85,12 +85,12 @@ var fileDescriptor_d7b94a7254cf916a = []byte{
 	0x19, 0x4a, 0x89, 0xa4, 0xe7, 0xa7, 0xe7, 0x83, 0x15, 0xe8, 0x83, 0x58, 0x10, 0xb5, 0x52, 0x92,
 	0x10, 0xb5, 0xf1, 0x10, 0x09, 0xa8, 0x46, 0x30, 0x47, 0x49, 0x93, 0x8b, 0x2d, 0x20, 0xb1, 0x28,
 	0x31, 0xb7, 0x58, 0x48, 0x9e, 0x8b, 0xbb, 0x28, 0x35, 0x27, 0xb1, 0x32, 0xb5, 0x28, 0x3e, 0x2d,
-	0x35, 0x55, 0x82, 0x51, 0x81, 0x51, 0x83, 0x25, 0x88, 0x0b, 0x2a, 0xe4, 0x96, 0x9a, 0xea, 0xe4,
+	0x35, 0x55, 0x82, 0x51, 0x81, 0x51, 0x83, 0x33, 0x88, 0x0b, 0x2a, 0xe4, 0x96, 0x9a, 0xea, 0xe4,
 	0x79, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c,
 	0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c, 0x51, 0xfa, 0xe9, 0x99, 0x25, 0x19,
 	0xa5, 0x49, 0x7a, 0xc9, 0xf9, 0xb9, 0xfa, 0x30, 0xd7, 0x83, 0x29, 0xdd, 0xe2, 0x94, 0x6c, 0xfd,
 	0x0a, 0x64, 0xaf, 0x94, 0x54, 0x16, 0xa4, 0x16, 0x27, 0xb1, 0x81, 0x2d, 0x37, 0x06, 0x04, 0x00,
-	0x00, 0xff, 0xff, 0xd1, 0xfd, 0x76, 0x86, 0xec, 0x00, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xcc, 0x3a, 0x09, 0xdd, 0xec, 0x00, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -113,10 +113,12 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.RelayerFee != 0 {
-		i = encodeVarintCrosschain(dAtA, i, uint64(m.RelayerFee))
+	if len(m.RelayerFee) > 0 {
+		i -= len(m.RelayerFee)
+		copy(dAtA[i:], m.RelayerFee)
+		i = encodeVarintCrosschain(dAtA, i, uint64(len(m.RelayerFee)))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -138,8 +140,9 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.RelayerFee != 0 {
-		n += 1 + sovCrosschain(uint64(m.RelayerFee))
+	l = len(m.RelayerFee)
+	if l > 0 {
+		n += 1 + l + sovCrosschain(uint64(l))
 	}
 	return n
 }
@@ -180,10 +183,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RelayerFee", wireType)
 			}
-			m.RelayerFee = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowCrosschain
@@ -193,11 +196,24 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RelayerFee |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthCrosschain
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthCrosschain
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RelayerFee = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipCrosschain(dAtA[iNdEx:])

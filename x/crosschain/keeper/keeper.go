@@ -7,7 +7,6 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/bsc"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,10 +47,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetRelayerFeeParam returns the default relayer fee for cross chain tx
 func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) (relayerFee *big.Int, err error) {
-	var relayerFeeParam uint64
+	var relayerFeeParam string
 	k.paramSpace.Get(ctx, types.KeyParamRelayerFee, &relayerFeeParam)
-	relayerFee = bsc.ConvertBCAmountToBSCAmount(int64(relayerFeeParam))
-	return
+	relayerFee, valid := relayerFee.SetString(relayerFeeParam, 10)
+	if !valid {
+		return nil, fmt.Errorf("invalid relayer fee: %s", relayerFeeParam)
+	}
+	return relayerFee, nil
 }
 
 // SetParams sets the params of cross chain module
@@ -93,7 +95,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.Chai
 
 	k.IncrSendSequence(ctx, destChainID, channelID)
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChainPackage{
+	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChain{
 		SrcChainId:  uint32(k.GetSrcChainID()),
 		DestChainId: uint32(destChainID),
 		ChannelId:   uint32(channelID),
@@ -130,17 +132,14 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 }
 
 // RegisterDestChain registers a chain with name
-func (k Keeper) RegisterDestChain(name string, chainID sdk.ChainID) error {
-	_, ok := k.cfg.destChainNameToID[name]
-	if ok {
-		return fmt.Errorf("duplicated destination chain name")
+func (k Keeper) RegisterDestChain(chainID sdk.ChainID) error {
+	for _, chain := range k.cfg.destChains {
+		if chainID == chain {
+			return fmt.Errorf("duplicated destination chain chainID")
+		}
 	}
-	_, ok = k.cfg.destChainIDToName[chainID]
-	if ok {
-		return fmt.Errorf("duplicated destination chain chainID")
-	}
-	k.cfg.destChainNameToID[name] = chainID
-	k.cfg.destChainIDToName[chainID] = name
+
+	k.cfg.destChains = append(k.cfg.destChains, chainID)
 	return nil
 }
 
@@ -168,15 +167,6 @@ func (k Keeper) SetSrcChainID(srcChainID sdk.ChainID) {
 // GetSrcChainID gets the current  chain id
 func (k Keeper) GetSrcChainID() sdk.ChainID {
 	return k.cfg.srcChainID
-}
-
-// GetDestChainID returns the chain id by name
-func (k Keeper) GetDestChainID(name string) (sdk.ChainID, error) {
-	destChainID, exist := k.cfg.destChainNameToID[name]
-	if !exist {
-		return sdk.ChainID(0), fmt.Errorf("non-existing destination chainName ")
-	}
-	return destChainID, nil
 }
 
 // GetIBCPackage returns the ibc package by sequence

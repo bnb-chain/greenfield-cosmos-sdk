@@ -2,12 +2,13 @@ package types
 
 import (
 	"fmt"
+	"math/big"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 const (
-	DefaultRelayerFeeParam uint64 = 1e6 // decimal is 8
+	DefaultRelayerFeeParam string = "100000000" // TODO: tbd
 )
 
 var (
@@ -32,13 +33,20 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 }
 
 func validateRelayerFee(i interface{}) error {
-	v, ok := i.(uint64)
+	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v <= 0 {
-		return fmt.Errorf("the syn_package_fee must be positive: %d", v)
+	relayerFee := big.NewInt(0)
+	relayerFee, valid := relayerFee.SetString(v, 10)
+
+	if !valid {
+		return fmt.Errorf("invalid relayer fee, %s", v)
+	}
+
+	if relayerFee.Cmp(big.NewInt(0)) < 0 {
+		return fmt.Errorf("invalid relayer fee, %s", v)
 	}
 
 	return nil

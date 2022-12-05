@@ -55,24 +55,14 @@ func (s *TestSuite) TestIncrReceiveSequence() {
 }
 
 func (s *TestSuite) TestRegisterDestChain() {
-	testName := "test"
 	testChainId := sdk.ChainID(100)
 
-	err := s.app.CrossChainKeeper.RegisterDestChain(testName, testChainId)
+	err := s.app.CrossChainKeeper.RegisterDestChain(testChainId)
 
 	s.Require().NoError(err)
-
-	chainId, err := s.app.CrossChainKeeper.GetDestChainID(testName)
-	s.Require().NoError(err)
-
-	s.Require().EqualValues(chainId, testChainId)
-
-	// check duplicate name
-	err = s.app.CrossChainKeeper.RegisterDestChain(testName, testChainId)
-	s.Require().ErrorContains(err, "duplicated destination chain name")
 
 	// check duplicate channel id
-	err = s.app.CrossChainKeeper.RegisterDestChain("another chain", testChainId)
+	err = s.app.CrossChainKeeper.RegisterDestChain(testChainId)
 	s.Require().ErrorContains(err, "duplicated destination chain chainID")
 }
 
