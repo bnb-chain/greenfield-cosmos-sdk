@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/keyring"
 	"github.com/cosmos/go-bip39"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -1175,8 +1176,8 @@ func TestAltKeyring_SaveMultisig(t *testing.T) {
 	pub := multisig.NewLegacyAminoPubKey(
 		2,
 		[]types.PubKey{
-			&secp256k1.PubKey{Key: key1.Bytes()},
-			&secp256k1.PubKey{Key: key2.Bytes()},
+			&ethsecp256k1.PubKey{Key: key1.Bytes()},
+			&ethsecp256k1.PubKey{Key: key2.Bytes()},
 		},
 	)
 

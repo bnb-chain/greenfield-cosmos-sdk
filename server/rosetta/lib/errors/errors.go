@@ -142,5 +142,5 @@ var (
 	// ErrNotImplemented is returned when a method is not implemented yet
 	ErrNotImplemented = RegisterError(14, "not implemented", false, "returned when querying an endpoint which is not implemented")
 	// ErrUnsupportedCurve is returned when the curve specified is not supported
-	ErrUnsupportedCurve = RegisterError(15, "unsupported curve, expected secp256k1", false, "returned when using an unsupported crypto curve")
+	ErrUnsupportedCurve = RegisterError(15, "unsupported curve, expected eth_secp256k1", false, "returned when using an unsupported crypto curve")
 )
