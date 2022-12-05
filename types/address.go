@@ -179,37 +179,6 @@ func VerifyAddressFormat(bz []byte) error {
 	return nil
 }
 
-// MustAccAddressFromBech32 calls AccAddressFromBech32 and panics on error.
-func MustAccAddressFromBech32(address string) AccAddress {
-	addr, err := AccAddressFromBech32(address)
-	if err != nil {
-		panic(err)
-	}
-
-	return addr
-}
-
-// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
-func AccAddressFromBech32(address string) (addr AccAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return AccAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixAccAddr := GetConfig().GetBech32AccountAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixAccAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return AccAddress(bz), nil
-}
-
 // Returns boolean for whether two AccAddresses are Equal
 func (aa AccAddress) Equals(aa2 Address) bool {
 	if aa.Empty() && aa2.Empty() {
@@ -335,27 +304,6 @@ type ValAddress []byte
 func ValAddressFromHex(address string) (addr ValAddress, err error) {
 	bz, err := AccAddressFromHexUnsafe(address)
 	return ValAddress(bz), err
-}
-
-// ValAddressFromBech32 creates a ValAddress from a Bech32 string.
-func ValAddressFromBech32(address string) (addr ValAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return ValAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixValAddr := GetConfig().GetBech32ValidatorAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixValAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return ValAddress(bz), nil
 }
 
 // Returns boolean for whether two ValAddresses are Equal

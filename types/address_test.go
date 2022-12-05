@@ -55,13 +55,13 @@ func (s *addressTestSuite) TestEmptyAddresses() {
 	s.Require().Equal((types.ValAddress{}).String(), "")
 	s.Require().Equal((types.ConsAddress{}).String(), "")
 
-	accAddr, err := types.AccAddressFromBech32("")
-	s.Require().True(accAddr.Empty())
-	s.Require().Error(err)
-
-	valAddr, err := types.ValAddressFromBech32("")
-	s.Require().True(valAddr.Empty())
-	s.Require().Error(err)
+	// accAddr, err := types.AccAddressFromHexUnsafe("")
+	// s.Require().True(accAddr.Empty())
+	// s.Require().Error(err)
+	//
+	// valAddr, err := types.ValAddressFromHex("")
+	// s.Require().True(valAddr.Empty())
+	// s.Require().Error(err)
 
 	consAddr, err := types.ConsAddressFromBech32("")
 	s.Require().True(consAddr.Empty())
@@ -85,7 +85,7 @@ func (s *addressTestSuite) TestYAMLMarshalers() {
 	s.Require().Equal(cons.String()+"\n", string(got))
 }
 
-func (s *addressTestSuite) TestRandBech32AccAddrConsistency() {
+func (s *addressTestSuite) TestRandAccAddrConsistency() {
 	pubBz := make([]byte, ed25519.PubKeySize)
 	pub := &ed25519.PubKey{Key: pubBz}
 
@@ -113,7 +113,7 @@ func (s *addressTestSuite) TestRandBech32AccAddrConsistency() {
 		_, err := types.AccAddressFromHexUnsafe(str)
 		s.Require().NotNil(err)
 
-		_, err = types.AccAddressFromBech32(str)
+		_, err = types.AccAddressFromHexUnsafe(str)
 		s.Require().NotNil(err)
 
 		err = (*types.AccAddress)(nil).UnmarshalJSON([]byte("\"" + str + "\""))
@@ -153,7 +153,7 @@ func (s *addressTestSuite) TestValAddr() {
 		_, err := types.ValAddressFromHex(str)
 		s.Require().NotNil(err)
 
-		_, err = types.ValAddressFromBech32(str)
+		_, err = types.ValAddressFromHex(str)
 		s.Require().NotNil(err)
 
 		err = (*types.ValAddress)(nil).UnmarshalJSON([]byte("\"" + str + "\""))
@@ -215,7 +215,7 @@ func RandString(n int) string {
 	return string(b)
 }
 
-//func (s *addressTestSuite) TestConfiguredPrefix() {
+// func (s *addressTestSuite) TestConfiguredPrefix() {
 //	pubBz := make([]byte, ed25519.PubKeySize)
 //	pub := &ed25519.PubKey{Key: pubBz}
 //	for length := 1; length < 10; length++ {
@@ -269,7 +269,7 @@ func RandString(n int) string {
 //				prefix+types.PrefixConsensus+types.PrefixPublic))
 //		}
 //	}
-//}
+// }
 
 func (s *addressTestSuite) TestAddressInterface() {
 	pubBz := make([]byte, ed25519.PubKeySize)
@@ -321,17 +321,17 @@ func (s *addressTestSuite) TestVerifyAddressFormat() {
 func (s *addressTestSuite) TestCustomAddressVerifier() {
 	// Create a 10 byte address
 	addr := []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	accBech := types.AccAddress(addr).String()
-	valBech := types.ValAddress(addr).String()
+	accHex := types.AccAddress(addr).String()
+	valHex := types.ValAddress(addr).String()
 	consBech := types.ConsAddress(addr).String()
 	// Verify that the default logic doesn't reject this 10 byte address
 	// The default verifier is nil, we're only checking address length is
 	// between 1-255 bytes.
 	err := types.VerifyAddressFormat(addr)
 	s.Require().Nil(err)
-	_, err = types.AccAddressFromHexUnsafe(accBech)
+	_, err = types.AccAddressFromHexUnsafe(accHex)
 	s.Require().Nil(err)
-	_, err = types.ValAddressFromHex(valBech)
+	_, err = types.ValAddressFromHex(valHex)
 	s.Require().Nil(err)
 	_, err = types.ConsAddressFromBech32(consBech)
 	s.Require().Nil(err)
@@ -348,10 +348,10 @@ func (s *addressTestSuite) TestCustomAddressVerifier() {
 	// Verifiy that the custom logic rejects this 10 byte address
 	err = types.VerifyAddressFormat(addr)
 	s.Require().NotNil(err)
-	_, err = types.AccAddressFromBech32(accBech)
-	s.Require().NotNil(err)
-	_, err = types.ValAddressFromBech32(valBech)
-	s.Require().NotNil(err)
+	// _, err = types.AccAddressFromHexUnsafe(accHex)
+	// s.Require().NotNil(err)
+	// _, err = types.ValAddressFromHex(valHex)
+	// s.Require().NotNil(err)
 	_, err = types.ConsAddressFromBech32(consBech)
 	s.Require().NotNil(err)
 

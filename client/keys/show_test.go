@@ -91,12 +91,11 @@ func Test_runShowCmd(t *testing.T) {
 		fmt.Sprintf("--%s=", FlagBechPrefix),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
-	require.EqualError(t, cmd.ExecuteContext(ctx), "invalid Bech32 prefix encoding provided: ")
+	require.EqualError(t, cmd.ExecuteContext(ctx), "unknown flag: --bech")
 
 	cmd.SetArgs([]string{
 		fakeKeyName1,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=%s", FlagBechPrefix, sdk.PrefixAccount),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
 
@@ -111,7 +110,6 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		addr.String(),
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=%s", FlagBechPrefix, sdk.PrefixAccount),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
 
@@ -121,7 +119,6 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		fakeKeyName1, fakeKeyName2,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=%s", FlagBechPrefix, sdk.PrefixAccount),
 		fmt.Sprintf("--%s=0", flagMultiSigThreshold),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
@@ -130,7 +127,6 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		fakeKeyName1, fakeKeyName2,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=%s", FlagBechPrefix, sdk.PrefixAccount),
 		fmt.Sprintf("--%s=2", flagMultiSigThreshold),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
@@ -140,7 +136,6 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		fakeKeyName1, fakeKeyName2,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=acc", FlagBechPrefix),
 		fmt.Sprintf("--%s=true", FlagDevice),
 		fmt.Sprintf("--%s=2", flagMultiSigThreshold),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
@@ -150,17 +145,15 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		fakeKeyName1, fakeKeyName2,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=val", FlagBechPrefix),
 		fmt.Sprintf("--%s=true", FlagDevice),
 		fmt.Sprintf("--%s=2", flagMultiSigThreshold),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
-	require.EqualError(t, cmd.ExecuteContext(ctx), "the device flag (-d) can only be used for accounts")
+	require.EqualError(t, cmd.ExecuteContext(ctx), "the device flag (-d) can only be used for accounts stored in devices")
 
 	cmd.SetArgs([]string{
 		fakeKeyName1, fakeKeyName2,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=val", FlagBechPrefix),
 		fmt.Sprintf("--%s=true", FlagDevice),
 		fmt.Sprintf("--%s=2", flagMultiSigThreshold),
 		fmt.Sprintf("--%s=true", FlagPublicKey),
@@ -195,32 +188,32 @@ func Test_validateMultisigThreshold(t *testing.T) {
 	}
 }
 
-func Test_getBechKeyOut(t *testing.T) {
-	type args struct {
-		bechPrefix string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bechKeyOutFn
-		wantErr bool
-	}{
-		{"empty", args{""}, nil, true},
-		{"wrong", args{"???"}, nil, true},
-		{"acc", args{sdk.PrefixAccount}, keyring.MkAccKeyOutput, false},
-		{"val", args{sdk.PrefixValidator}, keyring.MkValKeyOutput, false},
-		{"cons", args{sdk.PrefixConsensus}, keyring.MkConsKeyOutput, false},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := getBechKeyOut(tt.args.bechPrefix)
-			if tt.wantErr {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-				require.NotNil(t, got)
-			}
-		})
-	}
-}
+// func Test_getBechKeyOut(t *testing.T) {
+// 	type args struct {
+// 		bechPrefix string
+// 	}
+// 	tests := []struct {
+// 		name    string
+// 		args    args
+// 		want    bechKeyOutFn
+// 		wantErr bool
+// 	}{
+// 		{"empty", args{""}, nil, true},
+// 		{"wrong", args{"???"}, nil, true},
+// 		{"acc", args{sdk.PrefixAccount}, keyring.MkAccKeyOutput, false},
+// 		{"val", args{sdk.PrefixValidator}, keyring.MkValKeyOutput, false},
+// 		{"cons", args{sdk.PrefixConsensus}, keyring.MkConsKeyOutput, false},
+// 	}
+// 	for _, tt := range tests {
+// 		tt := tt
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			got, err := getBechKeyOut(tt.args.bechPrefix)
+// 			if tt.wantErr {
+// 				require.Error(t, err)
+// 			} else {
+// 				require.NoError(t, err)
+// 				require.NotNil(t, got)
+// 			}
+// 		})
+// 	}
+// }
