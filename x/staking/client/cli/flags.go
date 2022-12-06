@@ -31,6 +31,9 @@ const (
 	FlagGenesisFormat = "genesis-format"
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"
+
+	FlagSelfDelegator = "self-delegator"
+	FlagBlsPubkey     = "bls-pubkey"
 )
 
 // common flagsets to add to various functions

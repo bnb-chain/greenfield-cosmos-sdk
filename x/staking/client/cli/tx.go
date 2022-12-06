@@ -134,7 +134,18 @@ func NewEditValidatorCmd() *cobra.Command {
 				newMinSelfDelegation = &msb
 			}
 
-			msg := types.NewMsgEditValidator(sdk.ValAddress(valAddr), description, newRate, newMinSelfDelegation)
+			selfDelegator, _ := cmd.Flags().GetString(FlagSelfDelegator)
+			delegator, err := sdk.AccAddressFromBech32(selfDelegator)
+			if err != nil {
+				return fmt.Errorf("invalid self delegator address: %v", err)
+			}
+
+			blsPk, _ := cmd.Flags().GetString(FlagBlsPubkey)
+			if len(blsPk) == 0 {
+				return fmt.Errorf("empty validator bls public key")
+			}
+
+			msg := types.NewMsgEditValidator(sdk.ValAddress(valAddr), delegator, blsPk, description, newRate, newMinSelfDelegation)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

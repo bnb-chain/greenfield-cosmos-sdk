@@ -219,7 +219,10 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil)
+		// TODO: generate random bls pubkey
+		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+
+		msg := types.NewMsgEditValidator(address, sdk.AccAddress(address), blsPk, description, &newCommissionRate, nil)
 
 		txCtx := simulation.OperationInput{
 			R:               r,

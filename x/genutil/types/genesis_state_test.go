@@ -19,6 +19,9 @@ import (
 var (
 	pk1 = ed25519.GenPrivKey().PubKey()
 	pk2 = ed25519.GenPrivKey().PubKey()
+
+	// TODO: change to random key
+	blsPk = "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
 )
 
 func TestNetGenesisState(t *testing.T) {
@@ -59,7 +62,7 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 func TestValidateGenesisBadMessage(t *testing.T) {
 	desc := stakingtypes.NewDescription("testname", "", "", "", "")
 
-	msg1 := stakingtypes.NewMsgEditValidator(sdk.ValAddress(pk1.Address()), desc, nil, nil)
+	msg1 := stakingtypes.NewMsgEditValidator(sdk.ValAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk, desc, nil, nil)
 
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
 	txBuilder := txGen.NewTxBuilder()

@@ -108,7 +108,10 @@ func TestMsgEditValidator(t *testing.T) {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
 		newRate := sdk.ZeroDec()
 
-		msg := types.NewMsgEditValidator(tc.validatorAddr, description, &newRate, &tc.minSelfDelegation)
+		// TODO: move bls pubkey into tests struct
+		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+
+		msg := types.NewMsgEditValidator(tc.validatorAddr, sdk.AccAddress(tc.validatorAddr), blsPk, description, &newRate, &tc.minSelfDelegation)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

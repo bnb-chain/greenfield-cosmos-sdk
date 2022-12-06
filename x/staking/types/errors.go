@@ -56,4 +56,5 @@ var (
 	ErrValidatorBlsPubkeyExists = sdkerrors.Register(ModuleName, 43, "validator already exist for this bls pubkey; must use new validator bls pubkey")
 	ErrDelegationNotAllowed     = sdkerrors.Register(ModuleName, 44, "delegation is not allowed")
 	ErrRedelegationNotAllowed   = sdkerrors.Register(ModuleName, 45, "redelegation is not allowed")
+	ErrEmptyValidatorBlsPubKey  = sdkerrors.Register(ModuleName, 46, "empty validator bls public key")
 )
