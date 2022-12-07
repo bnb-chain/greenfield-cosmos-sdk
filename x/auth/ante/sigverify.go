@@ -32,7 +32,7 @@ var (
 )
 
 func init() {
-	// This decodes a valid hex string into a ethsepc256k1Pubkey for use in transaction simulation
+	// This decodes a valid hex string into an eth_secp256k1Pubkey for use in transaction simulation
 	bz, _ := hex.DecodeString("035AD6810A47F073553FF30D2FCC7E0D3B1C0B74B61A1AAA2582344037151E143A")
 	copy(key, bz)
 	simSecp256k1Pubkey.Key = key

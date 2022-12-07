@@ -179,6 +179,16 @@ func VerifyAddressFormat(bz []byte) error {
 	return nil
 }
 
+// MustAccAddressFromBech32 calls AccAddressFromBech32 and panics on error.
+func MustAccAddressFromBech32(address string) AccAddress {
+	panic("Deprecated method")
+}
+
+// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
+func AccAddressFromBech32(address string) (addr AccAddress, err error) {
+	panic("Deprecated method")
+}
+
 // Returns boolean for whether two AccAddresses are Equal
 func (aa AccAddress) Equals(aa2 Address) bool {
 	if aa.Empty() && aa2.Empty() {
@@ -304,6 +314,11 @@ type ValAddress []byte
 func ValAddressFromHex(address string) (addr ValAddress, err error) {
 	bz, err := AccAddressFromHexUnsafe(address)
 	return ValAddress(bz), err
+}
+
+// ValAddressFromBech32 creates a ValAddress from a Bech32 string.
+func ValAddressFromBech32(address string) (addr ValAddress, err error) {
+	panic("Deprecated method")
 }
 
 // Returns boolean for whether two ValAddresses are Equal
