@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,6 +14,7 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 func TestEIP712Handler(t *testing.T) {
@@ -27,7 +29,7 @@ func TestEIP712Handler(t *testing.T) {
 
 	chainID := "ethermint_9000"
 	memo := "some test memo"
-	msgs := []sdk.Msg{testdata.NewTestMsg(addr)}
+	msgs := []sdk.Msg{banktypes.NewMsgSend(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))))}
 	accNum, accSeq := uint64(1), uint64(2) // Arbitrary account number/sequence
 
 	sigData := &signingtypes.SingleSignatureData{

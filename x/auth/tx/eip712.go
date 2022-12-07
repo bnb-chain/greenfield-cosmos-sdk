@@ -30,6 +30,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
+var domain = apitypes.TypedDataDomain{
+	Name:              "Inscription Tx",
+	Version:           "1.0.0",
+	VerifyingContract: "inscription",
+	Salt:              "0",
+}
+
 // signModeEip712Handler defines the SIGN_MODE_DIRECT SignModeHandler
 type signModeEip712Handler struct{}
 
@@ -46,24 +53,48 @@ func (signModeEip712Handler) Modes() []signingtypes.SignMode {
 }
 
 // GetSignBytes implements SignModeHandler.GetSignBytes
-func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
-	if mode != signingtypes.SignMode_SIGN_MODE_EIP_712 {
-		return nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
-	}
-
+func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData signing.SignerData, tx sdk.Tx) ([]byte, error) {
 	protoTx, ok := tx.(*wrapper)
 	if !ok {
 		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
 	}
 
-	typedChainID, err := ethermint.ParseChainID(data.ChainID)
+	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse chainID: %s", data.ChainID)
+		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
+	}
+
+	msgTypes, signDoc, err := GetMsgTypes(mode, signerData, tx, typedChainID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get msg types")
+	}
+
+	typedData, err := WrapTxToTypedData(protoTx.cdc, typedChainID.Uint64(), protoTx.GetMsgs()[0], signDoc, msgTypes)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
+	}
+
+	sigHash, err := ComputeTypedDataHash(typedData)
+	if err != nil {
+		return nil, err
+	}
+
+	return sigHash, nil
+}
+
+func GetMsgTypes(mode signingtypes.SignMode, signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
+	if mode != signingtypes.SignMode_SIGN_MODE_EIP_712 {
+		return nil, nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
+	}
+
+	protoTx, ok := tx.(*wrapper)
+	if !ok {
+		return nil, nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
 	}
 
 	signDoc := &types.SignDocEip712{
-		AccountNumber: data.AccountNumber,
-		Sequence:      data.Sequence,
+		AccountNumber: signerData.AccountNumber,
+		Sequence:      signerData.Sequence,
 		ChainId:       typedChainID.Uint64(),
 		TimeoutHeight: protoTx.GetTimeoutHeight(),
 		Fee: types.Fee{
@@ -76,17 +107,30 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, data signi
 		Tip:  protoTx.GetTip(),
 	}
 
-	typedData, err := WrapTxToTypedData(protoTx.cdc, typedChainID.Uint64(), protoTx.GetMsgs()[0], signDoc)
+	msgTypes, err := extractMsgTypes(protoTx.cdc, protoTx.GetMsgs()[0])
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
+		return nil, nil, err
 	}
 
-	sigHash, err := ComputeTypedDataHash(typedData)
-	if err != nil {
-		return nil, err
+	if signDoc.Tip != nil {
+		// patching msgTypes to include Tip
+		msgTypes["Tx"] = []apitypes.Type{
+			{Name: "account_number", Type: "uint256"},
+			{Name: "chain_id", Type: "uint256"},
+			{Name: "fee", Type: "Fee"},
+			{Name: "memo", Type: "string"},
+			{Name: "msg", Type: "Msg"},
+			{Name: "sequence", Type: "uint256"},
+			{Name: "timeout_height", Type: "uint256"},
+			{Name: "tip", Type: "Tip"},
+		}
+		msgTypes["Tip"] = []apitypes.Type{
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "tipper", Type: "string"},
+		}
 	}
 
-	return sigHash, nil
+	return msgTypes, signDoc, nil
 }
 
 // ComputeTypedDataHash computes keccak hash of typed data for signing.
@@ -112,38 +156,8 @@ func WrapTxToTypedData(
 	chainID uint64,
 	msg sdk.Msg,
 	signDoc *types.SignDocEip712,
+	msgTypes apitypes.Types,
 ) (apitypes.TypedData, error) {
-	domain := apitypes.TypedDataDomain{
-		Name:              "Inscription Tx",
-		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
-		VerifyingContract: "inscription",
-		Salt:              "0",
-	}
-
-	msgTypes, err := extractMsgTypes(cdc, msg)
-	if err != nil {
-		return apitypes.TypedData{}, err
-	}
-
-	if signDoc.Tip != nil {
-		// patching msgTypes to include Tip
-		msgTypes["Tx"] = []apitypes.Type{
-			{Name: "account_number", Type: "uint256"},
-			{Name: "chain_id", Type: "uint256"},
-			{Name: "fee", Type: "Fee"},
-			{Name: "memo", Type: "string"},
-			{Name: "msg", Type: "Msg"},
-			{Name: "sequence", Type: "uint256"},
-			{Name: "timeout_height", Type: "uint256"},
-			{Name: "tip", Type: "Tip"},
-		}
-		msgTypes["Tip"] = []apitypes.Type{
-			{Name: "amount", Type: "Coin[]"},
-			{Name: "tipper", Type: "string"},
-		}
-	}
-
 	var txData map[string]interface{}
 	bz, err := cdc.MarshalJSON(signDoc)
 	if err != nil {
@@ -168,6 +182,8 @@ func WrapTxToTypedData(
 	if txData["tip"] == nil {
 		delete(txData, "tip")
 	}
+
+	domain.ChainId = math.NewHexOrDecimal256(int64(chainID))
 
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
