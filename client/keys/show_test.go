@@ -88,7 +88,7 @@ func Test_runShowCmd(t *testing.T) {
 	cmd.SetArgs([]string{
 		fakeKeyName1,
 		fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome),
-		fmt.Sprintf("--%s=", FlagBechPrefix),
+		fmt.Sprintf("--%s=", "bech"),
 		fmt.Sprintf("--%s=%s", flags.FlagKeyringBackend, keyring.BackendTest),
 	})
 	require.EqualError(t, cmd.ExecuteContext(ctx), "unknown flag: --bech")

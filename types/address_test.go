@@ -63,9 +63,9 @@ func (s *addressTestSuite) TestEmptyAddresses() {
 	// s.Require().True(valAddr.Empty())
 	// s.Require().Error(err)
 
-	consAddr, err := types.ConsAddressFromBech32("")
-	s.Require().True(consAddr.Empty())
-	s.Require().Error(err)
+	// consAddr, err := types.ConsAddressFromHex("")
+	// s.Require().True(consAddr.Empty())
+	// s.Require().Error(err)
 }
 
 func (s *addressTestSuite) TestYAMLMarshalers() {
@@ -179,7 +179,7 @@ func (s *addressTestSuite) TestConsAddress() {
 		s.testMarshal(&acc, &res, acc.Marshal, (&res).Unmarshal)
 
 		str := acc.String()
-		res, err := types.ConsAddressFromBech32(str)
+		res, err := types.ConsAddressFromHex(str)
 		s.Require().Nil(err)
 		s.Require().Equal(acc, res)
 
@@ -193,7 +193,7 @@ func (s *addressTestSuite) TestConsAddress() {
 		_, err := types.ConsAddressFromHex(str)
 		s.Require().NotNil(err)
 
-		_, err = types.ConsAddressFromBech32(str)
+		_, err = types.ConsAddressFromHex(str)
 		s.Require().NotNil(err)
 
 		err = (*types.ConsAddress)(nil).UnmarshalJSON([]byte("\"" + str + "\""))
@@ -202,7 +202,7 @@ func (s *addressTestSuite) TestConsAddress() {
 
 	// test empty string
 	_, err := types.ConsAddressFromHex("")
-	s.Require().Equal(types.ErrEmptyHexAddress, err)
+	s.Require().Equal(fmt.Errorf("empty address string is not allowed"), err)
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz"
@@ -291,7 +291,7 @@ func (s *addressTestSuite) TestAddressInterface() {
 			_, err := types.ValAddressFromHex(addr.String())
 			s.Require().Nil(err)
 		case types.ConsAddress:
-			_, err := types.ConsAddressFromBech32(addr.String())
+			_, err := types.ConsAddressFromHex(addr.String())
 			s.Require().Nil(err)
 		default:
 			s.T().Fail()
@@ -323,7 +323,7 @@ func (s *addressTestSuite) TestCustomAddressVerifier() {
 	addr := []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	accHex := types.AccAddress(addr).String()
 	valHex := types.ValAddress(addr).String()
-	consBech := types.ConsAddress(addr).String()
+	consHex := types.ConsAddress(addr).String()
 	// Verify that the default logic doesn't reject this 10 byte address
 	// The default verifier is nil, we're only checking address length is
 	// between 1-255 bytes.
@@ -333,7 +333,7 @@ func (s *addressTestSuite) TestCustomAddressVerifier() {
 	s.Require().Nil(err)
 	_, err = types.ValAddressFromHex(valHex)
 	s.Require().Nil(err)
-	_, err = types.ConsAddressFromBech32(consBech)
+	_, err = types.ConsAddressFromHex(consHex)
 	s.Require().Nil(err)
 
 	// Set a custom address verifier only accepts 20 byte addresses
@@ -352,8 +352,8 @@ func (s *addressTestSuite) TestCustomAddressVerifier() {
 	// s.Require().NotNil(err)
 	// _, err = types.ValAddressFromHex(valHex)
 	// s.Require().NotNil(err)
-	_, err = types.ConsAddressFromBech32(consBech)
-	s.Require().NotNil(err)
+	// _, err = types.ConsAddressFromHex(consHex)
+	// s.Require().NotNil(err)
 
 	// Reinitialize the global config to default address verifier (nil)
 	types.GetConfig().SetAddressVerifier(nil)

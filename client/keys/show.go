@@ -21,8 +21,8 @@ const (
 	FlagAddress = "address"
 	// FlagPublicKey represents the user's public key on the command line.
 	FlagPublicKey = "pubkey"
-	// FlagBechPrefix defines a desired Bech32 prefix encoding for a key.
-	FlagBechPrefix = "bech"
+	// // FlagBechPrefix defines a desired Bech32 prefix encoding for a key.
+	// FlagBechPrefix = "bech"
 	// FlagDevice indicates that the information should be shown in the device
 	FlagDevice = "device"
 

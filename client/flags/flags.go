@@ -39,6 +39,8 @@ const (
 	SignModeDirectAux = "direct-aux"
 	// SignModeEIP191 is the value of the --sign-mode flag for SIGN_MODE_EIP_191
 	SignModeEIP191 = "eip-191"
+	// SignModeEIP712 is the value of the --sign-mode flag for SIGN_MODE_EIP_712
+	SignModeEIP712 = "eip-712"
 )
 
 // List of CLI flags

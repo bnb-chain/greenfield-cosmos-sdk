@@ -9,7 +9,6 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -26,17 +25,17 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 				return err
 			}
 
-			feePayerSig := data.Signature
-			if len(feePayerSig) != ethcrypto.SignatureLength {
+			senderSig := data.Signature
+			if len(senderSig) != ethcrypto.SignatureLength {
 				return errors.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
 			}
 
 			// Remove the recovery offset if needed (ie. Metamask eip712 signature)
-			if feePayerSig[ethcrypto.RecoveryIDOffset] == 27 || feePayerSig[ethcrypto.RecoveryIDOffset] == 28 {
-				feePayerSig[ethcrypto.RecoveryIDOffset] -= 27
+			if senderSig[ethcrypto.RecoveryIDOffset] == 27 || senderSig[ethcrypto.RecoveryIDOffset] == 28 {
+				senderSig[ethcrypto.RecoveryIDOffset] -= 27
 			}
 
-			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, feePayerSig)
+			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, senderSig)
 			if err != nil {
 				return errors.Wrap(err, "failed to recover delegated fee payer from sig")
 			}
@@ -62,7 +61,7 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 
 			// VerifySignature of ethsecp256k1 accepts 64 byte signature [R||S]
 			// WARNING! Under NO CIRCUMSTANCES try to use pubKey.VerifySignature there
-			if !secp256k1.VerifySignature(pubKey.Bytes(), sigHash, feePayerSig[:len(feePayerSig)-1]) {
+			if !secp256k1.VerifySignature(pubKey.Bytes(), sigHash, senderSig[:len(senderSig)-1]) {
 				return errors.Wrap(sdkerrors.ErrorInvalidSigner, "unable to verify signer signature of EIP712 typed data")
 			}
 			return nil
@@ -78,17 +77,18 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 		}
 
 	case *signing.MultiSignatureData:
-		multiPK, ok := pubKey.(multisig.PubKey)
-		if !ok {
-			return fmt.Errorf("expected %T, got %T", (multisig.PubKey)(nil), pubKey)
-		}
-		err := multiPK.VerifyMultisignature(func(mode signing.SignMode) ([]byte, error) {
-			return handler.GetSignBytes(mode, signerData, tx)
-		}, data)
-		if err != nil {
-			return err
-		}
-		return nil
+		// multiPK, ok := pubKey.(multisig.PubKey)
+		// if !ok {
+		// 	return fmt.Errorf("expected %T, got %T", (multisig.PubKey)(nil), pubKey)
+		// }
+		// err := multiPK.VerifyMultisignature(func(mode signing.SignMode) ([]byte, error) {
+		// 	return handler.GetSignBytes(mode, signerData, tx)
+		// }, data)
+		// if err != nil {
+		// 	return err
+		// }
+		// return nil
+		return fmt.Errorf("multi signature is not allowed")
 	default:
 		return fmt.Errorf("unexpected SignatureData %T", sigData)
 	}

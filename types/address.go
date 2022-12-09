@@ -446,29 +446,13 @@ type ConsAddress []byte
 
 // ConsAddressFromHex creates a ConsAddress from a hex string.
 func ConsAddressFromHex(address string) (addr ConsAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
+	bz, err := AccAddressFromHexUnsafe(address)
 	return ConsAddress(bz), err
 }
 
 // ConsAddressFromBech32 creates a ConsAddress from a Bech32 string.
 func ConsAddressFromBech32(address string) (addr ConsAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return ConsAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixConsAddr := GetConfig().GetBech32ConsensusAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixConsAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return ConsAddress(bz), nil
+	panic("Deprecated method")
 }
 
 // get ConsAddress from pubkey
@@ -526,7 +510,7 @@ func (ca *ConsAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	ca2, err := ConsAddressFromBech32(s)
+	ca2, err := ConsAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -548,7 +532,7 @@ func (ca *ConsAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	ca2, err := ConsAddressFromBech32(s)
+	ca2, err := ConsAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -575,7 +559,7 @@ func (ca ConsAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheBech32Addr(GetConfig().GetBech32ConsensusAddrPrefix(), ca, consAddrCache, key)
+	return cacheEthAddr(ca, consAddrCache, key)
 }
 
 // Bech32ifyAddressBytes returns a bech32 representation of address bytes.

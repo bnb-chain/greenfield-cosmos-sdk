@@ -22,6 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	types "github.com/cosmos/cosmos-sdk/types/tx"
@@ -30,11 +31,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 )
 
+var msgCodec codec.ProtoCodecMarshaler
+
 var domain = apitypes.TypedDataDomain{
 	Name:              "Inscription Tx",
 	Version:           "1.0.0",
 	VerifyingContract: "inscription",
 	Salt:              "0",
+}
+
+func init() {
+	registry := codectypes.NewInterfaceRegistry()
+	std.RegisterInterfaces(registry)
+	msgCodec = codec.NewProtoCodec(registry)
 }
 
 // signModeEip712Handler defines the SIGN_MODE_DIRECT SignModeHandler
@@ -54,9 +63,18 @@ func (signModeEip712Handler) Modes() []signingtypes.SignMode {
 
 // GetSignBytes implements SignModeHandler.GetSignBytes
 func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData signing.SignerData, tx sdk.Tx) ([]byte, error) {
+	if mode != signingtypes.SignMode_SIGN_MODE_EIP_712 {
+		return nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
+	}
+
 	protoTx, ok := tx.(*wrapper)
 	if !ok {
 		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
+	}
+
+	cdc := protoTx.cdc
+	if protoTx.cdc == nil {
+		cdc = msgCodec
 	}
 
 	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
@@ -64,12 +82,12 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
-	msgTypes, signDoc, err := GetMsgTypes(mode, signerData, tx, typedChainID)
+	msgTypes, signDoc, err := GetMsgTypes(cdc, signerData, tx, typedChainID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get msg types")
 	}
 
-	typedData, err := WrapTxToTypedData(protoTx.cdc, typedChainID.Uint64(), protoTx.GetMsgs()[0], signDoc, msgTypes)
+	typedData, err := WrapTxToTypedData(cdc, typedChainID.Uint64(), protoTx.GetMsgs()[0], signDoc, msgTypes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
 	}
@@ -82,11 +100,7 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 	return sigHash, nil
 }
 
-func GetMsgTypes(mode signingtypes.SignMode, signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
-	if mode != signingtypes.SignMode_SIGN_MODE_EIP_712 {
-		return nil, nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
-	}
-
+func GetMsgTypes(cdc codectypes.AnyUnpacker, signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
 	protoTx, ok := tx.(*wrapper)
 	if !ok {
 		return nil, nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
@@ -107,7 +121,7 @@ func GetMsgTypes(mode signingtypes.SignMode, signerData signing.SignerData, tx s
 		Tip:  protoTx.GetTip(),
 	}
 
-	msgTypes, err := extractMsgTypes(protoTx.cdc, protoTx.GetMsgs()[0])
+	msgTypes, err := extractMsgTypes(cdc, protoTx.GetMsgs()[0])
 	if err != nil {
 		return nil, nil, err
 	}
@@ -331,6 +345,9 @@ func traverseFields(
 
 		// If it's a nil pointer, do not include in types
 		if fieldType.Kind() == reflect.Ptr && field.IsNil() {
+			continue
+		}
+		if fieldType.Kind() == reflect.String && field.String() == "" {
 			continue
 		}
 
