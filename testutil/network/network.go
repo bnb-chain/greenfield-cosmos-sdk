@@ -407,6 +407,8 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
+			// FIXME: should set proper value to pass testcases.
+			addr, addr, addr, "",
 		)
 		if err != nil {
 			return nil, err

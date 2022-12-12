@@ -16,12 +16,13 @@ import (
 type Keeper struct {
 	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
+	ak         types.AccountKeeper
 	sk         types.StakingKeeper
 	paramspace types.ParamSubspace
 }
 
 // NewKeeper creates a slashing keeper
-func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, sk types.StakingKeeper, paramspace types.ParamSubspace) Keeper {
+func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, ak types.AccountKeeper, sk types.StakingKeeper, paramspace types.ParamSubspace) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramspace.HasKeyTable() {
 		paramspace = paramspace.WithKeyTable(types.ParamKeyTable())
@@ -30,6 +31,7 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, sk types.StakingK
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,
+		ak:         ak,
 		sk:         sk,
 		paramspace: paramspace,
 	}

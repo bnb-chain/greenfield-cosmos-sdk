@@ -25,7 +25,8 @@ type ValidatorI interface {
 	IsUnbonding() bool                                       // check if has status unbonding
 	GetOperator() sdk.ValAddress                             // operator address to receive/return validators coins
 	GetSelfDelegator() sdk.AccAddress                        // validator address used for self delegation
-	GetBlsPubkey() []byte                                    // validator authorized relayer/operator's bls pubkey
+	GetRelayer() sdk.AccAddress                              // validator authorized relayer/operator address
+	GetRelayerBlsKey() []byte                                // validator authorized relayer/operator's bls pubkey
 	ConsPubKey() (cryptotypes.PubKey, error)                 // validation consensus pubkey (cryptotypes.PubKey)
 	TmConsPublicKey() (tmprotocrypto.PublicKey, error)       // validation consensus pubkey (Tendermint)
 	GetConsAddr() (sdk.ConsAddress, error)                   // validation consensus address

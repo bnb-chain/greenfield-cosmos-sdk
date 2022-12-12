@@ -158,7 +158,14 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k k
 			simtypes.RandomDecAmount(r, maxCommission),
 		)
 
-		msg, err := types.NewMsgCreateValidator(address, simAccount.ConsKey.PubKey(), selfDelegation, description, commission, sdk.OneInt())
+		// TODO: generate random bls pubkey
+		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+
+		msg, err := types.NewMsgCreateValidator(
+			address, simAccount.ConsKey.PubKey(),
+			selfDelegation, description, commission, sdk.OneInt(),
+			sdk.AccAddress(address), sdk.AccAddress(address), sdk.AccAddress(address), blsPk,
+		)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
 		}
@@ -222,7 +229,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 		// TODO: generate random bls pubkey
 		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
 
-		msg := types.NewMsgEditValidator(address, sdk.AccAddress(address), blsPk, description, &newCommissionRate, nil)
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, sdk.AccAddress(address), blsPk)
 
 		txCtx := simulation.OperationInput{
 			R:               r,

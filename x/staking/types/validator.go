@@ -38,7 +38,8 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewSimpleValidator constructs a new Validator with default self delegation address and nil bls pubkey
+// FixMe: use only NewValidator, no NewSimpleValidator.
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
 //
 //nolint:interfacerh
 func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
@@ -48,34 +49,39 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 	}
 
 	return Validator{
-		OperatorAddress:       operator.String(),
-		ConsensusPubkey:       pkAny,
-		Jailed:                false,
-		Status:                Unbonded,
-		Tokens:                sdk.ZeroInt(),
-		DelegatorShares:       sdk.ZeroDec(),
-		Description:           description,
-		UnbondingHeight:       int64(0),
-		UnbondingTime:         time.Unix(0, 0).UTC(),
-		Commission:            NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-		MinSelfDelegation:     sdk.OneInt(),
-		SelfDelegationAddress: operator.String(),
-		BlsPubkey:             []byte{},
-		Removed:               false,
+		OperatorAddress:   operator.String(),
+		ConsensusPubkey:   pkAny,
+		Jailed:            false,
+		Status:            Unbonded,
+		Tokens:            sdk.ZeroInt(),
+		DelegatorShares:   sdk.ZeroDec(),
+		Description:       description,
+		UnbondingHeight:   int64(0),
+		UnbondingTime:     time.Unix(0, 0).UTC(),
+		Commission:        NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+		MinSelfDelegation: sdk.OneInt(),
+		SelfdelAddress:    operator.String(),
+		RelayerAddress:    operator.String(),
+		RelayerBlskey:     []byte{},
 	}, nil
 }
 
 // NewValidator constructs a new Validator
 //
 //nolint:interfacerh
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description, selfDelegator sdk.AccAddress, blsPk []byte) (Validator, error) {
+func NewValidator(
+	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+	description Description, selfDelegator sdk.AccAddress,
+	relayer sdk.AccAddress, relayerBlsKey []byte,
+) (Validator, error) {
 	val, err := NewSimpleValidator(operator, pubKey, description)
 	if err != nil {
 		return val, err
 	}
 
-	val.SelfDelegationAddress = selfDelegator.String()
-	val.BlsPubkey = blsPk
+	val.SelfdelAddress = selfDelegator.String()
+	val.RelayerAddress = relayer.String()
+	val.RelayerBlskey = relayerBlsKey
 	return val, nil
 }
 
@@ -472,9 +478,9 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.Jailed == other.Jailed &&
 		v.MinSelfDelegation.Equal(other.MinSelfDelegation) &&
 		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
-		v.SelfDelegationAddress == other.SelfDelegationAddress &&
-		bytes.Equal(v.BlsPubkey, other.BlsPubkey) &&
-		v.Removed == other.Removed
+		v.SelfdelAddress == other.SelfdelAddress &&
+		v.RelayerAddress == other.RelayerAddress &&
+		bytes.Equal(v.RelayerBlskey, other.RelayerBlskey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -484,10 +490,10 @@ func (v *Validator) Equal(v2 *Validator) bool {
 		v.UnbondingTime.Equal(v2.UnbondingTime)
 }
 
-func (v Validator) IsJailed() bool        { return v.Jailed }
-func (v Validator) GetMoniker() string    { return v.Description.Moniker }
-func (v Validator) GetStatus() BondStatus { return v.Status }
-func (v Validator) GetBlsPubkey() []byte  { return v.BlsPubkey }
+func (v Validator) IsJailed() bool           { return v.Jailed }
+func (v Validator) GetMoniker() string       { return v.Description.Moniker }
+func (v Validator) GetStatus() BondStatus    { return v.Status }
+func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlskey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
@@ -500,10 +506,21 @@ func (v Validator) GetOperator() sdk.ValAddress {
 }
 
 func (v Validator) GetSelfDelegator() sdk.AccAddress {
-	if v.SelfDelegationAddress == "" {
+	if v.SelfdelAddress == "" {
 		return nil
 	}
-	addr, err := sdk.AccAddressFromBech32(v.SelfDelegationAddress)
+	addr, err := sdk.AccAddressFromBech32(v.SelfdelAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetRelayer() sdk.AccAddress {
+	if v.RelayerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromBech32(v.RelayerAddress)
 	if err != nil {
 		panic(err)
 	}

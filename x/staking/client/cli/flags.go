@@ -32,8 +32,8 @@ const (
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"
 
-	FlagSelfDelegator = "self-delegator"
-	FlagBlsPubkey     = "bls-pubkey"
+	FlagRelayerAddress = "relayer-address"
+	FlagRelayerBlskey  = "relayer-blskey"
 )
 
 // common flagsets to add to various functions

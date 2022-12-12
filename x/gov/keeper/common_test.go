@@ -46,6 +46,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers 
 		cdc,
 		app.GetKey(stakingtypes.StoreKey),
 		app.AccountKeeper,
+		app.AuthzKeeper,
 		app.BankKeeper,
 		app.GetSubspace(stakingtypes.ModuleName),
 	)

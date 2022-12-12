@@ -295,6 +295,8 @@ func initTestnetFiles(
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
+			// FIXME: should set proper value to pass testcases.
+			addr, addr, addr, "",
 		)
 		if err != nil {
 			return err

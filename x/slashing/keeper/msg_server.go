@@ -2,6 +2,9 @@ package keeper
 
 import (
 	"context"
+	"time"
+
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -43,4 +46,53 @@ func (k msgServer) Unjail(goCtx context.Context, msg *types.MsgUnjail) (*types.M
 	)
 
 	return &types.MsgUnjailResponse{}, nil
+}
+
+// KickOut defines a method for removing an existing validator after gov proposal passes.
+func (k msgServer) KickOut(goCtx context.Context, msg *types.MsgKickOut) (*types.MsgKickOutResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	signers := msg.GetSigners()
+	if len(signers) != 1 || !signers[0].Equals(k.ak.GetModuleAddress(gov.ModuleName)) {
+		return nil, types.ErrSignerNotGovModule
+	}
+
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// validator must already be registered
+	validator := k.sk.Validator(ctx, valAddr)
+	if validator == nil {
+		return nil, types.ErrNoValidatorForAddress
+	}
+
+	consAddr, err := validator.GetConsAddr()
+	if err != nil {
+		return nil, err
+	}
+
+	// Jail the validator if not already jailed. This will begin unbonding the
+	// validator if not already unbonding (tombstoned).
+	if !validator.IsJailed() {
+		k.Jail(ctx, consAddr)
+	}
+
+	// Jail to a big enough time (Dec 31, 9999 - 23:59:59 GMT)
+	k.JailUntil(ctx, consAddr, time.Unix(253402300799, 0))
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeKickOut,
+			sdk.NewAttribute(types.AttributeKeyAddress, msg.ValidatorAddress),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.From),
+		),
+	})
+
+	return &types.MsgKickOutResponse{}, nil
 }

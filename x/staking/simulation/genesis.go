@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
@@ -36,6 +37,11 @@ func getHistEntries(r *rand.Rand) uint32 {
 	return uint32(r.Intn(int(types.DefaultHistoricalEntries + 1)))
 }
 
+// genMinSelfDelegation returns randomized minSelfDelegation
+func genMinSelfDelegation(r *rand.Rand) (minSelfDelegation math.Int) {
+	return math.NewInt(int64(simulation.RandIntBetween(r, 10000, 50000)))
+}
+
 // RandomizedGenState generates a random GenesisState for staking
 func RandomizedGenState(simState *module.SimulationState) {
 	// params
@@ -44,6 +50,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 		maxVals           uint32
 		histEntries       uint32
 		minCommissionRate sdk.Dec
+		minSelfDelegation math.Int
 	)
 
 	simState.AppParams.GetOrGenerate(
@@ -61,10 +68,15 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { histEntries = getHistEntries(r) },
 	)
 
+	simState.AppParams.GetOrGenerate(
+		simState.Cdc, historicalEntries, &histEntries, simState.Rand,
+		func(r *rand.Rand) { minSelfDelegation = genMinSelfDelegation(r) },
+	)
+
 	// NOTE: the slashing module need to be defined after the staking module on the
 	// NewSimulationManager constructor for this to work
 	simState.UnbondTime = unbondTime
-	params := types.NewParams(simState.UnbondTime, maxVals, 7, histEntries, sdk.DefaultBondDenom, minCommissionRate)
+	params := types.NewParams(simState.UnbondTime, maxVals, 7, histEntries, sdk.DefaultBondDenom, minCommissionRate, minSelfDelegation)
 
 	// validators & delegations
 	var (

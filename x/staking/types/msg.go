@@ -14,7 +14,6 @@ const (
 	TypeMsgCancelUnbondingDelegation = "cancel_unbond"
 	TypeMsgEditValidator             = "edit_validator"
 	TypeMsgCreateValidator           = "create_validator"
-	TypeMsgRemoveValidator           = "remove_validator"
 	TypeMsgDelegate                  = "delegate"
 	TypeMsgBeginRedelegate           = "begin_redelegate"
 )
@@ -24,7 +23,6 @@ var (
 	_ codectypes.UnpackInterfacesMessage = (*MsgCreateValidator)(nil)
 	_ sdk.Msg                            = &MsgCreateValidator{}
 	_ sdk.Msg                            = &MsgEditValidator{}
-	_ sdk.Msg                            = &MsgRemoveValidator{}
 	_ sdk.Msg                            = &MsgDelegate{}
 	_ sdk.Msg                            = &MsgUndelegate{}
 	_ sdk.Msg                            = &MsgBeginRedelegate{}
@@ -34,9 +32,9 @@ var (
 // NewMsgCreateValidator creates a new MsgCreateValidator instance.
 // Delegator address and validator address are the same.
 func NewMsgCreateValidator(
-	from sdk.AccAddress,
-	valAddr sdk.ValAddress, selfDelAddr sdk.AccAddress, pubKey cryptotypes.PubKey, blsPubkey string, //nolint:interfacer
+	valAddr sdk.ValAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
+	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -54,7 +52,8 @@ func NewMsgCreateValidator(
 		Commission:        commission,
 		MinSelfDelegation: minSelfDelegation,
 		From:              from.String(),
-		BlsPubkey:         blsPubkey,
+		RelayerAddress:    relayerAddr.String(),
+		RelayerBlskey:     relayerBlsKey,
 	}, nil
 }
 
@@ -89,13 +88,16 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
+	if _, err := sdk.ValAddressFromBech32(msg.RelayerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
+	}
 
 	if msg.Pubkey == nil {
 		return ErrEmptyValidatorPubKey
 	}
 
-	if len(msg.BlsPubkey) == 0 {
-		return ErrEmptyValidatorBlsPubKey
+	if len(msg.RelayerBlskey) == 0 {
+		return ErrValidatorRelayerBlsKeyEmpty
 	}
 
 	if !msg.Value.IsValid() || !msg.Value.Amount.IsPositive() {
@@ -138,16 +140,16 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 //
 //nolint:interfacer
 func NewMsgEditValidator(
-	valAddr sdk.ValAddress, delegator sdk.AccAddress, blsPubkey string,
-	description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
+	valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
+	newRelayerAddr sdk.AccAddress, newRelayerBlsKey string,
 ) *MsgEditValidator {
 	return &MsgEditValidator{
-		Description:           description,
-		CommissionRate:        newRate,
-		ValidatorAddress:      valAddr.String(),
-		MinSelfDelegation:     newMinSelfDelegation,
-		SelfDelegationAddress: delegator.String(),
-		BlsPubkey:             blsPubkey,
+		Description:       description,
+		CommissionRate:    newRate,
+		ValidatorAddress:  valAddr.String(),
+		MinSelfDelegation: newMinSelfDelegation,
+		RelayerAddress:    newRelayerAddr.String(),
+		RelayerBlskey:     newRelayerBlsKey,
 	}
 }
 
@@ -175,12 +177,12 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
-	if _, err := sdk.ValAddressFromBech32(msg.SelfDelegationAddress); err != nil {
+	if _, err := sdk.ValAddressFromBech32(msg.RelayerAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator self delegation address: %s", err)
 	}
 
-	if len(msg.BlsPubkey) == 0 {
-		return ErrEmptyValidatorBlsPubKey
+	if len(msg.RelayerBlskey) == 0 {
+		return ErrValidatorRelayerBlsKeyEmpty
 	}
 
 	if msg.Description == (Description{}) {
@@ -198,47 +200,6 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		if msg.CommissionRate.GT(sdk.OneDec()) || msg.CommissionRate.IsNegative() {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "commission rate must be between 0 and 1 (inclusive)")
 		}
-	}
-
-	return nil
-}
-
-// NewMsgRemoveValidator creates a new MsgRemoveValidator instance
-//
-//nolint:interfacer
-func NewMsgRemoveValidator(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgRemoveValidator {
-	return &MsgRemoveValidator{
-		ValidatorAddress: valAddr.String(),
-		From:             from.String(),
-	}
-}
-
-// Route implements the sdk.Msg interface.
-func (msg MsgRemoveValidator) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface.
-func (msg MsgRemoveValidator) Type() string { return TypeMsgRemoveValidator }
-
-// GetSigners implements the sdk.Msg interface.
-func (msg MsgRemoveValidator) GetSigners() []sdk.AccAddress {
-	fromAddr, _ := sdk.AccAddressFromBech32(msg.From)
-	return []sdk.AccAddress{fromAddr}
-}
-
-// GetSignBytes implements the sdk.Msg interface.
-func (msg MsgRemoveValidator) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
-}
-
-// ValidateBasic implements the sdk.Msg interface.
-func (msg MsgRemoveValidator) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.From); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
 	return nil

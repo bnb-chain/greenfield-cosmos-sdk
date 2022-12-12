@@ -1011,3 +1011,20 @@ func (k Keeper) ValidateUnbondAmount(
 
 	return shares, nil
 }
+
+func (k Keeper) GetSelfDelegation(ctx sdk.Context, valAddr sdk.ValAddress) (amount math.Int, err error) {
+	// get validator
+	validator, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return amount, types.ErrNoValidatorFound
+	}
+
+	delAddr := validator.GetSelfDelegator()
+	// check if a delegation object exists in the store
+	delegation, found := k.GetDelegation(ctx, delAddr, valAddr)
+	if !found {
+		return amount, types.ErrNoDelegatorForAddress
+	}
+
+	return validator.TokensFromShares(delegation.Shares).TruncateInt(), nil
+}
