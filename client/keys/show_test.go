@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func Test_multiSigKey_Properties(t *testing.T) {
@@ -54,7 +55,7 @@ func Test_runShowCmd(t *testing.T) {
 
 	kbHome := t.TempDir()
 	cdc := simapp.MakeTestEncodingConfig().Codec
-	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc)
+	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, ethHd.EthSecp256k1Option())
 	require.NoError(t, err)
 
 	clientCtx := client.Context{}.

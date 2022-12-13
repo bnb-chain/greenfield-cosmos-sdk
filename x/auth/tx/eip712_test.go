@@ -76,7 +76,7 @@ func TestEIP712Handler(t *testing.T) {
 	require.EqualError(t, err, fmt.Sprintf("failed to parse chainID: %s", signingData.ChainID))
 
 	t.Log("verify GetSignBytes correct")
-	signingData.ChainID = "ethermint_9000-1"
+	signingData.ChainID = "inscription_9000-1"
 	signBytes, err := modeHandler.GetSignBytes(signingtypes.SignMode_SIGN_MODE_EIP_712, signingData, txBuilder.GetTx())
 	require.NoError(t, err)
 	require.NotNil(t, signBytes)

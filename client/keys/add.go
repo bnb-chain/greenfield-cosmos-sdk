@@ -8,7 +8,6 @@ import (
 	"sort"
 
 	"github.com/cosmos/go-bip39"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -19,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 const (
@@ -121,7 +121,7 @@ func runAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 
 	if dryRun, _ := cmd.Flags().GetBool(flags.FlagDryRun); dryRun {
 		// use in memory keybase
-		kb = keyring.NewInMemory(ctx.Codec)
+		kb = keyring.NewInMemory(ctx.Codec, ethHd.EthSecp256k1Option())
 	} else {
 		_, err = kb.Key(name)
 		if err == nil {
