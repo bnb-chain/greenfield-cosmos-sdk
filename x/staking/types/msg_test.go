@@ -35,9 +35,13 @@ func TestMsgDecode(t *testing.T) {
 	require.True(t, pk1.Equals(pkUnmarshaled.(*ed25519.PubKey)))
 
 	// now let's try to serialize the whole message
-
+	blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
 	commission1 := types.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	msg, err := types.NewMsgCreateValidator(valAddr1, pk1, coinPos, types.Description{}, commission1, sdk.OneInt())
+	msg, err := types.NewMsgCreateValidator(
+		valAddr1, pk1,
+		coinPos, types.Description{}, commission1, sdk.OneInt(),
+		sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1), blsPk,
+	)
 	require.NoError(t, err)
 	msgSerialized, err := cdc.MarshalInterface(msg)
 	require.NoError(t, err)
@@ -79,7 +83,11 @@ func TestMsgCreateValidator(t *testing.T) {
 
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
-		msg, err := types.NewMsgCreateValidator(tc.validatorAddr, tc.pubkey, tc.bond, description, tc.CommissionRates, tc.minSelfDelegation)
+		msg, err := types.NewMsgCreateValidator(
+			tc.validatorAddr, tc.pubkey,
+			tc.bond, description, tc.CommissionRates, tc.minSelfDelegation,
+			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), "",
+		)
 		require.NoError(t, err)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
@@ -111,7 +119,9 @@ func TestMsgEditValidator(t *testing.T) {
 		// TODO: move bls pubkey into tests struct
 		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
 
-		msg := types.NewMsgEditValidator(tc.validatorAddr, sdk.AccAddress(tc.validatorAddr), blsPk, description, &newRate, &tc.minSelfDelegation)
+		msg := types.NewMsgEditValidator(
+			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,
+			sdk.AccAddress(tc.validatorAddr), blsPk)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

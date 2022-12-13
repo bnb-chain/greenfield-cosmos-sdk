@@ -56,6 +56,6 @@ var (
 	ErrValidatorRelayerBlsKeyExists  = sdkerrors.Register(ModuleName, 43, "validator already exist for this relayer bls pubkey; must use new bls pubkey")
 	ErrDelegationNotAllowed          = sdkerrors.Register(ModuleName, 44, "delegation is not allowed")
 	ErrRedelegationNotAllowed        = sdkerrors.Register(ModuleName, 45, "redelegation is not allowed")
-	ErrSignerNotGovModule            = sdkerrors.Register(ModuleName, 46, "signer is not gov module account")
+	ErrInvalidSigner                 = sdkerrors.Register(ModuleName, 46, "invalid signer")
 	ErrInvalidMinSelfDelegation      = sdkerrors.Register(ModuleName, 47, "invalid minimum self delegation, must no less than the chain level minimum self delegation")
 )

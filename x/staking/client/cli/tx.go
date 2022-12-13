@@ -109,6 +109,7 @@ func NewEditValidatorCmd() *cobra.Command {
 			security, _ := cmd.Flags().GetString(FlagSecurityContact)
 			details, _ := cmd.Flags().GetString(FlagDetails)
 			description := types.NewDescription(moniker, identity, website, security, details)
+			relayer := sdk.AccAddress("")
 
 			var newRate *sdk.Dec
 
@@ -134,15 +135,13 @@ func NewEditValidatorCmd() *cobra.Command {
 				newMinSelfDelegation = &msb
 			}
 
-			relayerAddr, _ := cmd.Flags().GetString(FlagRelayerAddress)
-			relayer, err := sdk.AccAddressFromBech32(relayerAddr)
-			if err != nil {
-				return fmt.Errorf("invalid self delegator address: %v", err)
-			}
-
-			blsPk, _ := cmd.Flags().GetString(FlagRelayerBlskey)
-			if len(blsPk) == 0 {
-				return fmt.Errorf("empty relayer bls public key")
+			relayerAddr, _ := cmd.Flags().GetString(FlagAddressRelayer)
+			blsPk, _ := cmd.Flags().GetString(FlagBlsKeyRelayer)
+			if relayerAddr != "" {
+				relayer, err = sdk.AccAddressFromBech32(relayerAddr)
+				if err != nil {
+					return fmt.Errorf("invalid relayer address: %v", err)
+				}
 			}
 
 			msg := types.NewMsgEditValidator(
@@ -157,6 +156,8 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetDescriptionEdit())
 	cmd.Flags().AddFlagSet(flagSetCommissionUpdate())
 	cmd.Flags().AddFlagSet(FlagSetMinSelfDelegation())
+	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
+	cmd.Flags().AddFlagSet(FlagSetRelayerBlsKey())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -473,6 +474,11 @@ type TxCreateValidatorConfig struct {
 	SecurityContact string
 	Details         string
 	Identity        string
+
+	Validator     sdk.ValAddress
+	Delegator     sdk.AccAddress
+	Relayer       sdk.AccAddress
+	RelayerBlsKey string
 }
 
 func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, chainID string, valPubKey cryptotypes.PubKey) (TxCreateValidatorConfig, error) {
@@ -571,54 +577,54 @@ func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, c
 
 // BuildCreateValidatorMsg makes a new MsgCreateValidator.
 func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorConfig, txBldr tx.Factory, generateOnly bool) (tx.Factory, sdk.Msg, error) {
-	return txBldr, nil, nil
-	// TODO: delete this cmd totally later.
-	//amounstStr := config.Amount
-	//amount, err := sdk.ParseCoinNormalized(amounstStr)
-	//if err != nil {
-	//	return txBldr, nil, err
-	//}
-	//
-	//valAddr := clientCtx.GetFromAddress()
-	//description := types.NewDescription(
-	//	config.Moniker,
-	//	config.Identity,
-	//	config.Website,
-	//	config.SecurityContact,
-	//	config.Details,
-	//)
-	//
-	//// get the initial validator commission parameters
-	//rateStr := config.CommissionRate
-	//maxRateStr := config.CommissionMaxRate
-	//maxChangeRateStr := config.CommissionMaxChangeRate
-	//commissionRates, err := buildCommissionRates(rateStr, maxRateStr, maxChangeRateStr)
-	//if err != nil {
-	//	return txBldr, nil, err
-	//}
-	//
-	//// get the initial validator min self delegation
-	//msbStr := config.MinSelfDelegation
-	//minSelfDelegation, ok := sdk.NewIntFromString(msbStr)
-	//
-	//if !ok {
-	//	return txBldr, nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "minimum self delegation must be a positive integer")
-	//}
-	//
-	//msg, err := types.NewMsgCreateValidator(
-	//	sdk.ValAddress(valAddr), config.PubKey, amount, description, commissionRates, minSelfDelegation,
-	//)
-	//if err != nil {
-	//	return txBldr, msg, err
-	//}
-	//if generateOnly {
-	//	ip := config.IP
-	//	nodeID := config.NodeID
-	//
-	//	if nodeID != "" && ip != "" {
-	//		txBldr = txBldr.WithMemo(fmt.Sprintf("%s@%s:26656", nodeID, ip))
-	//	}
-	//}
-	//
-	//return txBldr, msg, nil
+	amounstStr := config.Amount
+	amount, err := sdk.ParseCoinNormalized(amounstStr)
+	if err != nil {
+		return txBldr, nil, err
+	}
+
+	from := clientCtx.GetFromAddress()
+
+	description := types.NewDescription(
+		config.Moniker,
+		config.Identity,
+		config.Website,
+		config.SecurityContact,
+		config.Details,
+	)
+
+	// get the initial validator commission parameters
+	rateStr := config.CommissionRate
+	maxRateStr := config.CommissionMaxRate
+	maxChangeRateStr := config.CommissionMaxChangeRate
+	commissionRates, err := buildCommissionRates(rateStr, maxRateStr, maxChangeRateStr)
+	if err != nil {
+		return txBldr, nil, err
+	}
+
+	// get the initial validator min self delegation
+	msbStr := config.MinSelfDelegation
+	minSelfDelegation, ok := sdk.NewIntFromString(msbStr)
+
+	if !ok {
+		return txBldr, nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "minimum self delegation must be a positive integer")
+	}
+
+	msg, err := types.NewMsgCreateValidator(
+		config.Validator, config.PubKey, amount, description, commissionRates, minSelfDelegation,
+		from, config.Delegator, config.Relayer, config.RelayerBlsKey,
+	)
+	if err != nil {
+		return txBldr, msg, err
+	}
+	if generateOnly {
+		ip := config.IP
+		nodeID := config.NodeID
+
+		if nodeID != "" && ip != "" {
+			txBldr = txBldr.WithMemo(fmt.Sprintf("%s@%s:26656", nodeID, ip))
+		}
+	}
+
+	return txBldr, msg, nil
 }

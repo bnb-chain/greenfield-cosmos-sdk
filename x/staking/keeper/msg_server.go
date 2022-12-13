@@ -35,12 +35,6 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	govModuleAddr := k.authKeeper.GetModuleAddress(gov.ModuleName)
-	signers := msg.GetSigners()
-	if len(signers) != 1 || !signers[0].Equals(govModuleAddr) {
-		return nil, types.ErrSignerNotGovModule
-	}
-
 	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -49,6 +43,21 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	delAddr, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	// For genesis block, the signer should be the self delegator itself,
+	// for other blocks, the signer should be the gov module account.
+	govModuleAddr := k.authKeeper.GetModuleAddress(gov.ModuleName)
+	if ctx.BlockHeader().Height == 0 {
+		signers := msg.GetSigners()
+		if len(signers) != 1 || !signers[0].Equals(delAddr) {
+			return nil, types.ErrInvalidSigner
+		}
+	} else {
+		signers := msg.GetSigners()
+		if len(signers) != 1 || !signers[0].Equals(govModuleAddr) {
+			return nil, types.ErrInvalidSigner
+		}
 	}
 
 	if msg.Commission.Rate.LT(k.MinCommissionRate(ctx)) {
@@ -149,9 +158,11 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	// check the delegate staking authorization from the delegator to the gov module account
-	err = k.CheckStakeAuthorization(ctx, govModuleAddr, delAddr, types.NewMsgDelegate(delAddr, valAddr, msg.Value))
-	if err != nil {
-		return nil, err
+	if ctx.BlockHeader().Height != 0 {
+		err = k.CheckStakeAuthorization(ctx, govModuleAddr, delAddr, types.NewMsgDelegate(delAddr, valAddr, msg.Value))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// move coins from the msg.Address account to a (self-delegation) delegator account
@@ -200,35 +211,6 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		return nil, types.ErrNoValidatorFound
 	}
 
-	// replace relayer address
-	relayerAddr, err := sdk.AccAddressFromBech32(msg.RelayerAddress)
-	if err != nil {
-		return nil, err
-	}
-	if tmpValidator, found := k.GetValidatorByRelayerAddr(ctx, relayerAddr); found {
-		if tmpValidator.OperatorAddress != validator.OperatorAddress {
-			return nil, types.ErrValidatorRelayerAddressExists
-		}
-	} else {
-		k.DeleteValidatorByRelayerAddress(ctx, validator)
-		validator.RelayerAddress = relayerAddr.String()
-		k.SetValidatorByRelayerAddress(ctx, validator)
-	}
-
-	// replace relayer bls pubkey
-	blsPk := []byte(msg.RelayerBlskey)
-	if len(blsPk) != 0 {
-		if tmpValidator, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
-			if tmpValidator.OperatorAddress != validator.OperatorAddress {
-				return nil, types.ErrValidatorRelayerBlsKeyExists
-			}
-		} else {
-			k.DeleteValidatorByRelayerBlsKey(ctx, validator)
-			validator.RelayerBlskey = blsPk
-			k.SetValidatorByRelayerBlsKey(ctx, validator)
-		}
-	}
-
 	// replace all editable fields (clients should autofill existing values)
 	description, err := validator.Description.UpdateDescription(msg.Description)
 	if err != nil {
@@ -261,6 +243,37 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 
 		validator.MinSelfDelegation = *msg.MinSelfDelegation
+	}
+
+	// replace relayer address
+	if len(msg.RelayerAddress) != 0 {
+		relayerAddr, err := sdk.AccAddressFromBech32(msg.RelayerAddress)
+		if err != nil {
+			return nil, err
+		}
+		if tmpValidator, found := k.GetValidatorByRelayerAddr(ctx, relayerAddr); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorRelayerAddressExists
+			}
+		} else {
+			k.DeleteValidatorByRelayerAddress(ctx, validator)
+			validator.RelayerAddress = relayerAddr.String()
+			k.SetValidatorByRelayerAddress(ctx, validator)
+		}
+	}
+
+	// replace relayer bls pubkey
+	blsPk := []byte(msg.RelayerBlskey)
+	if len(blsPk) != 0 {
+		if tmpValidator, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorRelayerBlsKeyExists
+			}
+		} else {
+			k.DeleteValidatorByRelayerBlsKey(ctx, validator)
+			validator.RelayerBlskey = blsPk
+			k.SetValidatorByRelayerBlsKey(ctx, validator)
+		}
 	}
 
 	k.SetValidator(ctx, validator)

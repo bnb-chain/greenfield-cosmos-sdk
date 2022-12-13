@@ -79,7 +79,7 @@ func (msg MsgCreateValidator) GetSignBytes() []byte {
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateValidator) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures both non-empty and valid
-	if _, err := sdk.ValAddressFromBech32(msg.From); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.From); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", err)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
@@ -88,7 +88,7 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.RelayerAddress); err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.RelayerAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 	}
 
@@ -177,12 +177,11 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
-	if _, err := sdk.ValAddressFromBech32(msg.RelayerAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator self delegation address: %s", err)
-	}
-
-	if len(msg.RelayerBlskey) == 0 {
-		return ErrValidatorRelayerBlsKeyEmpty
+	if len(msg.RelayerAddress) != 0 {
+		_, err := sdk.AccAddressFromBech32(msg.RelayerAddress)
+		if err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
+		}
 	}
 
 	if msg.Description == (Description{}) {
