@@ -735,24 +735,6 @@ func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	return bz, nil
 }
 
-func addressBytesFromHexString(address string) ([]byte, error) {
-	if len(address) == 0 {
-		return nil, ErrEmptyHexAddress
-	}
-
-	return hex.DecodeString(address)
-}
-
-// cacheBech32Addr is not concurrency safe. Concurrent access to cache causes race condition.
-func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey string) string {
-	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
-	if err != nil {
-		panic(err)
-	}
-	cache.Add(cacheKey, bech32Addr)
-	return bech32Addr
-}
-
 // cacheEthAddr is not concurrency safe. Concurrent access to cache causes race condition.
 func cacheEthAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
 	var ethAddr EthAddress

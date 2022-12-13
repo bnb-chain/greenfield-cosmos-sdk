@@ -1,16 +1,13 @@
 package testutil
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
@@ -21,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -1452,47 +1448,47 @@ func (s *IntegrationTestSuite) TestQueryModuleAccountsCmd() {
 	s.Require().NotEmpty(res.Accounts)
 }
 
-func TestGetBroadcastCommandOfflineFlag(t *testing.T) {
-	clientCtx := client.Context{}.WithOffline(true)
-	clientCtx = clientCtx.WithTxConfig(simapp.MakeTestEncodingConfig().TxConfig) //nolint:staticcheck
-
-	cmd := authcli.GetBroadcastCommand()
-	_ = testutil.ApplyMockIODiscardOutErr(cmd)
-	cmd.SetArgs([]string{fmt.Sprintf("--%s=true", flags.FlagOffline), ""})
-
-	require.EqualError(t, cmd.Execute(), "cannot broadcast tx during offline mode")
-}
-
-func TestGetBroadcastCommandWithoutOfflineFlag(t *testing.T) {
-	clientCtx := client.Context{}
-	txCfg := simapp.MakeTestEncodingConfig().TxConfig
-	clientCtx = clientCtx.WithTxConfig(txCfg)
-
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, client.ClientContextKey, &clientCtx)
-
-	cmd := authcli.GetBroadcastCommand()
-	_, out := testutil.ApplyMockIO(cmd)
-
-	// Create new file with tx
-	builder := txCfg.NewTxBuilder()
-	builder.SetGasLimit(200000)
-	from, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
-	require.NoError(t, err)
-	to, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
-	require.NoError(t, err)
-	err = builder.SetMsgs(banktypes.NewMsgSend(from, to, sdk.Coins{sdk.NewInt64Coin("stake", 10000)}))
-	require.NoError(t, err)
-	txContents, err := txCfg.TxJSONEncoder()(builder.GetTx())
-	require.NoError(t, err)
-	txFile := testutil.WriteToNewTempFile(t, string(txContents))
-
-	cmd.SetArgs([]string{txFile.Name()})
-	err = cmd.ExecuteContext(ctx)
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "connect: connection refused")
-	require.Contains(t, out.String(), "connect: connection refused")
-}
+// func TestGetBroadcastCommandOfflineFlag(t *testing.T) {
+// 	clientCtx := client.Context{}.WithOffline(true)
+// 	clientCtx = clientCtx.WithTxConfig(simapp.MakeTestEncodingConfig().TxConfig) //nolint:staticcheck
+//
+// 	cmd := authcli.GetBroadcastCommand()
+// 	_ = testutil.ApplyMockIODiscardOutErr(cmd)
+// 	cmd.SetArgs([]string{fmt.Sprintf("--%s=true", flags.FlagOffline), ""})
+//
+// 	require.EqualError(t, cmd.Execute(), "cannot broadcast tx during offline mode")
+// }
+//
+// func TestGetBroadcastCommandWithoutOfflineFlag(t *testing.T) {
+// 	clientCtx := client.Context{}
+// 	txCfg := simapp.MakeTestEncodingConfig().TxConfig
+// 	clientCtx = clientCtx.WithTxConfig(txCfg)
+//
+// 	ctx := context.Background()
+// 	ctx = context.WithValue(ctx, client.ClientContextKey, &clientCtx)
+//
+// 	cmd := authcli.GetBroadcastCommand()
+// 	_, out := testutil.ApplyMockIO(cmd)
+//
+// 	// Create new file with tx
+// 	builder := txCfg.NewTxBuilder()
+// 	builder.SetGasLimit(200000)
+// 	from, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
+// 	require.NoError(t, err)
+// 	to, err := sdk.AccAddressFromHexUnsafe("0xc1beb3d8530c0aa4bb9196a61edcd5dc93c591a4")
+// 	require.NoError(t, err)
+// 	err = builder.SetMsgs(banktypes.NewMsgSend(from, to, sdk.Coins{sdk.NewInt64Coin("stake", 10000)}))
+// 	require.NoError(t, err)
+// 	txContents, err := txCfg.TxJSONEncoder()(builder.GetTx())
+// 	require.NoError(t, err)
+// 	txFile := testutil.WriteToNewTempFile(t, string(txContents))
+//
+// 	cmd.SetArgs([]string{txFile.Name()})
+// 	err = cmd.ExecuteContext(ctx)
+// 	require.Error(t, err)
+// 	require.Contains(t, err.Error(), "connect: connection refused")
+// 	require.Contains(t, out.String(), "connect: connection refused")
+// }
 
 func (s *IntegrationTestSuite) TestQueryParamsCmd() {
 	val := s.network.Validators[0]
@@ -1983,13 +1979,13 @@ func (s *IntegrationTestSuite) createBankMsg(val *network.Validator, toAddr sdk.
 	return bankcli.MsgSendExec(val.ClientCtx, val.Address, toAddr, amount, flags...)
 }
 
-func (s *IntegrationTestSuite) getBalances(clientCtx client.Context, addr sdk.AccAddress, denom string) math.Int {
-	resp, err := bankcli.QueryBalancesExec(clientCtx, addr)
-	s.Require().NoError(err)
-
-	var balRes banktypes.QueryAllBalancesResponse
-	err = clientCtx.Codec.UnmarshalJSON(resp.Bytes(), &balRes)
-	s.Require().NoError(err)
-	startTokens := balRes.Balances.AmountOf(denom)
-	return startTokens
-}
+// func (s *IntegrationTestSuite) getBalances(clientCtx client.Context, addr sdk.AccAddress, denom string) math.Int {
+// 	resp, err := bankcli.QueryBalancesExec(clientCtx, addr)
+// 	s.Require().NoError(err)
+//
+// 	var balRes banktypes.QueryAllBalancesResponse
+// 	err = clientCtx.Codec.UnmarshalJSON(resp.Bytes(), &balRes)
+// 	s.Require().NoError(err)
+// 	startTokens := balRes.Balances.AmountOf(denom)
+// 	return startTokens
+// }
