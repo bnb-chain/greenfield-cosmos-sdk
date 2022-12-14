@@ -185,7 +185,7 @@ func (s *IntegrationTestSuite) TestCLITxGrantAuthorization() {
 			},
 			0,
 			true,
-			"invalid separator index",
+			"invalid address",
 		},
 		{
 			"Invalid expiration time",

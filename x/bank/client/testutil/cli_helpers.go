@@ -12,7 +12,7 @@ import (
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 )
 
-func MsgSendExec(clientCtx client.Context, from, to, amount fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
+func MsgSendExec(clientCtx client.Context, from, to sdk.AccAddress, amount fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{from.String(), to.String(), amount.String()}
 	args = append(args, extraArgs...)
 
@@ -31,7 +31,7 @@ func MsgMultiSendExec(clientCtx client.Context, from sdk.AccAddress, to []sdk.Ac
 	return clitestutil.ExecTestCLICmd(clientCtx, bankcli.NewMultiSendTxCmd(), args)
 }
 
-func QueryBalancesExec(clientCtx client.Context, address fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
+func QueryBalancesExec(clientCtx client.Context, address sdk.AccAddress, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := []string{address.String(), fmt.Sprintf("--%s=json", cli.OutputFlag)}
 	args = append(args, extraArgs...)
 

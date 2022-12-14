@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"strings"
 	"sync"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/hashicorp/golang-lru/simplelru"
+	"github.com/tendermint/crypto/sha3"
 	"sigs.k8s.io/yaml"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -71,6 +74,9 @@ const (
 	Bech32PrefixConsAddr = Bech32MainPrefix + PrefixValidator + PrefixConsensus
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
+
+	// EthAddressLength defines a valid Ethereum compatible chain address length
+	EthAddressLength = 20
 )
 
 // cache variables
@@ -121,6 +127,7 @@ var (
 	_ Address = AccAddress{}
 	_ Address = ValAddress{}
 	_ Address = ConsAddress{}
+	_ Address = EthAddress{}
 )
 
 // ----------------------------------------------------------------------------
@@ -131,14 +138,23 @@ var (
 // When marshaled to a string or JSON, it uses Bech32.
 type AccAddress []byte
 
+// MustAccAddressFromHex calls AccAddressFromHexUnsafe and panics on error.
+func MustAccAddressFromHex(address string) AccAddress {
+	addr, err := AccAddressFromHexUnsafe(address)
+	if err != nil {
+		panic(err)
+	}
+
+	return addr
+}
+
 // AccAddressFromHexUnsafe creates an AccAddress from a HEX-encoded string.
 //
 // Note, this function is considered unsafe as it may produce an AccAddress from
-// otherwise invalid input, such as a transaction hash. Please use
-// AccAddressFromBech32.
+// otherwise invalid input, such as a transaction hash.
 func AccAddressFromHexUnsafe(address string) (addr AccAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
-	return AccAddress(bz), err
+	ethAddr, err := ETHAddressFromHexUnsafe(address)
+	return AccAddress(ethAddr.Bytes()), err
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
@@ -165,33 +181,12 @@ func VerifyAddressFormat(bz []byte) error {
 
 // MustAccAddressFromBech32 calls AccAddressFromBech32 and panics on error.
 func MustAccAddressFromBech32(address string) AccAddress {
-	addr, err := AccAddressFromBech32(address)
-	if err != nil {
-		panic(err)
-	}
-
-	return addr
+	panic("Deprecated method")
 }
 
 // AccAddressFromBech32 creates an AccAddress from a Bech32 string.
 func AccAddressFromBech32(address string) (addr AccAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return AccAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixAccAddr := GetConfig().GetBech32AccountAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixAccAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return AccAddress(bz), nil
+	panic("Deprecated method")
 }
 
 // Returns boolean for whether two AccAddresses are Equal
@@ -243,7 +238,7 @@ func (aa *AccAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	aa2, err := AccAddressFromBech32(s)
+	aa2, err := AccAddressFromHexUnsafe(s)
 	if err != nil {
 		return err
 	}
@@ -264,7 +259,7 @@ func (aa *AccAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	aa2, err := AccAddressFromBech32(s)
+	aa2, err := AccAddressFromHexUnsafe(s)
 	if err != nil {
 		return err
 	}
@@ -291,7 +286,7 @@ func (aa AccAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheBech32Addr(GetConfig().GetBech32AccountAddrPrefix(), aa, accAddrCache, key)
+	return cacheEthAddr(aa, accAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -317,29 +312,13 @@ type ValAddress []byte
 
 // ValAddressFromHex creates a ValAddress from a hex string.
 func ValAddressFromHex(address string) (addr ValAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
+	bz, err := AccAddressFromHexUnsafe(address)
 	return ValAddress(bz), err
 }
 
 // ValAddressFromBech32 creates a ValAddress from a Bech32 string.
 func ValAddressFromBech32(address string) (addr ValAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return ValAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixValAddr := GetConfig().GetBech32ValidatorAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixValAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return ValAddress(bz), nil
+	panic("Deprecated method")
 }
 
 // Returns boolean for whether two ValAddresses are Equal
@@ -392,7 +371,7 @@ func (va *ValAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	va2, err := ValAddressFromBech32(s)
+	va2, err := ValAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -414,7 +393,7 @@ func (va *ValAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	va2, err := ValAddressFromBech32(s)
+	va2, err := ValAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -441,7 +420,7 @@ func (va ValAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheBech32Addr(GetConfig().GetBech32ValidatorAddrPrefix(), va, valAddrCache, key)
+	return cacheEthAddr(va, valAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -467,29 +446,13 @@ type ConsAddress []byte
 
 // ConsAddressFromHex creates a ConsAddress from a hex string.
 func ConsAddressFromHex(address string) (addr ConsAddress, err error) {
-	bz, err := addressBytesFromHexString(address)
+	bz, err := AccAddressFromHexUnsafe(address)
 	return ConsAddress(bz), err
 }
 
 // ConsAddressFromBech32 creates a ConsAddress from a Bech32 string.
 func ConsAddressFromBech32(address string) (addr ConsAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return ConsAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixConsAddr := GetConfig().GetBech32ConsensusAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixConsAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return ConsAddress(bz), nil
+	panic("Deprecated method")
 }
 
 // get ConsAddress from pubkey
@@ -547,7 +510,7 @@ func (ca *ConsAddress) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	ca2, err := ConsAddressFromBech32(s)
+	ca2, err := ConsAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -569,7 +532,7 @@ func (ca *ConsAddress) UnmarshalYAML(data []byte) error {
 		return nil
 	}
 
-	ca2, err := ConsAddressFromBech32(s)
+	ca2, err := ConsAddressFromHex(s)
 	if err != nil {
 		return err
 	}
@@ -596,7 +559,7 @@ func (ca ConsAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheBech32Addr(GetConfig().GetBech32ConsensusAddrPrefix(), ca, consAddrCache, key)
+	return cacheEthAddr(ca, consAddrCache, key)
 }
 
 // Bech32ifyAddressBytes returns a bech32 representation of address bytes.
@@ -636,13 +599,125 @@ func (ca ConsAddress) Format(s fmt.State, verb rune) {
 	}
 }
 
+// EthAddress defines a standard Ethereum compatible chain address
+type EthAddress [EthAddressLength]byte
+
+// ETHAddressFromHexUnsafe is a constructor function for EthAddress
+//
+// Note, this function is considered unsafe as it may produce an EthAddress from
+// otherwise invalid input, such as a transaction hash.
+func ETHAddressFromHexUnsafe(addr string) (EthAddress, error) {
+	addr = strings.ToLower(addr)
+	if len(addr) >= 2 && addr[:2] == "0x" {
+		addr = addr[2:]
+	}
+	if len(strings.TrimSpace(addr)) == 0 {
+		return EthAddress{}, errors.New("empty address string is not allowed")
+	}
+	if length := len(addr); length != 2*EthAddressLength {
+		return EthAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
+	}
+
+	bin, err := hex.DecodeString(addr)
+	if err != nil {
+		return EthAddress{}, err
+	}
+	var eAddr EthAddress
+	eAddr.SetBytes(bin)
+	if eAddr.Empty() {
+		return EthAddress{}, errors.New("empty address string is not allowed")
+	}
+	return eAddr, nil
+}
+
+func (ea *EthAddress) SetBytes(buf []byte) {
+	if len(buf) > len(ea) {
+		buf = buf[len(buf)-20:]
+	}
+	copy(ea[20-len(buf):], buf)
+}
+
+// Equals Returns boolean for whether two EthAddress are Equal
+func (ea EthAddress) Equals(address Address) bool {
+	if ea.Empty() && address.Empty() {
+		return true
+	}
+
+	return bytes.Equal(ea.Bytes(), address.Bytes())
+}
+
+// Empty Returns boolean for whether an EthAddress is empty
+func (ea EthAddress) Empty() bool {
+	addrValue := big.NewInt(0)
+	addrValue.SetBytes(ea[:])
+
+	return addrValue.Cmp(big.NewInt(0)) == 0
+}
+
+// Marshal returns the raw address bytes. It is needed for protobuf
+// compatibility.
+func (ea EthAddress) Marshal() ([]byte, error) {
+	return ea[:], nil
+}
+
+// Unmarshal sets the address to the given data. It is needed for protobuf
+// compatibility.
+func (ea *EthAddress) Unmarshal(data []byte) error {
+	ea.SetBytes(data)
+	return nil
+}
+
+// MarshalJSON marshals to JSON.
+func (ea EthAddress) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("\"%v\"", ea.String())), nil
+}
+
+// Bytes returns the raw address bytes.
+func (ea EthAddress) Bytes() []byte {
+	return ea[:]
+}
+
+// String implements the Stringer interface.
+func (ea EthAddress) String() string {
+	uncheckSummed := hex.EncodeToString(ea[:])
+	sha := sha3.NewLegacyKeccak256()
+	sha.Write([]byte(uncheckSummed))
+	hash := sha.Sum(nil)
+
+	result := []byte(uncheckSummed)
+	for i := 0; i < len(result); i++ {
+		hashByte := hash[i/2]
+		if i%2 == 0 {
+			hashByte >>= 4
+		} else {
+			hashByte &= 0xf
+		}
+		if result[i] > '9' && hashByte > 7 {
+			result[i] -= 32
+		}
+	}
+	return "0x" + string(result)
+}
+
+// Format implements the fmt.Formatter interface.
+func (ea EthAddress) Format(state fmt.State, verb rune) {
+	switch verb {
+	case 's':
+		_, _ = state.Write([]byte(ea.String()))
+	case 'p':
+		_, _ = state.Write([]byte(fmt.Sprintf("%p", ea[:])))
+	default:
+		_, _ = state.Write([]byte(fmt.Sprintf("%X", ea[:])))
+	}
+}
+
 // ----------------------------------------------------------------------------
 // auxiliary
 // ----------------------------------------------------------------------------
 
 var errBech32EmptyAddress = errors.New("decoding Bech32 address failed: must provide a non empty address")
 
-// GetFromBech32 decodes a bytestring from a Bech32 encoded string.
+// GetFromBech32 decodes a byte string from a Bech32 encoded string.
 func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	if len(bech32str) == 0 {
 		return nil, errBech32EmptyAddress
@@ -660,20 +735,18 @@ func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	return bz, nil
 }
 
-func addressBytesFromHexString(address string) ([]byte, error) {
-	if len(address) == 0 {
-		return nil, ErrEmptyHexAddress
-	}
-
-	return hex.DecodeString(address)
+// cacheEthAddr is not concurrency safe. Concurrent access to cache causes race condition.
+func cacheEthAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
+	var ethAddr EthAddress
+	ethAddr.SetBytes(addr)
+	addrString := ethAddr.String()
+	cache.Add(cacheKey, addrString)
+	return addrString
 }
 
-// cacheBech32Addr is not concurrency safe. Concurrent access to cache causes race condition.
-func cacheBech32Addr(prefix string, addr []byte, cache *simplelru.LRU, cacheKey string) string {
-	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
-	if err != nil {
-		panic(err)
-	}
-	cache.Add(cacheKey, bech32Addr)
-	return bech32Addr
+// GetETHAddressFromPubKey returns EthAddress by the pubkey
+func GetETHAddressFromPubKey(pubkey cryptotypes.PubKey) EthAddress {
+	var sca EthAddress
+	sca.SetBytes(pubkey.(*ethsecp256k1.PubKey).Address())
+	return sca
 }

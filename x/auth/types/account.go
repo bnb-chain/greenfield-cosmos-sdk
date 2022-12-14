@@ -58,7 +58,7 @@ func NewBaseAccountWithAddress(addr sdk.AccAddress) *BaseAccount {
 
 // GetAddress - Implements sdk.AccountI.
 func (acc BaseAccount) GetAddress() sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(acc.Address)
+	addr, _ := sdk.AccAddressFromHexUnsafe(acc.Address)
 	return addr
 }
 
@@ -125,7 +125,7 @@ func (acc BaseAccount) Validate() error {
 		return nil
 	}
 
-	accAddr, err := sdk.AccAddressFromBech32(acc.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(acc.Address)
 	if err != nil {
 		return err
 	}
@@ -248,7 +248,7 @@ func (ma ModuleAccount) String() string {
 
 // MarshalYAML returns the YAML representation of a ModuleAccount.
 func (ma ModuleAccount) MarshalYAML() (interface{}, error) {
-	accAddr, err := sdk.AccAddressFromBech32(ma.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(ma.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func (ma ModuleAccount) MarshalYAML() (interface{}, error) {
 
 // MarshalJSON returns the JSON representation of a ModuleAccount.
 func (ma ModuleAccount) MarshalJSON() ([]byte, error) {
-	accAddr, err := sdk.AccAddressFromBech32(ma.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(ma.Address)
 	if err != nil {
 		return nil, err
 	}

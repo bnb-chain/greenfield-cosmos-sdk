@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/btcsuite/btcd/btcec"
 	rosettatypes "github.com/coinbase/rosetta-sdk-go/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	tmcoretypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -17,7 +18,6 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	crgerrs "github.com/cosmos/cosmos-sdk/server/rosetta/lib/errors"
 	crgtypes "github.com/cosmos/cosmos-sdk/server/rosetta/lib/types"
@@ -338,7 +338,7 @@ func sdkEventToBalanceOperations(status string, event abci.Event) (operations []
 	default:
 		return nil, false
 	case banktypes.EventTypeCoinSpent:
-		spender := sdk.MustAccAddressFromBech32(string(event.Attributes[0].Value))
+		spender := sdk.MustAccAddressFromHex(string(event.Attributes[0].Value))
 		coins, err := sdk.ParseCoinsNormalized(string(event.Attributes[1].Value))
 		if err != nil {
 			panic(err)
@@ -349,7 +349,7 @@ func sdkEventToBalanceOperations(status string, event abci.Event) (operations []
 		accountIdentifier = spender.String()
 
 	case banktypes.EventTypeCoinReceived:
-		receiver := sdk.MustAccAddressFromBech32(string(event.Attributes[0].Value))
+		receiver := sdk.MustAccAddressFromHex(string(event.Attributes[0].Value))
 		coins, err := sdk.ParseCoinsNormalized(string(event.Attributes[1].Value))
 		if err != nil {
 			panic(err)
@@ -645,8 +645,8 @@ func (c converter) SignedTx(txBytes []byte, signatures []*rosettatypes.Signature
 }
 
 func (c converter) PubKey(pubKey *rosettatypes.PublicKey) (cryptotypes.PubKey, error) {
-	if pubKey.CurveType != "secp256k1" {
-		return nil, crgerrs.WrapError(crgerrs.ErrUnsupportedCurve, "only secp256k1 supported")
+	if pubKey.CurveType != "eth_secp256k1" {
+		return nil, crgerrs.WrapError(crgerrs.ErrUnsupportedCurve, "only eth_secp256k1 supported")
 	}
 
 	cmp, err := btcec.ParsePubKey(pubKey.Bytes, btcec.S256())
@@ -654,10 +654,10 @@ func (c converter) PubKey(pubKey *rosettatypes.PublicKey) (cryptotypes.PubKey, e
 		return nil, crgerrs.WrapError(crgerrs.ErrBadArgument, err.Error())
 	}
 
-	compressedPublicKey := make([]byte, secp256k1.PubKeySize)
+	compressedPublicKey := make([]byte, ethsecp256k1.PubKeySize)
 	copy(compressedPublicKey, cmp.SerializeCompressed())
 
-	pk := &secp256k1.PubKey{Key: compressedPublicKey}
+	pk := &ethsecp256k1.PubKey{Key: compressedPublicKey}
 
 	return pk, nil
 }

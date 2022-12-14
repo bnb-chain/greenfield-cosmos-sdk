@@ -38,7 +38,7 @@ var v040Valid = `{
 			"votes": [
 			  {
 				"proposal_id": "5",
-				"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+				"voter": "0x4feA76427B8345861e80A3540a8a9D936FD39391",
 				"option": "VOTE_OPTION_YES"
 			  }
 			],

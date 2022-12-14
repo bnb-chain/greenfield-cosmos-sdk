@@ -80,7 +80,7 @@ func (k BaseSendKeeper) InputOutputCoins(ctx sdk.Context, inputs []types.Input, 
 	}
 
 	for _, in := range inputs {
-		inAddress, err := sdk.AccAddressFromBech32(in.Address)
+		inAddress, err := sdk.AccAddressFromHexUnsafe(in.Address)
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func (k BaseSendKeeper) InputOutputCoins(ctx sdk.Context, inputs []types.Input, 
 	}
 
 	for _, out := range outputs {
-		outAddress, err := sdk.AccAddressFromBech32(out.Address)
+		outAddress, err := sdk.AccAddressFromHexUnsafe(out.Address)
 		if err != nil {
 			return err
 		}

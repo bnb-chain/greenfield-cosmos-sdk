@@ -26,14 +26,14 @@ func (m MsgCreateGroup) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
 func (m MsgCreateGroup) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateGroup) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -47,7 +47,7 @@ func (m MsgCreateGroup) ValidateBasic() error {
 // it's possible to set a zero member weight, for example in
 // MsgUpdateGroupMembers to denote that we're removing a member.
 func (m MemberRequest) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Address)
 	if err != nil {
 		return sdkerrors.Wrap(err, "address")
 	}
@@ -76,7 +76,7 @@ func (m MsgUpdateGroupAdmin) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateGroupAdmin.
 func (m MsgUpdateGroupAdmin) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
@@ -87,12 +87,12 @@ func (m MsgUpdateGroupAdmin) ValidateBasic() error {
 		return sdkerrors.Wrap(errors.ErrEmpty, "group id")
 	}
 
-	admin, err := sdk.AccAddressFromBech32(m.Admin)
+	admin, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
 
-	newAdmin, err := sdk.AccAddressFromBech32(m.NewAdmin)
+	newAdmin, err := sdk.AccAddressFromHexUnsafe(m.NewAdmin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "new admin")
 	}
@@ -124,7 +124,7 @@ func (m MsgUpdateGroupMetadata) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateGroupMetadata.
 func (m MsgUpdateGroupMetadata) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
@@ -134,7 +134,7 @@ func (m MsgUpdateGroupMetadata) ValidateBasic() error {
 	if m.GroupId == 0 {
 		return sdkerrors.Wrap(errors.ErrEmpty, "group id")
 	}
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -165,7 +165,7 @@ var _ sdk.Msg = &MsgUpdateGroupMembers{}
 
 // GetSigners returns the expected signers for a MsgUpdateGroupMembers.
 func (m MsgUpdateGroupMembers) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
@@ -175,7 +175,7 @@ func (m MsgUpdateGroupMembers) ValidateBasic() error {
 	if m.GroupId == 0 {
 		return sdkerrors.Wrap(errors.ErrEmpty, "group id")
 	}
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -255,13 +255,13 @@ func (m MsgCreateGroupWithPolicy) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateGroupWithPolicy.
 func (m MsgCreateGroupWithPolicy) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateGroupWithPolicy) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -293,7 +293,7 @@ func (m MsgCreateGroupPolicy) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateGroupPolicy.
 func (m MsgCreateGroupPolicy) GetSigners() []sdk.AccAddress {
-	admin, err := sdk.AccAddressFromBech32(m.Admin)
+	admin, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		panic(err)
 	}
@@ -302,7 +302,7 @@ func (m MsgCreateGroupPolicy) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateGroupPolicy) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -338,24 +338,24 @@ func (m MsgUpdateGroupPolicyAdmin) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateGroupPolicyAdmin.
 func (m MsgUpdateGroupPolicyAdmin) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgUpdateGroupPolicyAdmin) ValidateBasic() error {
-	admin, err := sdk.AccAddressFromBech32(m.Admin)
+	admin, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
 
-	newAdmin, err := sdk.AccAddressFromBech32(m.NewAdmin)
+	newAdmin, err := sdk.AccAddressFromHexUnsafe(m.NewAdmin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "new admin")
 	}
 
-	_, err = sdk.AccAddressFromBech32(m.GroupPolicyAddress)
+	_, err = sdk.AccAddressFromHexUnsafe(m.GroupPolicyAddress)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy")
 	}
@@ -414,19 +414,19 @@ func (m MsgUpdateGroupPolicyDecisionPolicy) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateGroupPolicyDecisionPolicy.
 func (m MsgUpdateGroupPolicyDecisionPolicy) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgUpdateGroupPolicyDecisionPolicy) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
 
-	_, err = sdk.AccAddressFromBech32(m.GroupPolicyAddress)
+	_, err = sdk.AccAddressFromHexUnsafe(m.GroupPolicyAddress)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy")
 	}
@@ -475,19 +475,19 @@ func (m MsgUpdateGroupPolicyMetadata) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateGroupPolicyMetadata.
 func (m MsgUpdateGroupPolicyMetadata) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Admin)
+	admin := sdk.MustAccAddressFromHex(m.Admin)
 
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgUpdateGroupPolicyMetadata) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Admin)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
 
-	_, err = sdk.AccAddressFromBech32(m.GroupPolicyAddress)
+	_, err = sdk.AccAddressFromHexUnsafe(m.GroupPolicyAddress)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy")
 	}
@@ -593,7 +593,7 @@ func (m MsgSubmitProposal) GetSigners() []sdk.AccAddress {
 // verifying proposer addresses, and performing ValidateBasic on each
 // individual `sdk.Msg`.
 func (m MsgSubmitProposal) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.GroupPolicyAddress)
+	_, err := sdk.AccAddressFromHexUnsafe(m.GroupPolicyAddress)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy")
 	}
@@ -628,7 +628,7 @@ func (m MsgSubmitProposal) ValidateBasic() error {
 func (m *MsgSubmitProposal) getProposerAccAddresses() ([]sdk.AccAddress, error) {
 	addrs := make([]sdk.AccAddress, len(m.Proposers))
 	for i, proposer := range m.Proposers {
-		addr, err := sdk.AccAddressFromBech32(proposer)
+		addr, err := sdk.AccAddressFromHexUnsafe(proposer)
 		if err != nil {
 			return nil, sdkerrors.Wrap(err, "proposers")
 		}
@@ -673,14 +673,14 @@ func (m MsgWithdrawProposal) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgWithdrawProposal.
 func (m MsgWithdrawProposal) GetSigners() []sdk.AccAddress {
-	admin := sdk.MustAccAddressFromBech32(m.Address)
+	admin := sdk.MustAccAddressFromHex(m.Address)
 
 	return []sdk.AccAddress{admin}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgWithdrawProposal) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Address)
 	if err != nil {
 		return sdkerrors.Wrap(err, "admin")
 	}
@@ -709,14 +709,14 @@ func (m MsgVote) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgVote.
 func (m MsgVote) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(m.Voter)
+	addr := sdk.MustAccAddressFromHex(m.Voter)
 
 	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgVote) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Voter)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Voter)
 	if err != nil {
 		return sdkerrors.Wrap(err, "voter")
 	}
@@ -749,14 +749,14 @@ func (m MsgExec) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgExec.
 func (m MsgExec) GetSigners() []sdk.AccAddress {
-	signer := sdk.MustAccAddressFromBech32(m.Executor)
+	signer := sdk.MustAccAddressFromHex(m.Executor)
 
 	return []sdk.AccAddress{signer}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgExec) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Executor)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Executor)
 	if err != nil {
 		return sdkerrors.Wrap(err, "signer")
 	}
@@ -783,14 +783,14 @@ func (m MsgLeaveGroup) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgLeaveGroup
 func (m MsgLeaveGroup) GetSigners() []sdk.AccAddress {
-	signer := sdk.MustAccAddressFromBech32(m.Address)
+	signer := sdk.MustAccAddressFromHex(m.Address)
 
 	return []sdk.AccAddress{signer}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgLeaveGroup) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Address)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group member")
 	}

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/spf13/pflag"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
@@ -55,6 +55,8 @@ func NewFactoryCLI(clientCtx client.Context, flagSet *pflag.FlagSet) Factory {
 		signMode = signing.SignMode_SIGN_MODE_DIRECT_AUX
 	case flags.SignModeEIP191:
 		signMode = signing.SignMode_SIGN_MODE_EIP_191
+	case flags.SignModeEIP712:
+		signMode = signing.SignMode_SIGN_MODE_EIP_712
 	}
 
 	accNum, _ := flagSet.GetUint64(flags.FlagAccountNumber)
@@ -364,7 +366,7 @@ func (f Factory) BuildSimTx(msgs ...sdk.Msg) ([]byte, error) {
 func (f Factory) getSimPK() (cryptotypes.PubKey, error) {
 	var (
 		ok bool
-		pk cryptotypes.PubKey = &secp256k1.PubKey{} // use default public key type
+		pk cryptotypes.PubKey = &ethsecp256k1.PubKey{} // use default public key type
 	)
 
 	// Use the first element from the list of keys in order to generate a valid

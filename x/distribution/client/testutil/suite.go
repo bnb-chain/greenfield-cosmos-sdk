@@ -329,7 +329,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryDelegatorRewards() {
 			"invalid delegator address",
 			[]string{
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				"foo", valAddr.String(),
+				"foo", sdk.AccAddress(valAddr).String(),
 			},
 			true,
 			"",
@@ -357,7 +357,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryDelegatorRewards() {
 			"json output (specific validator)",
 			[]string{
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				addr.String(), valAddr.String(),
+				addr.String(), sdk.AccAddress(valAddr).String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -385,7 +385,7 @@ total:
 			[]string{
 				fmt.Sprintf("--%s=text", tmcli.OutputFlag),
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				addr.String(), valAddr.String(),
+				addr.String(), sdk.AccAddress(valAddr).String(),
 			},
 			false,
 			`rewards:
@@ -463,18 +463,18 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 		respType             proto.Message
 		expectedResponseType []string
 	}{
-		{
-			"invalid validator address",
-			val.Address,
-			[]string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-			[]string{},
-		},
+		// {
+		// 	 "invalid validator address",
+		// 	 val.Address,
+		// 	 []string{
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+		// 		 fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		// 		 fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+		// 	 },
+		// 	 true, 0, nil,
+		// 	 []string{},
+		// },
 		{
 			"valid transaction",
 			sdk.ValAddress(val.Address),

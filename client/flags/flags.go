@@ -15,7 +15,7 @@ const (
 	// failures due to state changes that might occur between the tx simulation
 	// and the actual run.
 	DefaultGasAdjustment = 1.0
-	DefaultGasLimit      = 200000
+	DefaultGasLimit      = 210000
 	GasFlagAuto          = "auto"
 
 	// DefaultKeyringBackend
@@ -39,6 +39,8 @@ const (
 	SignModeDirectAux = "direct-aux"
 	// SignModeEIP191 is the value of the --sign-mode flag for SIGN_MODE_EIP_191
 	SignModeEIP191 = "eip-191"
+	// SignModeEIP712 is the value of the --sign-mode flag for SIGN_MODE_EIP_712
+	SignModeEIP712 = "eip-712"
 )
 
 // List of CLI flags
@@ -78,7 +80,7 @@ const (
 	FlagFeeGranter       = "fee-granter"
 	FlagReverse          = "reverse"
 	FlagTip              = "tip"
-	FlagAux              = "aux"
+	// FlagAux              = "aux"
 
 	// Tendermint logging flags
 	FlagLogLevel  = "log_level"
@@ -119,12 +121,12 @@ func AddTxFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Bool(FlagOffline, false, "Offline mode (does not allow any online functionality)")
 	cmd.Flags().BoolP(FlagSkipConfirmation, "y", false, "Skip tx broadcasting prompt confirmation")
 	cmd.Flags().String(FlagKeyringBackend, DefaultKeyringBackend, "Select keyring's backend (os|file|kwallet|pass|test|memory)")
-	cmd.Flags().String(FlagSignMode, "", "Choose sign mode (direct|amino-json|direct-aux), this is an advanced feature")
+	cmd.Flags().String(FlagSignMode, "", "We disabled this flag in inscription")
 	cmd.Flags().Uint64(FlagTimeoutHeight, 0, "Set a block timeout height to prevent the tx from being committed past a certain height")
 	cmd.Flags().String(FlagFeePayer, "", "Fee payer pays fees for the transaction instead of deducting from the signer")
 	cmd.Flags().String(FlagFeeGranter, "", "Fee granter grants fees for the transaction")
 	cmd.Flags().String(FlagTip, "", "Tip is the amount that is going to be transferred to the fee payer on the target chain. This flag is only valid when used with --aux, and is ignored if the target chain didn't enable the TipDecorator")
-	cmd.Flags().Bool(FlagAux, false, "Generate aux signer data instead of sending a tx")
+	// cmd.Flags().Bool(FlagAux, false, "Generate aux signer data instead of sending a tx")
 
 	// --gas can accept integers and "auto"
 	cmd.Flags().String(FlagGas, "", fmt.Sprintf("gas limit to set per-transaction; set to %q to calculate sufficient gas automatically. Note: %q option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of %q. (default %d)",

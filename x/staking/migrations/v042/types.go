@@ -94,7 +94,7 @@ func GetValidatorsByPowerIndexKey(validator types.Validator) []byte {
 
 	key[0] = ValidatorsByPowerIndexKey[0]
 	copy(key[1:powerBytesLen+1], powerBytes)
-	addr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+	addr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

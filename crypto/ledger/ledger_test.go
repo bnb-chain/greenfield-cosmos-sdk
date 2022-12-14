@@ -36,7 +36,7 @@ func checkDefaultPubKey(t *testing.T, priv types.LedgerPrivKey) {
 		"Is your device using test mnemonic: %s ?", testdata.TestMnemonic)
 	require.Equal(t, expectedPkStr, priv.PubKey().String())
 	addr := sdk.AccAddress(priv.PubKey().Address()).String()
-	require.Equal(t, "cosmos1w34k53py5v5xyluazqpq65agyajavep2rflq6h",
+	require.Equal(t, "0x746B6a4424A328627F9d10020D53a82765d6642A",
 		addr, "Is your device using test mnemonic: %s ?", testdata.TestMnemonic)
 }
 
@@ -121,16 +121,16 @@ func TestPublicKeyHDPath(t *testing.T) {
 	}
 
 	expectedAddrs := []string{
-		"cosmos1w34k53py5v5xyluazqpq65agyajavep2rflq6h",
-		"cosmos19ewxwemt6uahejvwf44u7dh6tq859tkyvarh2q",
-		"cosmos1a07dzdjgjsntxpp75zg7cgatgq0udh3pcdcxm3",
-		"cosmos1qvw52lmn9gpvem8welghrkc52m3zczyhlqjsl7",
-		"cosmos17m78ka80fqkkw2c4ww0v4xm5nsu2drgrlm8mn2",
-		"cosmos1ferh9ll9c452d2p8k2v7heq084guygkn43up9e",
-		"cosmos10vf3sxmjg96rqq36axcphzfsl74dsntuehjlw5",
-		"cosmos1cq83av8cmnar79h0rg7duh9gnr7wkh228a7fxg",
-		"cosmos1dszhfrt226jy5rsre7e48vw9tgwe90uerfyefa",
-		"cosmos1734d7qsylzrdt05muhqqtpd90j8mp4y6rzch8l",
+		"0x746B6a4424A328627F9d10020D53a82765d6642A",
+		"0x2e5C67676BD73b7cC98E4D6bcF36fA580f42aEc4",
+		"0xeBFCd136489426b3043eA091ec23aB401fc6DE21",
+		"0x031D457f732a02CcECEECFd171db1456e22C0897",
+		"0xf6fC7B74eF482d672b15739ECa9b749c38a68d03",
+		"0x4e4772fFE5c568a6A827b299EBE40f3d51C222D3",
+		"0x7b13181b72417430023AE9b01b8930ffaAD84D7c",
+		"0xC00F1eb0F8dCfA3f16EF1A3cDE5CA898fceb5D4a",
+		"0x6C05748D6A56A44a0E03CfB353b1c55A1D92bf99",
+		"0xf46AdF0204F886d5BE9be5c00585A57C8FB0D49A",
 	}
 
 	const numIters = 10

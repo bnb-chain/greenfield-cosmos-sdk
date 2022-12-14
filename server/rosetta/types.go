@@ -4,6 +4,11 @@ import (
 	"crypto/sha256"
 )
 
+// CurveType
+const (
+	EthSecp256k1 = "Eth_secp256k1"
+)
+
 // statuses
 const (
 	StatusTxSuccess   = "Success"

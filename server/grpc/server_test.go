@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-
 	"github.com/jhump/protoreflect/grpcreflect"
 
 	"github.com/stretchr/testify/require"
@@ -49,8 +48,9 @@ type IntegrationTestSuite struct {
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
 	s.app = simapp.Setup(s.T(), false)
-	s.cfg = network.DefaultConfig()
-	s.cfg.NumValidators = 1
+	cfg := network.DefaultConfig()
+	cfg.NumValidators = 1
+	s.cfg = cfg
 
 	var err error
 	s.network, err = network.New(s.T(), s.T().TempDir(), s.cfg)

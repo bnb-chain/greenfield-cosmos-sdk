@@ -35,7 +35,7 @@ func TestCancelUnbondingDelegation(t *testing.T) {
 	validators := app.StakingKeeper.GetValidators(ctx, 10)
 	require.Equal(t, len(validators), 1)
 
-	validatorAddr, err := sdk.ValAddressFromBech32(validators[0].OperatorAddress)
+	validatorAddr, err := sdk.ValAddressFromHex(validators[0].OperatorAddress)
 	require.NoError(t, err)
 	delegatorAddr := delAddrs[0]
 

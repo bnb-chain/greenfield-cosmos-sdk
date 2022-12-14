@@ -26,7 +26,7 @@ func (keeper Keeper) GetDeposit(ctx sdk.Context, proposalID uint64, depositorAdd
 func (keeper Keeper) SetDeposit(ctx sdk.Context, deposit v1.Deposit) {
 	store := ctx.KVStore(keeper.storeKey)
 	bz := keeper.cdc.MustMarshal(&deposit)
-	depositor := sdk.MustAccAddressFromBech32(deposit.Depositor)
+	depositor := sdk.MustAccAddressFromHex(deposit.Depositor)
 
 	store.Set(types.DepositKey(deposit.ProposalId, depositor), bz)
 }
@@ -61,7 +61,7 @@ func (keeper Keeper) DeleteAndBurnDeposits(ctx sdk.Context, proposalID uint64) {
 			panic(err)
 		}
 
-		depositor := sdk.MustAccAddressFromBech32(deposit.Depositor)
+		depositor := sdk.MustAccAddressFromHex(deposit.Depositor)
 
 		store.Delete(types.DepositKey(proposalID, depositor))
 		return false
@@ -167,7 +167,7 @@ func (keeper Keeper) RefundAndDeleteDeposits(ctx sdk.Context, proposalID uint64)
 	store := ctx.KVStore(keeper.storeKey)
 
 	keeper.IterateDeposits(ctx, proposalID, func(deposit v1.Deposit) bool {
-		depositor := sdk.MustAccAddressFromBech32(deposit.Depositor)
+		depositor := sdk.MustAccAddressFromHex(deposit.Depositor)
 
 		err := keeper.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositor, deposit.Amount)
 		if err != nil {

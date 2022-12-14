@@ -60,8 +60,8 @@ func NewCmdGrantAuthorization() *cobra.Command {
 			fmt.Sprintf(`create a new grant authorization to an address to execute a transaction on your behalf:
 
 Examples:
- $ %s tx %s grant cosmos1skjw.. send %s --spend-limit=1000stake --from=cosmos1skl..
- $ %s tx %s grant cosmos1skjw.. generic --msg-type=/cosmos.gov.v1.MsgVote --from=cosmos1sk..
+ $ %s tx %s grant 0x91D7d.. send %s --spend-limit=1000stake --from=0x9fB29..
+ $ %s tx %s grant 0x91D7d.. generic --msg-type=/cosmos.gov.v1.MsgVote --from=0x9fB29..
 	`, version.AppName, authz.ModuleName, bank.SendAuthorization{}.MsgTypeURL(), version.AppName, authz.ModuleName),
 		),
 		Args: cobra.ExactArgs(2),
@@ -71,7 +71,7 @@ Examples:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -208,7 +208,7 @@ func NewCmdRevokeAuthorization() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`revoke authorization from a granter to a grantee:
 Example:
- $ %s tx %s revoke cosmos1skj.. %s --from=cosmos1skj..
+ $ %s tx %s revoke 0x91D7d.. %s --from=0x91D7d..
 			`, version.AppName, authz.ModuleName, bank.SendAuthorization{}.MsgTypeURL()),
 		),
 		Args: cobra.ExactArgs(2),
@@ -218,7 +218,7 @@ Example:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -276,7 +276,7 @@ Example:
 func bech32toValidatorAddresses(validators []string) ([]sdk.ValAddress, error) {
 	vals := make([]sdk.ValAddress, len(validators))
 	for i, validator := range validators {
-		addr, err := sdk.ValAddressFromBech32(validator)
+		addr, err := sdk.ValAddressFromHex(validator)
 		if err != nil {
 			return nil, err
 		}

@@ -431,7 +431,7 @@ func (k Keeper) UnbondAllMatureValidators(ctx sdk.Context) {
 			k.cdc.MustUnmarshal(unbondingValIterator.Value(), &addrs)
 
 			for _, valAddr := range addrs.Addresses {
-				addr, err := sdk.ValAddressFromBech32(valAddr)
+				addr, err := sdk.ValAddressFromHex(valAddr)
 				if err != nil {
 					panic(err)
 				}
