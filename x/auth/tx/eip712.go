@@ -323,6 +323,16 @@ func traverseFields(
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
 
+		if fieldName == "" {
+			fieldName = t.Field(i).Name
+			anyWrapper := &cosmosAnyWrapper{
+				Type:  fmt.Sprint(reflect.TypeOf(field.Interface())),
+				Value: field.Interface(),
+			}
+			field = reflect.ValueOf(anyWrapper)
+			fieldType = reflect.TypeOf(anyWrapper)
+		}
+
 		if fieldType == cosmosAnyType {
 			typeAny, ok := field.Interface().(*codectypes.Any)
 			if !ok {
