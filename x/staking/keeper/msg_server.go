@@ -35,12 +35,12 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	delAddr, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	// check to see if the relayer address has been registered before
-	relayerAddr, err := sdk.AccAddressFromBech32(msg.RelayerAddress)
+	relayerAddr, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 
 	// replace relayer address
 	if len(msg.RelayerAddress) != 0 {
-		relayerAddr, err := sdk.AccAddressFromBech32(msg.RelayerAddress)
+		relayerAddr, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
 		if err != nil {
 			return nil, err
 		}

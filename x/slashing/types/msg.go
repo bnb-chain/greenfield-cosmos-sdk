@@ -62,7 +62,7 @@ func (msg MsgKickOut) Type() string { return TypeMsgKickOut }
 
 // GetSigners implements the sdk.Msg interface.
 func (msg MsgKickOut) GetSigners() []sdk.AccAddress {
-	fromAddr, _ := sdk.AccAddressFromBech32(msg.From)
+	fromAddr, _ := sdk.AccAddressFromHexUnsafe(msg.From)
 	return []sdk.AccAddress{fromAddr}
 }
 
@@ -74,11 +74,11 @@ func (msg MsgKickOut) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgKickOut) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.From); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.From); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 

@@ -138,7 +138,7 @@ func NewEditValidatorCmd() *cobra.Command {
 			relayerAddr, _ := cmd.Flags().GetString(FlagAddressRelayer)
 			blsPk, _ := cmd.Flags().GetString(FlagBlsKeyRelayer)
 			if relayerAddr != "" {
-				relayer, err = sdk.AccAddressFromBech32(relayerAddr)
+				relayer, err = sdk.AccAddressFromHexUnsafe(relayerAddr)
 				if err != nil {
 					return fmt.Errorf("invalid relayer address: %v", err)
 				}

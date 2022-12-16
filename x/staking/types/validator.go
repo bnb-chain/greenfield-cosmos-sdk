@@ -509,7 +509,7 @@ func (v Validator) GetSelfDelegator() sdk.AccAddress {
 	if v.SelfdelAddress == "" {
 		return nil
 	}
-	addr, err := sdk.AccAddressFromBech32(v.SelfdelAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfdelAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -520,7 +520,7 @@ func (v Validator) GetRelayer() sdk.AccAddress {
 	if v.RelayerAddress == "" {
 		return nil
 	}
-	addr, err := sdk.AccAddressFromBech32(v.RelayerAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
 	if err != nil {
 		panic(err)
 	}

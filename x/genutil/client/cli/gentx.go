@@ -154,11 +154,11 @@ $ %s gentx my-key-name 1000000stake \
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/8177
 			createValCfg.Amount = amount
 
-			validator, err := sdk.ValAddressFromBech32(args[2])
+			validator, err := sdk.ValAddressFromHex(args[2])
 			if err != nil {
 				return err
 			}
-			relayer, err := sdk.AccAddressFromBech32(args[3])
+			relayer, err := sdk.AccAddressFromHexUnsafe(args[3])
 			if err != nil {
 				return err
 			}

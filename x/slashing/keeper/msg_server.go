@@ -57,7 +57,7 @@ func (k msgServer) KickOut(goCtx context.Context, msg *types.MsgKickOut) (*types
 		return nil, types.ErrSignerNotGovModule
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
