@@ -28,7 +28,7 @@ func TestEIP712Handler(t *testing.T) {
 	txBuilder := txConfig.NewTxBuilder()
 
 	chainID := "ethermint_9000"
-	memo := "some test memo"
+	testMemo := "some test memo"
 	msgs := []sdk.Msg{banktypes.NewMsgSend(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))))}
 	accNum, accSeq := uint64(1), uint64(2) // Arbitrary account number/sequence
 
@@ -52,7 +52,7 @@ func TestEIP712Handler(t *testing.T) {
 
 	err := txBuilder.SetMsgs(msgs...)
 	require.NoError(t, err)
-	txBuilder.SetMemo(memo)
+	txBuilder.SetMemo(testMemo)
 	txBuilder.SetFeeAmount(fee.Amount)
 	txBuilder.SetFeePayer(feePayerAddr)
 	txBuilder.SetGasLimit(fee.GasLimit)
