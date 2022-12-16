@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/prysmaticlabs/prysm/crypto/hash"
 )
 
 const (
@@ -95,7 +94,7 @@ func (c *BlsClaim) GetSignBytes() [32]byte {
 		panic("encode bls claim error")
 	}
 
-	btsHash := hash.Hash(bts)
+	btsHash := sdk.Keccak256Hash(bts)
 	return btsHash
 }
 
