@@ -45,8 +45,8 @@ file. The following default parameters are included:
 
 Example:
 $ %s gentx my-key-name 1000000stake \
-	cosmosvaloper1hj7gqg9wjn5ytd0qjgf3sj2nts9kksszp3a6hy \
-	cosmos1sz32xhqmulpy07k6736rxneaect52t057uvgmn \
+	0x6D967dc83b625603c963713eABd5B43A281E595e \
+	0xcdd393723f1Af81faa3F3c87B51dAB72B6c68154 \
 	ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9 \
 	--home=/path/to/home/dir --keyring-backend=os --chain-id=test-chain-1 \
     --moniker="myvalidator" \
@@ -167,7 +167,7 @@ $ %s gentx my-key-name 1000000stake \
 				return errors.New("empty relayer bls pubkey")
 			}
 
-			createValCfg.Validator = sdk.ValAddress(validator)
+			createValCfg.Validator = validator
 			createValCfg.Delegator = addr
 			createValCfg.Relayer = relayer
 			createValCfg.RelayerBlsKey = blsPk

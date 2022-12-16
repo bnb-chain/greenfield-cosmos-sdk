@@ -62,7 +62,8 @@ func NewParams(
 	maxValidators, maxEntries, historicalEntries uint32,
 	bondDenom string,
 	minCommissionRate sdk.Dec,
-	minSelfDelegation math.Int) Params {
+	minSelfDelegation math.Int,
+) Params {
 	return Params{
 		UnbondingTime:     unbondingTime,
 		MaxValidators:     maxValidators,

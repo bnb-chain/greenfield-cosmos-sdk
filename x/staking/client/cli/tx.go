@@ -43,7 +43,7 @@ func NewTxCmd() *cobra.Command {
 	stakingTxCmd.AddCommand(
 		NewEditValidatorCmd(),
 		NewDelegateCmd(),
-		//NewRedelegateCmd(), // Redelegate is not supported now.
+		// NewRedelegateCmd(),
 		NewUnbondCmd(),
 		NewCancelUnbondingDelegation(),
 	)
@@ -495,7 +495,8 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 	}
 
 	msg, err := types.NewMsgCreateValidator(
-		config.Validator, config.PubKey, amount, description, commissionRates, minSelfDelegation,
+		config.Validator, config.PubKey,
+		amount, description, commissionRates, minSelfDelegation,
 		from, config.Delegator, config.Relayer, config.RelayerBlsKey,
 	)
 	if err != nil {
