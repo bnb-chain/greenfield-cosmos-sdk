@@ -18,6 +18,18 @@ const (
 type BLSPublicKey [BLSPublicKeyLength]byte
 type BLSSignature [BLSSignatureLength]byte
 
+func NewMsgClaim(fromAddr string, chainId uint32, sequence uint64, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
+	return &MsgClaim{
+		FromAddress:    fromAddr,
+		ChainId:        chainId,
+		Sequence:       sequence,
+		Timestamp:      timestamp,
+		Payload:        payload,
+		VoteAddressSet: voteAddrSet,
+		AggSignature:   aggSignature,
+	}
+}
+
 // Route implements the LegacyMsg interface.
 func (m MsgClaim) Route() string { return sdk.MsgTypeURL(&m) }
 
