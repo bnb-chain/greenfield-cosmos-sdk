@@ -1,4 +1,4 @@
-package crosschain
+package oracle
 
 import (
 	"encoding/json"
