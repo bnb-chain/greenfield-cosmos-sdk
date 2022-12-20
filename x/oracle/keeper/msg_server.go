@@ -15,16 +15,14 @@ import (
 )
 
 type msgServer struct {
-	oracleKeeper  Keeper
-	stakingKeeper types.StakingKeeper
+	oracleKeeper Keeper
 }
 
 // NewMsgServerImpl returns an implementation of the oracle MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(k Keeper, stakingKeeper types.StakingKeeper) types.MsgServer {
+func NewMsgServerImpl(k Keeper) types.MsgServer {
 	return &msgServer{
-		oracleKeeper:  k,
-		stakingKeeper: stakingKeeper,
+		oracleKeeper: k,
 	}
 }
 
