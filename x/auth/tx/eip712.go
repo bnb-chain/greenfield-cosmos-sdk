@@ -323,17 +323,28 @@ func traverseFields(
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
 
+		// TODO will add another limitation: only if the type is anyOf.
+		if fieldName == "" {
+			fieldName = t.Field(i).Name
+			anyWrapper := &cosmosAnyWrapper{
+				Type:  fmt.Sprint(reflect.TypeOf(field.Interface())),
+				Value: field.Interface(),
+			}
+			field = reflect.ValueOf(anyWrapper)
+			fieldType = reflect.TypeOf(anyWrapper)
+		}
+
 		if fieldType == cosmosAnyType {
-			any, ok := field.Interface().(*codectypes.Any)
+			typeAny, ok := field.Interface().(*codectypes.Any)
 			if !ok {
 				return errors.Wrapf(sdkerrors.ErrPackAny, "%T", field.Interface())
 			}
 
 			anyWrapper := &cosmosAnyWrapper{
-				Type: any.TypeUrl,
+				Type: typeAny.TypeUrl,
 			}
 
-			if err := cdc.UnpackAny(any, &anyWrapper.Value); err != nil {
+			if err := cdc.UnpackAny(typeAny, &anyWrapper.Value); err != nil {
 				return errors.Wrap(err, "failed to unpack Any in msg struct")
 			}
 
@@ -384,6 +395,26 @@ func traverseFields(
 
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
+			// Unpack the field into cosmosAnyWrapper rather than the Any type
+			if fieldType == cosmosAnyType {
+				typeAny, ok := field.Interface().(*codectypes.Any)
+				if !ok {
+					return errors.Wrapf(sdkerrors.ErrPackAny, "%T", field.Interface())
+				}
+
+				anyWrapper := &cosmosAnyWrapper{
+					Type: typeAny.TypeUrl,
+				}
+
+				if err := cdc.UnpackAny(typeAny, &anyWrapper.Value); err != nil {
+					return errors.Wrap(err, "failed to unpack Any in msg struct")
+				}
+
+				fieldType = reflect.TypeOf(anyWrapper.Value)
+				field = reflect.ValueOf(anyWrapper.Value)
+
+				// then continue as normal
+			}
 			isCollection = true
 		}
 
