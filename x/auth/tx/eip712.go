@@ -323,6 +323,7 @@ func traverseFields(
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
 
+		// TODO will add another limitation: only if the type is anyOf.
 		if fieldName == "" {
 			fieldName = t.Field(i).Name
 			anyWrapper := &cosmosAnyWrapper{
@@ -394,6 +395,7 @@ func traverseFields(
 
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
+			// Unpack the field into cosmosAnyWrapper rather than the Any type
 			if fieldType == cosmosAnyType {
 				typeAny, ok := field.Interface().(*codectypes.Any)
 				if !ok {
