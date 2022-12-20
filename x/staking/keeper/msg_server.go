@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"strconv"
 	"time"
 
@@ -9,8 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/armon/go-metrics"
-	"github.com/ethereum/go-ethereum/common"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -88,8 +87,8 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	// check to see if the relayer bls pubkey has been registered before
-	blsPk := common.Hex2Bytes(msg.RelayerBlskey)
-	if len(blsPk) == 0 {
+	blsPk, err := hex.DecodeString(msg.RelayerBlskey)
+	if len(blsPk) != 48 {
 		return nil, types.ErrValidatorRelayerBlsKeyEmpty
 	}
 	if _, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {

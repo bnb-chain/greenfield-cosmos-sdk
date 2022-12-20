@@ -3,6 +3,7 @@ package network
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 
 	"cosmossdk.io/math"
 	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -400,6 +402,12 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
+		blsSecretKey, err := bls.RandKey()
+		if err != nil {
+			return nil, err
+		}
+		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -407,8 +415,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
-			// FIXME: should set proper value to pass testcases.
-			addr, addr, addr, "",
+			addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err

@@ -37,7 +37,7 @@ const (
 var DefaultMinCommissionRate = sdk.ZeroDec()
 
 // DefaultMinSelfDelegation defines the minimum self delegation for all validators
-var DefaultMinSelfDelegation math.Int = math.NewInt(10000)
+var DefaultMinSelfDelegation = sdk.OneInt()
 
 var (
 	KeyUnbondingTime     = []byte("UnbondingTime")
