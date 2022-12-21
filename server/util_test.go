@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/opencontainers/runc/libcontainer/user"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -393,9 +394,12 @@ func TestInterceptConfigsPreRunHandlerPrecedenceConfigDefault(t *testing.T) {
 // that we correctly return the offending error, for example a permission error.
 // See https://github.com/cosmos/cosmos-sdk/issues/7578
 func TestInterceptConfigsWithBadPermissions(t *testing.T) {
+	if u, _ := user.CurrentUser(); u.Uid == 0 {
+		t.Skip()
+	}
 	tempDir := t.TempDir()
 	subDir := filepath.Join(tempDir, "nonPerms")
-	if err := os.Mkdir(subDir, 0o600); err != nil {
+	if err := os.Mkdir(subDir, 0o400); err != nil {
 		t.Fatalf("Failed to create sub directory: %v", err)
 	}
 	cmd := server.StartCmd(nil, "/foobar")
