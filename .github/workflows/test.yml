@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-arch: ["amd64", "arm", "arm64"]
+        go-arch: ["amd64"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -37,9 +37,6 @@ jobs:
             **/go.sum
       - name: Build
         run: GOARCH=${{ matrix.go-arch }} LEDGER_ENABLED=false make build
-
-      - name: Build cosmovisor
-        run: GOARCH=${{ matrix.go-arch }} LEDGER_ENABLED=false make cosmovisor
 
   test-submodules:
     runs-on: ubuntu-latest
