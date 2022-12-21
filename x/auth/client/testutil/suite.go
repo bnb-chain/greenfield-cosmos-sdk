@@ -136,7 +136,7 @@ func (s *IntegrationTestSuite) TestCLISignGenOnly() {
 		sendTokens.String(),
 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly), // shouldn't break if we use keyname with --generate-only flag
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 	}
 	generatedStd, err := clitestutil.ExecTestCLICmd(val.ClientCtx, bank.NewSendTxCmd(), args)
 	s.Require().NoError(err)
@@ -841,7 +841,7 @@ func (s *IntegrationTestSuite) TestCLISendGenerateSignAndBroadcast() {
 	s.Require().NoError(s.network.WaitForNextBlock())
 
 	// Broadcast correct transaction.
-	val1.ClientCtx.BroadcastMode = flags.BroadcastSync
+	val1.ClientCtx.BroadcastMode = flags.BroadcastBlock
 	_, err = TxBroadcastExec(val1.ClientCtx, signedTxFile.Name())
 	s.Require().NoError(err)
 
@@ -896,7 +896,7 @@ func (s *IntegrationTestSuite) TestCLIMultisignInsufficientCosigners() {
 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
 		),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 	)
@@ -1012,7 +1012,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
 // 		),
 // 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 // 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 // 	)
@@ -1054,7 +1054,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 	_, err = TxValidateSignaturesExec(val1.ClientCtx, signedTxFile.Name())
 // 	s.Require().NoError(err)
 //
-// 	val1.ClientCtx.BroadcastMode = flags.BroadcastSync
+// 	val1.ClientCtx.BroadcastMode = flags.BroadcastBlock
 // 	_, err = TxBroadcastExec(val1.ClientCtx, signedTxFile.Name())
 // 	s.Require().NoError(err)
 //
@@ -1085,7 +1085,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
 // 		),
 // 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 // 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 // 	)
@@ -1146,7 +1146,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
 // 		),
 // 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 // 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 // 	)
@@ -1186,7 +1186,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 	_, err = TxValidateSignaturesExec(val1.ClientCtx, signedTxFile.Name())
 // 	s.Require().NoError(err)
 //
-// 	val1.ClientCtx.BroadcastMode = flags.BroadcastSync
+// 	val1.ClientCtx.BroadcastMode = flags.BroadcastBlock
 // 	_, err = TxBroadcastExec(val1.ClientCtx, signedTxFile.Name())
 // 	s.Require().NoError(err)
 //
@@ -1224,7 +1224,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 			sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(1)),
 // 		),
 // 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 // 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 // 	)
@@ -1286,7 +1286,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 			sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(1)),
 // 		),
 // 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 // 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
 // 	)
@@ -1326,7 +1326,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 // 	// Broadcast transactions.
 // 	for _, signedTx := range signedTxs {
 // 		signedTxFile := testutil.WriteToNewTempFile(s.T(), signedTx)
-// 		val.ClientCtx.BroadcastMode = flags.BroadcastSync
+// 		val.ClientCtx.BroadcastMode = flags.BroadcastBlock
 // 		_, err = TxBroadcastExec(val.ClientCtx, signedTxFile.Name())
 // 		s.Require().NoError(err)
 // 		s.Require().NoError(s.network.WaitForNextBlock())
@@ -1579,7 +1579,7 @@ func (s *IntegrationTestSuite) TestTxWithoutPublicKey() {
 	s.Require().True(strings.Contains(string(txJSON), "\"public_key\":null"))
 
 	// Broadcast tx, test that it shouldn't panic.
-	val1.ClientCtx.BroadcastMode = flags.BroadcastSync
+	val1.ClientCtx.BroadcastMode = flags.BroadcastBlock
 	out, err := TxBroadcastExec(val1.ClientCtx, signedTxFile.Name())
 	s.Require().NoError(err)
 	var res sdk.TxResponse
@@ -1764,7 +1764,7 @@ func (s *IntegrationTestSuite) TestTxWithoutPublicKey() {
 // 			expectErrAux: true,
 // 			feePayerArgs: []string{
 // 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-// 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 				fmt.Sprintf("--%s=%s", flags.FlagFrom, feePayer),
 // 				fmt.Sprintf("--%s=%s", flags.FlagFees, fee.String()),
 // 			},
@@ -1908,7 +1908,7 @@ func (s *IntegrationTestSuite) TestTxWithoutPublicKey() {
 // 			feePayerArgs: []string{
 // 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 // 				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeDirect),
-// 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 // 				fmt.Sprintf("--%s=%s", flags.FlagFrom, feePayer),
 // 			},
 // 			errMsg: "insufficient fees",
@@ -1970,7 +1970,7 @@ func (s *IntegrationTestSuite) TestTxWithoutPublicKey() {
 func (s *IntegrationTestSuite) createBankMsg(val *network.Validator, toAddr sdk.AccAddress, amount sdk.Coins, extraFlags ...string) (testutil.BufferWriter, error) {
 	flags := []string{
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees,
 			sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 	}
