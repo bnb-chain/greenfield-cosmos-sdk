@@ -4,11 +4,14 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"path/filepath"
+
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/cobra"
@@ -288,6 +291,8 @@ func initTestnetFiles(
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -295,8 +300,7 @@ func initTestnetFiles(
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
-			// FIXME: should set proper value to pass testcases.
-			addr, addr, addr, "",
+			addr, addr, addr, blsPk,
 		)
 		if err != nil {
 			return err

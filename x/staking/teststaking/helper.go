@@ -53,10 +53,12 @@ func (sh *Helper) CreateValidatorWithValPower(addr sdk.ValAddress, pk cryptotype
 // CreateValidatorMsg returns a message used to create validator in this service.
 func (sh *Helper) CreateValidatorMsg(addr sdk.ValAddress, pk cryptotypes.PubKey, stakeAmount math.Int) *stakingtypes.MsgCreateValidator {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), "",
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
 	)
 	require.NoError(sh.t, err)
 	return msg
@@ -76,7 +78,7 @@ func (sh *Helper) createValidator(addr sdk.ValAddress, pk cryptotypes.PubKey, co
 		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
 	)
 	require.NoError(sh.t, err)
-	res, err := sh.msgSrvr.CreateValidator(sdk.WrapSDKContext(sh.Ctx), msg)
+	res, err := sh.msgSrvr.CreateValidator(sdk.WrapSDKContext(sh.Ctx.WithBlockHeight(0)), msg)
 	if ok {
 		require.NoError(sh.t, err)
 		require.NotNil(sh.t, res)
