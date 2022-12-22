@@ -27,7 +27,7 @@ service Msg {
 
   // BeginRedelegate defines a method for performing a redelegation
   // of coins from a delegator and source validator to a destination validator.
-  // rpc BeginRedelegate(MsgBeginRedelegate) returns (MsgBeginRedelegateResponse);
+  rpc BeginRedelegate(MsgBeginRedelegate) returns (MsgBeginRedelegateResponse);
 
   // Undelegate defines a method for performing an undelegation from a
   // delegate and a validator.

@@ -313,10 +313,11 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
+	// TODO: And a hard fork to allow all delegations
 	// Note: only allow self delegation for now
-	if !delegatorAddress.Equals(validator.GetSelfDelegator()) {
-		return nil, sdkerrors.Wrapf(types.ErrDelegationNotAllowed, "only self delegation is allowed for now")
-	}
+	//if !delegatorAddress.Equals(validator.GetSelfDelegator()) {
+	//	return nil, sdkerrors.Wrapf(types.ErrDelegationNotAllowed, "only self delegation is allowed for now")
+	//}
 
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
@@ -376,6 +377,8 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: And a hard fork to allow all redelegations
 
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
