@@ -1,0 +1,13 @@
+syntax = "proto3";
+package cosmos.feehub.v1alpha1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/feehub/v1alpha1/feehub.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/feehub/types";
+
+// GenesisState defines the feehub module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

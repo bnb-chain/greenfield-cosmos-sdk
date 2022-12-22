@@ -1,0 +1,16 @@
+syntax = "proto3";
+package cosmos.feehub.v1alpha1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/feehub/types";
+
+// Params defines the parameters for the feehub module.
+message Params {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  uint64 max_tx_size      = 1 [(gogoproto.customname) = "MaxTxSize"];
+  uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
+  uint64 msg_send_gas     = 3 [(gogoproto.customname) = "MsgSendGas"];
+}
