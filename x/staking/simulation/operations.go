@@ -78,10 +78,10 @@ func WeightedOperations(
 	)
 
 	return simulation.WeightedOperations{
-		simulation.NewWeightedOperation(
-			weightMsgCreateValidator,
-			SimulateMsgCreateValidator(ak, bk, k),
-		),
+		//simulation.NewWeightedOperation(
+		//	weightMsgCreateValidator,
+		//	SimulateMsgCreateValidator(ak, bk, k),
+		//),
 		simulation.NewWeightedOperation(
 			weightMsgEditValidator,
 			SimulateMsgEditValidator(ak, bk, k),
@@ -106,89 +106,89 @@ func WeightedOperations(
 }
 
 // SimulateMsgCreateValidator generates a MsgCreateValidator with random values
-func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
-	return func(
-		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
-	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-		address := sdk.ValAddress(simAccount.Address)
-
-		// ensure the validator doesn't exist already
-		_, found := k.GetValidator(ctx, address)
-		if found {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "validator already exists"), nil, nil
-		}
-
-		denom := k.GetParams(ctx).BondDenom
-
-		balance := bk.GetBalance(ctx, simAccount.Address, denom).Amount
-		if !balance.IsPositive() {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "balance is negative"), nil, nil
-		}
-
-		amount, err := simtypes.RandPositiveInt(r, balance)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "unable to generate positive amount"), nil, err
-		}
-
-		selfDelegation := sdk.NewCoin(denom, amount)
-
-		account := ak.GetAccount(ctx, simAccount.Address)
-		spendable := bk.SpendableCoins(ctx, account.GetAddress())
-
-		var fees sdk.Coins
-
-		coins, hasNeg := spendable.SafeSub(selfDelegation)
-		if !hasNeg {
-			fees, err = simtypes.RandomFees(r, ctx, coins)
-			if err != nil {
-				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "unable to generate fees"), nil, err
-			}
-		}
-
-		description := types.NewDescription(
-			simtypes.RandStringOfLength(r, 10),
-			simtypes.RandStringOfLength(r, 10),
-			simtypes.RandStringOfLength(r, 10),
-			simtypes.RandStringOfLength(r, 10),
-			simtypes.RandStringOfLength(r, 10),
-		)
-
-		maxCommission := sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 0, 100)), 2)
-		commission := types.NewCommissionRates(
-			simtypes.RandomDecAmount(r, maxCommission),
-			maxCommission,
-			simtypes.RandomDecAmount(r, maxCommission),
-		)
-
-		blsSecretKey, _ := bls.RandKey()
-		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
-
-		msg, err := types.NewMsgCreateValidator(
-			address, simAccount.ConsKey.PubKey(),
-			selfDelegation, description, commission, sdk.OneInt(),
-			sdk.AccAddress(address), sdk.AccAddress(address), sdk.AccAddress(address), blsPk,
-		)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
-		}
-
-		txCtx := simulation.OperationInput{
-			R:             r,
-			App:           app,
-			TxGen:         simappparams.MakeTestEncodingConfig().TxConfig,
-			Cdc:           nil,
-			Msg:           msg,
-			MsgType:       msg.Type(),
-			Context:       ctx,
-			SimAccount:    simAccount,
-			AccountKeeper: ak,
-			ModuleName:    types.ModuleName,
-		}
-
-		return simulation.GenAndDeliverTx(txCtx, fees)
-	}
-}
+//func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
+//	return func(
+//		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
+//	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+//		simAccount, _ := simtypes.RandomAcc(r, accs)
+//		address := sdk.ValAddress(simAccount.Address)
+//
+//		// ensure the validator doesn't exist already
+//		_, found := k.GetValidator(ctx, address)
+//		if found {
+//			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "validator already exists"), nil, nil
+//		}
+//
+//		denom := k.GetParams(ctx).BondDenom
+//
+//		balance := bk.GetBalance(ctx, simAccount.Address, denom).Amount
+//		if !balance.IsPositive() {
+//			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "balance is negative"), nil, nil
+//		}
+//
+//		amount, err := simtypes.RandPositiveInt(r, balance)
+//		if err != nil {
+//			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "unable to generate positive amount"), nil, err
+//		}
+//
+//		selfDelegation := sdk.NewCoin(denom, amount)
+//
+//		account := ak.GetAccount(ctx, simAccount.Address)
+//		spendable := bk.SpendableCoins(ctx, account.GetAddress())
+//
+//		var fees sdk.Coins
+//
+//		coins, hasNeg := spendable.SafeSub(selfDelegation)
+//		if !hasNeg {
+//			fees, err = simtypes.RandomFees(r, ctx, coins)
+//			if err != nil {
+//				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateValidator, "unable to generate fees"), nil, err
+//			}
+//		}
+//
+//		description := types.NewDescription(
+//			simtypes.RandStringOfLength(r, 10),
+//			simtypes.RandStringOfLength(r, 10),
+//			simtypes.RandStringOfLength(r, 10),
+//			simtypes.RandStringOfLength(r, 10),
+//			simtypes.RandStringOfLength(r, 10),
+//		)
+//
+//		maxCommission := sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 0, 100)), 2)
+//		commission := types.NewCommissionRates(
+//			simtypes.RandomDecAmount(r, maxCommission),
+//			maxCommission,
+//			simtypes.RandomDecAmount(r, maxCommission),
+//		)
+//
+//		blsSecretKey, _ := bls.RandKey()
+//		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+//
+//		msg, err := types.NewMsgCreateValidator(
+//			address, simAccount.ConsKey.PubKey(),
+//			selfDelegation, description, commission, sdk.OneInt(),
+//			sdk.AccAddress(address), sdk.AccAddress(address), sdk.AccAddress(address), blsPk,
+//		)
+//		if err != nil {
+//			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
+//		}
+//
+//		txCtx := simulation.OperationInput{
+//			R:             r,
+//			App:           app,
+//			TxGen:         simappparams.MakeTestEncodingConfig().TxConfig,
+//			Cdc:           nil,
+//			Msg:           msg,
+//			MsgType:       msg.Type(),
+//			Context:       ctx,
+//			SimAccount:    simAccount,
+//			AccountKeeper: ak,
+//			ModuleName:    types.ModuleName,
+//		}
+//
+//		return simulation.GenAndDeliverTx(txCtx, fees)
+//	}
+//}
 
 // SimulateMsgEditValidator generates a MsgEditValidator with random values
 func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
