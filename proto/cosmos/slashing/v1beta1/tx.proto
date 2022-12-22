@@ -15,8 +15,8 @@ service Msg {
   // and rewards again.
   rpc Unjail(MsgUnjail) returns (MsgUnjailResponse);
 
-  // KickOut defines a method for removing an existing validator after gov proposal passes.
-  rpc KickOut(MsgKickOut) returns (MsgKickOutResponse);
+  // Impeach defines a method for removing an existing validator after gov proposal passes.
+  rpc Impeach(MsgImpeach) returns (MsgImpeachResponse);
 }
 
 // MsgUnjail defines the Msg/Unjail request type
@@ -32,8 +32,8 @@ message MsgUnjail {
 // MsgUnjailResponse defines the Msg/Unjail response type
 message MsgUnjailResponse {}
 
-// MsgKickOut defines the Msg/Kickout request type
-message MsgKickOut {
+// MsgImpeach defines the Msg/Impeach request type
+message MsgImpeach {
   // NOTE: The validator should be removed by the gov module account after the proposal passes.
   option (cosmos.msg.v1.signer) = "from";
 
@@ -44,5 +44,5 @@ message MsgKickOut {
   string      validator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgKickOutResponse defines the Msg/KickOut response type.
-message MsgKickOutResponse {}
+// MsgImpeachResponse defines the Msg/Impeach response type.
+message MsgImpeachResponse {}

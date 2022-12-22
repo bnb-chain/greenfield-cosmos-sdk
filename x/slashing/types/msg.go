@@ -8,7 +8,7 @@ import (
 // slashing message types
 const (
 	TypeMsgUnjail  = "unjail"
-	TypeMsgKickOut = "kick_out"
+	TypeMsgImpeach = "impeach"
 )
 
 // verify interface at compile time
@@ -42,36 +42,34 @@ func (msg MsgUnjail) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgKickOut creates a new MsgKickOut instance
-//
-//nolint:interfacer
-func NewMsgKickOut(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgKickOut {
-	return &MsgKickOut{
+// NewMsgImpeach creates a new MsgImpeach instance
+func NewMsgImpeach(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgImpeach {
+	return &MsgImpeach{
 		ValidatorAddress: valAddr.String(),
 		From:             from.String(),
 	}
 }
 
 // Route implements the sdk.Msg interface.
-func (msg MsgKickOut) Route() string { return RouterKey }
+func (msg MsgImpeach) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface.
-func (msg MsgKickOut) Type() string { return TypeMsgKickOut }
+func (msg MsgImpeach) Type() string { return TypeMsgImpeach }
 
 // GetSigners implements the sdk.Msg interface.
-func (msg MsgKickOut) GetSigners() []sdk.AccAddress {
+func (msg MsgImpeach) GetSigners() []sdk.AccAddress {
 	fromAddr, _ := sdk.AccAddressFromHexUnsafe(msg.From)
 	return []sdk.AccAddress{fromAddr}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
-func (msg MsgKickOut) GetSignBytes() []byte {
+func (msg MsgImpeach) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic implements the sdk.Msg interface.
-func (msg MsgKickOut) ValidateBasic() error {
+func (msg MsgImpeach) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromHexUnsafe(msg.From); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}

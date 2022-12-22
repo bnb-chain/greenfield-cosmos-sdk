@@ -11,9 +11,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-
 	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/spf13/cobra"
 	tmconfig "github.com/tendermint/tendermint/config"
 	tmos "github.com/tendermint/tendermint/libs/os"

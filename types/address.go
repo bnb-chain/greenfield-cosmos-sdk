@@ -77,6 +77,9 @@ const (
 
 	// EthAddressLength defines a valid Ethereum compatible chain address length
 	EthAddressLength = 20
+
+	// BLSPubKeyLength defines a valid BLS Public key length
+	BLSPubKeyLength = 48
 )
 
 // cache variables

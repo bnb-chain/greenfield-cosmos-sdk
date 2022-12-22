@@ -52,7 +52,7 @@ var (
 	ErrCommissionLTMinRate             = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
 
 	ErrValidatorRelayerAddressExists = sdkerrors.Register(ModuleName, 41, "validator already exist for this relayer address; must use new relayer address")
-	ErrValidatorRelayerBlsKeyEmpty   = sdkerrors.Register(ModuleName, 42, "validator relayer bls pubkey is empty")
+	ErrValidatorRelayerInvalidBlsKey = sdkerrors.Register(ModuleName, 42, "validator relayer bls pubkey is invalid")
 	ErrValidatorRelayerBlsKeyExists  = sdkerrors.Register(ModuleName, 43, "validator already exist for this relayer bls pubkey; must use new bls pubkey")
 	ErrDelegationNotAllowed          = sdkerrors.Register(ModuleName, 44, "delegation is not allowed")
 	ErrRedelegationNotAllowed        = sdkerrors.Register(ModuleName, 45, "redelegation is not allowed")

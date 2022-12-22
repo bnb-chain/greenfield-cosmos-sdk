@@ -105,24 +105,24 @@ func (m *MsgUnjailResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUnjailResponse proto.InternalMessageInfo
 
-// MsgKickOut defines the Msg/Kickout request type
-type MsgKickOut struct {
+// MsgImpeach defines the Msg/Impeach request type
+type MsgImpeach struct {
 	From             string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
 	ValidatorAddress string `protobuf:"bytes,2,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
 }
 
-func (m *MsgKickOut) Reset()         { *m = MsgKickOut{} }
-func (m *MsgKickOut) String() string { return proto.CompactTextString(m) }
-func (*MsgKickOut) ProtoMessage()    {}
-func (*MsgKickOut) Descriptor() ([]byte, []int) {
+func (m *MsgImpeach) Reset()         { *m = MsgImpeach{} }
+func (m *MsgImpeach) String() string { return proto.CompactTextString(m) }
+func (*MsgImpeach) ProtoMessage()    {}
+func (*MsgImpeach) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3c5611c0c4a59d9d, []int{2}
 }
-func (m *MsgKickOut) XXX_Unmarshal(b []byte) error {
+func (m *MsgImpeach) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgKickOut) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgImpeach) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgKickOut.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgImpeach.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -132,34 +132,34 @@ func (m *MsgKickOut) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *MsgKickOut) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgKickOut.Merge(m, src)
+func (m *MsgImpeach) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgImpeach.Merge(m, src)
 }
-func (m *MsgKickOut) XXX_Size() int {
+func (m *MsgImpeach) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgKickOut) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgKickOut.DiscardUnknown(m)
+func (m *MsgImpeach) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgImpeach.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgKickOut proto.InternalMessageInfo
+var xxx_messageInfo_MsgImpeach proto.InternalMessageInfo
 
-// MsgKickOutResponse defines the Msg/KickOut response type.
-type MsgKickOutResponse struct {
+// MsgImpeachResponse defines the Msg/Impeach response type.
+type MsgImpeachResponse struct {
 }
 
-func (m *MsgKickOutResponse) Reset()         { *m = MsgKickOutResponse{} }
-func (m *MsgKickOutResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgKickOutResponse) ProtoMessage()    {}
-func (*MsgKickOutResponse) Descriptor() ([]byte, []int) {
+func (m *MsgImpeachResponse) Reset()         { *m = MsgImpeachResponse{} }
+func (m *MsgImpeachResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgImpeachResponse) ProtoMessage()    {}
+func (*MsgImpeachResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3c5611c0c4a59d9d, []int{3}
 }
-func (m *MsgKickOutResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgImpeachResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgKickOutResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgImpeachResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgKickOutResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgImpeachResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -169,23 +169,23 @@ func (m *MsgKickOutResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *MsgKickOutResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgKickOutResponse.Merge(m, src)
+func (m *MsgImpeachResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgImpeachResponse.Merge(m, src)
 }
-func (m *MsgKickOutResponse) XXX_Size() int {
+func (m *MsgImpeachResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgKickOutResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgKickOutResponse.DiscardUnknown(m)
+func (m *MsgImpeachResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgImpeachResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgKickOutResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgImpeachResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*MsgUnjail)(nil), "cosmos.slashing.v1beta1.MsgUnjail")
 	proto.RegisterType((*MsgUnjailResponse)(nil), "cosmos.slashing.v1beta1.MsgUnjailResponse")
-	proto.RegisterType((*MsgKickOut)(nil), "cosmos.slashing.v1beta1.MsgKickOut")
-	proto.RegisterType((*MsgKickOutResponse)(nil), "cosmos.slashing.v1beta1.MsgKickOutResponse")
+	proto.RegisterType((*MsgImpeach)(nil), "cosmos.slashing.v1beta1.MsgImpeach")
+	proto.RegisterType((*MsgImpeachResponse)(nil), "cosmos.slashing.v1beta1.MsgImpeachResponse")
 }
 
 func init() { proto.RegisterFile("cosmos/slashing/v1beta1/tx.proto", fileDescriptor_3c5611c0c4a59d9d) }
@@ -204,7 +204,7 @@ var fileDescriptor_3c5611c0c4a59d9d = []byte{
 	0x10, 0x91, 0xe0, 0x92, 0xa2, 0xcc, 0xbc, 0xf4, 0x20, 0x5e, 0xb8, 0x56, 0x90, 0xb8, 0x95, 0x74,
 	0xc7, 0x02, 0x79, 0x86, 0x19, 0x0b, 0xe4, 0x19, 0x9b, 0x9e, 0x6f, 0xd0, 0x42, 0x33, 0x56, 0x49,
 	0x98, 0x4b, 0x10, 0x6e, 0x6b, 0x50, 0x6a, 0x71, 0x41, 0x7e, 0x5e, 0x71, 0xaa, 0xd2, 0x14, 0x46,
-	0x2e, 0x2e, 0xdf, 0xe2, 0x74, 0xef, 0xcc, 0xe4, 0x6c, 0xff, 0xd2, 0x12, 0x21, 0x1d, 0x2e, 0x96,
+	0x2e, 0x2e, 0xdf, 0xe2, 0x74, 0xcf, 0xdc, 0x82, 0xd4, 0xc4, 0xe4, 0x0c, 0x21, 0x1d, 0x2e, 0x96,
 	0xb4, 0xa2, 0xfc, 0x5c, 0xa8, 0x13, 0x24, 0x70, 0xda, 0x0b, 0x56, 0x25, 0xe4, 0xca, 0x25, 0x88,
 	0x6a, 0x47, 0x6a, 0x71, 0xb1, 0x04, 0x13, 0x01, 0xad, 0x02, 0x28, 0x4e, 0x4e, 0x2d, 0x2e, 0xb6,
 	0x12, 0x04, 0xb9, 0xfa, 0xc5, 0x02, 0x79, 0x06, 0x90, 0xab, 0xc1, 0x26, 0x2b, 0x89, 0x70, 0x09,
@@ -215,7 +215,7 @@ var fileDescriptor_3c5611c0c4a59d9d = []byte{
 	0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e,
 	0x3c, 0x96, 0x63, 0x88, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0x85,
 	0x26, 0x23, 0x28, 0xa5, 0x5b, 0x9c, 0x92, 0xad, 0x5f, 0x81, 0x48, 0xb1, 0x25, 0x95, 0x05, 0xa9,
-	0xc5, 0x49, 0x6c, 0xe0, 0xa4, 0x64, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xc9, 0x8e, 0xc6, 0xcf,
+	0xc5, 0x49, 0x6c, 0xe0, 0xa4, 0x64, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xf1, 0xb0, 0xd3, 0x49,
 	0xd1, 0x02, 0x00, 0x00,
 }
 
@@ -264,14 +264,14 @@ func (this *MsgUnjailResponse) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *MsgKickOutResponse) Equal(that interface{}) bool {
+func (this *MsgImpeachResponse) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*MsgKickOutResponse)
+	that1, ok := that.(*MsgImpeachResponse)
 	if !ok {
-		that2, ok := that.(MsgKickOutResponse)
+		that2, ok := that.(MsgImpeachResponse)
 		if ok {
 			that1 = &that2
 		} else {
@@ -302,8 +302,8 @@ type MsgClient interface {
 	// them into the bonded validator set, so they can begin receiving provisions
 	// and rewards again.
 	Unjail(ctx context.Context, in *MsgUnjail, opts ...grpc.CallOption) (*MsgUnjailResponse, error)
-	// KickOut defines a method for removing an existing validator after gov proposal passes.
-	KickOut(ctx context.Context, in *MsgKickOut, opts ...grpc.CallOption) (*MsgKickOutResponse, error)
+	// Impeach defines a method for removing an existing validator after gov proposal passes.
+	Impeach(ctx context.Context, in *MsgImpeach, opts ...grpc.CallOption) (*MsgImpeachResponse, error)
 }
 
 type msgClient struct {
@@ -323,9 +323,9 @@ func (c *msgClient) Unjail(ctx context.Context, in *MsgUnjail, opts ...grpc.Call
 	return out, nil
 }
 
-func (c *msgClient) KickOut(ctx context.Context, in *MsgKickOut, opts ...grpc.CallOption) (*MsgKickOutResponse, error) {
-	out := new(MsgKickOutResponse)
-	err := c.cc.Invoke(ctx, "/cosmos.slashing.v1beta1.Msg/KickOut", in, out, opts...)
+func (c *msgClient) Impeach(ctx context.Context, in *MsgImpeach, opts ...grpc.CallOption) (*MsgImpeachResponse, error) {
+	out := new(MsgImpeachResponse)
+	err := c.cc.Invoke(ctx, "/cosmos.slashing.v1beta1.Msg/Impeach", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -338,8 +338,8 @@ type MsgServer interface {
 	// them into the bonded validator set, so they can begin receiving provisions
 	// and rewards again.
 	Unjail(context.Context, *MsgUnjail) (*MsgUnjailResponse, error)
-	// KickOut defines a method for removing an existing validator after gov proposal passes.
-	KickOut(context.Context, *MsgKickOut) (*MsgKickOutResponse, error)
+	// Impeach defines a method for removing an existing validator after gov proposal passes.
+	Impeach(context.Context, *MsgImpeach) (*MsgImpeachResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -349,8 +349,8 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) Unjail(ctx context.Context, req *MsgUnjail) (*MsgUnjailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unjail not implemented")
 }
-func (*UnimplementedMsgServer) KickOut(ctx context.Context, req *MsgKickOut) (*MsgKickOutResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method KickOut not implemented")
+func (*UnimplementedMsgServer) Impeach(ctx context.Context, req *MsgImpeach) (*MsgImpeachResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Impeach not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -375,20 +375,20 @@ func _Msg_Unjail_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_KickOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgKickOut)
+func _Msg_Impeach_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgImpeach)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).KickOut(ctx, in)
+		return srv.(MsgServer).Impeach(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/cosmos.slashing.v1beta1.Msg/KickOut",
+		FullMethod: "/cosmos.slashing.v1beta1.Msg/Impeach",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).KickOut(ctx, req.(*MsgKickOut))
+		return srv.(MsgServer).Impeach(ctx, req.(*MsgImpeach))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -402,8 +402,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_Unjail_Handler,
 		},
 		{
-			MethodName: "KickOut",
-			Handler:    _Msg_KickOut_Handler,
+			MethodName: "Impeach",
+			Handler:    _Msg_Impeach_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -463,7 +463,7 @@ func (m *MsgUnjailResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgKickOut) Marshal() (dAtA []byte, err error) {
+func (m *MsgImpeach) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -473,12 +473,12 @@ func (m *MsgKickOut) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgKickOut) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgImpeach) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgKickOut) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgImpeach) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -500,7 +500,7 @@ func (m *MsgKickOut) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgKickOutResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgImpeachResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -510,12 +510,12 @@ func (m *MsgKickOutResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgKickOutResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgImpeachResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgKickOutResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgImpeachResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -556,7 +556,7 @@ func (m *MsgUnjailResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgKickOut) Size() (n int) {
+func (m *MsgImpeach) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -573,7 +573,7 @@ func (m *MsgKickOut) Size() (n int) {
 	return n
 }
 
-func (m *MsgKickOutResponse) Size() (n int) {
+func (m *MsgImpeachResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -720,7 +720,7 @@ func (m *MsgUnjailResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgKickOut) Unmarshal(dAtA []byte) error {
+func (m *MsgImpeach) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -743,10 +743,10 @@ func (m *MsgKickOut) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgKickOut: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgImpeach: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgKickOut: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgImpeach: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -834,7 +834,7 @@ func (m *MsgKickOut) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgKickOutResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgImpeachResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -857,10 +857,10 @@ func (m *MsgKickOutResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgKickOutResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgImpeachResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgKickOutResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgImpeachResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

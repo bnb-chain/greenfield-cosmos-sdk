@@ -245,53 +245,53 @@ func TestSimulateMsgUndelegate(t *testing.T) {
 
 // TestSimulateMsgBeginRedelegate tests the normal scenario of a valid message of type TypeMsgBeginRedelegate.
 // Abonormal scenarios, where the message is created by an errors, are not tested here.
-//func TestSimulateMsgBeginRedelegate(t *testing.T) {
-//	s := rand.NewSource(12)
-//	r := rand.New(s)
-//	app, ctx, accounts := createTestApp(t, false, r, 4)
-//
-//	blockTime := time.Now().UTC()
-//	ctx = ctx.WithBlockTime(blockTime)
-//
-//	// remove genesis validator account
-//	accounts = accounts[1:]
-//
-//	// setup accounts[0] as validator0 and accounts[1] as validator1
-//	validator0 := getTestingValidator0(t, app, ctx, accounts)
-//	validator1 := getTestingValidator1(t, app, ctx, accounts)
-//
-//	delTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
-//	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
-//
-//	// setup accounts[2] as delegator
-//	delegator := accounts[2]
-//	delegation := types.NewDelegation(delegator.Address, validator1.GetOperator(), issuedShares)
-//	app.StakingKeeper.SetDelegation(ctx, delegation)
-//	app.DistrKeeper.SetDelegatorStartingInfo(ctx, validator1.GetOperator(), delegator.Address, distrtypes.NewDelegatorStartingInfo(2, sdk.OneDec(), 200))
-//
-//	setupValidatorRewards(app, ctx, validator0.GetOperator())
-//	setupValidatorRewards(app, ctx, validator1.GetOperator())
-//
-//	// begin a new block
-//	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash, Time: blockTime}})
-//
-//	// execute operation
-//	op := simulation.SimulateMsgBeginRedelegate(app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
-//	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
-//	require.NoError(t, err)
-//
-//	var msg types.MsgBeginRedelegate
-//	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
-//
-//	require.True(t, operationMsg.OK)
-//	require.Equal(t, "0x7954c7811CF873291c87Bc34dDfdC7518a861D3e", msg.DelegatorAddress)
-//	require.Equal(t, "1883752832348281252", msg.Amount.Amount.String())
-//	require.Equal(t, "stake", msg.Amount.Denom)
-//	require.Equal(t, types.TypeMsgBeginRedelegate, msg.Type())
-//	require.Equal(t, "0x44Ece8F0024ffa8c027aCDA4e0CbB3FcF2551c17", msg.ValidatorDstAddress)
-//	require.Equal(t, "0xb5B548C188f5a122A77C3d0C522255909Df20d10", msg.ValidatorSrcAddress)
-//	require.Len(t, futureOperations, 0)
-//}
+func TestSimulateMsgBeginRedelegate(t *testing.T) {
+	s := rand.NewSource(12)
+	r := rand.New(s)
+	app, ctx, accounts := createTestApp(t, false, r, 4)
+
+	blockTime := time.Now().UTC()
+	ctx = ctx.WithBlockTime(blockTime)
+
+	// remove genesis validator account
+	accounts = accounts[1:]
+
+	// setup accounts[0] as validator0 and accounts[1] as validator1
+	validator0 := getTestingValidator0(t, app, ctx, accounts)
+	validator1 := getTestingValidator1(t, app, ctx, accounts)
+
+	delTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
+	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
+
+	// setup accounts[2] as delegator
+	delegator := accounts[2]
+	delegation := types.NewDelegation(delegator.Address, validator1.GetOperator(), issuedShares)
+	app.StakingKeeper.SetDelegation(ctx, delegation)
+	app.DistrKeeper.SetDelegatorStartingInfo(ctx, validator1.GetOperator(), delegator.Address, distrtypes.NewDelegatorStartingInfo(2, sdk.OneDec(), 200))
+
+	setupValidatorRewards(app, ctx, validator0.GetOperator())
+	setupValidatorRewards(app, ctx, validator1.GetOperator())
+
+	// begin a new block
+	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash, Time: blockTime}})
+
+	// execute operation
+	op := simulation.SimulateMsgBeginRedelegate(app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	require.NoError(t, err)
+
+	var msg types.MsgBeginRedelegate
+	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+
+	require.True(t, operationMsg.OK)
+	require.Equal(t, "0x7954c7811CF873291c87Bc34dDfdC7518a861D3e", msg.DelegatorAddress)
+	require.Equal(t, "1883752832348281252", msg.Amount.Amount.String())
+	require.Equal(t, "stake", msg.Amount.Denom)
+	require.Equal(t, types.TypeMsgBeginRedelegate, msg.Type())
+	require.Equal(t, "0x44Ece8F0024ffa8c027aCDA4e0CbB3FcF2551c17", msg.ValidatorDstAddress)
+	require.Equal(t, "0xb5B548C188f5a122A77C3d0C522255909Df20d10", msg.ValidatorSrcAddress)
+	require.Len(t, futureOperations, 0)
+}
 
 // returns context and an app with updated mint keeper
 func createTestApp(t *testing.T, isCheckTx bool, r *rand.Rand, n int) (*simapp.SimApp, sdk.Context, []simtypes.Account) {

@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/armon/go-metrics"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -87,9 +88,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	// check to see if the relayer bls pubkey has been registered before
-	blsPk, err := hex.DecodeString(msg.RelayerBlskey)
-	if len(blsPk) != 48 {
-		return nil, types.ErrValidatorRelayerBlsKeyEmpty
+	blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
+	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+		return nil, types.ErrValidatorRelayerInvalidBlsKey
 	}
 	if _, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
 		return nil, types.ErrValidatorRelayerBlsKeyExists
@@ -182,9 +183,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		sdk.NewEvent(
 			types.EventTypeCreateValidator,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
-			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfdelAddress),
+			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfDelAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlskey)),
+			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
 		sdk.NewEvent(
@@ -262,15 +263,18 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 	}
 
 	// replace relayer bls pubkey
-	blsPk := []byte(msg.RelayerBlskey)
-	if len(blsPk) != 0 {
+	if len(msg.RelayerBlsKey) != 0 {
+		blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
+		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+			return nil, types.ErrValidatorRelayerInvalidBlsKey
+		}
 		if tmpValidator, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
 				return nil, types.ErrValidatorRelayerBlsKeyExists
 			}
 		} else {
 			k.DeleteValidatorByRelayerBlsKey(ctx, validator)
-			validator.RelayerBlskey = blsPk
+			validator.RelayerBlsKey = blsPk
 			k.SetValidatorByRelayerBlsKey(ctx, validator)
 		}
 	}
@@ -283,7 +287,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			sdk.NewAttribute(types.AttributeKeyCommissionRate, validator.Commission.String()),
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlskey)),
+			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -313,11 +317,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
-	// TODO: And a hard fork to allow all delegations
-	// Note: only allow self delegation for now
-	//if !delegatorAddress.Equals(validator.GetSelfDelegator()) {
-	//	return nil, sdkerrors.Wrapf(types.ErrDelegationNotAllowed, "only self delegation is allowed for now")
-	//}
+	// TODO: And a hard fork to allow all delegations, before that fork, only self delegation allowed.
 
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {

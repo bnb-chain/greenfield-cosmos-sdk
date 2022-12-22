@@ -7,9 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-
 	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 	"sigs.k8s.io/yaml"
@@ -40,7 +39,6 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// FixMe: use only NewValidator, no NewSimpleValidator.
 // NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
 //
 //nolint:interfacerh
@@ -67,9 +65,9 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		UnbondingTime:     time.Unix(0, 0).UTC(),
 		Commission:        NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 		MinSelfDelegation: sdk.OneInt(),
-		SelfdelAddress:    operator.String(),
+		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		RelayerBlskey:     blsSk.PublicKey().Marshal(),
+		RelayerBlsKey:     blsSk.PublicKey().Marshal(),
 	}, nil
 }
 
@@ -86,9 +84,9 @@ func NewValidator(
 		return val, err
 	}
 
-	val.SelfdelAddress = selfDelegator.String()
+	val.SelfDelAddress = selfDelegator.String()
 	val.RelayerAddress = relayer.String()
-	val.RelayerBlskey = relayerBlsKey
+	val.RelayerBlsKey = relayerBlsKey
 	return val, nil
 }
 
@@ -485,9 +483,9 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.Jailed == other.Jailed &&
 		v.MinSelfDelegation.Equal(other.MinSelfDelegation) &&
 		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
-		v.SelfdelAddress == other.SelfdelAddress &&
+		v.SelfDelAddress == other.SelfDelAddress &&
 		v.RelayerAddress == other.RelayerAddress &&
-		bytes.Equal(v.RelayerBlskey, other.RelayerBlskey)
+		bytes.Equal(v.RelayerBlsKey, other.RelayerBlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -500,7 +498,7 @@ func (v *Validator) Equal(v2 *Validator) bool {
 func (v Validator) IsJailed() bool           { return v.Jailed }
 func (v Validator) GetMoniker() string       { return v.Description.Moniker }
 func (v Validator) GetStatus() BondStatus    { return v.Status }
-func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlskey }
+func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
@@ -513,10 +511,10 @@ func (v Validator) GetOperator() sdk.ValAddress {
 }
 
 func (v Validator) GetSelfDelegator() sdk.AccAddress {
-	if v.SelfdelAddress == "" {
+	if v.SelfDelAddress == "" {
 		return nil
 	}
-	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfdelAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfDelAddress)
 	if err != nil {
 		panic(err)
 	}

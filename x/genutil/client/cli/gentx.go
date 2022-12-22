@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -163,8 +164,9 @@ $ %s gentx my-key-name 1000000stake \
 				return err
 			}
 			blsPk := args[4]
-			if len(blsPk) == 0 {
-				return errors.New("empty relayer bls pubkey")
+			blsPkBytes, err := hex.DecodeString(blsPk)
+			if err != nil || len(blsPkBytes) != sdk.BLSPubKeyLength {
+				return errors.New("invalid relayer bls pubkey")
 			}
 
 			createValCfg.Validator = validator

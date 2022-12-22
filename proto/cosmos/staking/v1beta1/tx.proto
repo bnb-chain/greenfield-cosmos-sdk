@@ -60,10 +60,9 @@ message MsgCreateValidator {
   google.protobuf.Any      pubkey            = 6 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
   cosmos.base.v1beta1.Coin value             = 7 [(gogoproto.nullable) = false];
 
-  // For Inscription
   string from            = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string relayer_address = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string relayer_blskey  = 10; // The BLS pubkey for the authorized relayer
+  string relayer_bls_key  = 10;
 }
 
 // MsgCreateValidatorResponse defines the Msg/CreateValidator response type.
@@ -88,9 +87,8 @@ message MsgEditValidator {
   string min_self_delegation = 4
       [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
 
-  // For Inscription
   string relayer_address         = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string relayer_blskey          = 6; // The BLS pubkey for the authorized relayer
+  string relayer_bls_key          = 6; // The BLS pubkey for the authorized relayer
 }
 
 // MsgEditValidatorResponse defines the Msg/EditValidator response type.

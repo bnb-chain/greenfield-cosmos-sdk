@@ -106,7 +106,6 @@ func (s *CreateValidatorTestSuite) submitProposal() sdk.AccAddress {
 	})
 	s.Require().NoError(err)
 
-	//nolint:staticcheck
 	args := append([]string{
 		s.createValidatorProposal(newVal).Name(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
@@ -123,7 +122,6 @@ func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
-	//nolint:staticcheck
 	args := append([]string{
 		proposalID,
 		"yes",

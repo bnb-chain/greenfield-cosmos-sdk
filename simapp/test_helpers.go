@@ -419,7 +419,8 @@ func SetMockHeight(app *bam.BaseApp, height int64) SignCheckDeliverOption {
 func SignCheckDeliver(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv []cryptotypes.PrivKey,
-	options ...SignCheckDeliverOption) (sdk.GasInfo, *sdk.Result, error) {
+	options ...SignCheckDeliverOption,
+) (sdk.GasInfo, *sdk.Result, error) {
 	tx, err := helpers.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,

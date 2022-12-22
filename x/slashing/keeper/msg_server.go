@@ -2,9 +2,11 @@ package keeper
 
 import (
 	"context"
+	"math"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
@@ -47,12 +49,12 @@ func (k msgServer) Unjail(goCtx context.Context, msg *types.MsgUnjail) (*types.M
 	return &types.MsgUnjailResponse{}, nil
 }
 
-// KickOut defines a method for removing an existing validator after gov proposal passes.
-func (k msgServer) KickOut(goCtx context.Context, msg *types.MsgKickOut) (*types.MsgKickOutResponse, error) {
+// Impeach defines a method for removing an existing validator after gov proposal passes.
+func (k msgServer) Impeach(goCtx context.Context, msg *types.MsgImpeach) (*types.MsgImpeachResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	signers := msg.GetSigners()
-	if len(signers) != 1 || !signers[0].Equals(k.ak.GetModuleAddress(gov.ModuleName)) {
+	if len(signers) != 1 || !signers[0].Equals(authtypes.NewModuleAddress(gov.ModuleName)) {
 		return nil, types.ErrSignerNotGovModule
 	}
 
@@ -78,20 +80,17 @@ func (k msgServer) KickOut(goCtx context.Context, msg *types.MsgKickOut) (*types
 		k.Jail(ctx, consAddr)
 	}
 
-	// Jail to a big enough time (Dec 31, 9999 - 23:59:59 GMT)
-	k.JailUntil(ctx, consAddr, time.Unix(253402300799, 0))
+	// Jail forever.
+	k.JailUntil(ctx, consAddr, time.Unix(math.MaxInt64, 0))
 
 	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			types.EventTypeKickOut,
-			sdk.NewAttribute(types.AttributeKeyAddress, msg.ValidatorAddress),
-		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.From),
+			sdk.NewAttribute(types.AttributeKeyAddress, msg.ValidatorAddress),
 		),
 	})
 
-	return &types.MsgKickOutResponse{}, nil
+	return &types.MsgImpeachResponse{}, nil
 }

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/prysmaticlabs/prysm/crypto/bls"
-
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 

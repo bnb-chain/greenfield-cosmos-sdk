@@ -33,7 +33,7 @@ const (
 	FlagIP            = "ip"
 
 	FlagAddressRelayer = "addr-relayer"
-	FlagBlsKeyRelayer  = "blskey-relayer"
+	FlagBlsKeyRelayer  = "bls-key-relayer"
 )
 
 // common flagsets to add to various functions

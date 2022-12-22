@@ -53,7 +53,7 @@ func NewMsgCreateValidator(
 		MinSelfDelegation: minSelfDelegation,
 		From:              from.String(),
 		RelayerAddress:    relayerAddr.String(),
-		RelayerBlskey:     relayerBlsKey,
+		RelayerBlsKey:     relayerBlsKey,
 	}, nil
 }
 
@@ -96,8 +96,8 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return ErrEmptyValidatorPubKey
 	}
 
-	if len(msg.RelayerBlskey) == 0 {
-		return ErrValidatorRelayerBlsKeyEmpty
+	if len(msg.RelayerBlsKey) != sdk.BLSPubKeyLength {
+		return ErrValidatorRelayerInvalidBlsKey
 	}
 
 	if !msg.Value.IsValid() || !msg.Value.Amount.IsPositive() {
@@ -149,7 +149,7 @@ func NewMsgEditValidator(
 		ValidatorAddress:  valAddr.String(),
 		MinSelfDelegation: newMinSelfDelegation,
 		RelayerAddress:    newRelayerAddr.String(),
-		RelayerBlskey:     newRelayerBlsKey,
+		RelayerBlsKey:     newRelayerBlsKey,
 	}
 }
 

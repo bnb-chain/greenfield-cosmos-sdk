@@ -234,7 +234,7 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, address sdk.ValAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorKey(address))
 	store.Delete(types.GetValidatorByRelayerAddrKey(validator.GetRelayer()))
-	store.Delete(types.GetValidatorByRelayerBlsKey(validator.RelayerBlskey))
+	store.Delete(types.GetValidatorByRelayerBlsKey(validator.RelayerBlsKey))
 	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)))
 

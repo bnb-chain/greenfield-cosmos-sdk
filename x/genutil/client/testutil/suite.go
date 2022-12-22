@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/prysmaticlabs/prysm/crypto/bls"
-
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"

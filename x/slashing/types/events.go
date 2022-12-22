@@ -4,7 +4,6 @@ package types
 const (
 	EventTypeSlash    = "slash"
 	EventTypeLiveness = "liveness"
-	EventTypeKickOut  = "kick_out"
 
 	AttributeKeyAddress      = "address"
 	AttributeKeyHeight       = "height"
