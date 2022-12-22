@@ -1,8 +1,12 @@
 package hd
 
 import (
-	"github.com/cosmos/go-bip39"
+	"strings"
 
+	"github.com/cosmos/go-bip39"
+	util "github.com/wealdtech/go-eth2-util"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 )
@@ -66,5 +70,49 @@ func (s secp256k1Algo) Generate() GenerateFn {
 		copy(bzArr, bz)
 
 		return &secp256k1.PrivKey{Key: bzArr}
+	}
+}
+
+const (
+	// BLSType uses the ethereum BLS parameters.
+	BLSType = PubKeyType(bls.KeyType)
+)
+
+// EthBLS uses the Bitcoin eth_bls parameters.
+var EthBLS = ethBLSAlgo{}
+
+type ethBLSAlgo struct{}
+
+// Name returns eth_bls
+func (s ethBLSAlgo) Name() PubKeyType {
+	return BLSType
+}
+
+// Derive derives and returns the eth_bls private key for the given seed and HD path.
+func (s ethBLSAlgo) Derive() DeriveFn {
+	// Derive derives and returns the eth_bls private key for the given mnemonic and HD path.
+	return func(mnemonic, bip39Passphrase, path string) ([]byte, error) {
+		seed, err := bip39.NewSeedWithErrorChecking(mnemonic, bip39Passphrase)
+		if err != nil {
+			return nil, err
+		}
+
+		privKey, err := util.PrivateKeyFromSeedAndPath(
+			seed, strings.ReplaceAll(path, "'", ""),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return privKey.Marshal(), nil
+	}
+}
+
+// Generate generates a eth_bls private key from the given bytes.
+func (s ethBLSAlgo) Generate() GenerateFn {
+	return func(bz []byte) types.PrivKey {
+		return &bls.PrivKey{
+			Key: bz,
+		}
 	}
 }

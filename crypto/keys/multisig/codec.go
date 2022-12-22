@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
@@ -31,6 +32,8 @@ func init() {
 		secp256k1.PubKeyName, nil)
 	AminoCdc.RegisterConcrete(&ethsecp256k1.PubKey{},
 		ethsecp256k1.PubKeyName, nil)
+	AminoCdc.RegisterConcrete(&bls.PubKey{},
+		bls.PubKeyName, nil)
 	AminoCdc.RegisterConcrete(&LegacyAminoPubKey{},
 		PubKeyAminoRoute, nil)
 }

@@ -162,6 +162,9 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/ulikunitz/xz v0.5.8 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
+	github.com/wealdtech/go-bytesutil v1.1.1 // indirect
+	github.com/wealdtech/go-eth2-types/v2 v2.5.2 // indirect
+	github.com/wealdtech/go-eth2-util v1.6.3 // indirect
 	github.com/zondax/hid v0.9.1-0.20220302062450-5552068d2266 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opencensus.io v0.23.0 // indirect
