@@ -182,9 +182,19 @@ func TestSimulateMsgDelegate(t *testing.T) {
 
 	// execute operation
 	op := simulation.SimulateMsgDelegate(app.AccountKeeper, app.BankKeeper, app.StakingKeeper)
-	_, _, err := op(r, app.BaseApp, ctx, accounts, "")
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "only self delegation is allowed for now")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	require.NoError(t, err)
+
+	var msg types.MsgDelegate
+	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+
+	require.True(t, operationMsg.OK)
+	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.DelegatorAddress)
+	require.Equal(t, "98100858108421259236", msg.Amount.Amount.String())
+	require.Equal(t, "stake", msg.Amount.Denom)
+	require.Equal(t, types.TypeMsgDelegate, msg.Type())
+	require.Equal(t, "0x5cEEa0528c3b88442d6580c548753DD89b99a213", msg.ValidatorAddress)
+	require.Len(t, futureOperations, 0)
 }
 
 // TestSimulateMsgUndelegate tests the normal scenario of a valid message of type TypeMsgUndelegate.

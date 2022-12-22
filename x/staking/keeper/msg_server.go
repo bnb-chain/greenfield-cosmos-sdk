@@ -47,7 +47,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	// For genesis block, the signer should be the self delegator itself,
 	// for other blocks, the signer should be the gov module account.
 	govModuleAddr := k.authKeeper.GetModuleAddress(gov.ModuleName)
-	if ctx.BlockHeader().Height == 0 {
+	if ctx.BlockHeight() == 0 {
 		signers := msg.GetSigners()
 		if len(signers) != 1 || !signers[0].Equals(delAddr) {
 			return nil, types.ErrInvalidSigner
@@ -157,7 +157,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 
 	// check the delegate staking authorization from the delegator to the gov module account
-	if ctx.BlockHeader().Height != 0 {
+	if ctx.BlockHeight() != 0 {
 		err = k.CheckStakeAuthorization(ctx, govModuleAddr, delAddr, types.NewMsgDelegate(delAddr, valAddr, msg.Value))
 		if err != nil {
 			return nil, err
