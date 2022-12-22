@@ -27,6 +27,5 @@ func TestIntegrationTestSuite(t *testing.T) {
 	bz, err := cfg.Codec.MarshalJSON(genesisState)
 	require.NoError(t, err)
 	cfg.GenesisState["gov"] = bz
-	cfg.NumValidators = 1
 	suite.Run(t, NewCreateValidatorTestSuite(cfg))
 }
