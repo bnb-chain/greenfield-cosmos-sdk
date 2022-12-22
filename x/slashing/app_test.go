@@ -1,9 +1,11 @@
 package slashing_test
 
 import (
+	"encoding/hex"
 	"errors"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -62,11 +64,13 @@ func TestSlashingMsgs(t *testing.T) {
 
 	description := stakingtypes.NewDescription("foo_moniker", "", "", "", "")
 	commission := stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(),
 		bondCoin, description, commission, sdk.OneInt(),
-		addr1, addr1, addr1, "",
+		addr1, addr1, addr1, blsPk,
 	)
 	require.NoError(t, err)
 

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+
 	"cosmossdk.io/math"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
@@ -48,6 +50,11 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		return Validator{}, err
 	}
 
+	blsSk, err := bls.RandKey()
+	if err != nil {
+		return Validator{}, err
+	}
+
 	return Validator{
 		OperatorAddress:   operator.String(),
 		ConsensusPubkey:   pkAny,
@@ -62,7 +69,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		MinSelfDelegation: sdk.OneInt(),
 		SelfdelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		RelayerBlskey:     []byte{},
+		RelayerBlskey:     blsSk.PublicKey().Marshal(),
 	}, nil
 }
 

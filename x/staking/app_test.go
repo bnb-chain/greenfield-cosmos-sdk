@@ -1,7 +1,10 @@
 package staking_test
 
 import (
+	"encoding/hex"
 	"testing"
+
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -64,10 +67,12 @@ func TestStakingMsgs(t *testing.T) {
 
 	// create validator
 	description := types.NewDescription("foo_moniker", "", "", "", "")
+	blsSecretKey, _ := bls.RandKey()
+	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
-		addr1, addr1, addr1, "",
+		addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 

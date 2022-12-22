@@ -1,8 +1,11 @@
 package simulation
 
 import (
+	"encoding/hex"
 	"fmt"
 	"math/rand"
+
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -158,8 +161,8 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k k
 			simtypes.RandomDecAmount(r, maxCommission),
 		)
 
-		// TODO: generate random bls pubkey
-		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 		msg, err := types.NewMsgCreateValidator(
 			address, simAccount.ConsKey.PubKey(),
@@ -226,8 +229,8 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		// TODO: generate random bls pubkey
-		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, sdk.AccAddress(address), blsPk)
 

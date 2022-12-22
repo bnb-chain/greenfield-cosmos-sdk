@@ -1,7 +1,10 @@
 package types_test
 
 import (
+	"encoding/hex"
 	"testing"
+
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	"github.com/stretchr/testify/require"
 
@@ -35,7 +38,8 @@ func TestMsgDecode(t *testing.T) {
 	require.True(t, pk1.Equals(pkUnmarshaled.(*ed25519.PubKey)))
 
 	// now let's try to serialize the whole message
-	blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	commission1 := types.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 	msg, err := types.NewMsgCreateValidator(
 		valAddr1, pk1,
@@ -81,12 +85,14 @@ func TestMsgCreateValidator(t *testing.T) {
 		{"delegation less than min self delegation", "a", "b", "c", "d", "e", commission1, coinPos.Amount.Add(sdk.OneInt()), valAddr1, pk1, coinPos, false},
 	}
 
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
 		msg, err := types.NewMsgCreateValidator(
 			tc.validatorAddr, tc.pubkey,
 			tc.bond, description, tc.CommissionRates, tc.minSelfDelegation,
-			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), "",
+			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), blsPk,
 		)
 		require.NoError(t, err)
 		if tc.expectPass {
@@ -115,9 +121,8 @@ func TestMsgEditValidator(t *testing.T) {
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
 		newRate := sdk.ZeroDec()
-
-		// TODO: move bls pubkey into tests struct
-		blsPk := "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 		msg := types.NewMsgEditValidator(
 			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,

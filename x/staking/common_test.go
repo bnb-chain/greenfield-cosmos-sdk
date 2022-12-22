@@ -33,9 +33,6 @@ var (
 	commissionRates = types.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 
 	PKs = simapp.CreateTestPubKeys(500)
-
-	// TODO: change to random key
-	blsPk = "ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9"
 )
 
 // getBaseSimappWithCustomKeeper Returns a simapp with custom StakingKeeper

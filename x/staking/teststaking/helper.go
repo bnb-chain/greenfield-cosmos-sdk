@@ -2,10 +2,12 @@ package teststaking
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -66,10 +68,12 @@ func (sh *Helper) CreateValidatorWithMsg(ctx context.Context, msg *stakingtypes.
 }
 
 func (sh *Helper) createValidator(addr sdk.ValAddress, pk cryptotypes.PubKey, coin sdk.Coin, ok bool) {
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), "",
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
 	)
 	require.NoError(sh.t, err)
 	res, err := sh.msgSrvr.CreateValidator(sdk.WrapSDKContext(sh.Ctx), msg)

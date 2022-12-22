@@ -171,7 +171,7 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 	pubKey := base64.StdEncoding.EncodeToString(ed25519.GenPrivKey().PubKey().Bytes())
 
 	blsSecretKey, _ := bls.RandKey()
-	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	propMetadata := []byte{42}
 	proposal := fmt.Sprintf(`
@@ -215,7 +215,7 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 		pubKey,
 		authtypes.NewModuleAddress(gov.ModuleName),
 		valAddr.String(),
-		blsPubKey,
+		blsPk,
 		base64.StdEncoding.EncodeToString(propMetadata),
 		sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens),
 	)
