@@ -323,17 +323,23 @@ func traverseFields(
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
 
-		// TODO will add another limitation: only if the type is anyOf.
 		if fieldName == "" {
-			fieldName = t.Field(i).Name
-			anyWrapper := &cosmosAnyWrapper{
-				Type:  fmt.Sprint(reflect.TypeOf(field.Interface())),
-				Value: field.Interface(),
+			// For protobuf one_of interface, there's no json tag.
+			// So we need to wrap it first.
+			if isProtobufOneOf(t.Field(i).Tag) {
+				fieldName = t.Field(i).Name
+				anyWrapper := &cosmosAnyWrapper{
+					Type:  fmt.Sprint(reflect.TypeOf(field.Interface())),
+					Value: field.Interface(),
+				}
+				field = reflect.ValueOf(anyWrapper)
+				fieldType = reflect.TypeOf(anyWrapper)
+			} else {
+				panic("empty json tag")
 			}
-			field = reflect.ValueOf(anyWrapper)
-			fieldType = reflect.TypeOf(anyWrapper)
 		}
 
+		// Unpack any type into the wrapper to keep align between the structs' json tag and field name
 		if fieldType == cosmosAnyType {
 			typeAny, ok := field.Interface().(*codectypes.Any)
 			if !ok {
@@ -350,11 +356,9 @@ func traverseFields(
 
 			fieldType = reflect.TypeOf(anyWrapper)
 			field = reflect.ValueOf(anyWrapper)
-
-			// then continue as normal
 		}
 
-		// If it's a nil pointer, do not include in types
+		// If it's a nil pointer or empty string, do not include in types
 		if fieldType.Kind() == reflect.Ptr && field.IsNil() {
 			continue
 		}
@@ -395,7 +399,8 @@ func traverseFields(
 
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
-			// Unpack the field into cosmosAnyWrapper rather than the Any type
+
+			// Unpack any type into the wrapper to keep align between the structs' json tag and field name
 			if fieldType == cosmosAnyType {
 				typeAny, ok := field.Interface().(*codectypes.Any)
 				if !ok {
@@ -412,9 +417,8 @@ func traverseFields(
 
 				fieldType = reflect.TypeOf(anyWrapper.Value)
 				field = reflect.ValueOf(anyWrapper.Value)
-
-				// then continue as normal
 			}
+
 			isCollection = true
 		}
 
@@ -504,6 +508,10 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 	jsonTags := tag.Get("json")
 	parts := strings.Split(jsonTags, ",")
 	return parts[0]
+}
+
+func isProtobufOneOf(tag reflect.StructTag) bool {
+	return tag.Get("protobuf_oneof") != ""
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
