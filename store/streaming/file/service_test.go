@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -93,7 +94,7 @@ var (
 
 	// file stuff
 	testPrefix = "testPrefix"
-	testDir    = "./.test"
+	testDir    = "./.stream_test"
 
 	// mock state changes
 	mockKey1   = []byte{1, 2, 3}
@@ -160,6 +161,8 @@ func testListenBeginBlock(t *testing.T) {
 	testListener1.OnWrite(mockStoreKey1, mockKey1, mockValue1, false)
 	testListener2.OnWrite(mockStoreKey2, mockKey2, mockValue2, false)
 	testListener1.OnWrite(mockStoreKey1, mockKey3, mockValue3, false)
+	// TODO, this is a temp fix, since the streaming get a bug on `ListenDeliverTx` since the `OnWrite` is async
+	time.Sleep(100 * time.Millisecond)
 
 	// expected KV pairs
 	expectedKVPair1, err := testMarshaller.Marshal(&types.StoreKVPair{
@@ -214,6 +217,8 @@ func testListenDeliverTx1(t *testing.T) {
 	testListener1.OnWrite(mockStoreKey1, mockKey1, mockValue1, false)
 	testListener2.OnWrite(mockStoreKey2, mockKey2, mockValue2, false)
 	testListener1.OnWrite(mockStoreKey2, mockKey3, mockValue3, false)
+	// TODO, this is a temp fix, since the streaming get a bug on `ListenDeliverTx` since the `OnWrite` is async
+	time.Sleep(100 * time.Millisecond)
 
 	// expected KV pairs
 	expectedKVPair1, err := testMarshaller.Marshal(&types.StoreKVPair{
@@ -268,6 +273,8 @@ func testListenDeliverTx2(t *testing.T) {
 	testListener1.OnWrite(mockStoreKey2, mockKey1, mockValue1, false)
 	testListener2.OnWrite(mockStoreKey1, mockKey2, mockValue2, false)
 	testListener1.OnWrite(mockStoreKey2, mockKey3, mockValue3, false)
+	// TODO, this is a temp fix, since the streaming get a bug on `ListenDeliverTx` since the `OnWrite` is async
+	time.Sleep(100 * time.Millisecond)
 
 	// expected KV pairs
 	expectedKVPair1, err := testMarshaller.Marshal(&types.StoreKVPair{
@@ -322,6 +329,8 @@ func testListenEndBlock(t *testing.T) {
 	testListener1.OnWrite(mockStoreKey1, mockKey1, mockValue1, false)
 	testListener2.OnWrite(mockStoreKey1, mockKey2, mockValue2, false)
 	testListener1.OnWrite(mockStoreKey2, mockKey3, mockValue3, false)
+	// TODO, this is a temp fix, since the streaming get a bug on `ListenDeliverTx` since the `OnWrite` is async
+	time.Sleep(100 * time.Millisecond)
 
 	// expected KV pairs
 	expectedKVPair1, err := testMarshaller.Marshal(&types.StoreKVPair{

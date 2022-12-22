@@ -66,19 +66,13 @@ modules:
 - name: a
   config:
    "@type": testpb.TestModuleA
-- name: b
-  config:
-   "@type": testpb.TestModuleB
 `))
 	assert.NilError(t, container.Build(opt, &app))
 	buf := &bytes.Buffer{}
 	app(buf)
 	const expected = `got store key a
-got store key b
 running module handler a
 result: hello
-running module handler b
-result: goodbye
 `
 	assert.Equal(t, expected, buf.String())
 
