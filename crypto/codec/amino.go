@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -26,7 +27,8 @@ func RegisterCrypto(cdc *codec.LegacyAmino) {
 		kmultisig.PubKeyAminoRoute, nil)
 	cdc.RegisterConcrete(&ethsecp256k1.PubKey{},
 		ethsecp256k1.PubKeyName, nil)
-
+	cdc.RegisterConcrete(&bls.PubKey{},
+		bls.PubKeyName, nil)
 	cdc.RegisterInterface((*cryptotypes.PrivKey)(nil), &amino.InterfaceOptions{Priority: []string{"ethermint/PrivKeyEthSecp256k1"}})
 	cdc.RegisterConcrete(sr25519.PrivKey{},
 		sr25519.PrivKeyName, nil)
@@ -36,4 +38,6 @@ func RegisterCrypto(cdc *codec.LegacyAmino) {
 		secp256k1.PrivKeyName, nil)
 	cdc.RegisterConcrete(&ethsecp256k1.PrivKey{},
 		ethsecp256k1.PrivKeyName, nil)
+	cdc.RegisterConcrete(&bls.PrivKey{},
+		bls.PrivKeyName, nil)
 }
