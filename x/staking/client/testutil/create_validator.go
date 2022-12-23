@@ -202,7 +202,7 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 			},
 			"from":"%s",
 			"relayer_address":"%s",
-			"relayer_blskey":"%s"
+			"relayer_bls_key":"%s"
 		}
 	],
 	"metadata": "%s",
