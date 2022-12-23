@@ -10,7 +10,7 @@ import (
 )
 
 // NewQuerier creates a querier for auth REST endpoints
-func NewQuerier(k FeehubKeeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
+func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		case types.QueryParams:
@@ -22,7 +22,7 @@ func NewQuerier(k FeehubKeeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier
 	}
 }
 
-func queryParams(ctx sdk.Context, k FeehubKeeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryParams(ctx sdk.Context, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	params := k.GetParams(ctx)
 
 	res, err := codec.MarshalJSONIndent(legacyQuerierCdc, params)

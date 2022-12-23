@@ -10,9 +10,9 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// FeehubKeeper encodes/decodes accounts using the go-amino (binary)
+// Keeper encodes/decodes accounts using the go-amino (binary)
 // encoding/decoding library.
-type FeehubKeeper struct {
+type Keeper struct {
 	key           storetypes.StoreKey
 	cdc           codec.BinaryCodec
 	paramSubspace paramtypes.Subspace
@@ -21,13 +21,13 @@ type FeehubKeeper struct {
 // NewFeehubKeeper returns a new feehub keeper
 func NewFeehubKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramstore paramtypes.Subspace,
-) FeehubKeeper {
+) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramstore.HasKeyTable() {
 		paramstore = paramstore.WithKeyTable(types.ParamKeyTable())
 	}
 
-	return FeehubKeeper{
+	return Keeper{
 		key:           key,
 		cdc:           cdc,
 		paramSubspace: paramstore,
@@ -35,9 +35,9 @@ func NewFeehubKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (fhk FeehubKeeper) Logger(ctx sdk.Context) log.Logger {
+func (fhk Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetCodec return codec.Codec object used by the keeper
-func (fhk FeehubKeeper) GetCodec() codec.BinaryCodec { return fhk.cdc }
+func (fhk Keeper) GetCodec() codec.BinaryCodec { return fhk.cdc }

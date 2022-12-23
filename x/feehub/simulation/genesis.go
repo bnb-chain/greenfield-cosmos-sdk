@@ -12,9 +12,10 @@ import (
 
 // Simulation parameter constants
 const (
-	MaxTxSize     = "max_tx_size"
-	MinGasPerByte = "min_gas_per_byte"
-	MsgSendGas    = "msg_send_gas"
+	MaxTxSize       = "max_tx_size"
+	MinGasPerByte   = "min_gas_per_byte"
+	MsgSendGas      = "msg_send_gas"
+	MsgMultiSendGas = "msg_multi_send_gas"
 )
 
 // GenMaxTxSize randomized MaxTxSize
@@ -29,6 +30,11 @@ func GenMinGasPerByte(r *rand.Rand) uint64 {
 
 // GenMsgSendGas randomized MsgSendGas
 func GenMsgSendGas(r *rand.Rand) uint64 {
+	return uint64(simulation.RandIntBetween(r, 1e6, 1e7))
+}
+
+// GenMsgMultiSendGas randomized MsgMultiSendGas
+func GenMsgMultiSendGas(r *rand.Rand) uint64 {
 	return uint64(simulation.RandIntBetween(r, 1e6, 1e7))
 }
 
@@ -52,7 +58,13 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { msgSendGas = GenMsgSendGas(r) },
 	)
 
-	params := types.NewParams(maxTxSize, minGasPerByte, msgSendGas)
+	var msgMultiSendGas uint64
+	simState.AppParams.GetOrGenerate(
+		simState.Cdc, MsgMultiSendGas, &msgMultiSendGas, simState.Rand,
+		func(r *rand.Rand) { msgMultiSendGas = GenMsgMultiSendGas(r) },
+	)
+
+	params := types.NewParams(maxTxSize, minGasPerByte, msgSendGas, msgMultiSendGas)
 
 	feehubGenesis := types.NewGenesisState(params)
 

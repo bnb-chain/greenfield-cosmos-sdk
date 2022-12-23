@@ -81,11 +81,11 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 type AppModule struct {
 	AppModuleBasic
 
-	feehubKeeper keeper.FeehubKeeper
+	feehubKeeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Codec, feehubKeeper keeper.FeehubKeeper) AppModule {
+func NewAppModule(cdc codec.Codec, feehubKeeper keeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		feehubKeeper:   feehubKeeper,

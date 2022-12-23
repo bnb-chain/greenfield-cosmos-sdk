@@ -10,7 +10,8 @@ message Params {
   option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
-  uint64 max_tx_size      = 1 [(gogoproto.customname) = "MaxTxSize"];
-  uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
-  uint64 msg_send_gas     = 3 [(gogoproto.customname) = "MsgSendGas"];
+  uint64 max_tx_size        = 1 [(gogoproto.customname) = "MaxTxSize"];
+  uint64 min_gas_per_byte   = 2 [(gogoproto.customname) = "MinGasPerByte"];
+  uint64 msg_send_gas       = 3 [(gogoproto.customname) = "MsgSendGas"];
+  uint64 msg_multi_send_gas = 4 [(gogoproto.customname) = "MsgMultiSendGas"];
 }

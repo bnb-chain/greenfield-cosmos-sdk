@@ -10,28 +10,31 @@ import (
 
 // Default parameter values
 const (
-	DefaultMaxTxSize     uint64 = 1024
-	DefaultMinGasPerByte uint64 = 5
-	DefaultMsgSendGas    uint64 = 1e6
+	DefaultMaxTxSize       uint64 = 1024
+	DefaultMinGasPerByte   uint64 = 5
+	DefaultMsgSendGas      uint64 = 1e6
+	DefaultMsgMultiSendGas uint64 = 8e5
 )
 
 // Parameter keys
 var (
-	KeyMaxTxSize     = []byte("MaxTxSize")
-	KeyMinGasPerByte = []byte("MinGasPerByte")
-	KeyMsgSendGas    = []byte("MsgSendGas")
+	KeyMaxTxSize       = []byte("MaxTxSize")
+	KeyMinGasPerByte   = []byte("MinGasPerByte")
+	KeyMsgSendGas      = []byte("MsgSendGas")
+	KeyMsgMultiSendGas = []byte("MsgMultiSendGas")
 )
 
 var _ paramtypes.ParamSet = &Params{}
 
 // NewParams creates a new Params object
 func NewParams(
-	maxTxSize, minGasPerByte, msgSendGas uint64,
+	maxTxSize, minGasPerByte, msgSendGas, msgMultiSendGas uint64,
 ) Params {
 	return Params{
-		MsgSendGas:    msgSendGas,
-		MaxTxSize:     maxTxSize,
-		MinGasPerByte: minGasPerByte,
+		MaxTxSize:       maxTxSize,
+		MinGasPerByte:   minGasPerByte,
+		MsgSendGas:      msgSendGas,
+		MsgMultiSendGas: msgMultiSendGas,
 	}
 }
 
@@ -44,18 +47,20 @@ func ParamKeyTable() paramtypes.KeyTable {
 // pairs of feehub's parameters.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyMsgSendGas, &p.MsgSendGas, validateMsgSendGas),
 		paramtypes.NewParamSetPair(KeyMaxTxSize, &p.MaxTxSize, validateMaxTxSize),
 		paramtypes.NewParamSetPair(KeyMinGasPerByte, &p.MinGasPerByte, validateMinGasPerByte),
+		paramtypes.NewParamSetPair(KeyMsgSendGas, &p.MsgSendGas, validateMsgSendGas),
+		paramtypes.NewParamSetPair(KeyMsgMultiSendGas, &p.MsgMultiSendGas, validateMsgMultiSendGas),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		MsgSendGas:    DefaultMsgSendGas,
-		MaxTxSize:     DefaultMaxTxSize,
-		MinGasPerByte: DefaultMinGasPerByte,
+		MaxTxSize:       DefaultMaxTxSize,
+		MinGasPerByte:   DefaultMinGasPerByte,
+		MsgSendGas:      DefaultMsgSendGas,
+		MsgMultiSendGas: DefaultMsgMultiSendGas,
 	}
 }
 
@@ -104,6 +109,19 @@ func validateMsgSendGas(i interface{}) error {
 	return nil
 }
 
+func validateMsgMultiSendGas(i interface{}) error {
+	v, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("invalid msg multi send fee: %d", v)
+	}
+
+	return nil
+}
+
 // Validate checks that the parameters have valid values.
 func (p Params) Validate() error {
 	if err := validateMaxTxSize(p.MaxTxSize); err != nil {
@@ -113,6 +131,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateMsgSendGas(p.MsgSendGas); err != nil {
+		return err
+	}
+	if err := validateMsgMultiSendGas(p.MsgMultiSendGas); err != nil {
 		return err
 	}
 

@@ -21,7 +21,7 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
 		simulation.NewSimParamChange(types.ModuleName, keyMsgSendGas,
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenMsgSendGas(r))
+				return fmt.Sprintf("%d", GenMsgSendGas(r))
 			},
 		),
 	}

@@ -10,10 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feehub/types"
 )
 
-var _ types.QueryServer = FeehubKeeper{}
+var _ types.QueryServer = Keeper{}
 
 // Params returns parameters of auth module
-func (fhk FeehubKeeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (fhk Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}

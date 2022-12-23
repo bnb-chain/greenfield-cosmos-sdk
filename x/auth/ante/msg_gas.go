@@ -1,6 +1,8 @@
 package ante
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
@@ -9,7 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/feehub/types"
 )
 
@@ -85,9 +86,9 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errors.Wrapf(sdkerrors.ErrTxTooLarge, "tx length: %d, limit: %d", txBytesLength, params.GetMaxTxSize())
 	}
 
-	gasByByteLength := txBytesLength * params.GetMinGasPerByte()
-	if gasByByteLength >= msgGas {
-		ctx.GasMeter().ConsumeGas(gasByByteLength, "gas by tx byte length")
+	txBytesGas := txBytesLength * params.GetMinGasPerByte()
+	if txBytesGas >= msgGas {
+		ctx.GasMeter().ConsumeGas(txBytesGas, "gas by tx byte length")
 	} else {
 		ctx.GasMeter().ConsumeGas(msgGas, "msg gas")
 	}
@@ -97,12 +98,10 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 func (cmfg ConsumeMsgGasDecorator) getMsgGas(params types.Params, tx sdk.Tx) (uint64, error) {
 	msg := tx.GetMsgs()[0]
-	switch msg := msg.(type) {
-	case *banktypes.MsgSend:
-		feeCalcGen := types.GetCalculatorGen(msg.Type())
-		feeCalc := feeCalcGen(params)
-		return feeCalc(msg), nil
-	default:
-		return 0, errors.Wrapf(sdkerrors.ErrInvalidType, "unrecognized msg type: %T", msg)
+	feeCalcGen := types.GetCalculatorGen(sdk.MsgTypeURL(msg))
+	if feeCalcGen == nil {
+		return 0, fmt.Errorf("failed to find fee calculator")
 	}
+	feeCalc := feeCalcGen(params)
+	return feeCalc(msg), nil
 }
