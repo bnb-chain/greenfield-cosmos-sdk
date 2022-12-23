@@ -14,7 +14,7 @@ COPY ./ /work
 RUN LEDGER_ENABLED=false make COSMOS_BUILD_OPTIONS="debug,nostrip" clean build
 
 FROM alpine AS run
-RUN apk add bash curl jq
+RUN apk add bash curl jq libstdc++
 COPY contrib/images/simd-dlv/wrapper.sh /usr/bin/wrapper.sh
 
 VOLUME /simd
