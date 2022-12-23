@@ -1,11 +1,13 @@
 package testutil
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -50,6 +52,8 @@ func (s *IntegrationTestSuite) TestGenTxCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 	amount := sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(12))
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	tests := []struct {
 		name     string
@@ -63,6 +67,9 @@ func (s *IntegrationTestSuite) TestGenTxCmd() {
 				fmt.Sprintf("--%s=1", stakingcli.FlagCommissionRate),
 				val.Moniker,
 				amount.String(),
+				val.Address.String(),
+				val.Address.String(),
+				blsPk,
 			},
 			expError: true,
 		},
@@ -72,6 +79,9 @@ func (s *IntegrationTestSuite) TestGenTxCmd() {
 				fmt.Sprintf("--%s=%s", flags.FlagChainID, s.network.Config.ChainID),
 				val.Moniker,
 				amount.String(),
+				val.Address.String(),
+				val.Address.String(),
+				blsPk,
 			},
 			expError: false,
 		},
@@ -82,6 +92,9 @@ func (s *IntegrationTestSuite) TestGenTxCmd() {
 				fmt.Sprintf("--%s={\"key\":\"BOIkjkFruMpfOFC9oNPhiJGfmY2pHF/gwHdLDLnrnS0=\"}", stakingcli.FlagPubKey),
 				val.Moniker,
 				amount.String(),
+				val.Address.String(),
+				val.Address.String(),
+				blsPk,
 			},
 			expError: true,
 		},
@@ -92,6 +105,9 @@ func (s *IntegrationTestSuite) TestGenTxCmd() {
 				fmt.Sprintf("--%s={\"@type\":\"/cosmos.crypto.ed25519.PubKey\",\"key\":\"BOIkjkFruMpfOFC9oNPhiJGfmY2pHF/gwHdLDLnrnS0=\"}", stakingcli.FlagPubKey),
 				val.Moniker,
 				amount.String(),
+				val.Address.String(),
+				val.Address.String(),
+				blsPk,
 			},
 			expError: false,
 		},

@@ -709,6 +709,11 @@ func (app *BaseApp) GetBlockRetentionHeight(commitHeight int64) int64 {
 	return retentionHeight
 }
 
+// SetMockBlockHeight is only used for testing.
+func (app *BaseApp) SetMockBlockHeight(height int64) {
+	app.deliverState.ctx = app.deliverState.ctx.WithBlockHeight(height)
+}
+
 func handleQueryApp(app *BaseApp, path []string, req abci.RequestQuery) abci.ResponseQuery {
 	if len(path) >= 2 {
 		switch path[1] {

@@ -1,6 +1,6 @@
 FROM golang:1.18-alpine AS build
 
-RUN apk add build-base git linux-headers
+RUN apk add build-base git linux-headers libc-dev
 
 WORKDIR /work
 COPY go.mod go.sum /work/
@@ -14,7 +14,7 @@ COPY ./ /work
 RUN LEDGER_ENABLED=false make clean build
 
 FROM alpine AS run
-RUN apk add bash curl jq
+RUN apk add bash curl jq libstdc++
 COPY contrib/images/simd-env/wrapper.sh /usr/bin/wrapper.sh
 
 VOLUME /simd

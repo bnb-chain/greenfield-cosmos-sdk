@@ -21,7 +21,8 @@ import (
 func TestValidatorTestEquivalent(t *testing.T) {
 	val1 := newValidator(t, valAddr1, pk1)
 	val2 := newValidator(t, valAddr1, pk1)
-	require.Equal(t, val1.String(), val2.String())
+	// When call newValidator, its bls pubkey is generated randomly
+	require.NotEqual(t, val1.String(), val2.String())
 
 	val2 = newValidator(t, valAddr2, pk2)
 	require.NotEqual(t, val1.String(), val2.String())
@@ -345,7 +346,7 @@ func mkValidator(tokens int64, shares sdk.Dec) types.Validator {
 
 // Creates a new validators and asserts the error check.
 func newValidator(t *testing.T, operator sdk.ValAddress, pubKey cryptotypes.PubKey) types.Validator {
-	v, err := types.NewValidator(operator, pubKey, types.Description{})
+	v, err := types.NewSimpleValidator(operator, pubKey, types.Description{})
 	require.NoError(t, err)
 	return v
 }

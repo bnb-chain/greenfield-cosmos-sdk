@@ -31,6 +31,9 @@ const (
 	FlagGenesisFormat = "genesis-format"
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"
+
+	FlagAddressRelayer = "addr-relayer"
+	FlagBlsKeyRelayer  = "bls-key-relayer"
 )
 
 // common flagsets to add to various functions
@@ -80,6 +83,20 @@ func FlagSetPublicKey() *flag.FlagSet {
 	return fs
 }
 
+// FlagSetRelayerAddress Returns the flagset for relayer address related operations.
+func FlagSetRelayerAddress() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagAddressRelayer, "", "The relayer address of the validator")
+	return fs
+}
+
+// FlagSetRelayerBlsKey Returns the flagset for relayer bls pubkey related operations.
+func FlagSetRelayerBlsKey() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagBlsKeyRelayer, "", "The relayer bls pubkey of the validator")
+	return fs
+}
+
 func flagSetDescriptionEdit() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
@@ -96,18 +113,6 @@ func flagSetCommissionUpdate() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
 	fs.String(FlagCommissionRate, "", "The new commission rate percentage")
-
-	return fs
-}
-
-func flagSetDescriptionCreate() *flag.FlagSet {
-	fs := flag.NewFlagSet("", flag.ContinueOnError)
-
-	fs.String(FlagMoniker, "", "The validator's name")
-	fs.String(FlagIdentity, "", "The optional identity signature (ex. UPort or Keybase)")
-	fs.String(FlagWebsite, "", "The validator's (optional) website")
-	fs.String(FlagSecurityContact, "", "The validator's (optional) security contact email")
-	fs.String(FlagDetails, "", "The validator's (optional) details")
 
 	return fs
 }

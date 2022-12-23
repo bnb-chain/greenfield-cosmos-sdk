@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 	"sigs.k8s.io/yaml"
@@ -38,11 +39,16 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewValidator constructs a new Validator
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
 //
-//nolint:interfacer
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
+//nolint:interfacerh
+func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
 	pkAny, err := codectypes.NewAnyWithValue(pubKey)
+	if err != nil {
+		return Validator{}, err
+	}
+
+	blsSk, err := bls.RandKey()
 	if err != nil {
 		return Validator{}, err
 	}
@@ -59,7 +65,29 @@ func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, descriptio
 		UnbondingTime:     time.Unix(0, 0).UTC(),
 		Commission:        NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 		MinSelfDelegation: sdk.OneInt(),
+		SelfDelAddress:    operator.String(),
+		RelayerAddress:    operator.String(),
+		RelayerBlsKey:     blsSk.PublicKey().Marshal(),
 	}, nil
+}
+
+// NewValidator constructs a new Validator
+//
+//nolint:interfacerh
+func NewValidator(
+	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+	description Description, selfDelegator sdk.AccAddress,
+	relayer sdk.AccAddress, relayerBlsKey []byte,
+) (Validator, error) {
+	val, err := NewSimpleValidator(operator, pubKey, description)
+	if err != nil {
+		return val, err
+	}
+
+	val.SelfDelAddress = selfDelegator.String()
+	val.RelayerAddress = relayer.String()
+	val.RelayerBlsKey = relayerBlsKey
+	return val, nil
 }
 
 // String implements the Stringer interface for a Validator object.
@@ -454,7 +482,10 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.Commission.Equal(other.Commission) &&
 		v.Jailed == other.Jailed &&
 		v.MinSelfDelegation.Equal(other.MinSelfDelegation) &&
-		v.ConsensusPubkey.Equal(other.ConsensusPubkey)
+		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
+		v.SelfDelAddress == other.SelfDelAddress &&
+		v.RelayerAddress == other.RelayerAddress &&
+		bytes.Equal(v.RelayerBlsKey, other.RelayerBlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -464,14 +495,37 @@ func (v *Validator) Equal(v2 *Validator) bool {
 		v.UnbondingTime.Equal(v2.UnbondingTime)
 }
 
-func (v Validator) IsJailed() bool        { return v.Jailed }
-func (v Validator) GetMoniker() string    { return v.Description.Moniker }
-func (v Validator) GetStatus() BondStatus { return v.Status }
+func (v Validator) IsJailed() bool           { return v.Jailed }
+func (v Validator) GetMoniker() string       { return v.Description.Moniker }
+func (v Validator) GetStatus() BondStatus    { return v.Status }
+func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
 	addr, err := sdk.ValAddressFromHex(v.OperatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetSelfDelegator() sdk.AccAddress {
+	if v.SelfDelAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfDelAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetRelayer() sdk.AccAddress {
+	if v.RelayerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
 	if err != nil {
 		panic(err)
 	}
