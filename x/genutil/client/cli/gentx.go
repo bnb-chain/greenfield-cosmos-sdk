@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -164,8 +163,7 @@ $ %s gentx my-key-name 1000000stake \
 				return err
 			}
 			blsPk := args[4]
-			blsPkBytes, err := hex.DecodeString(blsPk)
-			if err != nil || len(blsPkBytes) != sdk.BLSPubKeyLength {
+			if len(blsPk) != 2*sdk.BLSPubKeyLength {
 				return errors.New("invalid relayer bls pubkey")
 			}
 

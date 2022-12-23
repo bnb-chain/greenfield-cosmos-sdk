@@ -96,7 +96,7 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return ErrEmptyValidatorPubKey
 	}
 
-	if len(msg.RelayerBlsKey) != sdk.BLSPubKeyLength {
+	if len(msg.RelayerBlsKey) != 2*sdk.BLSPubKeyLength {
 		return ErrValidatorRelayerInvalidBlsKey
 	}
 
