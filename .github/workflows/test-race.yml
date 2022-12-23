@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+env:
+  CGO_CFLAGS: "-O -D__BLST_PORTABLE__"
+  CGO_CFLAGS_ALLOW: "-O -D__BLST_PORTABLE__"
+
 jobs:
   cleanup-runs:
     runs-on: ubuntu-latest
