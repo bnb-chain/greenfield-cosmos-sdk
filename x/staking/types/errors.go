@@ -50,4 +50,12 @@ var (
 	ErrNoHistoricalInfo                = sdkerrors.Register(ModuleName, 38, "no historical info found")
 	ErrEmptyValidatorPubKey            = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	ErrCommissionLTMinRate             = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
+
+	ErrValidatorRelayerAddressExists = sdkerrors.Register(ModuleName, 41, "validator already exist for this relayer address; must use new relayer address")
+	ErrValidatorRelayerInvalidBlsKey = sdkerrors.Register(ModuleName, 42, "validator relayer bls pubkey is invalid")
+	ErrValidatorRelayerBlsKeyExists  = sdkerrors.Register(ModuleName, 43, "validator already exist for this relayer bls pubkey; must use new bls pubkey")
+	ErrDelegationNotAllowed          = sdkerrors.Register(ModuleName, 44, "delegation is not allowed")
+	ErrRedelegationNotAllowed        = sdkerrors.Register(ModuleName, 45, "redelegation is not allowed")
+	ErrInvalidSigner                 = sdkerrors.Register(ModuleName, 46, "invalid signer")
+	ErrInvalidMinSelfDelegation      = sdkerrors.Register(ModuleName, 47, "invalid minimum self delegation, must no less than the chain level minimum self delegation")
 )

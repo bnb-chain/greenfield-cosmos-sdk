@@ -1,9 +1,11 @@
 package types_test
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -37,12 +39,20 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 	desc := stakingtypes.NewDescription("testname", "", "", "", "")
 	comm := stakingtypes.CommissionRates{}
 
-	msg1, err := stakingtypes.NewMsgCreateValidator(sdk.ValAddress(pk1.Address()), pk1,
-		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt())
+	blsSecretKey1, _ := bls.RandKey()
+	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
+	msg1, err := stakingtypes.NewMsgCreateValidator(
+		sdk.ValAddress(pk1.Address()), pk1,
+		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	require.NoError(t, err)
 
-	msg2, err := stakingtypes.NewMsgCreateValidator(sdk.ValAddress(pk2.Address()), pk2,
-		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt())
+	blsSecretKey2, _ := bls.RandKey()
+	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
+	msg2, err := stakingtypes.NewMsgCreateValidator(
+		sdk.ValAddress(pk2.Address()), pk2,
+		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
 	require.NoError(t, err)
 
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
@@ -58,8 +68,13 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 
 func TestValidateGenesisBadMessage(t *testing.T) {
 	desc := stakingtypes.NewDescription("testname", "", "", "", "")
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
-	msg1 := stakingtypes.NewMsgEditValidator(sdk.ValAddress(pk1.Address()), desc, nil, nil)
+	msg1 := stakingtypes.NewMsgEditValidator(
+		sdk.ValAddress(pk1.Address()), desc, nil, nil,
+		sdk.AccAddress(pk1.Address()), blsPk,
+	)
 
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
 	txBuilder := txGen.NewTxBuilder()
