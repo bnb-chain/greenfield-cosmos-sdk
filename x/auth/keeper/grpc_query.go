@@ -6,14 +6,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	"github.com/cosmos/cosmos-sdk/types/query"
-
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
@@ -160,18 +159,17 @@ func (ak AccountKeeper) ModuleAccountByName(c context.Context, req *types.QueryM
 	return &types.QueryModuleAccountByNameResponse{Account: any}, nil
 }
 
-// Bech32Prefix returns the keeper internally stored bech32 prefix.
-func (ak AccountKeeper) Bech32Prefix(ctx context.Context, req *types.Bech32PrefixRequest) (*types.Bech32PrefixResponse, error) {
-	bech32Prefix, err := ak.getBech32Prefix()
-	if err != nil {
-		return nil, err
-	}
+// // Bech32Prefix returns the keeper internally stored bech32 prefix.
+// func (ak AccountKeeper) Bech32Prefix(ctx context.Context, req *types.Bech32PrefixRequest) (*types.Bech32PrefixResponse, error) {
+// 	bech32Prefix, err := ak.getBech32Prefix()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	return &types.Bech32PrefixResponse{Bech32Prefix: bech32Prefix}, nil
+// }
 
-	return &types.Bech32PrefixResponse{Bech32Prefix: bech32Prefix}, nil
-}
-
-// AddressBytesToString converts an address from bytes to string, using the
-// keeper's bech32 prefix.
+// AddressBytesToString converts an address from bytes to string
 func (ak AccountKeeper) AddressBytesToString(ctx context.Context, req *types.AddressBytesToStringRequest) (*types.AddressBytesToStringResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -181,10 +179,7 @@ func (ak AccountKeeper) AddressBytesToString(ctx context.Context, req *types.Add
 		return nil, errors.New("empty address bytes is not allowed")
 	}
 
-	text, err := ak.addressCdc.BytesToString(req.AddressBytes)
-	if err != nil {
-		return nil, err
-	}
+	text := sdk.ValAddress(req.AddressBytes).String()
 
 	return &types.AddressBytesToStringResponse{AddressString: text}, nil
 }
@@ -200,7 +195,7 @@ func (ak AccountKeeper) AddressStringToBytes(ctx context.Context, req *types.Add
 		return nil, errors.New("empty address string is not allowed")
 	}
 
-	bz, err := ak.addressCdc.StringToBytes(req.AddressString)
+	bz, err := sdk.AccAddressFromHexUnsafe(req.AddressString)
 	if err != nil {
 		return nil, err
 	}

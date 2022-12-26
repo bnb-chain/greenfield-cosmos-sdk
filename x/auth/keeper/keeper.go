@@ -10,7 +10,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -58,8 +57,8 @@ type AccountKeeper struct {
 	permAddrs     map[string]types.PermissionsForAddress
 
 	// The prototypical AccountI constructor.
-	proto      func() types.AccountI
-	addressCdc address.Codec
+	proto func() types.AccountI
+	// addressCdc address.Codec
 }
 
 var _ AccountKeeperI = &AccountKeeper{}
@@ -84,7 +83,7 @@ func NewAccountKeeper(
 		permAddrs[name] = types.NewPermissionsForAddress(name, perms)
 	}
 
-	bech32Codec := newBech32Codec(bech32Prefix)
+	// bech32Codec := newBech32Codec(bech32Prefix)
 
 	return AccountKeeper{
 		key:           key,
@@ -92,7 +91,7 @@ func NewAccountKeeper(
 		cdc:           cdc,
 		paramSubspace: paramstore,
 		permAddrs:     permAddrs,
-		addressCdc:    bech32Codec,
+		// addressCdc:    bech32Codec,
 	}
 }
 
@@ -242,12 +241,12 @@ func (ak AccountKeeper) UnmarshalAccount(bz []byte) (types.AccountI, error) {
 // GetCodec return codec.Codec object used by the keeper
 func (ak AccountKeeper) GetCodec() codec.BinaryCodec { return ak.cdc }
 
-// add getter for bech32Prefix
-func (ak AccountKeeper) getBech32Prefix() (string, error) {
-	bech32Codec, ok := ak.addressCdc.(bech32Codec)
-	if !ok {
-		return "", fmt.Errorf("unable cast addressCdc to bech32Codec; expected %T got %T", bech32Codec, ak.addressCdc)
-	}
-
-	return bech32Codec.bech32Prefix, nil
-}
+// // add getter for bech32Prefix
+// func (ak AccountKeeper) getBech32Prefix() (string, error) {
+// 	bech32Codec, ok := ak.addressCdc.(bech32Codec)
+// 	if !ok {
+// 		return "", fmt.Errorf("unable cast addressCdc to bech32Codec; expected %T got %T", bech32Codec, ak.addressCdc)
+// 	}
+//
+// 	return bech32Codec.bech32Prefix, nil
+// }
