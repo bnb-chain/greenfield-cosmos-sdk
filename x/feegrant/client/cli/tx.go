@@ -54,9 +54,9 @@ func NewCmdFeeGrant() *cobra.Command {
 				ignored as it is implied from [granter].
 
 Examples:
-%s tx %s grant cosmos1skjw... cosmos1skjw... --spend-limit 100stake --expiration 2022-01-30T15:04:05Z or
-%s tx %s grant cosmos1skjw... cosmos1skjw... --spend-limit 100stake --period 3600 --period-limit 10stake --expiration 2022-01-30T15:04:05Z or
-%s tx %s grant cosmos1skjw... cosmos1skjw... --spend-limit 100stake --expiration 2022-01-30T15:04:05Z 
+%s tx %s grant 0x91D7d.. 0x91D7d.. --spend-limit 100stake --expiration 2022-01-30T15:04:05Z or
+%s tx %s grant 0x91D7d.. 0x91D7d.. --spend-limit 100stake --period 3600 --period-limit 10stake --expiration 2022-01-30T15:04:05Z or
+%s tx %s grant 0x91D7d.. 0x91D7d.. --spend-limit 100stake --expiration 2022-01-30T15:04:05Z 
 	--allowed-messages "/cosmos.gov.v1beta1.MsgSubmitProposal,/cosmos.gov.v1beta1.MsgVote"
 				`, version.AppName, feegrant.ModuleName, version.AppName, feegrant.ModuleName, version.AppName, feegrant.ModuleName,
 			),
@@ -69,7 +69,7 @@ Examples:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[1])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -189,7 +189,7 @@ func NewCmdRevokeFeegrant() *cobra.Command {
 			ignored as it is implied from [granter].
 
 Example:
- $ %s tx %s revoke cosmos1skj.. cosmos1skj..
+ $ %s tx %s revoke 0x91D7d.. 0x91D7d..
 			`, version.AppName, feegrant.ModuleName),
 		),
 		Args: cobra.ExactArgs(2),
@@ -200,7 +200,7 @@ Example:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[1])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}

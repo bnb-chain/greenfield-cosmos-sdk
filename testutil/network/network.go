@@ -3,6 +3,7 @@ package network
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +17,8 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -29,7 +32,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
@@ -121,8 +123,8 @@ func DefaultConfig() Config {
 		BondedTokens:      sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
 		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
-		SigningAlgo:       string(hd.Secp256k1Type),
-		KeyringOptions:    []keyring.Option{},
+		SigningAlgo:       string(ethHd.EthSecp256k1Type),
+		KeyringOptions:    []keyring.Option{ethHd.EthSecp256k1Option()},
 		PrintMnemonic:     false,
 	}
 }
@@ -400,6 +402,12 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
+		blsSecretKey, err := bls.RandKey()
+		if err != nil {
+			return nil, err
+		}
+		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -407,6 +415,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
+			addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err
@@ -460,7 +469,8 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			WithCodec(cfg.Codec).
 			WithLegacyAmino(cfg.LegacyAmino).
 			WithTxConfig(cfg.TxConfig).
-			WithAccountRetriever(cfg.AccountRetriever)
+			WithAccountRetriever(cfg.AccountRetriever).
+			WithKeyringOptions(cfg.KeyringOptions...)
 
 		network.Validators[i] = &Validator{
 			AppConfig:  appCfg,

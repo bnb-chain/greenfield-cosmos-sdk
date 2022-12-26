@@ -34,6 +34,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.ValAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
+	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -44,12 +45,15 @@ func NewMsgCreateValidator(
 	}
 	return &MsgCreateValidator{
 		Description:       description,
-		DelegatorAddress:  sdk.AccAddress(valAddr).String(),
+		DelegatorAddress:  selfDelAddr.String(),
 		ValidatorAddress:  valAddr.String(),
 		Pubkey:            pkAny,
 		Value:             selfDelegation,
 		Commission:        commission,
 		MinSelfDelegation: minSelfDelegation,
+		From:              from.String(),
+		RelayerAddress:    relayerAddr.String(),
+		RelayerBlsKey:     relayerBlsKey,
 	}, nil
 }
 
@@ -61,20 +65,9 @@ func (msg MsgCreateValidator) Type() string { return TypeMsgCreateValidator }
 
 // GetSigners implements the sdk.Msg interface. It returns the address(es) that
 // must sign over msg.GetSignBytes().
-// If the validator address is not same as delegator's, then the validator must
-// sign the msg as well.
 func (msg MsgCreateValidator) GetSigners() []sdk.AccAddress {
-	// delegator is first signer so delegator pays fees
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-	addrs := []sdk.AccAddress{delegator}
-	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-
-	valAccAddr := sdk.AccAddress(valAddr)
-	if !delegator.Equals(valAccAddr) {
-		addrs = append(addrs, valAccAddr)
-	}
-
-	return addrs
+	from, _ := sdk.AccAddressFromHexUnsafe(msg.From)
+	return []sdk.AccAddress{from}
 }
 
 // GetSignBytes returns the message bytes to sign over.
@@ -86,20 +79,25 @@ func (msg MsgCreateValidator) GetSignBytes() []byte {
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateValidator) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures both non-empty and valid
-	delAddr, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-	if err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.From); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", err)
+	}
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	if err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
-	if !sdk.AccAddress(valAddr).Equals(delAddr) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "validator address is invalid")
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 	}
 
 	if msg.Pubkey == nil {
 		return ErrEmptyValidatorPubKey
+	}
+
+	if len(msg.RelayerBlsKey) != 2*sdk.BLSPubKeyLength {
+		return ErrValidatorRelayerInvalidBlsKey
 	}
 
 	if !msg.Value.IsValid() || !msg.Value.Amount.IsPositive() {
@@ -141,12 +139,17 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 // NewMsgEditValidator creates a new MsgEditValidator instance
 //
 //nolint:interfacer
-func NewMsgEditValidator(valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int) *MsgEditValidator {
+func NewMsgEditValidator(
+	valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
+	newRelayerAddr sdk.AccAddress, newRelayerBlsKey string,
+) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,
 		CommissionRate:    newRate,
 		ValidatorAddress:  valAddr.String(),
 		MinSelfDelegation: newMinSelfDelegation,
+		RelayerAddress:    newRelayerAddr.String(),
+		RelayerBlsKey:     newRelayerBlsKey,
 	}
 }
 
@@ -158,7 +161,7 @@ func (msg MsgEditValidator) Type() string { return TypeMsgEditValidator }
 
 // GetSigners implements the sdk.Msg interface.
 func (msg MsgEditValidator) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddress)
 	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
 }
 
@@ -170,8 +173,15 @@ func (msg MsgEditValidator) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgEditValidator) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
+	}
+
+	if len(msg.RelayerAddress) != 0 {
+		_, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
+		if err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
+		}
 	}
 
 	if msg.Description == (Description{}) {
@@ -213,7 +223,7 @@ func (msg MsgDelegate) Type() string { return TypeMsgDelegate }
 
 // GetSigners implements the sdk.Msg interface.
 func (msg MsgDelegate) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -225,10 +235,10 @@ func (msg MsgDelegate) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgDelegate) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
@@ -264,7 +274,7 @@ func (msg MsgBeginRedelegate) Type() string { return TypeMsgBeginRedelegate }
 
 // GetSigners implements the sdk.Msg interface
 func (msg MsgBeginRedelegate) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -276,13 +286,13 @@ func (msg MsgBeginRedelegate) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgBeginRedelegate) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorSrcAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid source validator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorDstAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid destination validator address: %s", err)
 	}
 
@@ -315,7 +325,7 @@ func (msg MsgUndelegate) Type() string { return TypeMsgUndelegate }
 
 // GetSigners implements the sdk.Msg interface.
 func (msg MsgUndelegate) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -327,10 +337,10 @@ func (msg MsgUndelegate) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUndelegate) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
@@ -364,7 +374,7 @@ func (msg MsgCancelUnbondingDelegation) Type() string { return TypeMsgCancelUnbo
 
 // GetSigners implements the sdk.Msg interface.
 func (msg MsgCancelUnbondingDelegation) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -375,10 +385,10 @@ func (msg MsgCancelUnbondingDelegation) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCancelUnbondingDelegation) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 

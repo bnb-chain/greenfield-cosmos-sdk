@@ -20,17 +20,17 @@ func getTestCases() testCases {
 	return testCases{
 		// nolint:govet
 		[]keyring.KeyOutput{
-			{"A", "B", "C", "D", "E"},
-			{"A", "B", "C", "D", ""},
-			{"", "B", "C", "D", ""},
-			{"", "", "", "", ""},
+			{"A", "B", "C", "D", "D", "E"},
+			{"A", "B", "C", "D", "D", ""},
+			{"", "B", "C", "D", "D", ""},
+			{"", "", "", "", "", ""},
 		},
 		make([]keyring.KeyOutput, 4),
 		[][]byte{
-			[]byte(`{"name":"A","type":"B","address":"C","pubkey":"D","mnemonic":"E"}`),
-			[]byte(`{"name":"A","type":"B","address":"C","pubkey":"D"}`),
-			[]byte(`{"name":"","type":"B","address":"C","pubkey":"D"}`),
-			[]byte(`{"name":"","type":"","address":"","pubkey":""}`),
+			[]byte(`{"name":"A","type":"B","address":"C","pubkey":"D","pubkey_hex":"D","mnemonic":"E"}`),
+			[]byte(`{"name":"A","type":"B","address":"C","pubkey":"D","pubkey_hex":"D"}`),
+			[]byte(`{"name":"","type":"B","address":"C","pubkey":"D","pubkey_hex":"D"}`),
+			[]byte(`{"name":"","type":"","address":"","pubkey":"","pubkey_hex":""}`),
 		},
 	}
 }

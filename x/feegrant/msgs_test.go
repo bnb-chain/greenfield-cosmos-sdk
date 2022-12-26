@@ -15,8 +15,8 @@ import (
 
 func TestMsgGrantAllowance(t *testing.T) {
 	cdc := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-	addr, _ := sdk.AccAddressFromBech32("cosmos1aeuqja06474dfrj7uqsvukm6rael982kk89mqr")
-	addr2, _ := sdk.AccAddressFromBech32("cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl")
+	addr, _ := sdk.AccAddressFromHexUnsafe("0xee780975faafaad48e5ee020ce5b7a1f73f29d56")
+	addr2, _ := sdk.AccAddressFromHexUnsafe("0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e")
 	atom := sdk.NewCoins(sdk.NewInt64Coin("atom", 555))
 	threeHours := time.Now().Add(3 * time.Hour)
 	basic := &feegrant.BasicAllowance{
@@ -80,8 +80,8 @@ func TestMsgGrantAllowance(t *testing.T) {
 }
 
 func TestMsgRevokeAllowance(t *testing.T) {
-	addr, _ := sdk.AccAddressFromBech32("cosmos1aeuqja06474dfrj7uqsvukm6rael982kk89mqr")
-	addr2, _ := sdk.AccAddressFromBech32("cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl")
+	addr, _ := sdk.AccAddressFromHexUnsafe("0xee780975faafaad48e5ee020ce5b7a1f73f29d56")
+	addr2, _ := sdk.AccAddressFromHexUnsafe("0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e")
 	atom := sdk.NewCoins(sdk.NewInt64Coin("atom", 555))
 	threeHours := time.Now().Add(3 * time.Hour)
 

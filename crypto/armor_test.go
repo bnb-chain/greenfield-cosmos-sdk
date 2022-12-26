@@ -7,6 +7,8 @@ import (
 	"io"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/crypto/bcrypt"
@@ -15,22 +17,20 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestArmorUnarmorPrivKey(t *testing.T) {
-	priv := secp256k1.GenPrivKey()
-	armored := crypto.EncryptArmorPrivKey(priv, "passphrase", "")
+	priv, _ := ethsecp256k1.GenerateKey()
+	armored := crypto.EncryptArmorPrivKey(priv, "passphrase", string(ethHd.EthSecp256k1Type))
 	_, _, err := crypto.UnarmorDecryptPrivKey(armored, "wrongpassphrase")
 	require.Error(t, err)
 	decrypted, algo, err := crypto.UnarmorDecryptPrivKey(armored, "passphrase")
 	require.NoError(t, err)
-	require.Equal(t, string(hd.Secp256k1Type), algo)
+	require.Equal(t, string(ethHd.EthSecp256k1Type), algo)
 	require.True(t, priv.Equals(decrypted))
 
 	// empty string
@@ -72,19 +72,19 @@ func TestArmorUnarmorPrivKey(t *testing.T) {
 func TestArmorUnarmorPubKey(t *testing.T) {
 	// Select the encryption and storage for your cryptostore
 	encCfg := simapp.MakeTestEncodingConfig()
-	cstore := keyring.NewInMemory(encCfg.Codec)
+	cstore := keyring.NewInMemory(encCfg.Codec, ethHd.EthSecp256k1Option())
 
 	// Add keys and see they return in alphabetical order
-	k, _, err := cstore.NewMnemonic("Bob", keyring.English, types.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := cstore.NewMnemonic("Bob", keyring.English, types.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	require.NoError(t, err)
 	key, err := k.GetPubKey()
 	require.NoError(t, err)
-	armored := crypto.ArmorPubKeyBytes(legacy.Cdc.Amino.MustMarshalBinaryBare(key), "")
+	armored := crypto.ArmorPubKeyBytes(legacy.Cdc.Amino.MustMarshalBinaryBare(key), string(ethHd.EthSecp256k1Type))
 	pubBytes, algo, err := crypto.UnarmorPubKeyBytes(armored)
 	require.NoError(t, err)
 	pub, err := legacy.PubKeyFromBytes(pubBytes)
 	require.NoError(t, err)
-	require.Equal(t, string(hd.Secp256k1Type), algo)
+	require.Equal(t, string(ethHd.EthSecp256k1Type), algo)
 	require.True(t, pub.Equals(key))
 
 	armored = crypto.ArmorPubKeyBytes(legacy.Cdc.Amino.MustMarshalBinaryBare(key), "unknown")

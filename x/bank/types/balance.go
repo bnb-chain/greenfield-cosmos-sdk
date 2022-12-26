@@ -14,7 +14,7 @@ var _ exported.GenesisBalance = (*Balance)(nil)
 
 // GetAddress returns the account address of the Balance object.
 func (b Balance) GetAddress() sdk.AccAddress {
-	return sdk.MustAccAddressFromBech32(b.Address)
+	return sdk.MustAccAddressFromHex(b.Address)
 }
 
 // GetCoins returns the account coins of the Balance object.
@@ -24,7 +24,7 @@ func (b Balance) GetCoins() sdk.Coins {
 
 // Validate checks for address and coins correctness.
 func (b Balance) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(b.Address); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(b.Address); err != nil {
 		return err
 	}
 
@@ -52,19 +52,10 @@ func (b balanceByAddress) Swap(i, j int) {
 
 // SanitizeGenesisBalances sorts addresses and coin sets.
 func SanitizeGenesisBalances(balances []Balance) []Balance {
-	// Given that this function sorts balances, using the standard library's
-	// Quicksort based algorithms, we have algorithmic complexities of:
-	// * Best case: O(nlogn)
-	// * Worst case: O(n^2)
-	// The comparator used MUST be cheap to use lest we incur expenses like we had
-	// before whereby sdk.AccAddressFromBech32, which is a very expensive operation
-	// compared n * n elements yet discarded computations each time, as per:
-	//  https://github.com/cosmos/cosmos-sdk/issues/7766#issuecomment-786671734
-
 	// 1. Retrieve the address equivalents for each Balance's address.
 	addresses := make([]sdk.AccAddress, len(balances))
 	for i := range balances {
-		addr, _ := sdk.AccAddressFromBech32(balances[i].Address)
+		addr, _ := sdk.AccAddressFromHexUnsafe(balances[i].Address)
 		addresses[i] = addr
 	}
 

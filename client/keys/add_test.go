@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func Test_runAddCmdBasic(t *testing.T) {
@@ -30,7 +31,7 @@ func Test_runAddCmdBasic(t *testing.T) {
 
 	cdc := simapp.MakeTestEncodingConfig().Codec
 
-	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc)
+	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, ethHd.EthSecp256k1Option())
 	require.NoError(t, err)
 
 	clientCtx := client.Context{}.WithKeyringDir(kbHome).WithInput(mockIn).WithCodec(cdc)
@@ -193,7 +194,7 @@ func Test_runAddCmdDryRun(t *testing.T) {
 			kbHome := t.TempDir()
 			mockIn := testutil.ApplyMockIODiscardOutErr(cmd)
 
-			kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc)
+			kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, ethHd.EthSecp256k1Option())
 			require.NoError(t, err)
 
 			clientCtx := client.Context{}.

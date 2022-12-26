@@ -43,10 +43,10 @@ func (msg MsgCreateVestingAccount) Type() string { return TypeMsgCreateVestingAc
 
 // ValidateBasic Implements Msg.
 func (msg MsgCreateVestingAccount) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid 'from' address: %s", err)
 	}
-	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid 'to' address: %s", err)
 	}
 
@@ -73,7 +73,7 @@ func (msg MsgCreateVestingAccount) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateVestingAccount.
 func (msg MsgCreateVestingAccount) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	addr, _ := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	return []sdk.AccAddress{addr}
 }
 
@@ -96,10 +96,10 @@ func (msg MsgCreatePermanentLockedAccount) Type() string { return TypeMsgCreateP
 
 // ValidateBasic Implements Msg.
 func (msg MsgCreatePermanentLockedAccount) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
-	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid recipient address: %s", err)
 	}
 
@@ -122,7 +122,7 @@ func (msg MsgCreatePermanentLockedAccount) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreatePermanentLockedAccount.
 func (msg MsgCreatePermanentLockedAccount) GetSigners() []sdk.AccAddress {
-	from, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, _ := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	return []sdk.AccAddress{from}
 }
 
@@ -146,7 +146,7 @@ func (msg MsgCreatePeriodicVestingAccount) Type() string { return TypeMsgCreateP
 
 // GetSigners returns the expected signers for a MsgCreatePeriodicVestingAccount.
 func (msg MsgCreatePeriodicVestingAccount) GetSigners() []sdk.AccAddress {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -161,11 +161,11 @@ func (msg MsgCreatePeriodicVestingAccount) GetSignBytes() []byte {
 
 // ValidateBasic Implements Msg.
 func (msg MsgCreatePeriodicVestingAccount) ValidateBasic() error {
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		return err
 	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	to, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress)
 	if err != nil {
 		return err
 	}

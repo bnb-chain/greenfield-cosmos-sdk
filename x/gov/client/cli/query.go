@@ -100,8 +100,8 @@ func GetCmdQueryProposals() *cobra.Command {
 			fmt.Sprintf(`Query for a all paginated proposals that match optional filters:
 
 Example:
-$ %s query gov proposals --depositor cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
-$ %s query gov proposals --voter cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
+$ %s query gov proposals --depositor 0x91D7d..
+$ %s query gov proposals --voter 0x9fB29..
 $ %s query gov proposals --status (DepositPeriod|VotingPeriod|Passed|Rejected)
 $ %s query gov proposals --page=2 --limit=100
 `,
@@ -109,21 +109,21 @@ $ %s query gov proposals --page=2 --limit=100
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			bechDepositorAddr, _ := cmd.Flags().GetString(flagDepositor)
-			bechVoterAddr, _ := cmd.Flags().GetString(flagVoter)
+			depositorAddr, _ := cmd.Flags().GetString(flagDepositor)
+			voterAddr, _ := cmd.Flags().GetString(flagVoter)
 			strProposalStatus, _ := cmd.Flags().GetString(flagStatus)
 
 			var proposalStatus v1.ProposalStatus
 
-			if len(bechDepositorAddr) != 0 {
-				_, err := sdk.AccAddressFromBech32(bechDepositorAddr)
+			if len(depositorAddr) != 0 {
+				_, err := sdk.AccAddressFromHexUnsafe(depositorAddr)
 				if err != nil {
 					return err
 				}
 			}
 
-			if len(bechVoterAddr) != 0 {
-				_, err := sdk.AccAddressFromBech32(bechVoterAddr)
+			if len(voterAddr) != 0 {
+				_, err := sdk.AccAddressFromHexUnsafe(voterAddr)
 				if err != nil {
 					return err
 				}
@@ -152,8 +152,8 @@ $ %s query gov proposals --page=2 --limit=100
 				cmd.Context(),
 				&v1.QueryProposalsRequest{
 					ProposalStatus: proposalStatus,
-					Voter:          bechVoterAddr,
-					Depositor:      bechDepositorAddr,
+					Voter:          voterAddr,
+					Depositor:      depositorAddr,
 					Pagination:     pageReq,
 				},
 			)
@@ -189,7 +189,7 @@ func GetCmdQueryVote() *cobra.Command {
 			fmt.Sprintf(`Query details for a single vote on a proposal given its identifier.
 
 Example:
-$ %s query gov vote 1 cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
+$ %s query gov vote 1 0x9fB29..
 `,
 				version.AppName,
 			),
@@ -217,7 +217,7 @@ $ %s query gov vote 1 cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
 				return fmt.Errorf("failed to fetch proposal-id %d: %s", proposalID, err)
 			}
 
-			voterAddr, err := sdk.AccAddressFromBech32(args[1])
+			voterAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -344,7 +344,7 @@ func GetCmdQueryDeposit() *cobra.Command {
 			fmt.Sprintf(`Query details for a single proposal deposit on a proposal by its identifier.
 
 Example:
-$ %s query gov deposit 1 cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
+$ %s query gov deposit 1 0x9fB29..
 `,
 				version.AppName,
 			),

@@ -21,7 +21,7 @@ import (
 )
 
 func newMonikerValidator(t testing.TB, operator sdk.ValAddress, pubKey cryptotypes.PubKey, moniker string) types.Validator {
-	v, err := types.NewValidator(operator, pubKey, types.Description{Moniker: moniker})
+	v, err := types.NewSimpleValidator(operator, pubKey, types.Description{Moniker: moniker})
 	require.NoError(t, err)
 	return v
 }
@@ -207,7 +207,7 @@ func TestUpdateBondedValidatorsDecreaseCliff(t *testing.T) {
 	// require all the validators have their respective statuses
 	for valIdx, status := range expectedValStatus {
 		valAddr := validators[valIdx].OperatorAddress
-		addr, err := sdk.ValAddressFromBech32(valAddr)
+		addr, err := sdk.ValAddressFromHex(valAddr)
 		assert.NoError(t, err)
 		val, _ := app.StakingKeeper.GetValidator(ctx, addr)
 

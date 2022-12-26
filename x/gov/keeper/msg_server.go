@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -54,7 +54,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 
 	defer telemetry.IncrCounter(1, types.ModuleName, "proposal")
 
-	proposer, _ := sdk.AccAddressFromBech32(msg.GetProposer())
+	proposer, _ := sdk.AccAddressFromHexUnsafe(msg.GetProposer())
 	votingStarted, err := k.Keeper.AddDeposit(ctx, proposal.Id, proposer, msg.GetInitialDeposit())
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (k msgServer) ExecLegacyContent(goCtx context.Context, msg *v1.MsgExecLegac
 
 func (k msgServer) Vote(goCtx context.Context, msg *v1.MsgVote) (*v1.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accAddr, err := sdk.AccAddressFromBech32(msg.Voter)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(msg.Voter)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (k msgServer) Vote(goCtx context.Context, msg *v1.MsgVote) (*v1.MsgVoteResp
 
 func (k msgServer) VoteWeighted(goCtx context.Context, msg *v1.MsgVoteWeighted) (*v1.MsgVoteWeightedResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accAddr, accErr := sdk.AccAddressFromBech32(msg.Voter)
+	accAddr, accErr := sdk.AccAddressFromHexUnsafe(msg.Voter)
 	if accErr != nil {
 		return nil, accErr
 	}
@@ -169,7 +169,7 @@ func (k msgServer) VoteWeighted(goCtx context.Context, msg *v1.MsgVoteWeighted) 
 
 func (k msgServer) Deposit(goCtx context.Context, msg *v1.MsgDeposit) (*v1.MsgDepositResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accAddr, err := sdk.AccAddressFromBech32(msg.Depositor)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(msg.Depositor)
 	if err != nil {
 		return nil, err
 	}

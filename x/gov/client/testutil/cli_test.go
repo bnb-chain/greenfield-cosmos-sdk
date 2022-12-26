@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )

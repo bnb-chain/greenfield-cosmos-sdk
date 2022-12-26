@@ -33,6 +33,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) (res []ab
 
 		// Manually set indices for the first time
 		k.SetValidatorByConsAddr(ctx, validator)
+		k.SetValidatorByRelayerAddress(ctx, validator)
+		k.SetValidatorByRelayerBlsKey(ctx, validator)
 		k.SetValidatorByPowerIndex(ctx, validator)
 
 		// Call the creation hook if not exported
@@ -60,7 +62,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) (res []ab
 	}
 
 	for _, delegation := range data.Delegations {
-		delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
+		delegatorAddress := sdk.MustAccAddressFromHex(delegation.DelegatorAddress)
 
 		// Call the before-creation hook if not exported
 		if !data.Exported {
@@ -135,7 +137,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) (res []ab
 	// don't need to run Tendermint updates if we exported
 	if data.Exported {
 		for _, lv := range data.LastValidatorPowers {
-			valAddr, err := sdk.ValAddressFromBech32(lv.Address)
+			valAddr, err := sdk.ValAddressFromHex(lv.Address)
 			if err != nil {
 				panic(err)
 			}

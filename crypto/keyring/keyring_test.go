@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/keyring"
 	"github.com/cosmos/go-bip39"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -99,7 +100,7 @@ func TestKeyManagementKeyRing(t *testing.T) {
 	require.NoError(t, err)
 	_, err = kb.KeyByAddress(addr)
 	require.NoError(t, err)
-	addr, err = sdk.AccAddressFromBech32("cosmos1yq8lgssgxlx9smjhes6ryjasmqmd3ts2559g0t")
+	addr, err = sdk.AccAddressFromHexUnsafe("0x200ff4420837cc586e57cc34324bb0d836d8ae0a")
 	require.NoError(t, err)
 	_, err = kb.KeyByAddress(addr)
 	require.Error(t, err)
@@ -559,7 +560,7 @@ func TestInMemoryKeyManagement(t *testing.T) {
 	require.NoError(t, err)
 	_, err = cstore.KeyByAddress(addr)
 	require.NoError(t, err)
-	addr, err = sdk.AccAddressFromBech32("cosmos1yq8lgssgxlx9smjhes6ryjasmqmd3ts2559g0t")
+	addr, err = sdk.AccAddressFromHexUnsafe("0x200ff4420837cc586e57cc34324bb0d836d8ae0a")
 	require.NoError(t, err)
 	_, err = cstore.KeyByAddress(addr)
 	require.NotNil(t, err)
@@ -1175,8 +1176,8 @@ func TestAltKeyring_SaveMultisig(t *testing.T) {
 	pub := multisig.NewLegacyAminoPubKey(
 		2,
 		[]types.PubKey{
-			&secp256k1.PubKey{Key: key1.Bytes()},
-			&secp256k1.PubKey{Key: key2.Bytes()},
+			&ethsecp256k1.PubKey{Key: key1.Bytes()},
+			&ethsecp256k1.PubKey{Key: key2.Bytes()},
 		},
 	)
 

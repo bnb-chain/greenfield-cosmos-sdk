@@ -1,10 +1,12 @@
 package multisig
 
 import (
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/tendermint/tendermint/crypto/sr25519"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
@@ -28,6 +30,10 @@ func init() {
 		sr25519.PubKeyName, nil)
 	AminoCdc.RegisterConcrete(&secp256k1.PubKey{},
 		secp256k1.PubKeyName, nil)
+	AminoCdc.RegisterConcrete(&ethsecp256k1.PubKey{},
+		ethsecp256k1.PubKeyName, nil)
+	AminoCdc.RegisterConcrete(&bls.PubKey{},
+		bls.PubKeyName, nil)
 	AminoCdc.RegisterConcrete(&LegacyAminoPubKey{},
 		PubKeyAminoRoute, nil)
 }

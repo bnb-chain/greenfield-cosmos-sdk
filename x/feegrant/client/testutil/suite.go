@@ -133,7 +133,7 @@ func (s *IntegrationTestSuite) TestCmdGetFeeGrant() {
 				grantee.String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -143,13 +143,13 @@ func (s *IntegrationTestSuite) TestCmdGetFeeGrant() {
 				"wrong_grantee",
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
 			"non existed grant",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 				grantee.String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
@@ -221,7 +221,7 @@ func (s *IntegrationTestSuite) TestCmdGetFeeGrantsByGrantee() {
 		{
 			"non existent grantee",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false, &feegrant.QueryAllowancesResponse{}, 0,
@@ -277,7 +277,7 @@ func (s *IntegrationTestSuite) TestCmdGetFeeGrantsByGranter() {
 		{
 			"non existent grantee",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false, &feegrant.QueryAllowancesByGranterResponse{}, 0,
@@ -338,7 +338,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"wrong_granter",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -364,7 +364,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"invalid_granter",
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0xd3793d66f8c1f597c5c3c800e71cb92534577255",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -377,7 +377,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -390,7 +390,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					fromName,
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0xd3793d66f8c1f597c5c3c800e71cb92534577255",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, fromName),
 				},
@@ -403,7 +403,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1v57fx2l2rt6ehujuu99u2fw05779m5e2ux4z2h",
+					"0x653c932bea1af59bf25ce14bc525cfa7bc5dd32a",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
@@ -417,7 +417,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos17h5lzptx3ghvsuhk7wx4c4hnl7rsswxjer97em",
+					"0xf5e9f105668a2ec872f6f38d5c56f3ff870838d2",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -429,7 +429,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos16dlc38dcqt0uralyd8hksxyrny6kaeqfjvjwp5",
+					"0xd37f889db802dfc1f7e469ef68188399356ee409",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -442,7 +442,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1ku40qup9vwag4wtf8cls9mkszxfthaklxkp3c8",
+					"0xb72af0702563ba8ab9693e3f02eed01192bbf6df",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -467,7 +467,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -482,7 +482,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -497,7 +497,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -513,7 +513,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1w55kgcf3ltaqdy4ww49nge3klxmrdavrr6frmp",
+					"0x7529646131fafa0692ae754b346636f9b636f583",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -529,7 +529,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0x66584b40e15ded0c311d160be011325d5fbd20a6",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -544,7 +544,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+					"0xae371885931b1552f96459e01293acbedc78cdd9",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -559,7 +559,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos12nyk4pcf4arshznkpz882e4l4ts0lt0ap8ce54",
+					"0x54c96a8709af470b8a76088e7566bfaae0ffadfd",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -573,7 +573,7 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0x66584b40e15ded0c311d160be011325d5fbd20a6",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -618,7 +618,7 @@ func (s *IntegrationTestSuite) TestNewCmdRevokeFeegrant() {
 	}
 
 	// Create new fee grant specifically to test amino.
-	aminoGrantee, err := sdk.AccAddressFromBech32("cosmos16ydaqh0fcnh4qt7a3jme4mmztm2qel5axcpw00")
+	aminoGrantee, err := sdk.AccAddressFromHexUnsafe("0xd11bd05de9c4ef502fdd8cb79aef625ed40cfe9d")
 	s.Require().NoError(err)
 	s.createGrant(granter, aminoGrantee)
 
@@ -658,7 +658,7 @@ func (s *IntegrationTestSuite) TestNewCmdRevokeFeegrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1aeuqja06474dfrj7uqsvukm6rael982kk89mqr",
+					"0xee780975faafaad48e5ee020ce5b7a1f73f29d56",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -834,7 +834,7 @@ func (s *IntegrationTestSuite) TestFilteredFeeAllowance() {
 			append(
 				[]string{
 					"not an address",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x986f1c2456d2c70da4d6cf0b58cd9dc5e807558e",
 					fmt.Sprintf("--%s=%s", cli.FlagAllowedMsgs, allowMsgs),
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, spendLimit.String()),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -956,7 +956,7 @@ func (s *IntegrationTestSuite) TestFilteredFeeAllowance() {
 				args := append(
 					[]string{
 						grantee.String(),
-						"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+						"0xae371885931b1552f96459e01293acbedc78cdd9",
 						fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 						fmt.Sprintf("--%s=%s", flags.FlagFeeGranter, granter),
 					},

@@ -30,11 +30,11 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 		return nil, err
 	}
 
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		return nil, err
 	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	to, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (k msgServer) MultiSend(goCtx context.Context, msg *types.MsgMultiSend) (*t
 	}
 
 	for _, out := range msg.Outputs {
-		accAddr := sdk.MustAccAddressFromBech32(out.Address)
+		accAddr := sdk.MustAccAddressFromHex(out.Address)
 
 		if k.BlockedAddr(accAddr) {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive transactions", out.Address)

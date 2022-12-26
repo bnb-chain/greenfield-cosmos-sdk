@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -311,9 +310,9 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 		buffer.WriteString("A58856F0FD53BF058B4909A21AEC019107BA6") // base address string
 
 		buffer.WriteString(numString) // adding on final two digits to make addresses unique
-		res, _ := sdk.AccAddressFromHexUnsafe(buffer.String())
-		bech := res.String()
-		addr, _ := TestAddr(buffer.String(), bech)
+		addr, _ := sdk.AccAddressFromHexUnsafe(buffer.String())
+		// bech := res.String()
+		// addr, _ := TestAddr(buffer.String(), bech)
 
 		addresses = append(addresses, addr)
 		buffer.Reset()
@@ -378,31 +377,39 @@ func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
 	return valAddrs
 }
 
-func TestAddr(addr string, bech string) (sdk.AccAddress, error) {
-	res, err := sdk.AccAddressFromHexUnsafe(addr)
-	if err != nil {
-		return nil, err
-	}
-	bechexpected := res.String()
-	if bech != bechexpected {
-		return nil, fmt.Errorf("bech encoding doesn't match reference")
-	}
-
-	bechres, err := sdk.AccAddressFromBech32(bech)
-	if err != nil {
-		return nil, err
-	}
-	if !bytes.Equal(bechres, res) {
-		return nil, err
-	}
-
-	return res, nil
-}
+// func TestAddr(addr string, bech string) (sdk.AccAddress, error) {
+//	 res, err := sdk.AccAddressFromHexUnsafe(addr)
+//	 if err != nil {
+//		 return nil, err
+//	 }
+//	 bechexpected := res.String()
+//	 if bech != bechexpected {
+//		 return nil, fmt.Errorf("bech encoding doesn't match reference")
+//	 }
+//
+//	 bechres, err := sdk.AccAddressFromBech32(bech)
+//	 if err != nil {
+//		 return nil, err
+//	 }
+//	 if !bytes.Equal(bechres, res) {
+//		 return nil, err
+//	 }
+//
+//	 return res, nil
+// }
 
 // CheckBalance checks the balance of an account.
 func CheckBalance(t *testing.T, app *SimApp, addr sdk.AccAddress, balances sdk.Coins) {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 	require.True(t, balances.IsEqual(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
+}
+
+type SignCheckDeliverOption func()
+
+func SetMockHeight(app *bam.BaseApp, height int64) SignCheckDeliverOption {
+	return func() {
+		app.SetMockBlockHeight(height)
+	}
 }
 
 // SignCheckDeliver checks a generated signed transaction and simulates a
@@ -411,7 +418,8 @@ func CheckBalance(t *testing.T, app *SimApp, addr sdk.AccAddress, balances sdk.C
 // returned.
 func SignCheckDeliver(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...cryptotypes.PrivKey,
+	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv []cryptotypes.PrivKey,
+	options ...SignCheckDeliverOption,
 ) (sdk.GasInfo, *sdk.Result, error) {
 	tx, err := helpers.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
@@ -441,6 +449,9 @@ func SignCheckDeliver(
 
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+	for _, option := range options {
+		option()
+	}
 	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	if expPass {

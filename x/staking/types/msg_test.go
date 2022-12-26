@@ -1,8 +1,10 @@
 package types_test
 
 import (
+	"encoding/hex"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -35,9 +37,14 @@ func TestMsgDecode(t *testing.T) {
 	require.True(t, pk1.Equals(pkUnmarshaled.(*ed25519.PubKey)))
 
 	// now let's try to serialize the whole message
-
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	commission1 := types.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-	msg, err := types.NewMsgCreateValidator(valAddr1, pk1, coinPos, types.Description{}, commission1, sdk.OneInt())
+	msg, err := types.NewMsgCreateValidator(
+		valAddr1, pk1,
+		coinPos, types.Description{}, commission1, sdk.OneInt(),
+		sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1), blsPk,
+	)
 	require.NoError(t, err)
 	msgSerialized, err := cdc.MarshalInterface(msg)
 	require.NoError(t, err)
@@ -77,9 +84,15 @@ func TestMsgCreateValidator(t *testing.T) {
 		{"delegation less than min self delegation", "a", "b", "c", "d", "e", commission1, coinPos.Amount.Add(sdk.OneInt()), valAddr1, pk1, coinPos, false},
 	}
 
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
-		msg, err := types.NewMsgCreateValidator(tc.validatorAddr, tc.pubkey, tc.bond, description, tc.CommissionRates, tc.minSelfDelegation)
+		msg, err := types.NewMsgCreateValidator(
+			tc.validatorAddr, tc.pubkey,
+			tc.bond, description, tc.CommissionRates, tc.minSelfDelegation,
+			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), blsPk,
+		)
 		require.NoError(t, err)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
@@ -107,8 +120,12 @@ func TestMsgEditValidator(t *testing.T) {
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
 		newRate := sdk.ZeroDec()
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
-		msg := types.NewMsgEditValidator(tc.validatorAddr, description, &newRate, &tc.minSelfDelegation)
+		msg := types.NewMsgEditValidator(
+			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,
+			sdk.AccAddress(tc.validatorAddr), blsPk)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

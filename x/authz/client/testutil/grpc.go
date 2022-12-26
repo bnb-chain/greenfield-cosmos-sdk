@@ -26,13 +26,13 @@ func (s *IntegrationTestSuite) TestQueryGrantGRPC() {
 			"fail invalid granter address",
 			fmt.Sprintf(grantsURL, "invalid_granter", grantee.String(), typeMsgSend),
 			true,
-			"decoding bech32 failed: invalid separator index -1: invalid request",
+			"invalid address hex length",
 		},
 		{
 			"fail invalid grantee address",
 			fmt.Sprintf(grantsURL, val.Address.String(), "invalid_grantee", typeMsgSend),
 			true,
-			"decoding bech32 failed: invalid separator index -1: invalid request",
+			"invalid address hex length",
 		},
 		{
 			"fail with empty granter",
@@ -180,7 +180,7 @@ func (s *IntegrationTestSuite) TestQueryGranterGrantsGRPC() {
 			"invalid account address",
 			fmt.Sprintf("%s/cosmos/authz/v1beta1/grants/granter/%s", val.APIAddress, "invalid address"),
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 			0,
 		},
 		{
@@ -232,7 +232,7 @@ func (s *IntegrationTestSuite) TestQueryGranteeGrantsGRPC() {
 			"invalid account address",
 			fmt.Sprintf("%s/cosmos/authz/v1beta1/grants/grantee/%s", val.APIAddress, "invalid address"),
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 			0,
 		},
 		{

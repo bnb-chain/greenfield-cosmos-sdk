@@ -95,7 +95,7 @@ func GetAccountCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			key, err := sdk.AccAddressFromBech32(args[0])
+			key, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -267,7 +267,7 @@ to each module's documentation for the full set of events to query for. Each mod
 documents its respective events under 'xx_events.md'.
 
 Example:
-$ %s query txs --%s 'message.sender=cosmos1...&message.action=withdraw_delegator_reward' --page 1 --limit 30
+$ %s query txs --%s 'message.sender=0x91D7d..&message.action=withdraw_delegator_reward' --page 1 --limit 30
 `, eventFormat, version.AppName, flagEvents),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {

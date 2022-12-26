@@ -21,7 +21,7 @@ func (keeper Keeper) InitGenesis(ctx sdk.Context, stakingKeeper types.StakingKee
 	)
 
 	for _, info := range data.SigningInfos {
-		address, err := sdk.ConsAddressFromBech32(info.Address)
+		address, err := sdk.ConsAddressFromHex(info.Address)
 		if err != nil {
 			panic(err)
 		}
@@ -29,7 +29,7 @@ func (keeper Keeper) InitGenesis(ctx sdk.Context, stakingKeeper types.StakingKee
 	}
 
 	for _, array := range data.MissedBlocks {
-		address, err := sdk.ConsAddressFromBech32(array.Address)
+		address, err := sdk.ConsAddressFromHex(array.Address)
 		if err != nil {
 			panic(err)
 		}

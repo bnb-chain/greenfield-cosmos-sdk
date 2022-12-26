@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -22,15 +24,15 @@ import (
 
 var (
 	// simulation signature values used to estimate gas consumption
-	key                = make([]byte, secp256k1.PubKeySize)
-	simSecp256k1Pubkey = &secp256k1.PubKey{Key: key}
+	key                = make([]byte, ethsecp256k1.PubKeySize)
+	simSecp256k1Pubkey = &ethsecp256k1.PubKey{Key: key}
 	simSecp256k1Sig    [64]byte
 
 	_ authsigning.SigVerifiableTx = (*legacytx.StdTx)(nil) // assert StdTx implements SigVerifiableTx
 )
 
 func init() {
-	// This decodes a valid hex string into a sepc256k1Pubkey for use in transaction simulation
+	// This decodes a valid hex string into an eth_secp256k1Pubkey for use in transaction simulation
 	bz, _ := hex.DecodeString("035AD6810A47F073553FF30D2FCC7E0D3B1C0B74B61A1AAA2582344037151E143A")
 	copy(key, bz)
 	simSecp256k1Pubkey.Key = key
@@ -291,14 +293,15 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		if !simulate && !ctx.IsReCheckTx() {
 			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx)
 			if err != nil {
-				var errMsg string
-				if OnlyLegacyAminoSigners(sig.Data) {
-					// If all signers are using SIGN_MODE_LEGACY_AMINO, we rely on VerifySignature to check account sequence number,
-					// and therefore communicate sequence number as a potential cause of error.
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d), sequence (%d) and chain-id (%s)", accNum, acc.GetSequence(), chainID)
-				} else {
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
-				}
+				// var errMsg string
+				// if OnlyLegacyAminoSigners(sig.Data) {
+				// 	// If all signers are using SIGN_MODE_LEGACY_AMINO, we rely on VerifySignature to check account sequence number,
+				// 	// and therefore communicate sequence number as a potential cause of error.
+				// 	errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d), sequence (%d) and chain-id (%s)", accNum, acc.GetSequence(), chainID)
+				// } else {
+				// 	errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
+				// }
+				errMsg := fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, errMsg)
 
 			}
@@ -398,6 +401,10 @@ func DefaultSigVerificationGasConsumer(
 
 	case *secp256k1.PubKey:
 		meter.ConsumeGas(params.SigVerifyCostSecp256k1, "ante verify: secp256k1")
+		return nil
+
+	case *ethsecp256k1.PubKey:
+		meter.ConsumeGas(params.SigVerifyCostEthSecp256k1, "ante verify: ethsecp256k1")
 		return nil
 
 	case *secp256r1.PubKey:

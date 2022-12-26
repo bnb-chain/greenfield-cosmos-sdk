@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+env:
+  CGO_CFLAGS: "-O -D__BLST_PORTABLE__"
+  CGO_CFLAGS_ALLOW: "-O -D__BLST_PORTABLE__"
+
 jobs:
   cleanup-runs:
     runs-on: ubuntu-latest
@@ -22,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-arch: ["amd64", "arm", "arm64"]
+        go-arch: ["amd64"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
@@ -37,9 +41,6 @@ jobs:
             **/go.sum
       - name: Build
         run: GOARCH=${{ matrix.go-arch }} LEDGER_ENABLED=false make build
-
-      - name: Build cosmovisor
-        run: GOARCH=${{ matrix.go-arch }} LEDGER_ENABLED=false make cosmovisor
 
   test-submodules:
     runs-on: ubuntu-latest
@@ -177,23 +178,6 @@ jobs:
           file: ./coverage.txt
         if: env.GIT_DIFF
 
-  test-rosetta:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v3
-      - uses: technote-space/get-diff-action@v6.0.1
-        id: git_diff
-        with:
-          PATTERNS: |
-            **/**.go
-            go.mod
-            go.sum
-      - name: test rosetta
-        run: |
-          make test-rosetta
-        # if: env.GIT_DIFF
-
   liveness-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -211,7 +195,7 @@ jobs:
             go.sum
       - name: start localnet
         run: |
-          make clean localnet-start
+          ENABLE_ROCKSDB=true make clean localnet-start
         if: env.GIT_DIFF
       - name: test liveness
         run: |

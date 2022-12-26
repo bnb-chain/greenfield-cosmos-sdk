@@ -489,7 +489,7 @@ func TestMigrateVestingAccounts(t *testing.T) {
 
 				ctx = ctx.WithBlockTime(ctx.BlockTime().AddDate(1, 0, 0))
 
-				valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+				valAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
 				require.NoError(t, err)
 
 				// un-delegation of the original vesting
@@ -656,11 +656,12 @@ func createValidator(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers i
 		cdc,
 		app.GetKey(stakingtypes.StoreKey),
 		app.AccountKeeper,
+		app.AuthzKeeper,
 		app.BankKeeper,
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	val1, err := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
+	val1, err := stakingtypes.NewSimpleValidator(valAddrs[0], pks[0], stakingtypes.Description{})
 	require.NoError(t, err)
 
 	app.StakingKeeper.SetValidator(ctx, val1)

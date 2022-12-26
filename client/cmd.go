@@ -224,7 +224,7 @@ func readTxCommandFlags(clientCtx Context, flagSet *pflag.FlagSet) (Context, err
 		payer, _ := flagSet.GetString(flags.FlagFeePayer)
 
 		if payer != "" {
-			payerAcc, err := sdk.AccAddressFromBech32(payer)
+			payerAcc, err := sdk.AccAddressFromHexUnsafe(payer)
 			if err != nil {
 				return clientCtx, err
 			}
@@ -237,7 +237,7 @@ func readTxCommandFlags(clientCtx Context, flagSet *pflag.FlagSet) (Context, err
 		granter, _ := flagSet.GetString(flags.FlagFeeGranter)
 
 		if granter != "" {
-			granterAcc, err := sdk.AccAddressFromBech32(granter)
+			granterAcc, err := sdk.AccAddressFromHexUnsafe(granter)
 			if err != nil {
 				return clientCtx, err
 			}
@@ -264,23 +264,24 @@ func readTxCommandFlags(clientCtx Context, flagSet *pflag.FlagSet) (Context, err
 		}
 	}
 
-	if !clientCtx.IsAux || flagSet.Changed(flags.FlagAux) {
-		isAux, _ := flagSet.GetBool(flags.FlagAux)
-		clientCtx = clientCtx.WithAux(isAux)
-		if isAux {
-			// If the user didn't explicitly set an --output flag, use JSON by
-			// default.
-			if clientCtx.OutputFormat == "" || !flagSet.Changed(cli.OutputFlag) {
-				clientCtx = clientCtx.WithOutputFormat("json")
-			}
-
-			// If the user didn't explicitly set a --sign-mode flag, use
-			// DIRECT_AUX by default.
-			if clientCtx.SignModeStr == "" || !flagSet.Changed(flags.FlagSignMode) {
-				clientCtx = clientCtx.WithSignModeStr(flags.SignModeDirectAux)
-			}
-		}
-	}
+	// Aux mode is disabled
+	// if !clientCtx.IsAux || flagSet.Changed(flags.FlagAux) {
+	// 	isAux, _ := flagSet.GetBool(flags.FlagAux)
+	// 	clientCtx = clientCtx.WithAux(isAux)
+	// 	if isAux {
+	// 		// If the user didn't explicitly set an --output flag, use JSON by
+	// 		// default.
+	// 		if clientCtx.OutputFormat == "" || !flagSet.Changed(cli.OutputFlag) {
+	// 			clientCtx = clientCtx.WithOutputFormat("json")
+	// 		}
+	//
+	// 		// If the user didn't explicitly set a --sign-mode flag, use
+	// 		// DIRECT_AUX by default.
+	// 		if clientCtx.SignModeStr == "" || !flagSet.Changed(flags.FlagSignMode) {
+	// 			clientCtx = clientCtx.WithSignModeStr(flags.SignModeDirectAux)
+	// 		}
+	// 	}
+	// }
 
 	return clientCtx, nil
 }

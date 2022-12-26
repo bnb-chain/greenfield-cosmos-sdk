@@ -75,7 +75,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 			sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10)),
 		),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 		fmt.Sprintf("--gas=%d", flags.DefaultGasLimit),
 		fmt.Sprintf("--%s=foobar", flags.FlagNote),
@@ -93,7 +93,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=2", flags.FlagSequence),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 		fmt.Sprintf("--gas=%d", flags.DefaultGasLimit),
 		fmt.Sprintf("--%s=foobar", flags.FlagNote),
@@ -104,9 +104,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.Require().Equal(uint32(0), tr.Code)
 
 	s.Require().NoError(s.network.WaitForNextBlock())
-	height, err := s.network.LatestHeight()
-	s.Require().NoError(err)
-	s.txHeight = height
+	s.txHeight = tr.Height
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
@@ -378,7 +376,7 @@ func (s IntegrationTestSuite) TestGetTxEvents_GRPCGateway() {
 		},
 		{
 			"with pagination",
-			fmt.Sprintf("%s/cosmos/tx/v1beta1/txs?events=%s&page=%d&limit=%d", val.APIAddress, bankMsgSendEventAction, 2, 2),
+			fmt.Sprintf("%s/cosmos/tx/v1beta1/txs?events=%s&page=%d&limit=%d", val.APIAddress, bankMsgSendEventAction, 1, 1),
 			false,
 			"", 1,
 		},

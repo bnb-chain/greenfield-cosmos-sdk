@@ -84,7 +84,7 @@ func TestSimulateMsgUnjail(t *testing.T) {
 	// setup self delegation
 	delTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
 	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
-	val0AccAddress, err := sdk.ValAddressFromBech32(validator0.OperatorAddress)
+	val0AccAddress, err := sdk.ValAddressFromHex(validator0.OperatorAddress)
 	require.NoError(t, err)
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddress.Bytes(), validator0.GetOperator(), issuedShares)
 	app.StakingKeeper.SetDelegation(ctx, selfDelegation)
@@ -103,7 +103,7 @@ func TestSimulateMsgUnjail(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, types.TypeMsgUnjail, msg.Type())
-	require.Equal(t, "cosmosvaloper17s94pzwhsn4ah25tec27w70n65h5t2scgxzkv2", msg.ValidatorAddr)
+	require.Equal(t, "0xf40b5089d784EBDBAa8BCE15e779F3D52f45aA18", msg.ValidatorAddr)
 	require.Len(t, futureOperations, 0)
 }
 
@@ -157,7 +157,7 @@ func getTestingValidator(t *testing.T, app *simapp.SimApp, ctx sdk.Context, acco
 	account := accounts[n]
 	valPubKey := account.ConsKey.PubKey()
 	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, valPubKey, stakingtypes.Description{})
+	validator, err := stakingtypes.NewSimpleValidator(valAddr, valPubKey, stakingtypes.Description{})
 	require.NoError(t, err)
 	validator, err = validator.SetInitialCommission(commission)
 	require.NoError(t, err)
