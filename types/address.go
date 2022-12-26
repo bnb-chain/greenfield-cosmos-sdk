@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/hashicorp/golang-lru/simplelru"
 	"github.com/tendermint/crypto/sha3"
 	"sigs.k8s.io/yaml"
@@ -130,7 +129,6 @@ var (
 	_ Address = AccAddress{}
 	_ Address = ValAddress{}
 	_ Address = ConsAddress{}
-	_ Address = EthAddress{}
 )
 
 // ----------------------------------------------------------------------------
@@ -155,9 +153,23 @@ func MustAccAddressFromHex(address string) AccAddress {
 //
 // Note, this function is considered unsafe as it may produce an AccAddress from
 // otherwise invalid input, such as a transaction hash.
-func AccAddressFromHexUnsafe(address string) (addr AccAddress, err error) {
-	ethAddr, err := ETHAddressFromHexUnsafe(address)
-	return AccAddress(ethAddr.Bytes()), err
+func AccAddressFromHexUnsafe(address string) (AccAddress, error) {
+	addr := strings.ToLower(address)
+	if len(addr) >= 2 && addr[:2] == "0x" {
+		addr = addr[2:]
+	}
+	if len(strings.TrimSpace(addr)) == 0 {
+		return AccAddress{}, ErrEmptyHexAddress
+	}
+	if length := len(addr); length != 2*EthAddressLength {
+		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
+	}
+
+	bz, err := hex.DecodeString(addr)
+	if err != nil {
+		return AccAddress{}, err
+	}
+	return AccAddress(bz), nil
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
@@ -197,13 +209,19 @@ func (aa AccAddress) Equals(aa2 Address) bool {
 	if aa.Empty() && aa2.Empty() {
 		return true
 	}
+	if aa.Empty() || aa2.Empty() {
+		return false
+	}
 
-	return bytes.Equal(aa.Bytes(), aa2.Bytes())
+	return bytes.Equal(MustAccAddressFromHex(aa.String()).Bytes(), MustAccAddressFromHex(aa2.String()).Bytes())
 }
 
 // Returns boolean for whether an AccAddress is empty
 func (aa AccAddress) Empty() bool {
-	return len(aa) == 0
+	addrValue := big.NewInt(0)
+	addrValue.SetBytes(aa[:])
+
+	return addrValue.Cmp(big.NewInt(0)) == 0
 }
 
 // Marshal returns the raw address bytes. It is needed for protobuf
@@ -278,7 +296,7 @@ func (aa AccAddress) Bytes() []byte {
 
 // String implements the Stringer interface.
 func (aa AccAddress) String() string {
-	if aa.Empty() {
+	if len(aa) == 0 {
 		return ""
 	}
 
@@ -289,7 +307,7 @@ func (aa AccAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheEthAddr(aa, accAddrCache, key)
+	return cacheAddr(aa, accAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -412,7 +430,7 @@ func (va ValAddress) Bytes() []byte {
 
 // String implements the Stringer interface.
 func (va ValAddress) String() string {
-	if va.Empty() {
+	if len(va) == 0 {
 		return ""
 	}
 
@@ -423,7 +441,7 @@ func (va ValAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheEthAddr(va, valAddrCache, key)
+	return cacheAddr(va, valAddrCache, key)
 }
 
 // Format implements the fmt.Formatter interface.
@@ -551,7 +569,7 @@ func (ca ConsAddress) Bytes() []byte {
 
 // String implements the Stringer interface.
 func (ca ConsAddress) String() string {
-	if ca.Empty() {
+	if len(ca) == 0 {
 		return ""
 	}
 
@@ -562,7 +580,7 @@ func (ca ConsAddress) String() string {
 	if ok {
 		return addr.(string)
 	}
-	return cacheEthAddr(ca, consAddrCache, key)
+	return cacheAddr(ca, consAddrCache, key)
 }
 
 // Bech32ifyAddressBytes returns a bech32 representation of address bytes.
@@ -602,118 +620,6 @@ func (ca ConsAddress) Format(s fmt.State, verb rune) {
 	}
 }
 
-// EthAddress defines a standard Ethereum compatible chain address
-type EthAddress [EthAddressLength]byte
-
-// ETHAddressFromHexUnsafe is a constructor function for EthAddress
-//
-// Note, this function is considered unsafe as it may produce an EthAddress from
-// otherwise invalid input, such as a transaction hash.
-func ETHAddressFromHexUnsafe(addr string) (EthAddress, error) {
-	addr = strings.ToLower(addr)
-	if len(addr) >= 2 && addr[:2] == "0x" {
-		addr = addr[2:]
-	}
-	if len(strings.TrimSpace(addr)) == 0 {
-		return EthAddress{}, errors.New("empty address string is not allowed")
-	}
-	if length := len(addr); length != 2*EthAddressLength {
-		return EthAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
-	}
-
-	bin, err := hex.DecodeString(addr)
-	if err != nil {
-		return EthAddress{}, err
-	}
-	var eAddr EthAddress
-	eAddr.SetBytes(bin)
-	if eAddr.Empty() {
-		return EthAddress{}, errors.New("empty address string is not allowed")
-	}
-	return eAddr, nil
-}
-
-func (ea *EthAddress) SetBytes(buf []byte) {
-	if len(buf) > len(ea) {
-		buf = buf[len(buf)-20:]
-	}
-	copy(ea[20-len(buf):], buf)
-}
-
-// Equals Returns boolean for whether two EthAddress are Equal
-func (ea EthAddress) Equals(address Address) bool {
-	if ea.Empty() && address.Empty() {
-		return true
-	}
-
-	return bytes.Equal(ea.Bytes(), address.Bytes())
-}
-
-// Empty Returns boolean for whether an EthAddress is empty
-func (ea EthAddress) Empty() bool {
-	addrValue := big.NewInt(0)
-	addrValue.SetBytes(ea[:])
-
-	return addrValue.Cmp(big.NewInt(0)) == 0
-}
-
-// Marshal returns the raw address bytes. It is needed for protobuf
-// compatibility.
-func (ea EthAddress) Marshal() ([]byte, error) {
-	return ea[:], nil
-}
-
-// Unmarshal sets the address to the given data. It is needed for protobuf
-// compatibility.
-func (ea *EthAddress) Unmarshal(data []byte) error {
-	ea.SetBytes(data)
-	return nil
-}
-
-// MarshalJSON marshals to JSON.
-func (ea EthAddress) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf("\"%v\"", ea.String())), nil
-}
-
-// Bytes returns the raw address bytes.
-func (ea EthAddress) Bytes() []byte {
-	return ea[:]
-}
-
-// String implements the Stringer interface.
-func (ea EthAddress) String() string {
-	uncheckSummed := hex.EncodeToString(ea[:])
-	sha := sha3.NewLegacyKeccak256()
-	sha.Write([]byte(uncheckSummed))
-	hash := sha.Sum(nil)
-
-	result := []byte(uncheckSummed)
-	for i := 0; i < len(result); i++ {
-		hashByte := hash[i/2]
-		if i%2 == 0 {
-			hashByte >>= 4
-		} else {
-			hashByte &= 0xf
-		}
-		if result[i] > '9' && hashByte > 7 {
-			result[i] -= 32
-		}
-	}
-	return "0x" + string(result)
-}
-
-// Format implements the fmt.Formatter interface.
-func (ea EthAddress) Format(state fmt.State, verb rune) {
-	switch verb {
-	case 's':
-		_, _ = state.Write([]byte(ea.String()))
-	case 'p':
-		_, _ = state.Write([]byte(fmt.Sprintf("%p", ea[:])))
-	default:
-		_, _ = state.Write([]byte(fmt.Sprintf("%X", ea[:])))
-	}
-}
-
 // ----------------------------------------------------------------------------
 // auxiliary
 // ----------------------------------------------------------------------------
@@ -738,18 +644,36 @@ func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 	return bz, nil
 }
 
-// cacheEthAddr is not concurrency safe. Concurrent access to cache causes race condition.
-func cacheEthAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
-	var ethAddr EthAddress
-	ethAddr.SetBytes(addr)
-	addrString := ethAddr.String()
+// cacheAddr is not concurrency safe. Concurrent access to cache causes race condition.
+func cacheAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
+	addrString := getETHAddrString(addr)
 	cache.Add(cacheKey, addrString)
 	return addrString
 }
 
-// GetETHAddressFromPubKey returns EthAddress by the pubkey
-func GetETHAddressFromPubKey(pubkey cryptotypes.PubKey) EthAddress {
-	var sca EthAddress
-	sca.SetBytes(pubkey.(*ethsecp256k1.PubKey).Address())
-	return sca
+func getETHAddrString(addr []byte) string {
+	ethAddr := make([]byte, EthAddressLength)
+	if len(addr) > EthAddressLength {
+		addr = addr[len(addr)-EthAddressLength:]
+	}
+	copy(ethAddr[EthAddressLength-len(addr):], addr)
+
+	uncheckSummed := hex.EncodeToString(ethAddr)
+	sha := sha3.NewLegacyKeccak256()
+	sha.Write([]byte(uncheckSummed))
+	hash := sha.Sum(nil)
+
+	result := []byte(uncheckSummed)
+	for i := 0; i < len(result); i++ {
+		hashByte := hash[i/2]
+		if i%2 == 0 {
+			hashByte >>= 4
+		} else {
+			hashByte &= 0xf
+		}
+		if result[i] > '9' && hashByte > 7 {
+			result[i] -= 32
+		}
+	}
+	return "0x" + string(result)
 }

@@ -71,7 +71,7 @@ var _ AccountKeeperI = &AccountKeeper{}
 // may use auth.Keeper to access the accounts permissions map.
 func NewAccountKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramstore paramtypes.Subspace, proto func() types.AccountI,
-	maccPerms map[string][]string, bech32Prefix string,
+	maccPerms map[string][]string,
 ) AccountKeeper {
 	// set KeyTable if it has not already been set
 	if !paramstore.HasKeyTable() {

@@ -163,7 +163,7 @@ type (
 		RPCAddress string
 		P2PAddress string
 		Address    sdk.AccAddress
-		ValAddress sdk.ValAddress
+		ValAddress sdk.AccAddress
 		RPCClient  tmclient.Client
 
 		tmNode  *node.Node
@@ -409,7 +409,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+			addr,
 			valPubKeys[i],
 			sdk.NewCoin(cfg.BondDenom, cfg.BondedTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
@@ -484,7 +484,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			P2PAddress: tmCfg.P2P.ListenAddress,
 			APIAddress: apiAddr,
 			Address:    addr,
-			ValAddress: sdk.ValAddress(addr),
+			ValAddress: addr,
 		}
 	}
 

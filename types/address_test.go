@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"sigs.k8s.io/yaml"
@@ -55,17 +54,17 @@ func (s *addressTestSuite) TestEmptyAddresses() {
 	s.Require().Equal((types.ValAddress{}).String(), "")
 	s.Require().Equal((types.ConsAddress{}).String(), "")
 
-	// accAddr, err := types.AccAddressFromHexUnsafe("")
-	// s.Require().True(accAddr.Empty())
-	// s.Require().Error(err)
-	//
-	// valAddr, err := types.ValAddressFromHex("")
-	// s.Require().True(valAddr.Empty())
-	// s.Require().Error(err)
+	accAddr, err := types.AccAddressFromHexUnsafe("")
+	s.Require().True(accAddr.Empty())
+	s.Require().Error(err)
 
-	// consAddr, err := types.ConsAddressFromHex("")
-	// s.Require().True(consAddr.Empty())
-	// s.Require().Error(err)
+	valAddr, err := types.ValAddressFromHex("")
+	s.Require().True(valAddr.Empty())
+	s.Require().Error(err)
+
+	consAddr, err := types.ConsAddressFromHex("")
+	s.Require().True(consAddr.Empty())
+	s.Require().Error(err)
 }
 
 func (s *addressTestSuite) TestYAMLMarshalers() {
@@ -121,7 +120,7 @@ func (s *addressTestSuite) TestRandAccAddrConsistency() {
 	}
 
 	_, err := types.AccAddressFromHexUnsafe("")
-	s.Require().Equal(fmt.Errorf("empty address string is not allowed"), err)
+	s.Require().Equal(types.ErrEmptyHexAddress, err)
 }
 
 func (s *addressTestSuite) TestValAddr() {
@@ -162,7 +161,7 @@ func (s *addressTestSuite) TestValAddr() {
 
 	// test empty string
 	_, err := types.ValAddressFromHex("")
-	s.Require().Equal(fmt.Errorf("empty address string is not allowed"), err)
+	s.Require().Equal(types.ErrEmptyHexAddress, err)
 }
 
 func (s *addressTestSuite) TestConsAddress() {
@@ -202,7 +201,7 @@ func (s *addressTestSuite) TestConsAddress() {
 
 	// test empty string
 	_, err := types.ConsAddressFromHex("")
-	s.Require().Equal(fmt.Errorf("empty address string is not allowed"), err)
+	s.Require().Equal(types.ErrEmptyHexAddress, err)
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz"
@@ -484,29 +483,4 @@ func (s *addressTestSuite) TestGetFromBech32() {
 	_, err = types.GetFromBech32("cosmos1qqqsyqcyq5rqwzqfys8f67", "x")
 	s.Require().Error(err)
 	s.Require().Equal("invalid Bech32 prefix; expected x, got cosmos", err.Error())
-}
-
-func TestEthAddress(t *testing.T) {
-	priKey, _ := ethsecp256k1.GenerateKey()
-	pubKey := priKey.PubKey()
-	address := pubKey.Address()
-	fmt.Println("Generated address:", address)
-
-	sca := types.GetETHAddressFromPubKey(pubKey)
-	require.Equal(t, sca.Bytes(), address.Bytes(), "address should be equal")
-
-	sca, err := types.ETHAddressFromHexUnsafe(address.String())
-	require.Nil(t, err, "err should be nil")
-	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
-
-	sca, err = types.ETHAddressFromHexUnsafe("0x" + address.String())
-	require.Nil(t, err, "err should be nil")
-	require.Equal(t, address.Bytes(), sca.Bytes(), "address should be equal")
-
-	bz, err := sca.Marshal()
-	require.Nil(t, err, "err should be nil")
-	var unmarshalAddress types.EthAddress
-	err = unmarshalAddress.Unmarshal(bz)
-	require.Nil(t, err, "err should be nil")
-	require.Equal(t, sca, unmarshalAddress, "address should be equal")
 }

@@ -19,11 +19,11 @@ const (
 
 // params for query 'custom/distr/validator_outstanding_rewards'
 type QueryValidatorOutstandingRewardsParams struct {
-	ValidatorAddress sdk.ValAddress `json:"validator_address" yaml:"validator_address"`
+	ValidatorAddress sdk.AccAddress `json:"validator_address" yaml:"validator_address"`
 }
 
 // creates a new instance of QueryValidatorOutstandingRewardsParams
-func NewQueryValidatorOutstandingRewardsParams(validatorAddr sdk.ValAddress) QueryValidatorOutstandingRewardsParams {
+func NewQueryValidatorOutstandingRewardsParams(validatorAddr sdk.AccAddress) QueryValidatorOutstandingRewardsParams {
 	return QueryValidatorOutstandingRewardsParams{
 		ValidatorAddress: validatorAddr,
 	}
@@ -31,11 +31,11 @@ func NewQueryValidatorOutstandingRewardsParams(validatorAddr sdk.ValAddress) Que
 
 // params for query 'custom/distr/validator_commission'
 type QueryValidatorCommissionParams struct {
-	ValidatorAddress sdk.ValAddress `json:"validator_address" yaml:"validator_address"`
+	ValidatorAddress sdk.AccAddress `json:"validator_address" yaml:"validator_address"`
 }
 
 // creates a new instance of QueryValidatorCommissionParams
-func NewQueryValidatorCommissionParams(validatorAddr sdk.ValAddress) QueryValidatorCommissionParams {
+func NewQueryValidatorCommissionParams(validatorAddr sdk.AccAddress) QueryValidatorCommissionParams {
 	return QueryValidatorCommissionParams{
 		ValidatorAddress: validatorAddr,
 	}
@@ -43,13 +43,13 @@ func NewQueryValidatorCommissionParams(validatorAddr sdk.ValAddress) QueryValida
 
 // params for query 'custom/distr/validator_slashes'
 type QueryValidatorSlashesParams struct {
-	ValidatorAddress sdk.ValAddress `json:"validator_address" yaml:"validator_address"`
+	ValidatorAddress sdk.AccAddress `json:"validator_address" yaml:"validator_address"`
 	StartingHeight   uint64         `json:"starting_height" yaml:"starting_height"`
 	EndingHeight     uint64         `json:"ending_height" yaml:"ending_height"`
 }
 
 // creates a new instance of QueryValidatorSlashesParams
-func NewQueryValidatorSlashesParams(validatorAddr sdk.ValAddress, startingHeight uint64, endingHeight uint64) QueryValidatorSlashesParams {
+func NewQueryValidatorSlashesParams(validatorAddr sdk.AccAddress, startingHeight uint64, endingHeight uint64) QueryValidatorSlashesParams {
 	return QueryValidatorSlashesParams{
 		ValidatorAddress: validatorAddr,
 		StartingHeight:   startingHeight,
@@ -60,11 +60,11 @@ func NewQueryValidatorSlashesParams(validatorAddr sdk.ValAddress, startingHeight
 // params for query 'custom/distr/delegation_rewards'
 type QueryDelegationRewardsParams struct {
 	DelegatorAddress sdk.AccAddress `json:"delegator_address" yaml:"delegator_address"`
-	ValidatorAddress sdk.ValAddress `json:"validator_address" yaml:"validator_address"`
+	ValidatorAddress sdk.AccAddress `json:"validator_address" yaml:"validator_address"`
 }
 
 // creates a new instance of QueryDelegationRewardsParams
-func NewQueryDelegationRewardsParams(delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress) QueryDelegationRewardsParams {
+func NewQueryDelegationRewardsParams(delegatorAddr sdk.AccAddress, validatorAddr sdk.AccAddress) QueryDelegationRewardsParams {
 	return QueryDelegationRewardsParams{
 		DelegatorAddress: delegatorAddr,
 		ValidatorAddress: validatorAddr,

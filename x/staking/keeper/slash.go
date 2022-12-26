@@ -256,7 +256,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 			continue
 		}
 
-		valDstAddr, err := sdk.ValAddressFromHex(redelegation.ValidatorDstAddress)
+		valDstAddr, err := sdk.AccAddressFromHexUnsafe(redelegation.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}

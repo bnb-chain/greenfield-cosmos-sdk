@@ -61,8 +61,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	out, err := MsgRedelegateExec(
 		val.ClientCtx,
 		val.Address,
-		sdk.AccAddress(val.ValAddress),
-		sdk.AccAddress(val2.ValAddress),
+		val.ValAddress,
+		val2.ValAddress,
 		unbond,
 		fmt.Sprintf("--%s=%d", flags.FlagGas, 300000),
 	)
@@ -75,12 +75,12 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 	unbondingAmount := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(5))
 	// unbonding the amount
-	out, err = MsgUnbondExec(val.ClientCtx, val.Address, sdk.AccAddress(val.ValAddress), unbondingAmount)
+	out, err = MsgUnbondExec(val.ClientCtx, val.Address, val.ValAddress, unbondingAmount)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &txRes))
 	s.Require().Equal(uint32(0), txRes.Code)
 	// unbonding the amount
-	out, err = MsgUnbondExec(val.ClientCtx, val.Address, sdk.AccAddress(val.ValAddress), unbondingAmount)
+	out, err = MsgUnbondExec(val.ClientCtx, val.Address, val.ValAddress, unbondingAmount)
 	s.Require().NoError(err)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &txRes))

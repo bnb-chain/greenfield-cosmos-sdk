@@ -50,7 +50,7 @@ func (msg MsgSetWithdrawAddress) ValidateBasic() error {
 	return nil
 }
 
-func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
+func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.AccAddress) *MsgWithdrawDelegatorReward {
 	return &MsgWithdrawDelegatorReward{
 		DelegatorAddress: delAddr.String(),
 		ValidatorAddress: valAddr.String(),
@@ -77,13 +77,13 @@ func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil
 }
 
-func NewMsgWithdrawValidatorCommission(valAddr sdk.ValAddress) *MsgWithdrawValidatorCommission {
+func NewMsgWithdrawValidatorCommission(valAddr sdk.AccAddress) *MsgWithdrawValidatorCommission {
 	return &MsgWithdrawValidatorCommission{
 		ValidatorAddress: valAddr.String(),
 	}
@@ -94,8 +94,8 @@ func (msg MsgWithdrawValidatorCommission) Type() string  { return TypeMsgWithdra
 
 // Return address that must sign over msg.GetSignBytes()
 func (msg MsgWithdrawValidatorCommission) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddress)
-	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
+	valAddr, _ := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
+	return []sdk.AccAddress{valAddr}
 }
 
 // get the bytes for the message signer to sign on
@@ -106,7 +106,7 @@ func (msg MsgWithdrawValidatorCommission) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgWithdrawValidatorCommission) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil

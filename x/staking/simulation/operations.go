@@ -111,7 +111,7 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k k
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
-		address := sdk.ValAddress(simAccount.Address)
+		address := simAccount.Address
 
 		// ensure the validator doesn't exist already
 		_, found := k.GetValidator(ctx, address)
@@ -167,7 +167,7 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k k
 		msg, err := types.NewMsgCreateValidator(
 			address, simAccount.ConsKey.PubKey(),
 			selfDelegation, description, commission, sdk.OneInt(),
-			sdk.AccAddress(address), sdk.AccAddress(address), sdk.AccAddress(address), blsPk,
+			address, address, address, blsPk,
 		)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
@@ -213,7 +213,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgEditValidator, "invalid commission rate"), nil, nil
 		}
 
-		simAccount, found := simtypes.FindAccount(accs, sdk.AccAddress(val.GetOperator()))
+		simAccount, found := simtypes.FindAccount(accs, val.GetOperator())
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgEditValidator, "unable to find account"), nil, fmt.Errorf("validator %s not found", val.GetOperator())
 		}
@@ -232,7 +232,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 		blsSecretKey, _ := bls.RandKey()
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, sdk.AccAddress(address), blsPk)
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, blsPk)
 
 		txCtx := simulation.OperationInput{
 			R:               r,

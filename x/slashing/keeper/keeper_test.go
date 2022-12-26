@@ -196,7 +196,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	addr, val := pks[0].Address(), pks[0]
 	consAddr := sdk.ConsAddress(addr)
 	tstaking := teststaking.NewHelper(t, ctx, app.StakingKeeper)
-	valAddr := sdk.ValAddress(addr)
+	valAddr := sdk.AccAddress(addr)
 
 	tstaking.CreateValidatorWithValPower(valAddr, val, power, true)
 	validatorUpdates := staking.EndBlocker(ctx, app.StakingKeeper)
@@ -211,10 +211,10 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	}
 
 	// kick first validator out of validator set
-	tstaking.CreateValidatorWithValPower(sdk.ValAddress(pks[1].Address()), pks[1], power+1, true)
+	tstaking.CreateValidatorWithValPower(sdk.AccAddress(pks[1].Address()), pks[1], power+1, true)
 	validatorUpdates = staking.EndBlocker(ctx, app.StakingKeeper)
 	require.Equal(t, 2, len(validatorUpdates))
-	tstaking.CheckValidator(sdk.ValAddress(pks[1].Address()), stakingtypes.Bonded, false)
+	tstaking.CheckValidator(sdk.AccAddress(pks[1].Address()), stakingtypes.Bonded, false)
 	tstaking.CheckValidator(valAddr, stakingtypes.Unbonding, false)
 
 	// 600 more blocks happened

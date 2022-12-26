@@ -35,7 +35,7 @@ func TestCancelUnbondingDelegation(t *testing.T) {
 	validators := app.StakingKeeper.GetValidators(ctx, 10)
 	require.Equal(t, len(validators), 1)
 
-	validatorAddr, err := sdk.ValAddressFromHex(validators[0].OperatorAddress)
+	validatorAddr, err := sdk.AccAddressFromHexUnsafe(validators[0].OperatorAddress)
 	require.NoError(t, err)
 	delegatorAddr := delAddrs[0]
 
@@ -83,7 +83,7 @@ func TestCancelUnbondingDelegation(t *testing.T) {
 			ExceptErr: true,
 			req: types.MsgCancelUnbondingDelegation{
 				DelegatorAddress: resUnbond.DelegatorAddress,
-				ValidatorAddress: sdk.ValAddress(sdk.AccAddress("asdsad")).String(),
+				ValidatorAddress: sdk.AccAddress("asdsad").String(),
 				Amount:           unbondingAmount,
 				CreationHeight:   0,
 			},

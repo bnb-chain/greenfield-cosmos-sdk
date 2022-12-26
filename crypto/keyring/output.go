@@ -42,29 +42,29 @@ func NewKeyOutput(name string, keyType KeyType, a sdk.Address, pk cryptotypes.Pu
 	}, nil
 }
 
-// MkConsKeyOutput create a KeyOutput in with "cons" Bech32 prefixes.
-func MkConsKeyOutput(k *Record) (KeyOutput, error) {
-	pk, err := k.GetPubKey()
-	if err != nil {
-		return KeyOutput{}, err
-	}
-	addr := sdk.ConsAddress(pk.Address())
-	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
-}
+// // MkConsKeyOutput create a KeyOutput in with "cons" Bech32 prefixes.
+// func MkConsKeyOutput(k *Record) (KeyOutput, error) {
+// 	pk, err := k.GetPubKey()
+// 	if err != nil {
+// 		return KeyOutput{}, err
+// 	}
+// 	addr := sdk.ConsAddress(pk.Address())
+// 	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
+// }
+//
+// // MkValKeyOutput create a KeyOutput in with "val" Bech32 prefixes.
+// func MkValKeyOutput(k *Record) (KeyOutput, error) {
+// 	pk, err := k.GetPubKey()
+// 	if err != nil {
+// 		return KeyOutput{}, err
+// 	}
+//
+// 	addr := sdk.AccAddress(pk.Address())
+//
+// 	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
+// }
 
-// MkValKeyOutput create a KeyOutput in with "val" Bech32 prefixes.
-func MkValKeyOutput(k *Record) (KeyOutput, error) {
-	pk, err := k.GetPubKey()
-	if err != nil {
-		return KeyOutput{}, err
-	}
-
-	addr := sdk.ValAddress(pk.Address())
-
-	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
-}
-
-// MkAccKeyOutput create a KeyOutput in with "acc" Bech32 prefixes. If the
+// MkAccKeyOutput create a KeyOutput. If the
 // public key is a multisig public key, then the threshold and constituent
 // public keys will be added.
 func MkAccKeyOutput(k *Record) (KeyOutput, error) {
@@ -76,9 +76,8 @@ func MkAccKeyOutput(k *Record) (KeyOutput, error) {
 	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
 }
 
-// MkAccKeysOutput returns a slice of KeyOutput objects, each with the "acc"
-// Bech32 prefixes, given a slice of Record objects. It returns an error if any
-// call to MkKeyOutput fails.
+// MkAccKeysOutput returns a slice of KeyOutput objects, given a slice of Record objects.
+// It returns an error if any all to MkKeyOutput fails.
 func MkAccKeysOutput(records []*Record) ([]KeyOutput, error) {
 	kos := make([]KeyOutput, len(records))
 	var err error

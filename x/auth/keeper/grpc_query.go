@@ -179,7 +179,7 @@ func (ak AccountKeeper) AddressBytesToString(ctx context.Context, req *types.Add
 		return nil, errors.New("empty address bytes is not allowed")
 	}
 
-	text := sdk.ValAddress(req.AddressBytes).String()
+	text := sdk.AccAddress(req.AddressBytes).String()
 
 	return &types.AddressBytesToStringResponse{AddressString: text}, nil
 }

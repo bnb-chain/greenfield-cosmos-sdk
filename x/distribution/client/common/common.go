@@ -16,7 +16,7 @@ func QueryDelegationRewards(clientCtx client.Context, delAddr, valAddr string) (
 		return nil, 0, err
 	}
 
-	validatorAddr, err := sdk.ValAddressFromHex(valAddr)
+	validatorAddr, err := sdk.AccAddressFromHexUnsafe(valAddr)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -42,7 +42,7 @@ func QueryDelegatorValidators(clientCtx client.Context, delegatorAddr sdk.AccAdd
 }
 
 // QueryValidatorCommission returns a validator's commission.
-func QueryValidatorCommission(clientCtx client.Context, validatorAddr sdk.ValAddress) ([]byte, error) {
+func QueryValidatorCommission(clientCtx client.Context, validatorAddr sdk.AccAddress) ([]byte, error) {
 	res, _, err := clientCtx.QueryWithData(
 		fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryValidatorCommission),
 		clientCtx.LegacyAmino.MustMarshalJSON(types.NewQueryValidatorCommissionParams(validatorAddr)),
@@ -60,7 +60,7 @@ func WithdrawAllDelegatorRewards(clientCtx client.Context, delegatorAddr sdk.Acc
 		return nil, err
 	}
 
-	var validators []sdk.ValAddress
+	var validators []sdk.AccAddress
 	if err := clientCtx.LegacyAmino.UnmarshalJSON(bz, &validators); err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func WithdrawAllDelegatorRewards(clientCtx client.Context, delegatorAddr sdk.Acc
 
 // WithdrawValidatorRewardsAndCommission builds a two-message message slice to be
 // used to withdraw both validation's commission and self-delegation reward.
-func WithdrawValidatorRewardsAndCommission(validatorAddr sdk.ValAddress) ([]sdk.Msg, error) {
+func WithdrawValidatorRewardsAndCommission(validatorAddr sdk.AccAddress) ([]sdk.Msg, error) {
 	commissionMsg := types.NewMsgWithdrawValidatorCommission(validatorAddr)
 	if err := commissionMsg.ValidateBasic(); err != nil {
 		return nil, err

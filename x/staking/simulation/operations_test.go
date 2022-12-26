@@ -349,7 +349,7 @@ func getTestingValidator1(t *testing.T, app *simapp.SimApp, ctx sdk.Context, acc
 func getTestingValidator(t *testing.T, app *simapp.SimApp, ctx sdk.Context, accounts []simtypes.Account, commission types.Commission, n int) types.Validator {
 	account := accounts[n]
 	valPubKey := account.PubKey
-	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
 	validator := teststaking.NewValidator(t, valAddr, valPubKey)
 	validator, err := validator.SetInitialCommission(commission)
 	require.NoError(t, err)
@@ -362,7 +362,7 @@ func getTestingValidator(t *testing.T, app *simapp.SimApp, ctx sdk.Context, acco
 	return validator
 }
 
-func setupValidatorRewards(app *simapp.SimApp, ctx sdk.Context, valAddress sdk.ValAddress) {
+func setupValidatorRewards(app *simapp.SimApp, ctx sdk.Context, valAddress sdk.AccAddress) {
 	decCoins := sdk.DecCoins{sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, sdk.OneDec())}
 	historicalRewards := distrtypes.NewValidatorHistoricalRewards(decCoins, 2)
 	app.DistrKeeper.SetValidatorHistoricalRewards(ctx, valAddress, 2, historicalRewards)

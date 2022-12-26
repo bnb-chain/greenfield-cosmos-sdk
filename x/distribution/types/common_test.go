@@ -19,10 +19,10 @@ var (
 	valPk1       = ed25519.GenPrivKey().PubKey()
 	valPk2       = ed25519.GenPrivKey().PubKey()
 	valPk3       = ed25519.GenPrivKey().PubKey()
-	valAddr1     = sdk.ValAddress(valPk1.Address())
-	valAddr2     = sdk.ValAddress(valPk2.Address())
-	valAddr3     = sdk.ValAddress(valPk3.Address())
-	emptyValAddr sdk.ValAddress
+	valAddr1     = sdk.AccAddress(valPk1.Address())
+	valAddr2     = sdk.AccAddress(valPk2.Address())
+	valAddr3     = sdk.AccAddress(valPk3.Address())
+	emptyValAddr sdk.AccAddress
 
 	emptyPubkey cryptotypes.PubKey
 )

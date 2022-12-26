@@ -31,7 +31,7 @@ var (
 
 func checkValidator(t *testing.T, app *simapp.SimApp, _ sdk.AccAddress, expFound bool) stakingtypes.Validator {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
-	validator, found := app.StakingKeeper.GetValidator(ctxCheck, sdk.ValAddress(addr1))
+	validator, found := app.StakingKeeper.GetValidator(ctxCheck, sdk.AccAddress(addr1))
 	require.Equal(t, expFound, found)
 	return validator
 }
@@ -69,7 +69,7 @@ func TestSlashingMsgs(t *testing.T) {
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(),
+		addr1, valKey.PubKey(),
 		bondCoin, description, commission, sdk.OneInt(),
 		addr1, addr1, addr1, blsPk,
 	)
@@ -85,10 +85,10 @@ func TestSlashingMsgs(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	validator := checkValidator(t, app, addr1, true)
-	require.Equal(t, sdk.ValAddress(addr1).String(), validator.OperatorAddress)
+	require.Equal(t, addr1.String(), validator.OperatorAddress)
 	require.Equal(t, stakingtypes.Bonded, validator.Status)
 	require.True(sdk.IntEq(t, bondTokens, validator.BondedTokens()))
-	unjailMsg := &types.MsgUnjail{ValidatorAddr: sdk.ValAddress(addr1).String()}
+	unjailMsg := &types.MsgUnjail{ValidatorAddr: addr1.String()}
 
 	checkValidatorSigningInfo(t, app, sdk.ConsAddress(valAddr), true)
 

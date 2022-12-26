@@ -59,12 +59,12 @@ func (suite *GenTxTestSuite) SetupTest() {
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1,
+		sdk.AccAddress(pk1.Address()), pk1,
 		amount, desc, comm, one,
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk)
 	suite.NoError(err)
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1,
+		sdk.AccAddress(pk2.Address()), pk1,
 		amount, desc, comm, one,
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk)
 	suite.NoError(err)

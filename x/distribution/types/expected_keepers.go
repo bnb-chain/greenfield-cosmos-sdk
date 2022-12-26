@@ -36,12 +36,12 @@ type StakingKeeper interface {
 	IterateValidators(sdk.Context,
 		func(index int64, validator stakingtypes.ValidatorI) (stop bool))
 
-	Validator(sdk.Context, sdk.ValAddress) stakingtypes.ValidatorI            // get a particular validator by operator address
+	Validator(sdk.Context, sdk.AccAddress) stakingtypes.ValidatorI            // get a particular validator by operator address
 	ValidatorByConsAddr(sdk.Context, sdk.ConsAddress) stakingtypes.ValidatorI // get a particular validator by consensus address
 
 	// Delegation allows for getting a particular delegation for a given validator
 	// and delegator outside the scope of the staking module.
-	Delegation(sdk.Context, sdk.AccAddress, sdk.ValAddress) stakingtypes.DelegationI
+	Delegation(sdk.Context, sdk.AccAddress, sdk.AccAddress) stakingtypes.DelegationI
 
 	IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress,
 		fn func(index int64, delegation stakingtypes.DelegationI) (stop bool))
@@ -51,6 +51,6 @@ type StakingKeeper interface {
 
 // StakingHooks event hooks for staking validator object (noalias)
 type StakingHooks interface {
-	AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) // Must be called when a validator is created
-	AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress)
+	AfterValidatorCreated(ctx sdk.Context, valAddr sdk.AccAddress) // Must be called when a validator is created
+	AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.AccAddress)
 }

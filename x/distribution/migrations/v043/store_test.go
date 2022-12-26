@@ -20,7 +20,7 @@ func TestStoreMigration(t *testing.T) {
 	store := ctx.KVStore(distributionKey)
 
 	_, _, addr1 := testdata.KeyTestPubAddr()
-	valAddr := sdk.ValAddress(addr1)
+	valAddr := addr1
 	_, _, addr2 := testdata.KeyTestPubAddr()
 	// Use dummy value for all keys.
 	value := []byte("foo")
