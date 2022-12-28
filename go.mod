@@ -22,6 +22,7 @@ require (
 	github.com/cosmos/ledger-cosmos-go v0.11.1
 	github.com/ethereum/go-ethereum v1.10.19
 	github.com/evmos/ethermint v0.6.1-0.20220919141022-34226aa7b1fa
+	github.com/go-kit/kit v0.12.0
 	github.com/gogo/gateway v1.1.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/mock v1.6.0
@@ -58,6 +59,7 @@ require (
 	github.com/tendermint/tm-db v0.6.7
 	github.com/wealdtech/go-eth2-util v1.6.3
 	golang.org/x/crypto v0.1.0
+	github.com/willf/bitset v1.1.3
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/text v0.4.0
 	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
@@ -94,7 +96,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/ferranbt/fastssz v0.0.0-20210905181407-59cf6761a7d5 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect

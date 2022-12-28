@@ -5,6 +5,7 @@ import (
 
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/tendermint/tendermint/libs/log"
 	"github.com/willf/bitset"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -53,6 +54,11 @@ func NewKeeper(
 	}
 }
 
+// Logger inits the logger for cross chain module
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
+}
+
 // SetParams sets the params of oarcle module
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
@@ -70,11 +76,7 @@ func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
 func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
 	var validatorIndex int64 = -1
 	for index, validator := range validators {
-		consAddr, err := validator.GetConsAddr() // TODO: update this
-		if err != nil {
-			return false, err
-		}
-		if consAddr.String() == claim.FromAddress {
+		if validator.RelayerAddress == claim.FromAddress {
 			validatorIndex = int64(index)
 			break
 		}
@@ -126,13 +128,12 @@ func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 			continue
 		}
 
-		// TODO: confirm the pub key
-		voteAddr, err := bls.PublicKeyFromBytes(val.ConsensusPubkey.Value)
+		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
 		if err != nil {
 			return sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
 
 		}
-		votedPubKeys = append(votedPubKeys, voteAddr)
+		votedPubKeys = append(votedPubKeys, votePubKey)
 	}
 
 	// The valid voted validators should be no less than 2/3 validators.
