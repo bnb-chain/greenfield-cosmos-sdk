@@ -31,7 +31,12 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.MsgClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	sequence := k.oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(req.ChainId), types.RelayPackagesChannelId)
+	// check dest chain id
+	if sdk.ChainID(req.DestChainId) != k.oracleKeeper.CrossChainKeeper.GetSrcChainID() {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidDestChainId, fmt.Sprintf("dest chain id(%d) should be %d", req.SrcChainId, k.oracleKeeper.CrossChainKeeper.GetSrcChainID()))
+	}
+
+	sequence := k.oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), types.RelayPackagesChannelId)
 	if sequence != req.Sequence {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence))
 	}
@@ -49,7 +54,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 	events := make([]proto.Message, 0, len(packages))
 	for _, pack := range packages {
-		event, err := handlePackage(ctx, req, k.oracleKeeper, sdk.ChainID(req.ChainId), &pack)
+		event, err := handlePackage(ctx, req, k.oracleKeeper, sdk.ChainID(req.SrcChainId), &pack)
 		if err != nil {
 			// only do log, but let reset package get chance to execute.
 			ctx.Logger().With("module", "oracle").Error(fmt.Sprintf("process package failed, channel=%d, sequence=%d, error=%v", pack.ChannelId, pack.Sequence, err))
@@ -60,7 +65,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		events = append(events, event)
 
 		// increase channel sequence
-		k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, sdk.ChainID(req.ChainId), pack.ChannelId)
+		k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), pack.ChannelId)
 	}
 
 	ctx.EventManager().EmitTypedEvents(events...)

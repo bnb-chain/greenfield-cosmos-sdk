@@ -16,4 +16,5 @@ var (
 	ErrInvalidBlsSignature    = sdkerrors.Register(ModuleName, 11, "bls signature is invalid")
 	ErrNotValidator           = sdkerrors.Register(ModuleName, 12, "sender is not validator")
 	ErrValidatorNotInTurn     = sdkerrors.Register(ModuleName, 13, "validator is not in turn")
+	ErrInvalidDestChainId     = sdkerrors.Register(ModuleName, 14, "dest chain id is invalid")
 )

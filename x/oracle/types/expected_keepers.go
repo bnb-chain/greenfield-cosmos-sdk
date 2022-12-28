@@ -13,6 +13,7 @@ type CrossChainKeeper interface {
 	CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
 		packageType sdk.CrossChainPackageType, packageLoad []byte) (uint64, error)
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
+	GetSrcChainID() sdk.ChainID
 	GetReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) uint64
 	IncrReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID)
 }

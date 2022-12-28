@@ -18,10 +18,11 @@ const (
 type BLSPublicKey [BLSPublicKeyLength]byte
 type BLSSignature [BLSSignatureLength]byte
 
-func NewMsgClaim(fromAddr string, chainId uint32, sequence uint64, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
+func NewMsgClaim(fromAddr string, srcShainId, destChainId uint32, sequence uint64, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
 	return &MsgClaim{
 		FromAddress:    fromAddr,
-		ChainId:        chainId,
+		SrcChainId:     srcShainId,
+		DestChainId:    destChainId,
 		Sequence:       sequence,
 		Timestamp:      timestamp,
 		Payload:        payload,
@@ -47,7 +48,12 @@ func (m *MsgClaim) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", err)
 	}
 
-	if m.ChainId > math.MaxUint16 {
+	if m.SrcChainId > math.MaxUint16 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("chain id should not be larger than %d", math.MaxUint16))
+	}
+
+	if m.DestChainId > math.MaxUint16 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
 			fmt.Sprintf("chain id should not be larger than %d", math.MaxUint16))
 	}
@@ -85,19 +91,21 @@ func (m *MsgClaim) GetSigners() []sdk.AccAddress {
 // GetBlsSignBytes returns the sign bytes of bls signature
 func (m *MsgClaim) GetBlsSignBytes() [32]byte {
 	blsClaim := &BlsClaim{
-		ChainId:   m.ChainId,
-		Timestamp: m.Timestamp,
-		Sequence:  m.Sequence,
-		Payload:   m.Payload,
+		SrcChainId:  m.SrcChainId,
+		DestChainId: m.DestChainId,
+		Timestamp:   m.Timestamp,
+		Sequence:    m.Sequence,
+		Payload:     m.Payload,
 	}
 	return blsClaim.GetSignBytes()
 }
 
 type BlsClaim struct {
-	ChainId   uint32
-	Timestamp uint64
-	Sequence  uint64
-	Payload   []byte
+	SrcChainId  uint32
+	DestChainId uint32
+	Timestamp   uint64
+	Sequence    uint64
+	Payload     []byte
 }
 
 func (c *BlsClaim) GetSignBytes() [32]byte {
