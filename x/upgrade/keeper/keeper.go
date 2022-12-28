@@ -16,16 +16,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	xp "github.com/cosmos/cosmos-sdk/x/upgrade/exported"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
-
-// Deprecated: UpgradeInfoFileName file to store upgrade information
-// use x/upgrade/types.UpgradeInfoFilename instead.
-const UpgradeInfoFileName string = "upgrade-info.json"
 
 type Keeper struct {
 	homePath           string                          // root directory of app config
@@ -33,9 +27,6 @@ type Keeper struct {
 	storeKey           storetypes.StoreKey             // key to access x/upgrade store
 	cdc                codec.BinaryCodec               // App-wide binary codec
 	upgradeHandlers    map[string]types.UpgradeHandler // map of plan name to upgrade handler
-	versionSetter      xp.ProtocolVersionSetter        // implements setting the protocol version field on BaseApp
-	downgradeVerified  bool                            // tells if we've already sanity checked that this binary version isn't being used against an old state.
-	authority          string                          // the address capable of executing and cancelling an upgrade. Usually the gov module account
 }
 
 // NewKeeper constructs an upgrade Keeper which requires the following arguments:
@@ -43,17 +34,21 @@ type Keeper struct {
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
-// vs - the interface implemented by baseapp which allows setting baseapp's protocol version field
-func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, vs xp.ProtocolVersionSetter, authority string) Keeper {
-	return Keeper{
+func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...Option) (Keeper, error) {
+	keeper := Keeper{
 		homePath:           homePath,
 		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
 		upgradeHandlers:    map[string]types.UpgradeHandler{},
-		versionSetter:      vs,
-		authority:          authority,
 	}
+	for _, opt := range opts {
+		err := opt(&keeper)
+		if err != nil {
+			return Keeper{}, err
+		}
+	}
+	return keeper, nil
 }
 
 // SetUpgradeHandler sets an UpgradeHandler for the upgrade specified by name. This handler will be called when the upgrade
@@ -176,11 +171,11 @@ func (k Keeper) ScheduleUpgrade(ctx sdk.Context, plan types.Plan) error {
 	// NOTE: allow for the possibility of chains to schedule upgrades in begin block of the same block
 	// as a strategy for emergency hard fork recoveries
 	if plan.Height < ctx.BlockHeight() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "upgrade cannot be scheduled in the past")
+		return types.ErrUpgradeScheduled
 	}
 
 	if k.GetDoneHeight(ctx, plan.Name) != 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "upgrade with name %s has already been completed", plan.Name)
+		return types.ErrUpgradeCompleted
 	}
 
 	store := ctx.KVStore(k.storeKey)
@@ -331,23 +326,16 @@ func (k Keeper) HasHandler(name string) bool {
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 	handler := k.upgradeHandlers[plan.Name]
 	if handler == nil {
-		panic("ApplyUpgrade should never be called without first checking HasHandler")
+		return
 	}
 
 	updatedVM, err := handler(ctx, plan, k.GetModuleVersionMap(ctx))
 	if err != nil {
-		panic(err)
+		ctx.Logger().Error("failed to upgrade ["+plan.Name+"]", "err", err)
+		return
 	}
 
 	k.SetModuleVersionMap(ctx, updatedVM)
-
-	// incremement the protocol version and set it in state and baseapp
-	nextProtocolVersion := k.getProtocolVersion(ctx) + 1
-	k.setProtocolVersion(ctx, nextProtocolVersion)
-	if k.versionSetter != nil {
-		// set protocol version on BaseApp
-		k.versionSetter.SetProtocolVersion(nextProtocolVersion)
-	}
 
 	// Must clear IBC state after upgrade is applied as it is stored separately from the upgrade plan.
 	// This will prevent resubmission of upgrade msg after upgrade is already completed.
@@ -426,12 +414,14 @@ func (k Keeper) ReadUpgradeInfoFromDisk() (types.Plan, error) {
 	return upgradeInfo, nil
 }
 
-// SetDowngradeVerified updates downgradeVerified.
-func (k *Keeper) SetDowngradeVerified(v bool) {
-	k.downgradeVerified = v
-}
-
-// DowngradeVerified returns downgradeVerified.
-func (k Keeper) DowngradeVerified() bool {
-	return k.downgradeVerified
+// IsUpgrade returns the bool which the given upgrade was executed
+func (k Keeper) IsUpgrade(ctx sdk.Context, name string) bool {
+	height := k.GetDoneHeight(ctx, name)
+	if height == 0 {
+		return false
+	}
+	if height <= ctx.BlockHeight() {
+		return true
+	}
+	return false
 }

@@ -196,10 +196,18 @@ type StateSyncConfig struct {
 	SnapshotKeepRecent uint32 `mapstructure:"snapshot-keep-recent"`
 }
 
+// UpgradeConfig defines the upgrading configuration.
+type UpgradeConfig struct {
+	Name   string `mapstructure:"name"`
+	Height int64  `mapstructure:"height"`
+	Info   string `mapstructure:"info"`
+}
+
 // Config defines the server's top level configuration
 type Config struct {
 	BaseConfig `mapstructure:",squash"`
 
+	Upgrade []UpgradeConfig `mapstructure:"upgrade"`
 	// Telemetry defines the application telemetry configuration
 	Telemetry telemetry.Config `mapstructure:"telemetry"`
 	API       APIConfig        `mapstructure:"api"`
@@ -309,6 +317,8 @@ func GetConfig(v *viper.Viper) (Config, error) {
 		}
 	}
 
+	var upgrade []UpgradeConfig
+	v.UnmarshalKey("upgrade", &upgrade)
 	return Config{
 		BaseConfig: BaseConfig{
 			MinGasPrices:        v.GetString("minimum-gas-prices"),
@@ -324,6 +334,7 @@ func GetConfig(v *viper.Viper) (Config, error) {
 			IAVLDisableFastNode: v.GetBool("iavl-disable-fastnode"),
 			AppDBBackend:        v.GetString("app-db-backend"),
 		},
+		Upgrade: upgrade,
 		Telemetry: telemetry.Config{
 			ServiceName:             v.GetString("telemetry.service-name"),
 			Enabled:                 v.GetBool("telemetry.enabled"),

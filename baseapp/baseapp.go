@@ -12,6 +12,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
@@ -58,6 +59,8 @@ type BaseApp struct { // nolint: maligned
 	snapshotData
 	abciData
 	moduleRouter
+
+	appConfig serverconfig.Config
 
 	// volatile states:
 	//
@@ -390,6 +393,10 @@ func (app *BaseApp) setIndexEvents(ie []string) {
 	}
 }
 
+func (app *BaseApp) setAppConfig(config serverconfig.Config) {
+	app.appConfig = config
+}
+
 // Router returns the legacy router of the BaseApp.
 func (app *BaseApp) Router() sdk.Router {
 	if app.sealed {
@@ -465,6 +472,11 @@ func (app *BaseApp) GetConsensusParams(ctx sdk.Context) *abci.ConsensusParams {
 	}
 
 	return cp
+}
+
+// AppConfig returns the AppConfig.
+func (app *BaseApp) AppConfig() serverconfig.Config {
+	return app.appConfig
 }
 
 // AddRunTxRecoveryHandler adds custom app.runTx method panic handlers.

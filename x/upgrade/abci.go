@@ -53,7 +53,7 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 
 			upgradeMsg := BuildUpgradeNeededMsg(plan)
 			logger.Error(upgradeMsg)
-			panic(upgradeMsg)
+			return
 		}
 
 		// We have an upgrade handler for this upgrade name, so apply the upgrade
@@ -61,36 +61,6 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 		ctx = ctx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
 		k.ApplyUpgrade(ctx, plan)
 		return
-	}
-
-	// if we have a pending upgrade, but it is not yet time, make sure we did not
-	// set the handler already
-	if k.HasHandler(plan.Name) {
-		downgradeMsg := fmt.Sprintf("BINARY UPDATED BEFORE TRIGGER! UPGRADE \"%s\" - in binary but not executed on chain. Downgrade your binary", plan.Name)
-		ctx.Logger().Error(downgradeMsg)
-		panic(downgradeMsg)
-	}
-
-	if !k.DowngradeVerified() {
-		k.SetDowngradeVerified(true)
-		lastAppliedPlan, _ := k.GetLastCompletedUpgrade(ctx)
-		// This check will make sure that we are using a valid binary.
-		// It'll panic in these cases if there is no upgrade handler registered for the last applied upgrade.
-		// 1. If there is no scheduled upgrade.
-		// 2. If the plan is not ready.
-		// 3. If the plan is ready and skip upgrade height is set for current height.
-		if !found || !plan.ShouldExecute(ctx) || (plan.ShouldExecute(ctx) && k.IsSkipHeight(ctx.BlockHeight())) {
-			if lastAppliedPlan != "" && !k.HasHandler(lastAppliedPlan) {
-				var appVersion uint64
-
-				cp := ctx.ConsensusParams()
-				if cp != nil && cp.Version != nil {
-					appVersion = cp.Version.AppVersion
-				}
-
-				panic(fmt.Sprintf("Wrong app version %d, upgrade handler is missing for %s upgrade plan", appVersion, lastAppliedPlan))
-			}
-		}
 	}
 }
 

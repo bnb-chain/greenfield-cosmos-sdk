@@ -211,12 +211,12 @@ func startStandAlone(ctx *Context, appCreator types.AppCreator) error {
 		return err
 	}
 
-	app := appCreator(ctx.Logger, db, traceWriter, ctx.Viper)
-
 	config, err := serverconfig.GetConfig(ctx.Viper)
 	if err != nil {
 		return err
 	}
+
+	app := appCreator(ctx.Logger, db, traceWriter, config, ctx.Viper)
 
 	_, err = startTelemetry(config)
 	if err != nil {
@@ -290,7 +290,7 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 		return err
 	}
 
-	app := appCreator(ctx.Logger, db, traceWriter, ctx.Viper)
+	app := appCreator(ctx.Logger, db, traceWriter, config, ctx.Viper)
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {

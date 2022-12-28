@@ -11,8 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -23,16 +21,14 @@ type KeeperTestSuite struct {
 	homeDir string
 	app     *simapp.SimApp
 	ctx     sdk.Context
-	msgSrvr types.MsgServer
 	addrs   []sdk.AccAddress
 }
 
 func (s *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(s.T(), false)
 	homeDir := filepath.Join(s.T().TempDir(), "x_upgrade_keeper_test")
-	app.UpgradeKeeper = keeper.NewKeeper( // recreate keeper in order to use a custom home path
-		make(map[int64]bool), app.GetKey(types.StoreKey), app.AppCodec(), homeDir, app.BaseApp,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	app.UpgradeKeeper, _ = keeper.NewKeeper( // recreate keeper in order to use a custom home path
+		make(map[int64]bool), app.GetKey(types.StoreKey), app.AppCodec(), homeDir,
 	)
 	s.T().Log("home dir:", homeDir)
 	s.homeDir = homeDir
@@ -41,7 +37,6 @@ func (s *KeeperTestSuite) SetupTest() {
 		Time:   time.Now(),
 		Height: 10,
 	})
-	s.msgSrvr = keeper.NewMsgServerImpl(s.app.UpgradeKeeper)
 	s.addrs = simapp.AddTestAddrsIncremental(app, s.ctx, 1, sdk.NewInt(30000000))
 }
 
@@ -198,22 +193,6 @@ func (s *KeeperTestSuite) TestSetUpgradedClient() {
 			s.Require().False(exists, "invalid case: %s retrieved valid client state", tc.name)
 		}
 	}
-}
-
-// Test that the protocol version successfully increments after an
-// upgrade and is successfully set on BaseApp's appVersion.
-func (s *KeeperTestSuite) TestIncrementProtocolVersion() {
-	oldProtocolVersion := s.app.BaseApp.AppVersion()
-	s.app.UpgradeKeeper.SetUpgradeHandler("dummy", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) { return vm, nil })
-	dummyPlan := types.Plan{
-		Name:   "dummy",
-		Info:   "some text here",
-		Height: 100,
-	}
-	s.app.UpgradeKeeper.ApplyUpgrade(s.ctx, dummyPlan)
-	upgradedProtocolVersion := s.app.BaseApp.AppVersion()
-
-	s.Require().Equal(oldProtocolVersion+1, upgradedProtocolVersion)
 }
 
 // Tests that the underlying state of x/upgrade is set correctly after

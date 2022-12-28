@@ -12,8 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -203,12 +201,6 @@ func (suite *UpgradeTestSuite) TestModuleVersions() {
 			}
 		})
 	}
-}
-
-func (suite *UpgradeTestSuite) TestAuthority() {
-	res, err := suite.queryClient.Authority(gocontext.Background(), &types.QueryAuthorityRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(authtypes.NewModuleAddress(govtypes.ModuleName).String(), res.Address)
 }
 
 func TestUpgradeTestSuite(t *testing.T) {

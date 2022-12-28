@@ -9,7 +9,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -69,15 +68,9 @@ func TestPlanValid(t *testing.T) {
 				Height: 123450000,
 			},
 		},
-		"time-base upgrade": {
-			p: types.Plan{
-				Time: time.Now(),
-			},
-		},
 		"IBC upgrade": {
 			p: types.Plan{
-				Height:              123450000,
-				UpgradedClientState: &codectypes.Any{},
+				Height: 123450000,
 			},
 		},
 		"no due at": {
