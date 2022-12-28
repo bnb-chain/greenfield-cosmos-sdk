@@ -11,41 +11,35 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/cosmos/cosmos-sdk/x/feehub/types"
+	"github.com/cosmos/cosmos-sdk/x/gashub/types"
 )
 
-// ConsumeMsgGasDecorator will take in parameters and consume gas depending on
-// the size of tx and msg type before calling next AnteHandler.
+// ValidateTxSizeDecorator will validate tx bytes length given the parameters passed in
+// If tx is too large decorator returns with error, otherwise call next AnteHandler
 //
 // CONTRACT: If simulate=true, then signatures must either be completely filled
 // in or empty.
-type ConsumeMsgGasDecorator struct {
+type ValidateTxSizeDecorator struct {
 	ak  AccountKeeper
-	fhk FeehubKeeper
+	fhk GashubKeeper
 }
 
-func NewConsumeMsgGasDecorator(ak AccountKeeper, fhk FeehubKeeper) ConsumeMsgGasDecorator {
-	return ConsumeMsgGasDecorator{
+func NewValidateTxSizeDecorator(ak AccountKeeper, fhk GashubKeeper) ValidateTxSizeDecorator {
+	return ValidateTxSizeDecorator{
 		ak:  ak,
 		fhk: fhk,
 	}
 }
 
-func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, errors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
 	}
 
-	params := cmfg.fhk.GetParams(ctx)
-	txBytesLength := uint64(len(ctx.TxBytes()))
-
-	msgGas, err := cmfg.getMsgGas(params, sigTx)
-	if err != nil {
-		return ctx, err
-	}
-
-	// simulate gas cost for signatures in simulate mode
+	newCtx := ctx
+	txSize := newCtx.TxSize()
+	// simulate signatures in simulate mode
 	if simulate {
 		// in simulate mode, each element should be a nil signature
 		sigs, err := sigTx.GetSignaturesV2()
@@ -62,7 +56,7 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 			var pubkey cryptotypes.PubKey
 
-			acc := cmfg.ak.GetAccount(ctx, signer)
+			acc := vtsd.ak.GetAccount(ctx, signer)
 
 			// use placeholder simSecp256k1Pubkey if sig is nil
 			if acc == nil || acc.GetPubKey() == nil {
@@ -78,30 +72,70 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			}
 
 			sigBz := legacy.Cdc.MustMarshal(simSig)
-			txBytesLength = txBytesLength + uint64(len(sigBz)) + 6
+			txSize = txSize + uint64(len(sigBz)) + 14
 		}
+
+		newCtx = ctx.WithTxSize(txSize)
 	}
 
-	if txBytesLength > params.GetMaxTxSize() {
-		return ctx, errors.Wrapf(sdkerrors.ErrTxTooLarge, "tx length: %d, limit: %d", txBytesLength, params.GetMaxTxSize())
+	params := vtsd.fhk.GetParams(ctx)
+	if txSize > params.GetMaxTxSize() {
+		return ctx, errors.Wrapf(sdkerrors.ErrTxTooLarge, "tx length: %d, limit: %d", txSize, params.GetMaxTxSize())
 	}
 
-	txBytesGas := txBytesLength * params.GetMinGasPerByte()
-	if txBytesGas >= msgGas {
-		ctx.GasMeter().ConsumeGas(txBytesGas, "gas by tx byte length")
+	return next(newCtx, tx, simulate)
+}
+
+// ConsumeMsgGasDecorator will take in parameters and consume gas depending on
+// the size of tx and msg type before calling next AnteHandler.
+type ConsumeMsgGasDecorator struct {
+	ak  AccountKeeper
+	fhk GashubKeeper
+}
+
+func NewConsumeMsgGasDecorator(ak AccountKeeper, fhk GashubKeeper) ConsumeMsgGasDecorator {
+	return ConsumeMsgGasDecorator{
+		ak:  ak,
+		fhk: fhk,
+	}
+}
+
+func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	sigTx, ok := tx.(authsigning.SigVerifiableTx)
+	if !ok {
+		return ctx, errors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
+	}
+
+	params := cmfg.fhk.GetParams(ctx)
+	gasByTxSize := cmfg.getTxSizeGas(params, ctx)
+	gasByMsgType, err := cmfg.getMsgGas(params, sigTx)
+	if err != nil {
+		return ctx, err
+	}
+
+	if gasByTxSize >= gasByMsgType {
+		ctx.GasMeter().ConsumeGas(gasByTxSize, "tx bytes length")
 	} else {
-		ctx.GasMeter().ConsumeGas(msgGas, "msg gas")
+		ctx.GasMeter().ConsumeGas(gasByMsgType, "msg type")
 	}
 
 	return next(ctx, tx, simulate)
 }
 
 func (cmfg ConsumeMsgGasDecorator) getMsgGas(params types.Params, tx sdk.Tx) (uint64, error) {
-	msg := tx.GetMsgs()[0]
-	feeCalcGen := types.GetCalculatorGen(sdk.MsgTypeURL(msg))
-	if feeCalcGen == nil {
-		return 0, fmt.Errorf("failed to find fee calculator")
+	msgs := tx.GetMsgs()
+	var totalGas uint64
+	for _, msg := range msgs {
+		feeCalcGen := types.GetGasCalculatorGen(sdk.MsgTypeURL(msg))
+		if feeCalcGen == nil {
+			return 0, fmt.Errorf("failed to find fee calculator")
+		}
+		feeCalc := feeCalcGen(params)
+		totalGas += feeCalc(msg)
 	}
-	feeCalc := feeCalcGen(params)
-	return feeCalc(msg), nil
+	return totalGas, nil
+}
+
+func (cmfg ConsumeMsgGasDecorator) getTxSizeGas(params types.Params, ctx sdk.Context) uint64 {
+	return params.GetMinGasPerByte() * ctx.TxSize()
 }

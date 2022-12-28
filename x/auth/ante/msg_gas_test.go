@@ -38,10 +38,8 @@ func (suite *AnteTestSuite) TestMsgGas() {
 	feeAmount := testdata.NewTestFeeAmount()
 	gasLimit := testdata.NewTestGasLimit()
 
-	mgd := ante.NewConsumeMsgGasDecorator(suite.app.AccountKeeper, suite.app.FeehubKeeper)
+	mgd := ante.NewConsumeMsgGasDecorator(suite.app.AccountKeeper, suite.app.GashubKeeper)
 	antehandler := sdk.ChainAnteDecorators(mgd)
-
-	fixedGasConsume := uint64(4303) // gas needed when GetParams
 
 	type testCase struct {
 		name        string
@@ -65,6 +63,6 @@ func (suite *AnteTestSuite) TestMsgGas() {
 		gasConsumedBefore := suite.ctx.GasMeter().GasConsumed()
 		_, err = antehandler(suite.ctx, tx, false)
 		gasConsumedAfter := suite.ctx.GasMeter().GasConsumed()
-		suite.Require().Equal(tc.expectedGas+fixedGasConsume, gasConsumedAfter-gasConsumedBefore)
+		suite.Require().Equal(tc.expectedGas, gasConsumedAfter-gasConsumedBefore)
 	}
 }

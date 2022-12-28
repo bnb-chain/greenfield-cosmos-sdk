@@ -88,7 +88,7 @@ func (a *AllowedMsgAllowance) Accept(ctx sdk.Context, fee sdk.Coins, msgs []sdk.
 func (a *AllowedMsgAllowance) allowedMsgsToMap(ctx sdk.Context) map[string]bool {
 	msgsMap := make(map[string]bool, len(a.AllowedMessages))
 	for _, msg := range a.AllowedMessages {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
+		// ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
 		msgsMap[msg] = true
 	}
 
@@ -99,7 +99,7 @@ func (a *AllowedMsgAllowance) allMsgTypesAllowed(ctx sdk.Context, msgs []sdk.Msg
 	msgsMap := a.allowedMsgsToMap(ctx)
 
 	for _, msg := range msgs {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
+		// ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
 		if !msgsMap[sdk.MsgTypeURL(msg)] {
 			return false
 		}

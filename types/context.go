@@ -38,7 +38,8 @@ type Context struct {
 	minGasPrice   DecCoins
 	consParams    *abci.ConsensusParams
 	eventManager  *EventManager
-	priority      int64 // The tx priority, only relevant in CheckTx
+	priority      int64  // The tx priority, only relevant in CheckTx
+	txSize        uint64 // The tx bytes length
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -60,6 +61,7 @@ func (c Context) IsReCheckTx() bool           { return c.recheckTx }
 func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) Priority() int64             { return c.priority }
+func (c Context) TxSize() uint64              { return c.txSize }
 
 // clone the header before returning
 func (c Context) BlockHeader() tmproto.Header {
@@ -228,9 +230,15 @@ func (c Context) WithEventManager(em *EventManager) Context {
 	return c
 }
 
-// WithEventManager returns a Context with an updated tx priority
+// WithPriority returns a Context with an updated tx priority
 func (c Context) WithPriority(p int64) Context {
 	c.priority = p
+	return c
+}
+
+// WithTxSize returns a Context with an updated tx bytes length
+func (c Context) WithTxSize(s uint64) Context {
+	c.txSize = s
 	return c
 }
 

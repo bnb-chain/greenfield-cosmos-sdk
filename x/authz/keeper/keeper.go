@@ -359,7 +359,7 @@ func (keeper Keeper) removeFromGrantQueue(ctx sdk.Context, grantKey []byte, gran
 	queueItems := queueItem.MsgTypeUrls
 
 	for index, typeURL := range queueItems {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "grant queue")
+		// ctx.GasMeter().ConsumeGas(gasCostPerIteration, "grant queue")
 
 		if typeURL == msgType {
 			end := len(queueItem.MsgTypeUrls) - 1

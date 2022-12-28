@@ -536,7 +536,7 @@ func (k Keeper) SubmitProposal(goCtx context.Context, req *group.MsgSubmitPropos
 	if req.Exec == group.Exec_EXEC_TRY {
 		// Consider proposers as Yes votes
 		for i := range proposers {
-			ctx.GasMeter().ConsumeGas(gasCostPerIteration, "vote on proposal")
+			// ctx.GasMeter().ConsumeGas(gasCostPerIteration, "vote on proposal")
 			_, err = k.Vote(sdk.WrapSDKContext(ctx), &group.MsgVote{
 				ProposalId: id,
 				Voter:      proposers[i],

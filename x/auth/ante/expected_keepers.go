@@ -3,7 +3,7 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	feehubtypes "github.com/cosmos/cosmos-sdk/x/feehub/types"
+	gashubtypes "github.com/cosmos/cosmos-sdk/x/gashub/types"
 )
 
 // AccountKeeper defines the contract needed for AccountKeeper related APIs.
@@ -20,6 +20,6 @@ type FeegrantKeeper interface {
 	UseGrantedFees(ctx sdk.Context, granter, grantee sdk.AccAddress, fee sdk.Coins, msgs []sdk.Msg) error
 }
 
-type FeehubKeeper interface {
-	GetParams(ctx sdk.Context) (params feehubtypes.Params)
+type GashubKeeper interface {
+	GetParams(ctx sdk.Context) (params gashubtypes.Params)
 }

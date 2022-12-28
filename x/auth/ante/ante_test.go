@@ -535,27 +535,27 @@ func (suite *AnteTestSuite) TestAnteHandlerMemoGas() {
 	)
 
 	testCases := []TestCase{
-		{
-			"tx does not have enough gas",
-			func() {
-				feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
-				gasLimit = 0
-			},
-			false,
-			false,
-			sdkerrors.ErrOutOfGas,
-		},
-		{
-			"tx with memo doesn't have enough gas",
-			func() {
-				feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
-				gasLimit = 801
-				suite.txBuilder.SetMemo("abcininasidniandsinasindiansdiansdinaisndiasndiadninsd")
-			},
-			false,
-			false,
-			sdkerrors.ErrOutOfGas,
-		},
+		// {
+		// 	"tx does not have enough gas",
+		// 	func() {
+		// 		feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
+		// 		gasLimit = 0
+		// 	},
+		// 	false,
+		// 	false,
+		// 	sdkerrors.ErrOutOfGas,
+		// },
+		// {
+		// 	"tx with memo doesn't have enough gas",
+		// 	func() {
+		// 		feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
+		// 		gasLimit = 801
+		// 		suite.txBuilder.SetMemo("abcininasidniandsinasindiansdiansdinaisndiasndiadninsd")
+		// 	},
+		// 	false,
+		// 	false,
+		// 	sdkerrors.ErrOutOfGas,
+		// },
 		{
 			"memo too large",
 			func() {
@@ -906,11 +906,11 @@ func generatePubKeysAndSignatures(n int, msg []byte, _ bool) (pubkeys []cryptoty
 		// TODO: also generate ed25519 keys as below when ed25519 keys are
 		//  actually supported, https://github.com/cosmos/cosmos-sdk/issues/4789
 		// for now this fails:
-		//if rand.Int63()%2 == 0 {
+		// if rand.Int63()%2 == 0 {
 		//	privkey = ed25519.GenPrivKey()
-		//} else {
+		// } else {
 		//	privkey = secp256k1.GenPrivKey()
-		//}
+		// }
 
 		pubkeys[i] = privkey.PubKey()
 		signatures[i], _ = privkey.Sign(msg)
