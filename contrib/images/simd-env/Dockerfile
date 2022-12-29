@@ -17,6 +17,9 @@ FROM alpine AS run
 RUN apk add bash curl jq libstdc++
 COPY contrib/images/simd-env/wrapper.sh /usr/bin/wrapper.sh
 
+ENV CGO_CFLAGS="-O -D__BLST_PORTABLE__"
+ENV CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
+
 VOLUME /simd
 COPY --from=build /work/build/simd /simd/
 WORKDIR /simd

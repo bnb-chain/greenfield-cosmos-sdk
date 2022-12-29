@@ -286,8 +286,9 @@ func TestAppSimulationAfterImport(t *testing.T) {
 // TODO: Make another test for the fuzzer itself, which just has noOp txs
 // and doesn't depend on the application.
 func TestAppStateDeterminism(t *testing.T) {
-	// TODO skip first, Keefe fix it later
-	t.Skip("skipping application simulation")
+	if !FlagEnabledValue {
+		t.Skip("skipping application simulation")
+	}
 
 	config := NewConfigFromFlags()
 	config.InitialBlockHeight = 1
