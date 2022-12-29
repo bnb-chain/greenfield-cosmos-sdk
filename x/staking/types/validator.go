@@ -300,7 +300,13 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
-	relayer := sdk.MustAccAddressFromHex(v.RelayerAddress)
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	return abci.ValidatorUpdate{
 		PubKey:         tmProtoPk,
