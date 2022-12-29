@@ -13,6 +13,7 @@ permissions:
 env:
   CGO_CFLAGS: "-O -D__BLST_PORTABLE__"
   CGO_CFLAGS_ALLOW: "-O -D__BLST_PORTABLE__"
+  GH_TOKEN: "${{ secrets.GH_TOKEN }}"
 
 jobs:
   cleanup-runs:
