@@ -13,7 +13,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -31,6 +30,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -301,15 +301,18 @@ func NewSimApp(
 	*/
 	app.GroupKeeper = groupkeeper.NewKeeper(keys[group.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper, groupConfig)
 
-	var err error
-	upgradeHandler := map[string]upgradetypes.UpgradeHandler{}
-	ms := app.BaseApp.CommitMultiStore()
-	ctx := sdk.NewContext(ms, tmproto.Header{Height: app.LastBlockHeight()}, true, app.Logger())
-	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath,
-		upgradekeeper.RegisterUpgradePlan(ctx, bApp.AppConfig().Upgrade, upgradeHandler))
-	if err != nil {
-		panic(err)
-	}
+	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath)
+	defer func() {
+		// Register the upgrade plan
+		upgradeHandler := map[string]upgradetypes.UpgradeHandler{
+			// Add specific actions when the upgrade happen
+		}
+		state := app.GetState(0 /*runTxModeCheck*/)
+		err := app.UpgradeKeeper.RegisterUpgradePlan(state.Context(), bApp.AppConfig().Upgrade, upgradeHandler)
+		if err != nil {
+			panic(errors.Wrap(err, "failed to regiter upgrade plan"))
+		}
+	}()
 
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow

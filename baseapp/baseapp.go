@@ -569,9 +569,9 @@ func validateBasicTxMsgs(msgs []sdk.Msg) error {
 	return nil
 }
 
-// Returns the applications's deliverState if app is in runTxModeDeliver,
+// GetState returns the applications's deliverState if app is in runTxModeDeliver,
 // otherwise it returns the application's checkstate.
-func (app *BaseApp) getState(mode runTxMode) *state {
+func (app *BaseApp) GetState(mode runTxMode) *state {
 	if mode == runTxModeDeliver {
 		return app.deliverState
 	}
@@ -581,7 +581,7 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 
 // retrieve the context for the tx w/ txBytes and other memoized values.
 func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context {
-	ctx := app.getState(mode).ctx.
+	ctx := app.GetState(mode).ctx.
 		WithTxBytes(txBytes).
 		WithVoteInfos(app.voteInfos)
 

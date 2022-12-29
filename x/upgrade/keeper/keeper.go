@@ -34,21 +34,14 @@ type Keeper struct {
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
-func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...Option) (Keeper, error) {
-	keeper := Keeper{
+func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string) Keeper {
+	return Keeper{
 		homePath:           homePath,
 		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
 		upgradeHandlers:    map[string]types.UpgradeHandler{},
 	}
-	for _, opt := range opts {
-		err := opt(&keeper)
-		if err != nil {
-			return Keeper{}, err
-		}
-	}
-	return keeper, nil
 }
 
 // SetUpgradeHandler sets an UpgradeHandler for the upgrade specified by name. This handler will be called when the upgrade
