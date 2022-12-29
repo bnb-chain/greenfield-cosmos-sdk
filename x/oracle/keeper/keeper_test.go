@@ -13,6 +13,11 @@ import (
 	tmtime "github.com/tendermint/tendermint/types/time"
 	"github.com/willf/bitset"
 
+	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
+	"github.com/cosmos/cosmos-sdk/x/oracle/keeper"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -28,6 +33,8 @@ type TestSuite struct {
 
 	app *simapp.SimApp
 	ctx sdk.Context
+
+	msgServer types.MsgServer
 }
 
 func (s *TestSuite) SetupTest() {
@@ -39,6 +46,16 @@ func (s *TestSuite) SetupTest() {
 
 	s.app = app
 	s.ctx = ctx
+
+	s.app.CrossChainKeeper.SetSrcChainID(sdk.ChainID(1))
+
+	coins := sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000)))
+	err := s.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
+	s.NoError(err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, crosschaintypes.ModuleName, coins)
+	s.NoError(err)
+
+	s.msgServer = keeper.NewMsgServerImpl(s.app.OracleKeeper)
 }
 
 func TestTestSuite(t *testing.T) {

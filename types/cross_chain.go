@@ -53,7 +53,7 @@ func ParseChainID(input string) (ChainID, error) {
 }
 
 type CrossChainApplication interface {
-	ExecuteSynPackage(ctx Context, payload []byte, relayerFee int64) ExecuteResult
+	ExecuteSynPackage(ctx Context, payload []byte, relayerFee *big.Int) ExecuteResult
 	ExecuteAckPackage(ctx Context, payload []byte) ExecuteResult
 	// When the ack application crash, payload is the payload of the origin package.
 	ExecuteFailAckPackage(ctx Context, payload []byte) ExecuteResult
@@ -89,7 +89,7 @@ func EncodePackageHeader(packageType CrossChainPackageType, timestamp uint64, re
 
 	timestampBytes := make([]byte, TimestampLength)
 	binary.BigEndian.PutUint64(timestampBytes, timestamp)
-	copy(packageHeader[CrossChainFeeLength:CrossChainFeeLength+TimestampLength], timestampBytes)
+	copy(packageHeader[PackageTypeLength:PackageTypeLength+TimestampLength], timestampBytes)
 
 	length := len(relayerFee.Bytes())
 	copy(packageHeader[PackageHeaderLength-length:PackageHeaderLength], relayerFee.Bytes())
@@ -103,7 +103,7 @@ func DecodePackageHeader(packageHeader []byte) (packageType CrossChainPackageTyp
 	}
 	packageType = CrossChainPackageType(packageHeader[0])
 
-	timestamp = binary.BigEndian.Uint64(packageHeader[PackageTypeLength : CrossChainFeeLength+TimestampLength])
+	timestamp = binary.BigEndian.Uint64(packageHeader[PackageTypeLength : PackageTypeLength+TimestampLength])
 
 	relayFee.SetBytes(packageHeader[PackageTypeLength+TimestampLength : PackageHeaderLength])
 	return

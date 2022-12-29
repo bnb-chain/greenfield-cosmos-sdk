@@ -3,10 +3,12 @@
 package testutil
 
 import (
+	"math/big"
 	reflect "reflect"
 
-	types "github.com/cosmos/cosmos-sdk/types"
 	gomock "github.com/golang/mock/gomock"
+
+	types "github.com/cosmos/cosmos-sdk/types"
 )
 
 // MockCrossChainApplication is a mock of CrossChainApplication interface
@@ -33,7 +35,7 @@ func (m *MockCrossChainApplication) EXPECT() *MockCrossChainApplicationMockRecor
 }
 
 // ExecuteSynPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, payload []byte, relayerFee int64) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, payload []byte, relayerFee *big.Int) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteSynPackage", ctx, payload, relayerFee)
 	ret0, _ := ret[0].(types.ExecuteResult)

@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"bytes"
@@ -13,19 +13,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil"
+	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 )
 
 func TestBlsClaim(t *testing.T) {
-	claim := &BlsClaim{
-		ChainId:   1,
-		Sequence:  1,
-		Timestamp: 1000,
-		Payload:   []byte("test payload"),
+	claim := &types.BlsClaim{
+		SrcChainId:  1,
+		DestChainId: 2,
+		Sequence:    1,
+		Timestamp:   1000,
+		Payload:     []byte("test payload"),
 	}
 
 	signBytes := claim.GetSignBytes()
 
-	require.Equal(t, "954d4fe4c768c275f14ef32929ab83e182a4de3c0aef38964efdf0bc8f76eaff",
+	require.Equal(t, "0a0b49ef40324d4c511d7a81e1edeeccaa10b768e55cece473b5cd99137f05f6",
 		hex.EncodeToString(signBytes[:]))
 }
 
@@ -35,14 +37,15 @@ func TestValidateBasic(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := []struct {
-		claimMsg     MsgClaim
+		claimMsg     types.MsgClaim
 		expectedPass bool
 		errorMsg     string
 	}{
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    "random string",
-				ChainId:        1,
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1},
@@ -52,9 +55,10 @@ func TestValidateBasic(t *testing.T) {
 			"invalid from address",
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        math.MaxUint16 + 1,
+				SrcChainId:     math.MaxUint16 + 1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1},
@@ -64,9 +68,23 @@ func TestValidateBasic(t *testing.T) {
 			"chain id should not be larger than",
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        100,
+				SrcChainId:     1,
+				DestChainId:    math.MaxUint16 + 1,
+				Sequence:       1,
+				Payload:        []byte("test payload"),
+				VoteAddressSet: []uint64{0, 1},
+				AggSignature:   []byte("test sig"),
+			},
+			false,
+			"chain id should not be larger than",
+		},
+		{
+			types.MsgClaim{
+				FromAddress:    addr.String(),
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte{},
 				VoteAddressSet: []uint64{0, 1},
@@ -76,49 +94,53 @@ func TestValidateBasic(t *testing.T) {
 			"payload should not be empty",
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        100,
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
-			fmt.Sprintf("length of vote addresse set should be %d", ValidatorBitSetLength),
+			fmt.Sprintf("length of vote addresse set should be %d", types.ValidatorBitSetLength),
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        100,
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1, 2, 3},
 				AggSignature:   []byte("test sig"),
 			},
 			false,
-			fmt.Sprintf("length of signature should be %d", BLSSignatureLength),
+			fmt.Sprintf("length of signature should be %d", types.BLSSignatureLength),
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        100,
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1, 2, 3},
-				AggSignature:   bytes.Repeat([]byte{0}, BLSSignatureLength),
+				AggSignature:   bytes.Repeat([]byte{0}, types.BLSSignatureLength),
 			},
 			false,
 			"timestamp should not be 0",
 		},
 		{
-			MsgClaim{
+			types.MsgClaim{
 				FromAddress:    addr.String(),
-				ChainId:        100,
+				SrcChainId:     1,
+				DestChainId:    2,
 				Sequence:       1,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1, 2, 3},
-				AggSignature:   bytes.Repeat([]byte{0}, BLSSignatureLength),
+				AggSignature:   bytes.Repeat([]byte{0}, types.BLSSignatureLength),
 				Timestamp:      uint64(time.Now().Unix()),
 			},
 			true,

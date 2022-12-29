@@ -7,6 +7,7 @@ import (
 
 type StakingKeeper interface {
 	GetLastValidators(ctx sdk.Context) (validators []types.Validator)
+	BondDenom(ctx sdk.Context) (res string)
 }
 
 type CrossChainKeeper interface {

@@ -146,6 +146,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		nft.ModuleName:                 nil,
+		crosschaintypes.ModuleName:     nil,
 	}
 )
 
