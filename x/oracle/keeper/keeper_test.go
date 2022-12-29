@@ -71,6 +71,12 @@ func (s *TestSuite) TestProcessClaim() {
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
 	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
+
+	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
+		Header: s.ctx.BlockHeader(),
+		Valset: validators,
+	})
+
 	validatorMap := make(map[string]int, 0)
 	for idx, validator := range validators {
 		validatorMap[validator.RelayerAddress] = idx

@@ -131,7 +131,7 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 	return nil
 }
 
-// RegisterDestChain registers a chain with name
+// RegisterDestChain registers a dest chain
 func (k Keeper) RegisterDestChain(chainID sdk.ChainID) error {
 	for _, chain := range k.cfg.destChains {
 		if chainID == chain {
@@ -141,6 +141,16 @@ func (k Keeper) RegisterDestChain(chainID sdk.ChainID) error {
 
 	k.cfg.destChains = append(k.cfg.destChains, chainID)
 	return nil
+}
+
+// IsDestChainSupported returns the support status of a dest chain
+func (k Keeper) IsDestChainSupported(chainID sdk.ChainID) bool {
+	for _, chain := range k.cfg.destChains {
+		if chainID == chain {
+			return true
+		}
+	}
+	return false
 }
 
 // SetChannelSendPermission sets the channel send permission

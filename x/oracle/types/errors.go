@@ -7,7 +7,6 @@ var (
 	ErrInvalidReceiveSequence = sdkerrors.Register(ModuleName, 2, "receive sequence is invalid")
 	ErrInvalidPayloadHeader   = sdkerrors.Register(ModuleName, 3, "payload header is invalid")
 	ErrInvalidPackageType     = sdkerrors.Register(ModuleName, 4, "package type is invalid")
-	ErrFeeOverflow            = sdkerrors.Register(ModuleName, 5, "fee is overflow")
 	ErrInvalidPackage         = sdkerrors.Register(ModuleName, 6, "package is invalid")
 	ErrInvalidPayload         = sdkerrors.Register(ModuleName, 7, "payload is invalid")
 	ErrValidatorSet           = sdkerrors.Register(ModuleName, 8, "validator set is invalid")
@@ -17,4 +16,5 @@ var (
 	ErrNotValidator           = sdkerrors.Register(ModuleName, 12, "sender is not validator")
 	ErrValidatorNotInTurn     = sdkerrors.Register(ModuleName, 13, "validator is not in turn")
 	ErrInvalidDestChainId     = sdkerrors.Register(ModuleName, 14, "dest chain id is invalid")
+	ErrInvalidSrcChainId      = sdkerrors.Register(ModuleName, 15, "src chain id is invalid")
 )

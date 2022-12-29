@@ -7,6 +7,7 @@ import (
 
 type StakingKeeper interface {
 	GetLastValidators(ctx sdk.Context) (validators []types.Validator)
+	GetHistoricalInfo(ctx sdk.Context, height int64) (types.HistoricalInfo, bool)
 	BondDenom(ctx sdk.Context) (res string)
 }
 
@@ -15,6 +16,7 @@ type CrossChainKeeper interface {
 		packageType sdk.CrossChainPackageType, packageLoad []byte) (uint64, error)
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
 	GetSrcChainID() sdk.ChainID
+	IsDestChainSupported(chainID sdk.ChainID) bool
 	GetReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) uint64
 	IncrReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID)
 }

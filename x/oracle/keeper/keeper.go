@@ -107,7 +107,11 @@ func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Val
 
 // ProcessClaim checks the bls signature
 func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
-	validators := k.StakingKeeper.GetLastValidators(ctx)
+	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
+	if !ok {
+		return sdkerrors.Wrapf(types.ErrValidatorSet, fmt.Sprintf("get historical validators failed"))
+	}
+	validators := historicalInfo.Valset
 
 	inturn, err := k.IsValidatorInturn(ctx, validators, claim)
 	if err != nil {

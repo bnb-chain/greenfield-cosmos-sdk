@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/oracle/testutil"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type DummyCrossChainApp struct {
@@ -29,6 +30,7 @@ func (ta *DummyCrossChainApp) ExecuteFailAckPackage(ctx sdk.Context, payload []b
 
 func (s *TestSuite) TestClaim() {
 	s.app.CrossChainKeeper.RegisterChannel("test", sdk.ChannelID(1), &DummyCrossChainApp{})
+	s.app.CrossChainKeeper.RegisterDestChain(sdk.ChainID(56))
 
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
@@ -38,6 +40,12 @@ func (s *TestSuite) TestClaim() {
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
 	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
+
+	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
+		Header: s.ctx.BlockHeader(),
+		Valset: validators,
+	})
+
 	validatorMap := make(map[string]int, 0)
 	for idx, validator := range validators {
 		validatorMap[validator.RelayerAddress] = idx
@@ -92,6 +100,12 @@ func (s *TestSuite) TestInvalidClaim() {
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
 	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
+
+	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
+		Header: s.ctx.BlockHeader(),
+		Valset: validators,
+	})
+
 	validatorMap := make(map[string]int, 0)
 	for idx, validator := range validators {
 		validatorMap[validator.RelayerAddress] = idx
@@ -119,8 +133,17 @@ func (s *TestSuite) TestInvalidClaim() {
 	msgClaim.VoteAddressSet = valBitSet.Bytes()
 	msgClaim.AggSignature = blsSig
 
+	// invalid src chain id
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
 	_, err := s.msgServer.Claim(s.ctx, &msgClaim)
+	s.Require().NotNil(err, "process claim should return error")
+	s.Require().Contains(err.Error(), "src chain id is invalid")
+
+	s.app.CrossChainKeeper.RegisterDestChain(sdk.ChainID(56))
+
+	// invalid payload
+	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
+	_, err = s.msgServer.Claim(s.ctx, &msgClaim)
 	s.Require().NotNil(err, "process claim should return error")
 	s.Require().Contains(err.Error(), "decode payload error")
 
