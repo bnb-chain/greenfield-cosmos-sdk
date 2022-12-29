@@ -216,7 +216,13 @@ func startStandAlone(ctx *Context, appCreator types.AppCreator) error {
 		return err
 	}
 
-	app := appCreator(ctx.Logger, db, traceWriter, config, ctx.Viper)
+	genDocProvider := node.DefaultGenesisDocProviderFunc(ctx.Config)
+	genDoc, err := genDocProvider()
+	if err != nil {
+		return err
+	}
+
+	app := appCreator(ctx.Logger, db, traceWriter, config, genDoc.ChainID, ctx.Viper)
 
 	_, err = startTelemetry(config)
 	if err != nil {
@@ -290,14 +296,18 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 		return err
 	}
 
-	app := appCreator(ctx.Logger, db, traceWriter, config, ctx.Viper)
+	genDocProvider := node.DefaultGenesisDocProviderFunc(cfg)
+	genDoc, err := genDocProvider()
+	if err != nil {
+		return err
+	}
+
+	app := appCreator(ctx.Logger, db, traceWriter, config, genDoc.ChainID, ctx.Viper)
 
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return err
 	}
-
-	genDocProvider := node.DefaultGenesisDocProviderFunc(cfg)
 
 	var (
 		tmNode   *node.Node
@@ -349,11 +359,6 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 
 	var apiSrv *api.Server
 	if config.API.Enable {
-		genDoc, err := genDocProvider()
-		if err != nil {
-			return err
-		}
-
 		clientCtx := clientCtx.WithHomeDir(home).WithChainID(genDoc.ChainID)
 
 		if config.GRPC.Enable {

@@ -69,7 +69,7 @@ func PruningCmd(appCreator servertypes.AppCreator) *cobra.Command {
 				return err
 			}
 
-			app := appCreator(logger, db, nil, config, vp)
+			app := appCreator(logger, db, nil, config, "", vp)
 			cms := app.CommitMultiStore()
 
 			rootMultiStore, ok := cms.(*rootmulti.Store)

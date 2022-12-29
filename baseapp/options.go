@@ -81,8 +81,14 @@ func SetSnapshot(snapshotStore *snapshots.Store, opts snapshottypes.SnapshotOpti
 	return func(app *BaseApp) { app.SetSnapshot(snapshotStore, opts) }
 }
 
+// SetAppConfig sets the server/config.Config.
 func SetAppConfig(config serverconfig.Config) func(*BaseApp) {
 	return func(app *BaseApp) { app.setAppConfig(config) }
+}
+
+// SetAppConfig sets the chain id.
+func SetChainID(chainID string) func(*BaseApp) {
+	return func(app *BaseApp) { app.setChainID(chainID) }
 }
 
 func (app *BaseApp) SetName(name string) {

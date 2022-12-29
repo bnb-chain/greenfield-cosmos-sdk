@@ -70,7 +70,7 @@ type (
 
 	// AppCreator is a function that allows us to lazily initialize an
 	// application using various configurations.
-	AppCreator func(log.Logger, dbm.DB, io.Writer, serverconfig.Config, AppOptions) Application
+	AppCreator func(log.Logger, dbm.DB, io.Writer, serverconfig.Config, string, AppOptions) Application
 
 	// ModuleInitFlags takes a start command and adds modules specific init flags.
 	ModuleInitFlags func(startCmd *cobra.Command)

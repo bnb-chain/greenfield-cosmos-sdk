@@ -61,6 +61,7 @@ type BaseApp struct { // nolint: maligned
 	moduleRouter
 
 	appConfig serverconfig.Config
+	chainID   string
 
 	// volatile states:
 	//
@@ -397,6 +398,10 @@ func (app *BaseApp) setAppConfig(config serverconfig.Config) {
 	app.appConfig = config
 }
 
+func (app *BaseApp) setChainID(chainID string) {
+	app.chainID = chainID
+}
+
 // Router returns the legacy router of the BaseApp.
 func (app *BaseApp) Router() sdk.Router {
 	if app.sealed {
@@ -477,6 +482,11 @@ func (app *BaseApp) GetConsensusParams(ctx sdk.Context) *abci.ConsensusParams {
 // AppConfig returns the AppConfig.
 func (app *BaseApp) AppConfig() serverconfig.Config {
 	return app.appConfig
+}
+
+// ChainID returns the chain id.
+func (app *BaseApp) ChainID() string {
+	return app.chainID
 }
 
 // AddRunTxRecoveryHandler adds custom app.runTx method panic handlers.
