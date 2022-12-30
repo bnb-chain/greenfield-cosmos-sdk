@@ -87,7 +87,7 @@ func VerifyDoUpgrade(t *testing.T) {
 	newCtx := s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1).WithBlockTime(time.Now())
 
 	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
-	require.Panics(t, func() {
+	require.NotPanics(t, func() {
 		s.module.BeginBlock(newCtx, req)
 	})
 
@@ -347,7 +347,7 @@ func TestUpgradeWithoutSkip(t *testing.T) {
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 1})
 	require.NoError(t, err)
 	t.Log("Verify if upgrade happens without skip upgrade")
-	require.Panics(t, func() {
+	require.NotPanics(t, func() {
 		s.module.BeginBlock(newCtx, req)
 	})
 

@@ -27,6 +27,7 @@ type Keeper struct {
 	storeKey           storetypes.StoreKey             // key to access x/upgrade store
 	cdc                codec.BinaryCodec               // App-wide binary codec
 	upgradeHandlers    map[string]types.UpgradeHandler // map of plan name to upgrade handler
+	upgradeConfig      types.UpgradeConfig
 }
 
 // NewKeeper constructs an upgrade Keeper which requires the following arguments:
@@ -34,14 +35,19 @@ type Keeper struct {
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
-func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string) Keeper {
-	return Keeper{
+func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...KeeperOption) Keeper {
+	keeper := Keeper{
 		homePath:           homePath,
 		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
 		upgradeHandlers:    map[string]types.UpgradeHandler{},
 	}
+
+	for _, opt := range opts {
+		opt(&keeper)
+	}
+	return keeper
 }
 
 // SetUpgradeHandler sets an UpgradeHandler for the upgrade specified by name. This handler will be called when the upgrade
@@ -293,13 +299,15 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // GetUpgradePlan returns the currently scheduled Plan if any, setting havePlan to true if there is a scheduled
 // upgrade or false if there is none
 func (k Keeper) GetUpgradePlan(ctx sdk.Context) (plan types.Plan, havePlan bool) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.PlanKey())
-	if bz == nil {
-		return plan, false
+	plan, ok := k.upgradeConfig[ctx.BlockHeight()]
+	if !ok {
+		return types.Plan{}, false
 	}
 
-	k.cdc.MustUnmarshal(bz, &plan)
+	if k.IsUpgrade(ctx, plan.Name) {
+		return types.Plan{}, false
+	}
+
 	return plan, true
 }
 
@@ -318,17 +326,15 @@ func (k Keeper) HasHandler(name string) bool {
 // ApplyUpgrade will execute the handler associated with the Plan and mark the plan as done.
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 	handler := k.upgradeHandlers[plan.Name]
-	if handler == nil {
-		return
-	}
 
-	updatedVM, err := handler(ctx, plan, k.GetModuleVersionMap(ctx))
-	if err != nil {
-		ctx.Logger().Error("failed to upgrade ["+plan.Name+"]", "err", err)
-		return
+	if handler != nil {
+		updatedVM, err := handler(ctx, plan, k.GetModuleVersionMap(ctx))
+		if err != nil {
+			ctx.Logger().Error("failed to upgrade ["+plan.Name+"]", "err", err)
+			return
+		}
+		k.SetModuleVersionMap(ctx, updatedVM)
 	}
-
-	k.SetModuleVersionMap(ctx, updatedVM)
 
 	// Must clear IBC state after upgrade is applied as it is stored separately from the upgrade plan.
 	// This will prevent resubmission of upgrade msg after upgrade is already completed.
