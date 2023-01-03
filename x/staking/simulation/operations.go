@@ -19,7 +19,6 @@ import (
 
 // Simulation operation weights constants
 const (
-	OpWeightMsgCreateValidator           = "op_weight_msg_create_validator"            //nolint:gosec
 	OpWeightMsgEditValidator             = "op_weight_msg_edit_validator"              //nolint:gosec
 	OpWeightMsgDelegate                  = "op_weight_msg_delegate"                    //nolint:gosec
 	OpWeightMsgUndelegate                = "op_weight_msg_undelegate"                  //nolint:gosec
@@ -33,18 +32,11 @@ func WeightedOperations(
 	bk types.BankKeeper, k keeper.Keeper,
 ) simulation.WeightedOperations {
 	var (
-		weightMsgCreateValidator           int
 		weightMsgEditValidator             int
 		weightMsgDelegate                  int
 		weightMsgUndelegate                int
 		weightMsgBeginRedelegate           int
 		weightMsgCancelUnbondingDelegation int
-	)
-
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateValidator, &weightMsgCreateValidator, nil,
-		func(_ *rand.Rand) {
-			weightMsgCreateValidator = simappparams.DefaultWeightMsgCreateValidator
-		},
 	)
 
 	appParams.GetOrGenerate(cdc, OpWeightMsgEditValidator, &weightMsgEditValidator, nil,
@@ -78,10 +70,6 @@ func WeightedOperations(
 	)
 
 	return simulation.WeightedOperations{
-		simulation.NewWeightedOperation(
-			weightMsgCreateValidator,
-			SimulateMsgCreateValidator(ak, bk, k),
-		),
 		simulation.NewWeightedOperation(
 			weightMsgEditValidator,
 			SimulateMsgEditValidator(ak, bk, k),
@@ -229,10 +217,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k kee
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		blsSecretKey, _ := bls.RandKey()
-		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
-
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, sdk.AccAddress(address), blsPk)
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, sdk.AccAddress(address), "")
 
 		txCtx := simulation.OperationInput{
 			R:               r,

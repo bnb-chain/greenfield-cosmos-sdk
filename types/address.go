@@ -80,6 +80,7 @@ const (
 
 	// BLSPubKeyLength defines a valid BLS Public key length
 	BLSPubKeyLength = 48
+	BLSEmptyPubKey  = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dead"
 )
 
 // cache variables

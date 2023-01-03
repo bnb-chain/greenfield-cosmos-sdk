@@ -2,13 +2,13 @@ package types
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 	"sigs.k8s.io/yaml"
@@ -48,7 +48,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		return Validator{}, err
 	}
 
-	blsSk, err := bls.RandKey()
+	blsPk, err := hex.DecodeString(sdk.BLSEmptyPubKey)
 	if err != nil {
 		return Validator{}, err
 	}
@@ -67,7 +67,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		MinSelfDelegation: sdk.OneInt(),
 		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		RelayerBlsKey:     blsSk.PublicKey().Marshal(),
+		RelayerBlsKey:     blsPk,
 	}, nil
 }
 
