@@ -45,7 +45,7 @@ message QueryCurrentPlanRequest {}
 // method.
 message QueryCurrentPlanResponse {
   // plan is the current upgrade plan.
-  Plan plan = 1;
+  repeated Plan plan = 1;
 }
 
 // QueryCurrentPlanRequest is the request type for the Query/AppliedPlan RPC

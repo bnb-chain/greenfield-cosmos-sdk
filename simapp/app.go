@@ -311,13 +311,17 @@ func NewSimApp(
 		// },
 	}
 
+	var err error
 	ms := app.CommitMultiStore()
 	ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
 	upgradeKeeperOpts := []upgradekeeper.KeeperOption{
 		upgradekeeper.RegisterUpgradePlan(ctx, bApp.AppConfig().Upgrade),
 		upgradekeeper.RegisterUpgradeHandler(upgradeHandler),
 	}
-	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
+	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
+	if err != nil {
+		panic(err)
+	}
 
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow

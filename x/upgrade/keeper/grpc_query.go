@@ -19,7 +19,7 @@ func (k Keeper) CurrentPlan(c context.Context, req *types.QueryCurrentPlanReques
 		return &types.QueryCurrentPlanResponse{}, nil
 	}
 
-	return &types.QueryCurrentPlanResponse{Plan: &plan}, nil
+	return &types.QueryCurrentPlanResponse{Plan: plan}, nil
 }
 
 // AppliedPlan implements the Query/AppliedPlan gRPC method

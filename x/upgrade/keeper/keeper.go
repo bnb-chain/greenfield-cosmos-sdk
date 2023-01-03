@@ -35,19 +35,22 @@ type Keeper struct {
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
-func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...KeeperOption) Keeper {
+func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...KeeperOption) (Keeper, error) {
 	keeper := Keeper{
 		homePath:           homePath,
 		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
 		upgradeHandlers:    map[string]types.UpgradeHandler{},
+		upgradeConfig:      types.NewUpgradeConfig(),
 	}
 
 	for _, opt := range opts {
-		opt(&keeper)
+		if err := opt(&keeper); err != nil {
+			return keeper, err
+		}
 	}
-	return keeper
+	return keeper, nil
 }
 
 // SetUpgradeHandler sets an UpgradeHandler for the upgrade specified by name. This handler will be called when the upgrade
@@ -177,16 +180,15 @@ func (k Keeper) ScheduleUpgrade(ctx sdk.Context, plan types.Plan) error {
 		return types.ErrUpgradeCompleted
 	}
 
-	store := ctx.KVStore(k.storeKey)
-
 	// clear any old IBC state stored by previous plan
 	oldPlan, found := k.GetUpgradePlan(ctx)
 	if found {
-		k.ClearIBCState(ctx, oldPlan.Height)
+		for _, plan := range oldPlan {
+			k.ClearIBCState(ctx, plan.Height)
+		}
 	}
 
-	bz := k.cdc.MustMarshal(&plan)
-	store.Set(types.PlanKey(), bz)
+	k.upgradeConfig.SetPlan(&plan)
 
 	return nil
 }
@@ -282,13 +284,16 @@ func (k Keeper) ClearIBCState(ctx sdk.Context, lastHeight int64) {
 // ClearUpgradePlan clears any schedule upgrade and associated IBC states.
 func (k Keeper) ClearUpgradePlan(ctx sdk.Context) {
 	// clear IBC states everytime upgrade plan is removed
-	oldPlan, found := k.GetUpgradePlan(ctx)
+	planHeight := ctx.BlockHeight()
+	oldPlans, found := k.GetUpgradePlan(ctx)
 	if found {
-		k.ClearIBCState(ctx, oldPlan.Height)
+		for _, plan := range oldPlans {
+			planHeight = plan.Height
+			k.ClearIBCState(ctx, plan.Height)
+		}
 	}
 
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.PlanKey())
+	k.upgradeConfig.ClearPlan(planHeight)
 }
 
 // Logger returns a module-specific logger.
@@ -298,17 +303,24 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetUpgradePlan returns the currently scheduled Plan if any, setting havePlan to true if there is a scheduled
 // upgrade or false if there is none
-func (k Keeper) GetUpgradePlan(ctx sdk.Context) (plan types.Plan, havePlan bool) {
-	plan, ok := k.upgradeConfig[ctx.BlockHeight()]
-	if !ok {
-		return types.Plan{}, false
+func (k Keeper) GetUpgradePlan(ctx sdk.Context) ([]*types.Plan, bool) {
+	plans := k.upgradeConfig.GetPlan(ctx.BlockHeight())
+	if len(plans) == 0 {
+		return nil, false
 	}
 
-	if k.IsUpgrade(ctx, plan.Name) {
-		return types.Plan{}, false
+	nonUpgraded := make([]*types.Plan, 0, len(plans))
+	for i := 0; i < len(plans); i++ {
+		if !k.IsUpgrade(ctx, plans[i].Name) {
+			nonUpgraded = append(nonUpgraded, plans[i])
+		}
 	}
 
-	return plan, true
+	if len(nonUpgraded) == 0 {
+		return nil, false
+	}
+
+	return nonUpgraded, true
 }
 
 // setDone marks this upgrade name as being done so the name can't be reused accidentally

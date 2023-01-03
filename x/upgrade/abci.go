@@ -23,7 +23,7 @@ import (
 func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	plan, found := k.GetUpgradePlan(ctx)
+	plans, found := k.GetUpgradePlan(ctx)
 
 	if !found {
 		return
@@ -31,23 +31,26 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 	logger := ctx.Logger()
 
 	// To make sure clear upgrade is executed at the same block
-	if plan.ShouldExecute(ctx) {
-		// If skip upgrade has been set for current height, we clear the upgrade plan
-		if k.IsSkipHeight(ctx.BlockHeight()) {
-			skipUpgradeMsg := fmt.Sprintf("UPGRADE \"%s\" SKIPPED at %d: %s", plan.Name, plan.Height, plan.Info)
-			logger.Info(skipUpgradeMsg)
+	for _, plan := range plans {
+		if plan.ShouldExecute(ctx) {
+			// If skip upgrade has been set for current height, we clear the upgrade plan
+			if k.IsSkipHeight(ctx.BlockHeight()) {
+				skipUpgradeMsg := fmt.Sprintf("UPGRADE \"%s\" SKIPPED at %d: %s", plan.Name, plan.Height, plan.Info)
+				logger.Info(skipUpgradeMsg)
 
-			// Clear the upgrade plan at current height
-			k.ClearUpgradePlan(ctx)
+				// Clear the upgrade plan at current height
+				k.ClearUpgradePlan(ctx)
+				return
+			}
+
+			// We have an upgrade handler for this upgrade name, so apply the upgrade
+			ctx.Logger().Info(fmt.Sprintf("applying upgrade \"%s\" at %s", plan.Name, plan.DueAt()))
+			ctx = ctx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
+			k.ApplyUpgrade(ctx, *plan)
 			return
 		}
-
-		// We have an upgrade handler for this upgrade name, so apply the upgrade
-		ctx.Logger().Info(fmt.Sprintf("applying upgrade \"%s\" at %s", plan.Name, plan.DueAt()))
-		ctx = ctx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
-		k.ApplyUpgrade(ctx, plan)
-		return
 	}
+
 }
 
 // BuildUpgradeNeededMsg prints the message that notifies that an upgrade is needed.

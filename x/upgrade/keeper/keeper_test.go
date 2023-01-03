@@ -25,11 +25,15 @@ type KeeperTestSuite struct {
 }
 
 func (s *KeeperTestSuite) SetupTest() {
+	var err error
 	app := simapp.Setup(s.T(), false)
 	homeDir := filepath.Join(s.T().TempDir(), "x_upgrade_keeper_test")
-	app.UpgradeKeeper = keeper.NewKeeper( // recreate keeper in order to use a custom home path
+	app.UpgradeKeeper, err = keeper.NewKeeper( // recreate keeper in order to use a custom home Path
 		make(map[int64]bool), app.GetKey(types.StoreKey), app.AppCodec(), homeDir,
 	)
+	if err != nil {
+		s.T().Fatal(err)
+	}
 	s.T().Log("home dir:", homeDir)
 	s.homeDir = homeDir
 	s.app = app

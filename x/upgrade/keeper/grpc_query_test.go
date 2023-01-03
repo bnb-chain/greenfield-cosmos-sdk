@@ -55,10 +55,13 @@ func (suite *UpgradeTestSuite) TestQueryCurrentPlan() {
 			"with current upgrade plan",
 			func() {
 				plan := types.Plan{Name: "test-plan", Height: 5}
-				suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
+				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
+				if err != nil {
+					suite.T().Fatal(err)
+				}
 
 				req = &types.QueryCurrentPlanRequest{}
-				expResponse = types.QueryCurrentPlanResponse{Plan: &plan}
+				expResponse = types.QueryCurrentPlanResponse{Plan: []*types.Plan{&plan}}
 			},
 			true,
 		},
