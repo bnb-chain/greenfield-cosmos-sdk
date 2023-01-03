@@ -31,6 +31,8 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 	logger := ctx.Logger()
 
 	// To make sure clear upgrade is executed at the same block
+	executed := false
+	executedHeight := ctx.BlockHeight()
 	for _, plan := range plans {
 		if plan.ShouldExecute(ctx) {
 			// If skip upgrade has been set for current height, we clear the upgrade plan
@@ -47,8 +49,13 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 			ctx.Logger().Info(fmt.Sprintf("applying upgrade \"%s\" at %s", plan.Name, plan.DueAt()))
 			ctx = ctx.WithBlockGasMeter(sdk.NewInfiniteGasMeter())
 			k.ApplyUpgrade(ctx, *plan)
-			return
+			executed = true
+			executedHeight = plan.Height
 		}
+	}
+	if executed {
+		k.ClearIBCState(ctx, executedHeight)
+		k.ClearUpgradePlan(ctx)
 	}
 }
 
