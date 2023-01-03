@@ -60,28 +60,6 @@ func (k Keeper) SetUpgradeHandler(name string, upgradeHandler types.UpgradeHandl
 	k.upgradeHandlers[name] = upgradeHandler
 }
 
-// setProtocolVersion sets the protocol version to state
-func (k Keeper) setProtocolVersion(ctx sdk.Context, v uint64) {
-	store := ctx.KVStore(k.storeKey)
-	versionBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(versionBytes, v)
-	store.Set([]byte{types.ProtocolVersionByte}, versionBytes)
-}
-
-// getProtocolVersion gets the protocol version from state
-func (k Keeper) getProtocolVersion(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	ok := store.Has([]byte{types.ProtocolVersionByte})
-	if ok {
-		pvBytes := store.Get([]byte{types.ProtocolVersionByte})
-		protocolVersion := binary.BigEndian.Uint64(pvBytes)
-
-		return protocolVersion
-	}
-	// default value
-	return 0
-}
-
 // SetModuleVersionMap saves a given version map to state
 func (k Keeper) SetModuleVersionMap(ctx sdk.Context, vm module.VersionMap) {
 	if len(vm) > 0 {

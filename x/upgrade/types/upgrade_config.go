@@ -28,9 +28,7 @@ func (c UpgradeConfig) GetPlan(height int64) []*Plan {
 	}
 
 	// get recent upgrade plan
-	var (
-		recentHeight = int64(math.MaxInt64)
-	)
+	recentHeight := int64(math.MaxInt64)
 	for vHeight, vPlans := range c {
 		if vHeight > height {
 			if vHeight < recentHeight {

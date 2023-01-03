@@ -36,9 +36,7 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the upgrade types on the LegacyAmino codec
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-
-}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the upgrade module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -57,9 +55,7 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return nil
 }
 
-func (b AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-
-}
+func (b AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {}
 
 // AppModule implements the sdk.AppModule interface
 type AppModule struct {

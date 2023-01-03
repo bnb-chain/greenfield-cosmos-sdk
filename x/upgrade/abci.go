@@ -50,7 +50,6 @@ func BeginBlocker(k keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 			return
 		}
 	}
-
 }
 
 // BuildUpgradeNeededMsg prints the message that notifies that an upgrade is needed.
