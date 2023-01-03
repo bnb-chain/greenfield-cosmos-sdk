@@ -12,10 +12,9 @@ import (
 
 // Simulation parameter constants
 const (
-	MaxTxSize       = "max_tx_size"
-	MinGasPerByte   = "min_gas_per_byte"
-	MsgSendGas      = "msg_send_gas"
-	MsgMultiSendGas = "msg_multi_send_gas"
+	MaxTxSize     = "max_tx_size"
+	MinGasPerByte = "min_gas_per_byte"
+	MsgGas        = "msg_gas"
 )
 
 // GenMaxTxSize randomized MaxTxSize
@@ -28,14 +27,9 @@ func GenMinGasPerByte(r *rand.Rand) uint64 {
 	return uint64(simulation.RandIntBetween(r, 2500, 5000))
 }
 
-// GenMsgSendGas randomized MsgSendGas
-func GenMsgSendGas(r *rand.Rand) uint64 {
-	return uint64(simulation.RandIntBetween(r, 1e6, 1e7))
-}
-
-// GenMsgMultiSendGas randomized MsgMultiSendGas
-func GenMsgMultiSendGas(r *rand.Rand) uint64 {
-	return uint64(simulation.RandIntBetween(r, 1e6, 1e7))
+// GenMsgGas randomized msg gas consumption
+func GenMsgGas(r *rand.Rand) uint64 {
+	return uint64(simulation.RandIntBetween(r, 1e5, 1e7))
 }
 
 // RandomizedGenState generates a random GenesisState for auth
@@ -52,19 +46,13 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { minGasPerByte = GenMinGasPerByte(r) },
 	)
 
-	var msgSendGas uint64
+	var msgGas uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MsgSendGas, &msgSendGas, simState.Rand,
-		func(r *rand.Rand) { msgSendGas = GenMsgSendGas(r) },
+		simState.Cdc, MsgGas, &msgGas, simState.Rand,
+		func(r *rand.Rand) { msgGas = GenMsgGas(r) },
 	)
 
-	var msgMultiSendGas uint64
-	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MsgMultiSendGas, &msgMultiSendGas, simState.Rand,
-		func(r *rand.Rand) { msgMultiSendGas = GenMsgMultiSendGas(r) },
-	)
-
-	params := types.NewParams(maxTxSize, minGasPerByte, msgSendGas, msgMultiSendGas)
+	params := types.NewParams(maxTxSize, minGasPerByte, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas)
 
 	gashubGenesis := types.NewGenesisState(params)
 

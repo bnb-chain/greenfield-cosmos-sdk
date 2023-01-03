@@ -2,7 +2,13 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type (
@@ -39,23 +45,203 @@ func MultiSendCalculator(amount uint64) GasCalculator {
 	}
 }
 
-var msgSendFeeCalculatorGen = func(params Params) GasCalculator {
-	msgSendGas := params.GetMsgSendGas()
-	if msgSendGas == 0 {
-		return FixedGasCalculator(DefaultMsgSendGas)
+var msgGrantGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgGrantGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgGrantGas)
 	}
-	return FixedGasCalculator(msgSendGas)
+	return FixedGasCalculator(msgGas)
 }
 
-var msgMultiSendFeeCalculatorGen = func(params Params) GasCalculator {
-	msgMultiSendGas := params.GetMsgMultiSendGas()
-	if msgMultiSendGas == 0 {
+var msgRevokeGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgRevokeGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgRevokeGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgExecGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgExecGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgExecGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgSendGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgSendGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgSendGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgMultiSendGas()
+	if msgGas == 0 {
 		return MultiSendCalculator(DefaultMsgSendGas)
 	}
-	return MultiSendCalculator(msgMultiSendGas)
+	return MultiSendCalculator(msgGas)
+}
+
+var msgWithdrawDelegatorRewardGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgWithdrawDelegatorRewardGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgWithdrawDelegatorRewardGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgWithdrawValidatorCommissionGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgWithdrawValidatorCommissionGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgWithdrawValidatorCommissionGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgSetWithdrawAddressGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgSetWithdrawAddressGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgSetWithdrawAddressGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgFundCommunityPoolGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgFundCommunityPoolGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgFundCommunityPoolGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgGrantAllowanceGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgGrantAllowanceGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgRevokeAllowanceGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgRevokeAllowanceGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgRevokeAllowanceGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgSubmitProposalGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgSubmitProposalGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgSubmitProposalGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgVoteGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgVoteGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgVoteGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgVoteWeightedGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgVoteWeightedGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgVoteWeightedGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgDepositGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgDepositGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgDepositGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgUnjailGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgUnjailGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgUnjailGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgImpeachGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgImpeachGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgImpeachGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgEditValidatorGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgEditValidatorGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgEditValidatorGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgDelegateGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgDelegateGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgDelegateGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgUndelegateGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgUndelegateGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgUndelegateGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgBeginRedelegateGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgBeginRedelegateGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgBeginRedelegateGas)
+	}
+	return FixedGasCalculator(msgGas)
+}
+
+var msgCancelUnbondingDelegationGasCalculatorGen = func(params Params) GasCalculator {
+	msgGas := params.GetMsgCancelUnbondingDelegationGas()
+	if msgGas == 0 {
+		return FixedGasCalculator(DefaultMsgCancelUnbondingDelegationGas)
+	}
+	return FixedGasCalculator(msgGas)
 }
 
 func init() {
-	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgSend{}), msgSendFeeCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgMultiSend{}), msgMultiSendFeeCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgGrant{}), msgGrantGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgRevoke{}), msgRevokeGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgExec{}), msgExecGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgSend{}), msgSendGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgMultiSend{}), msgMultiSendGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawDelegatorReward{}), msgWithdrawDelegatorRewardGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawValidatorCommission{}), msgWithdrawValidatorCommissionGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgSetWithdrawAddress{}), msgSetWithdrawAddressGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgFundCommunityPool{}), msgFundCommunityPoolGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgGrantAllowance{}), msgGrantAllowanceGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgRevokeAllowance{}), msgRevokeAllowanceGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgSubmitProposal{}), msgSubmitProposalGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVote{}), msgVoteGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVoteWeighted{}), msgVoteWeightedGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgDeposit{}), msgDepositGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgUnjail{}), msgUnjailGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgImpeach{}), msgImpeachGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgEditValidator{}), msgEditValidatorGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgDelegate{}), msgDelegateGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgUndelegate{}), msgUndelegateGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgBeginRedelegate{}), msgBeginRedelegateGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), msgCancelUnbondingDelegationGasCalculatorGen)
 }

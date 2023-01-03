@@ -47,8 +47,8 @@ func (suite *AnteTestSuite) TestMsgGas() {
 		expectedGas uint64
 	}
 	testCases := []testCase{
-		{"MsgSend", msgSend, 1000000},
-		{"MsgMultiSend", msgMultiSend, 2400000},
+		{"MsgSend", msgSend, 100000},
+		{"MsgMultiSend", msgMultiSend, 300000},
 	}
 	for _, tc := range testCases {
 		suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder() // Create new txBuilder for each test
