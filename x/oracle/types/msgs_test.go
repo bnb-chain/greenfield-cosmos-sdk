@@ -104,7 +104,7 @@ func TestValidateBasic(t *testing.T) {
 				AggSignature:   []byte("test sig"),
 			},
 			false,
-			fmt.Sprintf("length of vote addresse set should be %d", types.ValidatorBitSetLength),
+			fmt.Sprintf("length of vote address set should be %d", types.ValidatorBitSetLength),
 		},
 		{
 			types.MsgClaim{

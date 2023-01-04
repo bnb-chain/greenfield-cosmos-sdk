@@ -64,7 +64,7 @@ func (m *MsgClaim) ValidateBasic() error {
 
 	if len(m.VoteAddressSet) != ValidatorBitSetLength {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
-			fmt.Sprintf("length of vote addresse set should be %d", ValidatorBitSetLength))
+			fmt.Sprintf("length of vote address set should be %d", ValidatorBitSetLength))
 	}
 
 	if len(m.AggSignature) != BLSSignatureLength {
