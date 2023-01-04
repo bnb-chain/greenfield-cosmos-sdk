@@ -134,7 +134,7 @@ func (cmfg ConsumeMsgGasDecorator) getMsgGas(params types.Params, tx sdk.Tx) (ui
 		if err != nil {
 			return 0, err
 		}
-		totalGas = totalGas + gas
+		totalGas += gas
 	}
 	return totalGas, nil
 }

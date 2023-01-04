@@ -59,8 +59,7 @@ func GrantCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 			denyList := authorization.GetDenyList().GetAddress()
 			num = len(allowList) + len(denyList)
 		case *bank.SendAuthorization:
-			coins := authorization.SpendLimit
-			num = len(coins)
+			num = len(authorization.SpendLimit)
 		}
 
 		totalGas := fixedGas + uint64(num)*gasPerItem
@@ -100,8 +99,17 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 		}
 		switch feeAllowance := feeAllowance.(type) {
 		case *feegrant.AllowedMsgAllowance:
-			allowedMsg := feeAllowance.AllowedMessages
-			num = len(allowedMsg)
+			num = len(feeAllowance.AllowedMessages)
+		case *feegrant.PeriodicAllowance:
+			spendLimit := len(feeAllowance.PeriodSpendLimit)
+			canSpend := len(feeAllowance.PeriodCanSpend)
+			if spendLimit > canSpend {
+				num = spendLimit
+			} else {
+				num = canSpend
+			}
+		case *feegrant.BasicAllowance:
+			num = len(feeAllowance.SpendLimit)
 		}
 
 		totalGas := fixedGas + uint64(num)*gasPerItem
