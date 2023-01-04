@@ -14,7 +14,7 @@ import (
 const (
 	MaxTxSize     = "max_tx_size"
 	MinGasPerByte = "min_gas_per_byte"
-	MsgGas        = "msg_gas"
+	FixedMsgGas   = "fixed_msg_gas"
 )
 
 // GenMaxTxSize randomized MaxTxSize
@@ -46,13 +46,13 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { minGasPerByte = GenMinGasPerByte(r) },
 	)
 
-	var msgGas uint64
+	var fixedMsgGas uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MsgGas, &msgGas, simState.Rand,
-		func(r *rand.Rand) { msgGas = GenMsgGas(r) },
+		simState.Cdc, FixedMsgGas, &fixedMsgGas, simState.Rand,
+		func(r *rand.Rand) { fixedMsgGas = GenMsgGas(r) },
 	)
 
-	params := types.NewParams(maxTxSize, minGasPerByte, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas)
+	params := types.NewParams(maxTxSize, minGasPerByte, fixedMsgGas, fixedMsgGas, fixedMsgGas, fixedMsgGas)
 
 	gashubGenesis := types.NewGenesisState(params)
 

@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	keyMsgSendGas = "MsgSendGas"
+	keyFixedMsgGas = "FixedMsgGas"
 )
 
 // ParamChanges defines the parameters that can be modified by param change proposals
 // on the simulation
 func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
-		simulation.NewSimParamChange(types.ModuleName, keyMsgSendGas,
+		simulation.NewSimParamChange(types.ModuleName, keyFixedMsgGas,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("%d", GenMsgGas(r))
 			},

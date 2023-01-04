@@ -12,26 +12,8 @@ message Params {
 
   uint64 max_tx_size = 1 [(gogoproto.customname) = "MaxTxSize"];
   uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
-  uint64 msg_grant_gas = 3 [(gogoproto.customname) = "MsgGrantGas"];
-  uint64 msg_revoke_gas = 4 [(gogoproto.customname) = "MsgRevokeGas"];
-  uint64 msg_exec_gas = 5 [(gogoproto.customname) = "MsgExecGas"];
-  uint64 msg_send_gas = 6 [(gogoproto.customname) = "MsgSendGas"];
-  uint64 msg_multi_send_gas = 7 [(gogoproto.customname) = "MsgMultiSendGas"];
-  uint64 msg_withdraw_delegator_reward_gas = 8 [(gogoproto.customname) = "MsgWithdrawDelegatorRewardGas"];
-  uint64 msg_withdraw_validator_commission_gas = 9 [(gogoproto.customname) = "MsgWithdrawValidatorCommissionGas"];
-  uint64 msg_set_withdraw_address_gas = 10 [(gogoproto.customname) = "MsgSetWithdrawAddressGas"];
-  uint64 msg_fund_community_pool_gas = 11 [(gogoproto.customname) = "MsgFundCommunityPoolGas"];
-  uint64 msg_grant_allowance_gas = 12 [(gogoproto.customname) = "MsgGrantAllowanceGas"];
-  uint64 msg_revoke_allowance_gas = 13 [(gogoproto.customname) = "MsgRevokeAllowanceGas"];
-  uint64 msg_submit_proposal_gas = 14 [(gogoproto.customname) = "MsgSubmitProposalGas"];
-  uint64 msg_vote_gas = 15 [(gogoproto.customname) = "MsgVoteGas"];
-  uint64 msg_vote_weighted_gas = 16 [(gogoproto.customname) = "MsgVoteWeightedGas"];
-  uint64 msg_deposit_gas = 17 [(gogoproto.customname) = "MsgDepositGas"];
-  uint64 msg_unjail_gas = 18 [(gogoproto.customname) = "MsgUnjailGas"];
-  uint64 msg_impeach_gas = 19 [(gogoproto.customname) = "MsgImpeachGas"];
-  uint64 msg_edit_validator_gas = 20 [(gogoproto.customname) = "MsgEditValidatorGas"];
-  uint64 msg_delegate_gas = 21 [(gogoproto.customname) = "MsgDelegateGas"];
-  uint64 msg_undelegate_gas = 22 [(gogoproto.customname) = "MsgUndelegateGas"];
-  uint64 msg_begin_redelegate_gas = 23 [(gogoproto.customname) = "MsgBeginRedelegateGas"];
-  uint64 msg_cancel_unbonding_delegation_gas = 24 [(gogoproto.customname) = "MsgCancelUnbondingDelegationGas"];
+  uint64 fixed_msg_gas = 3 [(gogoproto.customname) = "FixedMsgGas"];
+  uint64 msg_grant_per_item_gas = 4 [(gogoproto.customname) = "MsgGrantPerItemGas"];
+  uint64 msg_multi_send_per_item_gas = 5 [(gogoproto.customname) = "MsgMultiSendPerItemGas"];
+  uint64 msg_grant_allowance_per_item_gas = 6 [(gogoproto.customname) = "MsgGrantAllowancePerItemGas"];
 }

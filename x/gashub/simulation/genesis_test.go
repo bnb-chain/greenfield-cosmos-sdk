@@ -41,6 +41,5 @@ func TestRandomizedGenState(t *testing.T) {
 
 	require.Equal(t, uint64(2540), gashubGenesis.Params.MaxTxSize)
 	require.Equal(t, uint64(2956), gashubGenesis.Params.MinGasPerByte)
-	require.Equal(t, uint64(2803300), gashubGenesis.Params.MsgSendGas)
-	require.Equal(t, uint64(2803300), gashubGenesis.Params.MsgMultiSendGas)
+	require.Equal(t, uint64(2803300), gashubGenesis.Params.FixedMsgGas)
 }

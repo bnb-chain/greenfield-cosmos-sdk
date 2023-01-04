@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -113,7 +112,7 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, err
 	}
 
-	if gasByTxSize >= gasByMsgType {
+	if gasByTxSize > gasByMsgType {
 		ctx.GasMeter().ConsumeGas(gasByTxSize, "tx bytes length")
 	} else {
 		ctx.GasMeter().ConsumeGas(gasByMsgType, "msg type")
@@ -124,14 +123,18 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 func (cmfg ConsumeMsgGasDecorator) getMsgGas(params types.Params, tx sdk.Tx) (uint64, error) {
 	msgs := tx.GetMsgs()
-	var totalGas uint64
+	totalGas := uint64(0)
 	for _, msg := range msgs {
 		feeCalcGen := types.GetGasCalculatorGen(sdk.MsgTypeURL(msg))
 		if feeCalcGen == nil {
 			return 0, fmt.Errorf("failed to find fee calculator")
 		}
 		feeCalc := feeCalcGen(params)
-		totalGas += feeCalc(msg)
+		gas, err := feeCalc(msg)
+		if err != nil {
+			return 0, err
+		}
+		totalGas = totalGas + gas
 	}
 	return totalGas, nil
 }
