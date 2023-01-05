@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
@@ -38,7 +37,8 @@ type Context struct {
 	minGasPrice   DecCoins
 	consParams    *abci.ConsensusParams
 	eventManager  *EventManager
-	priority      int64 // The tx priority, only relevant in CheckTx
+	priority      int64  // The tx priority, only relevant in CheckTx
+	txSize        uint64 // The tx bytes length
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -60,6 +60,7 @@ func (c Context) IsReCheckTx() bool           { return c.recheckTx }
 func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) Priority() int64             { return c.priority }
+func (c Context) TxSize() uint64              { return c.txSize }
 
 // clone the header before returning
 func (c Context) BlockHeader() tmproto.Header {
@@ -228,9 +229,15 @@ func (c Context) WithEventManager(em *EventManager) Context {
 	return c
 }
 
-// WithEventManager returns a Context with an updated tx priority
+// WithPriority returns a Context with an updated tx priority
 func (c Context) WithPriority(p int64) Context {
 	c.priority = p
+	return c
+}
+
+// WithTxSize returns a Context with an updated tx bytes length
+func (c Context) WithTxSize(s uint64) Context {
+	c.txSize = s
 	return c
 }
 
@@ -258,12 +265,14 @@ func (c Context) Value(key interface{}) interface{} {
 
 // KVStore fetches a KVStore from the MultiStore.
 func (c Context) KVStore(key storetypes.StoreKey) KVStore {
-	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), storetypes.KVGasConfig())
+	// return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), storetypes.KVGasConfig())
+	return c.MultiStore().GetKVStore(key)
 }
 
 // TransientStore fetches a TransientStore from the MultiStore.
 func (c Context) TransientStore(key storetypes.StoreKey) KVStore {
-	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), storetypes.TransientGasConfig())
+	// return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), storetypes.TransientGasConfig())
+	return c.MultiStore().GetKVStore(key)
 }
 
 // CacheContext returns a new Context with the multi-store cached and a new

@@ -31,7 +31,7 @@ func GetQueryCmd() *cobra.Command {
 func GetCurrentPlanCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "plan",
-		Short: "get upgrade plan (if one exists)",
+		Short: "Get upgrade plan (if one exists)",
 		Long:  "Gets the currently scheduled upgrade plan, if one exists",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -65,7 +65,7 @@ func GetCurrentPlanCmd() *cobra.Command {
 func GetAppliedPlanCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "applied [upgrade-name]",
-		Short: "block header for height at which a completed upgrade was applied",
+		Short: "Block header for height at which a completed upgrade was applied",
 		Long: "If upgrade-name was previously executed on the chain, this returns the header for the block at which it was applied.\n" +
 			"This helps a client determine which binary was valid over a given range of blocks, as well as more context to understand past migrations.",
 		Args: cobra.ExactArgs(1),
@@ -117,7 +117,7 @@ func GetAppliedPlanCmd() *cobra.Command {
 func GetModuleVersionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "module_versions [optional module_name]",
-		Short: "get the list of module versions",
+		Short: "Get the list of module versions",
 		Long: "Gets a list of module names and their respective consensus versions.\n" +
 			"Following the command with a specific module name will return only\n" +
 			"that module's information.",

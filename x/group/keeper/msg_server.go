@@ -17,9 +17,9 @@ import (
 
 var _ group.MsgServer = Keeper{}
 
-// TODO: Revisit this once we have proper gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054, https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(20)
+// // TODO: Revisit this once we have proper gas fee framework.
+// // Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054, https://github.com/cosmos/cosmos-sdk/discussions/9072
+// const gasCostPerIteration = uint64(20)
 
 func (k Keeper) CreateGroup(goCtx context.Context, req *group.MsgCreateGroup) (*group.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -536,7 +536,7 @@ func (k Keeper) SubmitProposal(goCtx context.Context, req *group.MsgSubmitPropos
 	if req.Exec == group.Exec_EXEC_TRY {
 		// Consider proposers as Yes votes
 		for i := range proposers {
-			ctx.GasMeter().ConsumeGas(gasCostPerIteration, "vote on proposal")
+			// ctx.GasMeter().ConsumeGas(gasCostPerIteration, "vote on proposal")
 			_, err = k.Vote(sdk.WrapSDKContext(ctx), &group.MsgVote{
 				ProposalId: id,
 				Voter:      proposers[i],
