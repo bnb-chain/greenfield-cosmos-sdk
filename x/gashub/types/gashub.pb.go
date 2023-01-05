@@ -25,12 +25,33 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the gashub module.
 type Params struct {
-	MaxTxSize                   uint64 `protobuf:"varint,1,opt,name=max_tx_size,json=maxTxSize,proto3" json:"max_tx_size,omitempty"`
-	MinGasPerByte               uint64 `protobuf:"varint,2,opt,name=min_gas_per_byte,json=minGasPerByte,proto3" json:"min_gas_per_byte,omitempty"`
-	FixedMsgGas                 uint64 `protobuf:"varint,3,opt,name=fixed_msg_gas,json=fixedMsgGas,proto3" json:"fixed_msg_gas,omitempty"`
-	MsgGrantPerItemGas          uint64 `protobuf:"varint,4,opt,name=msg_grant_per_item_gas,json=msgGrantPerItemGas,proto3" json:"msg_grant_per_item_gas,omitempty"`
-	MsgMultiSendPerItemGas      uint64 `protobuf:"varint,5,opt,name=msg_multi_send_per_item_gas,json=msgMultiSendPerItemGas,proto3" json:"msg_multi_send_per_item_gas,omitempty"`
-	MsgGrantAllowancePerItemGas uint64 `protobuf:"varint,6,opt,name=msg_grant_allowance_per_item_gas,json=msgGrantAllowancePerItemGas,proto3" json:"msg_grant_allowance_per_item_gas,omitempty"`
+	MaxTxSize                         uint64 `protobuf:"varint,1,opt,name=max_tx_size,json=maxTxSize,proto3" json:"max_tx_size,omitempty"`
+	MinGasPerByte                     uint64 `protobuf:"varint,2,opt,name=min_gas_per_byte,json=minGasPerByte,proto3" json:"min_gas_per_byte,omitempty"`
+	MsgGrantFixedGas                  uint64 `protobuf:"varint,3,opt,name=msg_grant_fixed_gas,json=msgGrantFixedGas,proto3" json:"msg_grant_fixed_gas,omitempty"`
+	MsgGrantPerItemGas                uint64 `protobuf:"varint,4,opt,name=msg_grant_per_item_gas,json=msgGrantPerItemGas,proto3" json:"msg_grant_per_item_gas,omitempty"`
+	MsgRevokeGas                      uint64 `protobuf:"varint,5,opt,name=msg_revoke_gas,json=msgRevokeGas,proto3" json:"msg_revoke_gas,omitempty"`
+	MsgExecGas                        uint64 `protobuf:"varint,6,opt,name=msg_exec_gas,json=msgExecGas,proto3" json:"msg_exec_gas,omitempty"`
+	MsgSendGas                        uint64 `protobuf:"varint,7,opt,name=msg_send_gas,json=msgSendGas,proto3" json:"msg_send_gas,omitempty"`
+	MsgMultiSendFixedGas              uint64 `protobuf:"varint,8,opt,name=msg_multi_send_fixed_gas,json=msgMultiSendFixedGas,proto3" json:"msg_multi_send_fixed_gas,omitempty"`
+	MsgMultiSendPerItemGas            uint64 `protobuf:"varint,9,opt,name=msg_multi_send_per_item_gas,json=msgMultiSendPerItemGas,proto3" json:"msg_multi_send_per_item_gas,omitempty"`
+	MsgWithdrawDelegatorRewardGas     uint64 `protobuf:"varint,10,opt,name=msg_withdraw_delegator_reward_gas,json=msgWithdrawDelegatorRewardGas,proto3" json:"msg_withdraw_delegator_reward_gas,omitempty"`
+	MsgWithdrawValidatorCommissionGas uint64 `protobuf:"varint,11,opt,name=msg_withdraw_validator_commission_gas,json=msgWithdrawValidatorCommissionGas,proto3" json:"msg_withdraw_validator_commission_gas,omitempty"`
+	MsgSetWithdrawAddressGas          uint64 `protobuf:"varint,12,opt,name=msg_set_withdraw_address_gas,json=msgSetWithdrawAddressGas,proto3" json:"msg_set_withdraw_address_gas,omitempty"`
+	MsgFundCommunityPoolGas           uint64 `protobuf:"varint,13,opt,name=msg_fund_community_pool_gas,json=msgFundCommunityPoolGas,proto3" json:"msg_fund_community_pool_gas,omitempty"`
+	MsgGrantAllowanceFixedGas         uint64 `protobuf:"varint,14,opt,name=msg_grant_allowance_fixed_gas,json=msgGrantAllowanceFixedGas,proto3" json:"msg_grant_allowance_fixed_gas,omitempty"`
+	MsgGrantAllowancePerItemGas       uint64 `protobuf:"varint,15,opt,name=msg_grant_allowance_per_item_gas,json=msgGrantAllowancePerItemGas,proto3" json:"msg_grant_allowance_per_item_gas,omitempty"`
+	MsgRevokeAllowanceGas             uint64 `protobuf:"varint,16,opt,name=msg_revoke_allowance_gas,json=msgRevokeAllowanceGas,proto3" json:"msg_revoke_allowance_gas,omitempty"`
+	MsgSubmitProposalGas              uint64 `protobuf:"varint,17,opt,name=msg_submit_proposal_gas,json=msgSubmitProposalGas,proto3" json:"msg_submit_proposal_gas,omitempty"`
+	MsgVoteGas                        uint64 `protobuf:"varint,18,opt,name=msg_vote_gas,json=msgVoteGas,proto3" json:"msg_vote_gas,omitempty"`
+	MsgVoteWeightedGas                uint64 `protobuf:"varint,19,opt,name=msg_vote_weighted_gas,json=msgVoteWeightedGas,proto3" json:"msg_vote_weighted_gas,omitempty"`
+	MsgDepositGas                     uint64 `protobuf:"varint,20,opt,name=msg_deposit_gas,json=msgDepositGas,proto3" json:"msg_deposit_gas,omitempty"`
+	MsgUnjailGas                      uint64 `protobuf:"varint,21,opt,name=msg_unjail_gas,json=msgUnjailGas,proto3" json:"msg_unjail_gas,omitempty"`
+	MsgImpeachGas                     uint64 `protobuf:"varint,22,opt,name=msg_impeach_gas,json=msgImpeachGas,proto3" json:"msg_impeach_gas,omitempty"`
+	MsgEditValidatorGas               uint64 `protobuf:"varint,23,opt,name=msg_edit_validator_gas,json=msgEditValidatorGas,proto3" json:"msg_edit_validator_gas,omitempty"`
+	MsgDelegateGas                    uint64 `protobuf:"varint,24,opt,name=msg_delegate_gas,json=msgDelegateGas,proto3" json:"msg_delegate_gas,omitempty"`
+	MsgUndelegateGas                  uint64 `protobuf:"varint,25,opt,name=msg_undelegate_gas,json=msgUndelegateGas,proto3" json:"msg_undelegate_gas,omitempty"`
+	MsgBeginRedelegateGas             uint64 `protobuf:"varint,26,opt,name=msg_begin_redelegate_gas,json=msgBeginRedelegateGas,proto3" json:"msg_begin_redelegate_gas,omitempty"`
+	MsgCancelUnbondingDelegationGas   uint64 `protobuf:"varint,27,opt,name=msg_cancel_unbonding_delegation_gas,json=msgCancelUnbondingDelegationGas,proto3" json:"msg_cancel_unbonding_delegation_gas,omitempty"`
 }
 
 func (m *Params) Reset()      { *m = Params{} }
@@ -79,9 +100,9 @@ func (m *Params) GetMinGasPerByte() uint64 {
 	return 0
 }
 
-func (m *Params) GetFixedMsgGas() uint64 {
+func (m *Params) GetMsgGrantFixedGas() uint64 {
 	if m != nil {
-		return m.FixedMsgGas
+		return m.MsgGrantFixedGas
 	}
 	return 0
 }
@@ -93,6 +114,34 @@ func (m *Params) GetMsgGrantPerItemGas() uint64 {
 	return 0
 }
 
+func (m *Params) GetMsgRevokeGas() uint64 {
+	if m != nil {
+		return m.MsgRevokeGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgExecGas() uint64 {
+	if m != nil {
+		return m.MsgExecGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgSendGas() uint64 {
+	if m != nil {
+		return m.MsgSendGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgMultiSendFixedGas() uint64 {
+	if m != nil {
+		return m.MsgMultiSendFixedGas
+	}
+	return 0
+}
+
 func (m *Params) GetMsgMultiSendPerItemGas() uint64 {
 	if m != nil {
 		return m.MsgMultiSendPerItemGas
@@ -100,9 +149,128 @@ func (m *Params) GetMsgMultiSendPerItemGas() uint64 {
 	return 0
 }
 
+func (m *Params) GetMsgWithdrawDelegatorRewardGas() uint64 {
+	if m != nil {
+		return m.MsgWithdrawDelegatorRewardGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgWithdrawValidatorCommissionGas() uint64 {
+	if m != nil {
+		return m.MsgWithdrawValidatorCommissionGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgSetWithdrawAddressGas() uint64 {
+	if m != nil {
+		return m.MsgSetWithdrawAddressGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgFundCommunityPoolGas() uint64 {
+	if m != nil {
+		return m.MsgFundCommunityPoolGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgGrantAllowanceFixedGas() uint64 {
+	if m != nil {
+		return m.MsgGrantAllowanceFixedGas
+	}
+	return 0
+}
+
 func (m *Params) GetMsgGrantAllowancePerItemGas() uint64 {
 	if m != nil {
 		return m.MsgGrantAllowancePerItemGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgRevokeAllowanceGas() uint64 {
+	if m != nil {
+		return m.MsgRevokeAllowanceGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgSubmitProposalGas() uint64 {
+	if m != nil {
+		return m.MsgSubmitProposalGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgVoteGas() uint64 {
+	if m != nil {
+		return m.MsgVoteGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgVoteWeightedGas() uint64 {
+	if m != nil {
+		return m.MsgVoteWeightedGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgDepositGas() uint64 {
+	if m != nil {
+		return m.MsgDepositGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgUnjailGas() uint64 {
+	if m != nil {
+		return m.MsgUnjailGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgImpeachGas() uint64 {
+	if m != nil {
+		return m.MsgImpeachGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgEditValidatorGas() uint64 {
+	if m != nil {
+		return m.MsgEditValidatorGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgDelegateGas() uint64 {
+	if m != nil {
+		return m.MsgDelegateGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgUndelegateGas() uint64 {
+	if m != nil {
+		return m.MsgUndelegateGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgBeginRedelegateGas() uint64 {
+	if m != nil {
+		return m.MsgBeginRedelegateGas
+	}
+	return 0
+}
+
+func (m *Params) GetMsgCancelUnbondingDelegationGas() uint64 {
+	if m != nil {
+		return m.MsgCancelUnbondingDelegationGas
 	}
 	return 0
 }
@@ -116,32 +284,69 @@ func init() {
 }
 
 var fileDescriptor_f79bf23b48853a4a = []byte{
-	// 400 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x92, 0x41, 0xcb, 0xd3, 0x30,
-	0x18, 0xc7, 0x5b, 0xdf, 0xd7, 0xe1, 0x9b, 0x51, 0xd4, 0x20, 0x65, 0xbc, 0x83, 0xe6, 0x45, 0x2f,
-	0x82, 0x6c, 0x65, 0xec, 0xb6, 0x9b, 0x03, 0x1d, 0x0a, 0x85, 0xb1, 0x09, 0x82, 0x97, 0x92, 0xad,
-	0x59, 0x16, 0x6c, 0x9a, 0xd2, 0x64, 0xda, 0xed, 0x53, 0x78, 0xf4, 0xb8, 0x6f, 0xe2, 0xd5, 0xe3,
-	0x8e, 0x9e, 0x8a, 0x64, 0x17, 0x3f, 0x86, 0x24, 0x5b, 0xd9, 0x86, 0xbe, 0xa7, 0xe4, 0x79, 0xf2,
-	0x7b, 0x7e, 0x79, 0x0e, 0x7f, 0xf0, 0x62, 0x2e, 0x24, 0x17, 0x32, 0xa4, 0x58, 0x2e, 0x57, 0xb3,
-	0xf0, 0x4b, 0x0f, 0xa7, 0xf9, 0x12, 0xf7, 0x8e, 0x75, 0x37, 0x2f, 0x84, 0x12, 0xd0, 0x3f, 0x40,
-	0xdd, 0x63, 0xb3, 0x86, 0x6e, 0x9f, 0x51, 0x41, 0x85, 0x45, 0x42, 0x73, 0x3b, 0xd0, 0xcf, 0x7f,
-	0x5c, 0x81, 0xc6, 0x18, 0x17, 0x98, 0x4b, 0xd8, 0x01, 0x4d, 0x8e, 0xcb, 0x58, 0x95, 0xb1, 0x64,
-	0x1b, 0xd2, 0x72, 0xef, 0xdc, 0x97, 0xd7, 0x43, 0x4f, 0x57, 0xe8, 0x26, 0xc2, 0xe5, 0x87, 0x72,
-	0xca, 0x36, 0x64, 0x72, 0xc3, 0xeb, 0x2b, 0x1c, 0x80, 0x27, 0x9c, 0x65, 0x31, 0xc5, 0x32, 0xce,
-	0x49, 0x11, 0xcf, 0xd6, 0x8a, 0xb4, 0x1e, 0xd8, 0x99, 0xa7, 0xba, 0x42, 0x5e, 0xc4, 0xb2, 0x11,
-	0x96, 0x63, 0x52, 0x0c, 0xd7, 0x8a, 0x4c, 0x3c, 0x7e, 0x5e, 0xc2, 0x3e, 0xf0, 0x16, 0xac, 0x24,
-	0x49, 0xcc, 0x25, 0x35, 0x86, 0xd6, 0x95, 0x1d, 0x7c, 0xac, 0x2b, 0xd4, 0x7c, 0x6b, 0x1e, 0x22,
-	0x49, 0x47, 0x58, 0x4e, 0x9a, 0x8b, 0x53, 0x01, 0xdf, 0x03, 0xdf, 0xe2, 0x05, 0xce, 0x94, 0xfd,
-	0x92, 0x29, 0xc2, 0xed, 0xf4, 0xb5, 0x9d, 0xf6, 0x75, 0x85, 0xa0, 0x61, 0x0d, 0x30, 0x26, 0xc5,
-	0x3b, 0x45, 0xb8, 0x91, 0x40, 0xfe, 0x4f, 0x0f, 0x7e, 0x04, 0x6d, 0xe3, 0xe2, 0xab, 0x54, 0xb1,
-	0x58, 0x92, 0x2c, 0xb9, 0x14, 0x3e, 0xb4, 0xc2, 0x5b, 0x5d, 0x21, 0x3f, 0x92, 0x34, 0x32, 0xd4,
-	0x94, 0x64, 0xc9, 0x99, 0xd4, 0xac, 0xf2, 0x9f, 0x3e, 0x5c, 0x80, 0xbb, 0xd3, 0x92, 0x38, 0x4d,
-	0xc5, 0x57, 0x9c, 0xcd, 0xc9, 0xa5, 0xbd, 0x61, 0xed, 0x48, 0x57, 0xa8, 0x5d, 0xaf, 0xfb, 0xba,
-	0x26, 0xcf, 0xbe, 0x68, 0xf3, 0xfb, 0x1f, 0x07, 0x8f, 0xbe, 0x6f, 0x91, 0xf3, 0x67, 0x8b, 0xdc,
-	0xe1, 0x9b, 0x9f, 0x3a, 0x70, 0x77, 0x3a, 0x70, 0x7f, 0xeb, 0xc0, 0xfd, 0xb6, 0x0f, 0x9c, 0xdd,
-	0x3e, 0x70, 0x7e, 0xed, 0x03, 0xe7, 0xd3, 0x2b, 0xca, 0x94, 0x89, 0xc0, 0x5c, 0xf0, 0xf0, 0x98,
-	0x9c, 0xc3, 0xd1, 0x91, 0xc9, 0xe7, 0xb0, 0xac, 0x63, 0xa4, 0xd6, 0x39, 0x91, 0xb3, 0x86, 0xcd,
-	0x43, 0xff, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x24, 0x68, 0xb2, 0xf5, 0x64, 0x02, 0x00, 0x00,
+	// 986 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x56, 0x4f, 0x6f, 0xdb, 0x36,
+	0x14, 0x8f, 0xb7, 0x2e, 0x6b, 0xd8, 0xd8, 0x75, 0x19, 0xc7, 0x76, 0xe2, 0xc6, 0x6c, 0x16, 0x14,
+	0x18, 0x30, 0xb4, 0x5e, 0x31, 0x60, 0xc0, 0x8a, 0x5d, 0xea, 0xa4, 0x0d, 0x32, 0x4c, 0x98, 0xe1,
+	0x2c, 0x0d, 0x36, 0x0c, 0x10, 0x68, 0x8b, 0x91, 0xb9, 0x98, 0xa2, 0x27, 0xd2, 0xb1, 0xd3, 0x4f,
+	0xb1, 0xe3, 0x8e, 0x3d, 0xec, 0xc3, 0xec, 0xd8, 0xe3, 0x4e, 0xc2, 0xc0, 0x5c, 0xf6, 0x31, 0x06,
+	0x92, 0xa2, 0x2c, 0x25, 0x4e, 0x76, 0xb2, 0xf8, 0xde, 0xef, 0x8f, 0x49, 0xbe, 0xf7, 0x24, 0xb0,
+	0x37, 0xe4, 0x82, 0x71, 0xd1, 0x09, 0xb1, 0x18, 0x4d, 0x07, 0x9d, 0x8b, 0x17, 0x78, 0x3c, 0x19,
+	0xe1, 0x17, 0xe9, 0xfa, 0xf9, 0x24, 0xe6, 0x92, 0xc3, 0xba, 0x05, 0x3d, 0x4f, 0x83, 0x0e, 0xb4,
+	0x5d, 0x0b, 0x79, 0xc8, 0x0d, 0xa4, 0xa3, 0x9f, 0x2c, 0xfa, 0xb3, 0x3f, 0xab, 0x60, 0xb5, 0x87,
+	0x63, 0xcc, 0x04, 0x7c, 0x06, 0x1e, 0x30, 0x3c, 0xf7, 0xe5, 0xdc, 0x17, 0xf4, 0x1d, 0x69, 0x96,
+	0x9e, 0x94, 0x3e, 0xbf, 0xd7, 0x2d, 0xab, 0x04, 0xad, 0x79, 0x78, 0xfe, 0xe3, 0xfc, 0x98, 0xbe,
+	0x23, 0xfd, 0x35, 0xe6, 0x1e, 0xe1, 0x4b, 0x50, 0x65, 0x34, 0xf2, 0x43, 0x2c, 0xfc, 0x09, 0x89,
+	0xfd, 0xc1, 0xa5, 0x24, 0xcd, 0x8f, 0x0c, 0xe7, 0x91, 0x4a, 0x50, 0xd9, 0xa3, 0xd1, 0x21, 0x16,
+	0x3d, 0x12, 0x77, 0x2f, 0x25, 0xe9, 0x97, 0x59, 0x7e, 0x09, 0xf7, 0xc1, 0x06, 0x13, 0xa1, 0x1f,
+	0xc6, 0x38, 0x92, 0xfe, 0x19, 0x9d, 0x93, 0x40, 0xeb, 0x34, 0x3f, 0x36, 0xf4, 0x9a, 0x4a, 0x50,
+	0xd5, 0x13, 0xe1, 0xa1, 0xce, 0xbe, 0xd1, 0xc9, 0x43, 0x2c, 0xfa, 0x55, 0x76, 0x2d, 0x02, 0xbf,
+	0x03, 0xf5, 0x85, 0x88, 0xfe, 0x0b, 0x54, 0x12, 0x66, 0x74, 0xee, 0x19, 0x9d, 0xba, 0x4a, 0x10,
+	0x74, 0x3a, 0x3d, 0x12, 0x1f, 0x49, 0xc2, 0xb4, 0x12, 0x64, 0x37, 0x62, 0xf0, 0x6b, 0x50, 0xd1,
+	0x5a, 0x31, 0xb9, 0xe0, 0xe7, 0xc4, 0x68, 0x7c, 0x62, 0x34, 0xaa, 0x2a, 0x41, 0xeb, 0x9e, 0x08,
+	0xfb, 0x26, 0xa1, 0xd9, 0xeb, 0x2c, 0xb7, 0x82, 0x5f, 0x02, 0xbd, 0xf6, 0xc9, 0x9c, 0x0c, 0x0d,
+	0x6b, 0xd5, 0xb0, 0x2a, 0x2a, 0x41, 0xc0, 0x13, 0xe1, 0xeb, 0x39, 0x19, 0x6a, 0x0e, 0x60, 0xd9,
+	0xb3, 0x63, 0x08, 0x12, 0xd9, 0x3d, 0x7f, 0x5a, 0x60, 0x1c, 0x93, 0x28, 0x70, 0x8c, 0xf4, 0x19,
+	0xf6, 0x40, 0x53, 0x33, 0xd8, 0x74, 0x2c, 0xa9, 0xe5, 0x2d, 0x4e, 0xec, 0xbe, 0x61, 0x37, 0x55,
+	0x82, 0x6a, 0x9e, 0x08, 0x3d, 0x0d, 0xd1, 0xb4, 0xec, 0xd4, 0x6a, 0x6c, 0x49, 0x14, 0x9e, 0x82,
+	0xd6, 0x35, 0xc5, 0xc2, 0xf1, 0xad, 0x19, 0xd1, 0x6d, 0x95, 0xa0, 0x7a, 0x5e, 0x34, 0x77, 0x84,
+	0x75, 0xb6, 0x34, 0x0e, 0xcf, 0xc1, 0xae, 0x16, 0x9e, 0x51, 0x39, 0x0a, 0x62, 0x3c, 0xf3, 0x03,
+	0x32, 0x26, 0x21, 0x96, 0x3c, 0xf6, 0x63, 0x32, 0xc3, 0xb1, 0xfd, 0xcf, 0xc0, 0xc8, 0xef, 0xaa,
+	0x04, 0xed, 0x78, 0x22, 0x3c, 0x4d, 0xb1, 0x07, 0x0e, 0xda, 0x37, 0x48, 0xed, 0xb2, 0xc3, 0xee,
+	0x4a, 0xc3, 0x19, 0x78, 0x5a, 0x30, 0xbb, 0xc0, 0x63, 0x1a, 0x18, 0xb3, 0x21, 0x67, 0x8c, 0x0a,
+	0x41, 0xb9, 0x29, 0xcf, 0xe6, 0x03, 0x63, 0xf8, 0x54, 0x25, 0x68, 0x37, 0x67, 0xf8, 0xd6, 0xc1,
+	0xf7, 0x33, 0xb4, 0x36, 0xdd, 0x65, 0xff, 0x07, 0x81, 0xbf, 0x80, 0xc7, 0xf6, 0x0a, 0xe5, 0xc2,
+	0x1c, 0x07, 0x41, 0x4c, 0x84, 0x30, 0x7e, 0xeb, 0xc6, 0xef, 0xb1, 0x4a, 0x50, 0xd3, 0x5c, 0xa9,
+	0x74, 0x7a, 0xaf, 0x2c, 0x48, 0xdb, 0x34, 0xd9, 0x2d, 0x19, 0xf8, 0x93, 0xbd, 0x9c, 0xb3, 0x69,
+	0x14, 0x98, 0x8d, 0x4c, 0x23, 0x2a, 0x2f, 0xfd, 0x09, 0xe7, 0x63, 0x23, 0x5e, 0x36, 0xe2, 0x2d,
+	0x95, 0xa0, 0x86, 0x27, 0xc2, 0x37, 0xd3, 0x28, 0xd8, 0x77, 0xa0, 0x1e, 0xe7, 0x63, 0xad, 0xdd,
+	0x60, 0xcb, 0x13, 0xd0, 0x07, 0x3b, 0x8b, 0x8e, 0xc1, 0xe3, 0x31, 0x9f, 0xe1, 0x68, 0x48, 0x72,
+	0xe5, 0x54, 0x31, 0xe2, 0x3b, 0x2a, 0x41, 0x5b, 0xae, 0x71, 0x5e, 0x39, 0x58, 0x56, 0x53, 0x5b,
+	0xec, 0xb6, 0x14, 0x3c, 0x03, 0x4f, 0x96, 0x19, 0x14, 0xaa, 0xeb, 0xa1, 0xf1, 0x40, 0x2a, 0x41,
+	0xad, 0x1b, 0x1e, 0xb9, 0x12, 0x6b, 0xb1, 0xdb, 0x93, 0xb0, 0x6f, 0x5b, 0x22, 0x6d, 0xd7, 0x85,
+	0x91, 0xd6, 0xaf, 0x1a, 0xfd, 0x2d, 0x95, 0xa0, 0xcd, 0xac, 0x71, 0x33, 0x0d, 0xad, 0xbc, 0xc9,
+	0x96, 0x85, 0xe1, 0x0f, 0xa0, 0x61, 0x6e, 0x75, 0x3a, 0x60, 0x54, 0xfa, 0x93, 0x98, 0x4f, 0xb8,
+	0xc0, 0xf6, 0xcc, 0x1f, 0x15, 0xba, 0xec, 0xd8, 0x20, 0x7a, 0x29, 0xc0, 0x75, 0xd9, 0x8d, 0xa8,
+	0xeb, 0xf4, 0x0b, 0x2e, 0xed, 0x1f, 0x83, 0x85, 0x4e, 0x7f, 0xcb, 0x25, 0x71, 0x9d, 0x9e, 0x3e,
+	0xc3, 0x23, 0xb0, 0x99, 0x31, 0x66, 0x84, 0x86, 0x23, 0x99, 0xde, 0xcb, 0x46, 0x61, 0xa0, 0x69,
+	0xf8, 0x69, 0x9a, 0x76, 0x03, 0xed, 0x5a, 0x0c, 0x7e, 0x03, 0x1e, 0x6a, 0xa9, 0x80, 0x4c, 0xb8,
+	0xa0, 0xd2, 0x88, 0xd4, 0x72, 0xc3, 0x59, 0x84, 0x07, 0x36, 0xa3, 0xf9, 0x65, 0x96, 0x5f, 0xba,
+	0x59, 0x38, 0x8d, 0x7e, 0xc5, 0xd4, 0xee, 0x7f, 0xb3, 0x30, 0x0b, 0x4f, 0x4c, 0xc2, 0xcd, 0xc2,
+	0x6c, 0xe5, 0x2c, 0x29, 0x9b, 0x10, 0x3c, 0x1c, 0x19, 0x62, 0xbd, 0x60, 0x79, 0x64, 0x33, 0xce,
+	0x72, 0xb1, 0x84, 0xdf, 0xdb, 0x51, 0x4e, 0x02, 0x2a, 0x73, 0x6d, 0xac, 0x15, 0x1a, 0x46, 0xa1,
+	0xa1, 0x12, 0xb4, 0xa1, 0x07, 0x6a, 0x40, 0x65, 0xd6, 0x94, 0x5a, 0x47, 0xbf, 0x46, 0xae, 0x07,
+	0xe1, 0xb7, 0xa0, 0x6a, 0xf7, 0x6e, 0x46, 0x86, 0x3d, 0xfc, 0xa6, 0xd1, 0x81, 0x2a, 0x41, 0x15,
+	0xb3, 0x79, 0x9b, 0xd2, 0x12, 0x15, 0x56, 0x58, 0xc3, 0x2e, 0x80, 0x76, 0xfb, 0x05, 0xfe, 0x56,
+	0xe1, 0xd5, 0x74, 0x92, 0x25, 0xdd, 0xab, 0xa9, 0x10, 0x71, 0xf5, 0x39, 0x20, 0x21, 0x8d, 0xfc,
+	0x98, 0x14, 0x94, 0xb6, 0x0b, 0xf5, 0xd9, 0xd5, 0x90, 0x3e, 0xc9, 0xcb, 0xe9, 0x1a, 0xb8, 0x19,
+	0x86, 0xbf, 0x81, 0x3d, 0xad, 0x39, 0xd4, 0xf5, 0x3a, 0xf6, 0xa7, 0xd1, 0x80, 0x47, 0x01, 0x8d,
+	0xb2, 0x6d, 0xba, 0x61, 0xd7, 0x32, 0xf2, 0x7b, 0x2a, 0x41, 0xc8, 0x13, 0xe1, 0xbe, 0x41, 0x9f,
+	0x38, 0xf0, 0x41, 0x86, 0xd5, 0x46, 0x88, 0xdd, 0x0d, 0x78, 0x79, 0xff, 0x8f, 0xf7, 0x68, 0xe5,
+	0xdf, 0xf7, 0xa8, 0xd4, 0x7d, 0xfd, 0x97, 0x6a, 0x97, 0x3e, 0xa8, 0x76, 0xe9, 0x1f, 0xd5, 0x2e,
+	0xfd, 0x7e, 0xd5, 0x5e, 0xf9, 0x70, 0xd5, 0x5e, 0xf9, 0xfb, 0xaa, 0xbd, 0xf2, 0xf3, 0x17, 0x21,
+	0x95, 0xfa, 0x3b, 0x63, 0xc8, 0x59, 0x27, 0xfd, 0x3c, 0xb1, 0x3f, 0xcf, 0x44, 0x70, 0xde, 0x99,
+	0xbb, 0x6f, 0x15, 0x79, 0x39, 0x21, 0x62, 0xb0, 0x6a, 0x3e, 0x3a, 0xbe, 0xfa, 0x2f, 0x00, 0x00,
+	0xff, 0xff, 0x58, 0x22, 0xf1, 0x68, 0xc9, 0x08, 0x00, 0x00,
 }
 
 func (this *Params) Equal(that interface{}) bool {
@@ -169,16 +374,79 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.MinGasPerByte != that1.MinGasPerByte {
 		return false
 	}
-	if this.FixedMsgGas != that1.FixedMsgGas {
+	if this.MsgGrantFixedGas != that1.MsgGrantFixedGas {
 		return false
 	}
 	if this.MsgGrantPerItemGas != that1.MsgGrantPerItemGas {
 		return false
 	}
+	if this.MsgRevokeGas != that1.MsgRevokeGas {
+		return false
+	}
+	if this.MsgExecGas != that1.MsgExecGas {
+		return false
+	}
+	if this.MsgSendGas != that1.MsgSendGas {
+		return false
+	}
+	if this.MsgMultiSendFixedGas != that1.MsgMultiSendFixedGas {
+		return false
+	}
 	if this.MsgMultiSendPerItemGas != that1.MsgMultiSendPerItemGas {
 		return false
 	}
+	if this.MsgWithdrawDelegatorRewardGas != that1.MsgWithdrawDelegatorRewardGas {
+		return false
+	}
+	if this.MsgWithdrawValidatorCommissionGas != that1.MsgWithdrawValidatorCommissionGas {
+		return false
+	}
+	if this.MsgSetWithdrawAddressGas != that1.MsgSetWithdrawAddressGas {
+		return false
+	}
+	if this.MsgFundCommunityPoolGas != that1.MsgFundCommunityPoolGas {
+		return false
+	}
+	if this.MsgGrantAllowanceFixedGas != that1.MsgGrantAllowanceFixedGas {
+		return false
+	}
 	if this.MsgGrantAllowancePerItemGas != that1.MsgGrantAllowancePerItemGas {
+		return false
+	}
+	if this.MsgRevokeAllowanceGas != that1.MsgRevokeAllowanceGas {
+		return false
+	}
+	if this.MsgSubmitProposalGas != that1.MsgSubmitProposalGas {
+		return false
+	}
+	if this.MsgVoteGas != that1.MsgVoteGas {
+		return false
+	}
+	if this.MsgVoteWeightedGas != that1.MsgVoteWeightedGas {
+		return false
+	}
+	if this.MsgDepositGas != that1.MsgDepositGas {
+		return false
+	}
+	if this.MsgUnjailGas != that1.MsgUnjailGas {
+		return false
+	}
+	if this.MsgImpeachGas != that1.MsgImpeachGas {
+		return false
+	}
+	if this.MsgEditValidatorGas != that1.MsgEditValidatorGas {
+		return false
+	}
+	if this.MsgDelegateGas != that1.MsgDelegateGas {
+		return false
+	}
+	if this.MsgUndelegateGas != that1.MsgUndelegateGas {
+		return false
+	}
+	if this.MsgBeginRedelegateGas != that1.MsgBeginRedelegateGas {
+		return false
+	}
+	if this.MsgCancelUnbondingDelegationGas != that1.MsgCancelUnbondingDelegationGas {
 		return false
 	}
 	return true
@@ -203,13 +471,142 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.MsgCancelUnbondingDelegationGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgCancelUnbondingDelegationGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xd8
+	}
+	if m.MsgBeginRedelegateGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgBeginRedelegateGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xd0
+	}
+	if m.MsgUndelegateGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgUndelegateGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xc8
+	}
+	if m.MsgDelegateGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgDelegateGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xc0
+	}
+	if m.MsgEditValidatorGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgEditValidatorGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xb8
+	}
+	if m.MsgImpeachGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgImpeachGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xb0
+	}
+	if m.MsgUnjailGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgUnjailGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa8
+	}
+	if m.MsgDepositGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgDepositGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa0
+	}
+	if m.MsgVoteWeightedGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgVoteWeightedGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x98
+	}
+	if m.MsgVoteGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgVoteGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x90
+	}
+	if m.MsgSubmitProposalGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgSubmitProposalGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x88
+	}
+	if m.MsgRevokeAllowanceGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgRevokeAllowanceGas))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x80
+	}
 	if m.MsgGrantAllowancePerItemGas != 0 {
 		i = encodeVarintGashub(dAtA, i, uint64(m.MsgGrantAllowancePerItemGas))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x78
+	}
+	if m.MsgGrantAllowanceFixedGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgGrantAllowanceFixedGas))
+		i--
+		dAtA[i] = 0x70
+	}
+	if m.MsgFundCommunityPoolGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgFundCommunityPoolGas))
+		i--
+		dAtA[i] = 0x68
+	}
+	if m.MsgSetWithdrawAddressGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgSetWithdrawAddressGas))
+		i--
+		dAtA[i] = 0x60
+	}
+	if m.MsgWithdrawValidatorCommissionGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgWithdrawValidatorCommissionGas))
+		i--
+		dAtA[i] = 0x58
+	}
+	if m.MsgWithdrawDelegatorRewardGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgWithdrawDelegatorRewardGas))
+		i--
+		dAtA[i] = 0x50
 	}
 	if m.MsgMultiSendPerItemGas != 0 {
 		i = encodeVarintGashub(dAtA, i, uint64(m.MsgMultiSendPerItemGas))
+		i--
+		dAtA[i] = 0x48
+	}
+	if m.MsgMultiSendFixedGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgMultiSendFixedGas))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.MsgSendGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgSendGas))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.MsgExecGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgExecGas))
+		i--
+		dAtA[i] = 0x30
+	}
+	if m.MsgRevokeGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgRevokeGas))
 		i--
 		dAtA[i] = 0x28
 	}
@@ -218,8 +615,8 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.FixedMsgGas != 0 {
-		i = encodeVarintGashub(dAtA, i, uint64(m.FixedMsgGas))
+	if m.MsgGrantFixedGas != 0 {
+		i = encodeVarintGashub(dAtA, i, uint64(m.MsgGrantFixedGas))
 		i--
 		dAtA[i] = 0x18
 	}
@@ -259,17 +656,80 @@ func (m *Params) Size() (n int) {
 	if m.MinGasPerByte != 0 {
 		n += 1 + sovGashub(uint64(m.MinGasPerByte))
 	}
-	if m.FixedMsgGas != 0 {
-		n += 1 + sovGashub(uint64(m.FixedMsgGas))
+	if m.MsgGrantFixedGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgGrantFixedGas))
 	}
 	if m.MsgGrantPerItemGas != 0 {
 		n += 1 + sovGashub(uint64(m.MsgGrantPerItemGas))
 	}
+	if m.MsgRevokeGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgRevokeGas))
+	}
+	if m.MsgExecGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgExecGas))
+	}
+	if m.MsgSendGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgSendGas))
+	}
+	if m.MsgMultiSendFixedGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgMultiSendFixedGas))
+	}
 	if m.MsgMultiSendPerItemGas != 0 {
 		n += 1 + sovGashub(uint64(m.MsgMultiSendPerItemGas))
 	}
+	if m.MsgWithdrawDelegatorRewardGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgWithdrawDelegatorRewardGas))
+	}
+	if m.MsgWithdrawValidatorCommissionGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgWithdrawValidatorCommissionGas))
+	}
+	if m.MsgSetWithdrawAddressGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgSetWithdrawAddressGas))
+	}
+	if m.MsgFundCommunityPoolGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgFundCommunityPoolGas))
+	}
+	if m.MsgGrantAllowanceFixedGas != 0 {
+		n += 1 + sovGashub(uint64(m.MsgGrantAllowanceFixedGas))
+	}
 	if m.MsgGrantAllowancePerItemGas != 0 {
 		n += 1 + sovGashub(uint64(m.MsgGrantAllowancePerItemGas))
+	}
+	if m.MsgRevokeAllowanceGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgRevokeAllowanceGas))
+	}
+	if m.MsgSubmitProposalGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgSubmitProposalGas))
+	}
+	if m.MsgVoteGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgVoteGas))
+	}
+	if m.MsgVoteWeightedGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgVoteWeightedGas))
+	}
+	if m.MsgDepositGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgDepositGas))
+	}
+	if m.MsgUnjailGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgUnjailGas))
+	}
+	if m.MsgImpeachGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgImpeachGas))
+	}
+	if m.MsgEditValidatorGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgEditValidatorGas))
+	}
+	if m.MsgDelegateGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgDelegateGas))
+	}
+	if m.MsgUndelegateGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgUndelegateGas))
+	}
+	if m.MsgBeginRedelegateGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgBeginRedelegateGas))
+	}
+	if m.MsgCancelUnbondingDelegationGas != 0 {
+		n += 2 + sovGashub(uint64(m.MsgCancelUnbondingDelegationGas))
 	}
 	return n
 }
@@ -349,9 +809,9 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FixedMsgGas", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgGrantFixedGas", wireType)
 			}
-			m.FixedMsgGas = 0
+			m.MsgGrantFixedGas = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowGashub
@@ -361,7 +821,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.FixedMsgGas |= uint64(b&0x7F) << shift
+				m.MsgGrantFixedGas |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -387,6 +847,82 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 5:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgRevokeGas", wireType)
+			}
+			m.MsgRevokeGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgRevokeGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgExecGas", wireType)
+			}
+			m.MsgExecGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgExecGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgSendGas", wireType)
+			}
+			m.MsgSendGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgSendGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgMultiSendFixedGas", wireType)
+			}
+			m.MsgMultiSendFixedGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgMultiSendFixedGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MsgMultiSendPerItemGas", wireType)
 			}
 			m.MsgMultiSendPerItemGas = 0
@@ -404,7 +940,102 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 6:
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgWithdrawDelegatorRewardGas", wireType)
+			}
+			m.MsgWithdrawDelegatorRewardGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgWithdrawDelegatorRewardGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 11:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgWithdrawValidatorCommissionGas", wireType)
+			}
+			m.MsgWithdrawValidatorCommissionGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgWithdrawValidatorCommissionGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgSetWithdrawAddressGas", wireType)
+			}
+			m.MsgSetWithdrawAddressGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgSetWithdrawAddressGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 13:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgFundCommunityPoolGas", wireType)
+			}
+			m.MsgFundCommunityPoolGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgFundCommunityPoolGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 14:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgGrantAllowanceFixedGas", wireType)
+			}
+			m.MsgGrantAllowanceFixedGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgGrantAllowanceFixedGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 15:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MsgGrantAllowancePerItemGas", wireType)
 			}
@@ -419,6 +1050,234 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.MsgGrantAllowancePerItemGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 16:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgRevokeAllowanceGas", wireType)
+			}
+			m.MsgRevokeAllowanceGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgRevokeAllowanceGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 17:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgSubmitProposalGas", wireType)
+			}
+			m.MsgSubmitProposalGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgSubmitProposalGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 18:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgVoteGas", wireType)
+			}
+			m.MsgVoteGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgVoteGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 19:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgVoteWeightedGas", wireType)
+			}
+			m.MsgVoteWeightedGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgVoteWeightedGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 20:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgDepositGas", wireType)
+			}
+			m.MsgDepositGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgDepositGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 21:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgUnjailGas", wireType)
+			}
+			m.MsgUnjailGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgUnjailGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 22:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgImpeachGas", wireType)
+			}
+			m.MsgImpeachGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgImpeachGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 23:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgEditValidatorGas", wireType)
+			}
+			m.MsgEditValidatorGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgEditValidatorGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 24:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgDelegateGas", wireType)
+			}
+			m.MsgDelegateGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgDelegateGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 25:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgUndelegateGas", wireType)
+			}
+			m.MsgUndelegateGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgUndelegateGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 26:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgBeginRedelegateGas", wireType)
+			}
+			m.MsgBeginRedelegateGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgBeginRedelegateGas |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 27:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MsgCancelUnbondingDelegationGas", wireType)
+			}
+			m.MsgCancelUnbondingDelegationGas = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGashub
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MsgCancelUnbondingDelegationGas |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

@@ -8,13 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/pkg/errors"
 )
 
-// TODO: Revisit this once we have propoer gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054, https://github.com/cosmos/cosmos-sdk/discussions/9072
-const (
-	gasCostPerIteration = uint64(10)
-)
+const maxAllowedMessagesLength = 22
 
 var (
 	_ FeeAllowanceI                 = (*AllowedMsgAllowance)(nil)
@@ -88,7 +85,6 @@ func (a *AllowedMsgAllowance) Accept(ctx sdk.Context, fee sdk.Coins, msgs []sdk.
 func (a *AllowedMsgAllowance) allowedMsgsToMap(ctx sdk.Context) map[string]bool {
 	msgsMap := make(map[string]bool, len(a.AllowedMessages))
 	for _, msg := range a.AllowedMessages {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
 		msgsMap[msg] = true
 	}
 
@@ -99,7 +95,6 @@ func (a *AllowedMsgAllowance) allMsgTypesAllowed(ctx sdk.Context, msgs []sdk.Msg
 	msgsMap := a.allowedMsgsToMap(ctx)
 
 	for _, msg := range msgs {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "check msg")
 		if !msgsMap[sdk.MsgTypeURL(msg)] {
 			return false
 		}
@@ -111,10 +106,13 @@ func (a *AllowedMsgAllowance) allMsgTypesAllowed(ctx sdk.Context, msgs []sdk.Msg
 // ValidateBasic implements FeeAllowance and enforces basic sanity checks
 func (a *AllowedMsgAllowance) ValidateBasic() error {
 	if a.Allowance == nil {
-		return sdkerrors.Wrap(ErrNoAllowance, "allowance should not be empty")
+		return errors.Wrap(ErrNoAllowance, "allowance should not be empty")
 	}
 	if len(a.AllowedMessages) == 0 {
-		return sdkerrors.Wrap(ErrNoMessages, "allowed messages shouldn't be empty")
+		return errors.Wrap(ErrNoMessages, "allowed messages shouldn't be empty")
+	}
+	if len(a.AllowedMessages) > maxAllowedMessagesLength {
+		return errors.Wrapf(ErrTooManyMessages, "allowed messages number: %d, limit: %d", len(a.AllowedMessages), maxAllowedMessagesLength)
 	}
 
 	allowance, err := a.GetAllowance()

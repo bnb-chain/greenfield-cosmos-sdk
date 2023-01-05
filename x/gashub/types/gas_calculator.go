@@ -117,50 +117,102 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 	}
 }
 
-var fixedMsgGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetFixedMsgGas()
-	return FixedGasCalculator(fixedGas)
-}
-
 var msgGrantGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetFixedMsgGas()
+	fixedGas := params.GetMsgGrantFixedGas()
 	gasPerItem := params.GetMsgGrantPerItemGas()
 	return GrantCalculator(fixedGas, gasPerItem)
 }
 
 var msgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetFixedMsgGas()
+	fixedGas := params.GetMsgMultiSendFixedGas()
 	gasPerItem := params.GetMsgMultiSendPerItemGas()
 	return MultiSendCalculator(fixedGas, gasPerItem)
 }
 
 var msgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetFixedMsgGas()
+	fixedGas := params.GetMsgGrantAllowanceFixedGas()
 	gasPerItem := params.GetMsgGrantAllowancePerItemGas()
 	return GrantAllowanceCalculator(fixedGas, gasPerItem)
 }
 
 func init() {
 	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgGrant{}), msgGrantGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgRevoke{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgExec{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgSend{}), fixedMsgGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgRevoke{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgRevokeGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgExec{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgExecGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgSend{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSendGas()
+		return FixedGasCalculator(fixedGas)
+	})
 	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgMultiSend{}), msgMultiSendGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawDelegatorReward{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawValidatorCommission{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgSetWithdrawAddress{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgFundCommunityPool{}), fixedMsgGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawDelegatorReward{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgWithdrawDelegatorRewardGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawValidatorCommission{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgWithdrawValidatorCommissionGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgSetWithdrawAddress{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSetWithdrawAddressGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgFundCommunityPool{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgFundCommunityPoolGas()
+		return FixedGasCalculator(fixedGas)
+	})
 	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgGrantAllowance{}), msgGrantAllowanceGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgRevokeAllowance{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgSubmitProposal{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVote{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVoteWeighted{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgDeposit{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgUnjail{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgImpeach{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgEditValidator{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgDelegate{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgUndelegate{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgBeginRedelegate{}), fixedMsgGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), fixedMsgGasCalculatorGen)
+	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgRevokeAllowance{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgRevokeAllowanceGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgSubmitProposal{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSubmitProposalGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVote{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgVoteGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVoteWeighted{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgVoteWeightedGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgDeposit{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgDepositGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgUnjail{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgUnjailGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgImpeach{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgImpeachGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgEditValidator{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgEditValidatorGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgDelegate{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgDelegateGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgUndelegate{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgUndelegateGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgBeginRedelegate{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgBeginRedelegateGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgCancelUnbondingDelegationGas()
+		return FixedGasCalculator(fixedGas)
+	})
 }
