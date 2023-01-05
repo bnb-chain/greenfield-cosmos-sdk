@@ -22,23 +22,24 @@ but please do not over-use it. We try to keep all data structured
 and standard additions here would be better just to add to the Context struct
 */
 type Context struct {
-	baseCtx       context.Context
-	ms            MultiStore
-	header        tmproto.Header
-	headerHash    tmbytes.HexBytes
-	chainID       string
-	txBytes       []byte
-	logger        log.Logger
-	voteInfo      []abci.VoteInfo
-	gasMeter      GasMeter
-	blockGasMeter GasMeter
-	checkTx       bool
-	recheckTx     bool // if recheckTx == true, then checkTx must also be true
-	minGasPrice   DecCoins
-	consParams    *abci.ConsensusParams
-	eventManager  *EventManager
-	priority      int64  // The tx priority, only relevant in CheckTx
-	txSize        uint64 // The tx bytes length
+	baseCtx        context.Context
+	ms             MultiStore
+	header         tmproto.Header
+	headerHash     tmbytes.HexBytes
+	chainID        string
+	txBytes        []byte
+	logger         log.Logger
+	voteInfo       []abci.VoteInfo
+	gasMeter       GasMeter
+	blockGasMeter  GasMeter
+	checkTx        bool
+	recheckTx      bool // if recheckTx == true, then checkTx must also be true
+	minGasPrice    DecCoins
+	consParams     *abci.ConsensusParams
+	eventManager   *EventManager
+	priority       int64  // The tx priority, only relevant in CheckTx
+	txSize         uint64 // The tx bytes length
+	upgradeChecker func(ctx Context, name string) bool
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -61,6 +62,12 @@ func (c Context) MinGasPrices() DecCoins      { return c.minGasPrice }
 func (c Context) EventManager() *EventManager { return c.eventManager }
 func (c Context) Priority() int64             { return c.priority }
 func (c Context) TxSize() uint64              { return c.txSize }
+func (c Context) IsUpgraded(name string) bool {
+	if c.upgradeChecker == nil {
+		return false
+	}
+	return c.upgradeChecker(c, name)
+}
 
 // clone the header before returning
 func (c Context) BlockHeader() tmproto.Header {
@@ -92,19 +99,20 @@ func (c Context) Err() error {
 }
 
 // create a new context
-func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log.Logger) Context {
+func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, upgradeChecker func(Context, string) bool, logger log.Logger) Context {
 	// https://github.com/gogo/protobuf/issues/519
 	header.Time = header.Time.UTC()
 	return Context{
-		baseCtx:      context.Background(),
-		ms:           ms,
-		header:       header,
-		chainID:      header.ChainID,
-		checkTx:      isCheckTx,
-		logger:       logger,
-		gasMeter:     storetypes.NewInfiniteGasMeter(),
-		minGasPrice:  DecCoins{},
-		eventManager: NewEventManager(),
+		baseCtx:        context.Background(),
+		ms:             ms,
+		header:         header,
+		chainID:        header.ChainID,
+		checkTx:        isCheckTx,
+		logger:         logger,
+		gasMeter:       storetypes.NewInfiniteGasMeter(),
+		minGasPrice:    DecCoins{},
+		eventManager:   NewEventManager(),
+		upgradeChecker: upgradeChecker,
 	}
 }
 

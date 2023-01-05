@@ -41,7 +41,7 @@ func (suite *SubspaceTestSuite) SetupTest() {
 
 	suite.cdc = encCfg.Codec
 	suite.amino = encCfg.Amino
-	suite.ctx = sdk.NewContext(ms, tmproto.Header{}, false, log.NewNopLogger())
+	suite.ctx = sdk.NewContext(ms, tmproto.Header{}, false, nil, log.NewNopLogger())
 	suite.ss = ss.WithKeyTable(paramKeyTable())
 }
 

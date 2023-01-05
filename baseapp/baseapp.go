@@ -12,6 +12,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
@@ -58,6 +59,9 @@ type BaseApp struct { // nolint: maligned
 	snapshotData
 	abciData
 	moduleRouter
+
+	appConfig serverconfig.Config
+	chainID   string
 
 	// volatile states:
 	//
@@ -111,6 +115,9 @@ type BaseApp struct { // nolint: maligned
 	// abciListeners for hooking into the ABCI message processing of the BaseApp
 	// and exposing the requests and responses to external consumers
 	abciListeners []ABCIListener
+
+	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
+	upgradeChecker func(ctx sdk.Context, name string) bool
 }
 
 type appStore struct {
@@ -390,6 +397,14 @@ func (app *BaseApp) setIndexEvents(ie []string) {
 	}
 }
 
+func (app *BaseApp) setAppConfig(config serverconfig.Config) {
+	app.appConfig = config
+}
+
+func (app *BaseApp) setChainID(chainID string) {
+	app.chainID = chainID
+}
+
 // Router returns the legacy router of the BaseApp.
 func (app *BaseApp) Router() sdk.Router {
 	if app.sealed {
@@ -418,7 +433,7 @@ func (app *BaseApp) setCheckState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.checkState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, true, app.logger).WithMinGasPrices(app.minGasPrices),
+		ctx: sdk.NewContext(ms, header, true, app.upgradeChecker, app.logger).WithMinGasPrices(app.minGasPrices),
 	}
 }
 
@@ -430,7 +445,7 @@ func (app *BaseApp) setDeliverState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.deliverState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, false, app.logger),
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
 	}
 }
 
@@ -465,6 +480,16 @@ func (app *BaseApp) GetConsensusParams(ctx sdk.Context) *abci.ConsensusParams {
 	}
 
 	return cp
+}
+
+// AppConfig returns the AppConfig.
+func (app *BaseApp) AppConfig() serverconfig.Config {
+	return app.appConfig
+}
+
+// ChainID returns the chain id.
+func (app *BaseApp) ChainID() string {
+	return app.chainID
 }
 
 // AddRunTxRecoveryHandler adds custom app.runTx method panic handlers.
@@ -557,7 +582,7 @@ func validateBasicTxMsgs(msgs []sdk.Msg) error {
 	return nil
 }
 
-// Returns the applications's deliverState if app is in runTxModeDeliver,
+// GetState returns the applications's deliverState if app is in runTxModeDeliver,
 // otherwise it returns the application's checkstate.
 func (app *BaseApp) getState(mode runTxMode) *state {
 	if mode == runTxModeDeliver {
