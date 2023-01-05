@@ -4,9 +4,19 @@ import (
 	"math"
 )
 
+// ex.
+// const (
+// 	BEP111 =	"BEP111"
+// )
+
 var (
 	MainnetChainID = "inscription_9000-1"
 	MainnetConfig  = NewUpgradeConfig()
+	// .SetPlan(&Plan{
+	// 	Name: BEP111,
+	// 	Height: 100,
+	// 	Info: "https://github.com/bnb-chain/BEPs/pull/111",
+	// })
 )
 
 func NewUpgradeConfig() *UpgradeConfig {

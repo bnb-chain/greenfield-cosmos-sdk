@@ -301,45 +301,6 @@ func NewSimApp(
 	*/
 	app.GroupKeeper = groupkeeper.NewKeeper(keys[group.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper, groupConfig)
 
-	// Register the upgrade keeper
-	upgradeHandler := map[string]upgradetypes.UpgradeHandler{
-		// Add specific actions when the upgrade happen
-		// ex.
-		// "BEP111": func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-		// 	app.Logger().Info("upgrade to ", plan.Name)
-		// 	return fromVM, nil
-		// },
-	}
-
-	upgradeInitlizier := map[string]upgradetypes.UpgradeInitializer{
-		// Add specific actions when restart the program
-		// ex.
-		// "BEP111": func() error {
-		// 	app.Logger().Info("Init BEP111")
-		// 	return nil
-		// },
-	}
-
-	var err error
-	ms := app.CommitMultiStore()
-	ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
-
-	upgradeKeeperOpts := []upgradekeeper.KeeperOption{
-		upgradekeeper.RegisterUpgradePlan(app.ChainID(), bApp.AppConfig().Upgrade),
-		upgradekeeper.RegisterUpgradeHandler(upgradeHandler),
-		upgradekeeper.RegisterUpgradeInitializer(upgradeInitlizier),
-	}
-	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err = app.UpgradeKeeper.RunUpgraded(ctx)
-		if err != nil {
-			panic(err)
-		}
-	}()
-
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
 	// by granting the governance module the right to execute the message.
@@ -374,6 +335,44 @@ func NewSimApp(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	app.GashubKeeper = gashubkeeper.NewGashubKeeper(appCodec, keys[gashubtypes.StoreKey], app.GetSubspace(gashubtypes.ModuleName))
+
+	// Register the upgrade keeper
+	upgradeHandler := map[string]upgradetypes.UpgradeHandler{
+		// Add specific actions when the upgrade happen
+		// ex.
+		// upgradetypes.BEP111: func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+		// 	app.Logger().Info("upgrade to ", plan.Name)
+		// 	return fromVM, nil
+		// },
+	}
+
+	upgradeInitlizier := map[string]upgradetypes.UpgradeInitializer{
+		// Add specific actions when restart the program
+		// ex.
+		// upgradetypes.BEP111: func() error {
+		// 	app.Logger().Info("Init BEP111")
+		// 	return nil
+		// },
+	}
+
+	var err error
+	upgradeKeeperOpts := []upgradekeeper.KeeperOption{
+		upgradekeeper.RegisterUpgradePlan(app.ChainID(), bApp.AppConfig().Upgrade),
+		upgradekeeper.RegisterUpgradeHandler(upgradeHandler),
+		upgradekeeper.RegisterUpgradeInitializer(upgradeInitlizier),
+	}
+	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		ms := app.CommitMultiStore()
+		ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
+		err = app.UpgradeKeeper.InitUpgraded(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	/****  Module Options ****/
 
