@@ -2,13 +2,12 @@ package keeper
 
 import (
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-func convertUpgradeConfig(ctx sdk.Context, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
+func convertUpgradeConfig(chainID string, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
 	upgradeConfig := types.NewUpgradeConfig()
-	if ctx.ChainID() == types.MainnetChainID {
+	if chainID == types.MainnetChainID {
 		upgradeConfig = types.MainnetConfig
 	}
 
@@ -32,11 +31,11 @@ func convertUpgradeConfig(ctx sdk.Context, plans []serverconfig.UpgradeConfig) (
 type KeeperOption func(k *Keeper) error
 
 // RegisterUpgradePlan returns a KeeperOption to set the upgrade plan into the upgrade keeper
-func RegisterUpgradePlan(ctx sdk.Context,
+func RegisterUpgradePlan(chianID string,
 	plans []serverconfig.UpgradeConfig,
 ) KeeperOption {
 	return func(k *Keeper) error {
-		c, err := convertUpgradeConfig(ctx, plans)
+		c, err := convertUpgradeConfig(chianID, plans)
 		if err != nil {
 			return err
 		}
@@ -50,6 +49,16 @@ func RegisterUpgradeHandler(handlers map[string]types.UpgradeHandler) KeeperOpti
 	return func(k *Keeper) error {
 		for name, handler := range handlers {
 			k.SetUpgradeHandler(name, handler)
+		}
+		return nil
+	}
+}
+
+// RegisterUpgradeInitializer returns a KeeperOption to set the upgrade initializer into the upgrade keeper
+func RegisterUpgradeInitializer(handlers map[string]types.UpgradeInitializer) KeeperOption {
+	return func(k *Keeper) error {
+		for name, handler := range handlers {
+			k.SetUpgradeInitializer(name, handler)
 		}
 		return nil
 	}

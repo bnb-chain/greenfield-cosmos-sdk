@@ -254,3 +254,8 @@ func (app *BaseApp) SetStreamingService(s StreamingService) {
 	// BaseApp will pass BeginBlock, DeliverTx, and EndBlock requests and responses to the streaming services to update their ABCI context
 	app.abciListeners = append(app.abciListeners, s)
 }
+
+// SetUpgradeChecker is used to set a upgrade checker from the upgrade module
+func (app *BaseApp) SetUpgradeChecker(checker func(sdk.Context, string) bool) {
+	app.upgradeChecker = checker
+}

@@ -311,17 +311,34 @@ func NewSimApp(
 		// },
 	}
 
+	upgradeInitlizier := map[string]upgradetypes.UpgradeInitializer{
+		// Add specific actions when restart the program
+		// ex.
+		// "BEP111": func() error {
+		// 	app.Logger().Info("Init BEP111")
+		// 	return nil
+		// },
+	}
+
 	var err error
 	ms := app.CommitMultiStore()
 	ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
+
 	upgradeKeeperOpts := []upgradekeeper.KeeperOption{
-		upgradekeeper.RegisterUpgradePlan(ctx, bApp.AppConfig().Upgrade),
+		upgradekeeper.RegisterUpgradePlan(app.ChainID(), bApp.AppConfig().Upgrade),
 		upgradekeeper.RegisterUpgradeHandler(upgradeHandler),
+		upgradekeeper.RegisterUpgradeInitializer(upgradeInitlizier),
 	}
 	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
 	if err != nil {
 		panic(err)
 	}
+	defer func() {
+		err = app.UpgradeKeeper.RunUpgraded(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
@@ -462,6 +479,7 @@ func NewSimApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	app.setAnteHandler(encodingConfig.TxConfig)
+	app.SetUpgradeChecker(app.UpgradeKeeper.IsUpgraded)
 	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
 	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
 	// defined as a chain, and have the same signature as antehandlers.

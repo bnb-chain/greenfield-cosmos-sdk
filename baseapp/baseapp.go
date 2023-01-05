@@ -115,6 +115,9 @@ type BaseApp struct { // nolint: maligned
 	// abciListeners for hooking into the ABCI message processing of the BaseApp
 	// and exposing the requests and responses to external consumers
 	abciListeners []ABCIListener
+
+	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
+	upgradeChecker func(ctx sdk.Context, name string) bool
 }
 
 type appStore struct {
@@ -430,7 +433,7 @@ func (app *BaseApp) setCheckState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.checkState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, true, app.logger).WithMinGasPrices(app.minGasPrices),
+		ctx: sdk.NewContext(ms, header, true, app.logger).WithMinGasPrices(app.minGasPrices).WithUpgradeChecker(app.upgradeChecker),
 	}
 }
 
@@ -442,7 +445,7 @@ func (app *BaseApp) setDeliverState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.deliverState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, false, app.logger),
+		ctx: sdk.NewContext(ms, header, false, app.logger).WithUpgradeChecker(app.upgradeChecker),
 	}
 }
 

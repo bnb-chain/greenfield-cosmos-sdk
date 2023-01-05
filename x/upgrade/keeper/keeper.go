@@ -22,11 +22,12 @@ import (
 )
 
 type Keeper struct {
-	homePath           string                          // root directory of app config
-	skipUpgradeHeights map[int64]bool                  // map of heights to skip for an upgrade
-	storeKey           storetypes.StoreKey             // key to access x/upgrade store
-	cdc                codec.BinaryCodec               // App-wide binary codec
-	upgradeHandlers    map[string]types.UpgradeHandler // map of plan name to upgrade handler
+	homePath           string                              // root directory of app config
+	skipUpgradeHeights map[int64]bool                      // map of heights to skip for an upgrade
+	storeKey           storetypes.StoreKey                 // key to access x/upgrade store
+	cdc                codec.BinaryCodec                   // App-wide binary codec
+	upgradeHandlers    map[string]types.UpgradeHandler     // map of plan name to upgrade handler
+	upgradeInitializer map[string]types.UpgradeInitializer // map of plan name to upgrade initializer
 	upgradeConfig      *types.UpgradeConfig
 }
 
@@ -41,7 +42,8 @@ func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, 
 		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
-		upgradeHandlers:    map[string]types.UpgradeHandler{},
+		upgradeHandlers:    make(map[string]types.UpgradeHandler),
+		upgradeInitializer: make(map[string]types.UpgradeInitializer),
 		upgradeConfig:      types.NewUpgradeConfig(),
 	}
 
@@ -50,6 +52,7 @@ func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, 
 			return keeper, err
 		}
 	}
+
 	return keeper, nil
 }
 
@@ -58,6 +61,13 @@ func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, 
 // must be set even if it is a no-op function.
 func (k Keeper) SetUpgradeHandler(name string, upgradeHandler types.UpgradeHandler) {
 	k.upgradeHandlers[name] = upgradeHandler
+}
+
+// SetUpgradeInitializer sets an UpgradeInitializer for the upgrade specified by name. This initializer will be called when the program restart after upgrade
+// with this name is applied. In order for an upgrade with the given name to proceed, a initializer for this upgrade
+// must be set even if it is a no-op function.
+func (k Keeper) SetUpgradeInitializer(name string, upgradeInitializer types.UpgradeInitializer) {
+	k.upgradeInitializer[name] = upgradeInitializer
 }
 
 // SetModuleVersionMap saves a given version map to state
@@ -289,7 +299,7 @@ func (k Keeper) GetUpgradePlan(ctx sdk.Context) ([]*types.Plan, bool) {
 
 	nonUpgraded := make([]*types.Plan, 0, len(plans))
 	for i := 0; i < len(plans); i++ {
-		if !k.IsUpgrade(ctx, plans[i].Name) {
+		if !k.IsUpgraded(ctx, plans[i].Name) {
 			nonUpgraded = append(nonUpgraded, plans[i])
 		}
 	}
@@ -401,8 +411,8 @@ func (k Keeper) ReadUpgradeInfoFromDisk() (types.Plan, error) {
 	return upgradeInfo, nil
 }
 
-// IsUpgrade returns the bool which the given upgrade was executed
-func (k Keeper) IsUpgrade(ctx sdk.Context, name string) bool {
+// IsUpgraded returns the bool which the given upgrade was executed
+func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
 	height := k.GetDoneHeight(ctx, name)
 	if height == 0 {
 		return false
@@ -411,4 +421,24 @@ func (k Keeper) IsUpgrade(ctx sdk.Context, name string) bool {
 		return true
 	}
 	return false
+}
+
+// RunUpgraded execute the upgrade initializer that the upgrade is already applied.
+func (k Keeper) RunUpgraded(ctx sdk.Context) error {
+	iter := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte{types.DoneByte})
+	defer iter.Close()
+
+	for ; iter.Valid(); iter.Next() {
+		upgradeName, height := parseDoneKey(iter.Key())
+		if height < ctx.BlockHeight() {
+			if f := k.upgradeInitializer[upgradeName]; f != nil {
+				err := f()
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
