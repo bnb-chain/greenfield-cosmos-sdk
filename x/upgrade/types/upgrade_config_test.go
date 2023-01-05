@@ -5,31 +5,27 @@ import (
 	"testing"
 )
 
-func TestUpgradeConfig_GetPlan(t *testing.T) {
+func TestUpgradeConfig(t *testing.T) {
 	type args struct {
 		height int64
 	}
 	tests := []struct {
 		name string
-		c    UpgradeConfig
+		c    *UpgradeConfig
 		args args
 		want []*Plan
 	}{
 		{
 			name: "TestUpgradeConfig_GetPlan Case 1",
-			c: UpgradeConfig(map[int64][]*Plan{
-				1: {{
-					Name:   "Upgrade-1",
-					Height: 1,
-				}},
-				11: {{
-					Name:   "Upgrade-2",
-					Height: 11,
-				}},
-				20: {{
-					Name:   "Upgrade-3",
-					Height: 20,
-				}},
+			c: NewUpgradeConfig().SetPlan(&Plan{
+				Name:   "Upgrade-1",
+				Height: 1,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 11,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-3",
+				Height: 20,
 			}),
 			args: args{
 				height: 10,
@@ -41,19 +37,15 @@ func TestUpgradeConfig_GetPlan(t *testing.T) {
 		},
 		{
 			name: "TestUpgradeConfig_GetPlan Case 2",
-			c: UpgradeConfig(map[int64][]*Plan{
-				1: {{
-					Name:   "Upgrade-1",
-					Height: 1,
-				}},
-				11: {{
-					Name:   "Upgrade-2",
-					Height: 11,
-				}},
-				20: {{
-					Name:   "Upgrade-3",
-					Height: 20,
-				}},
+			c: NewUpgradeConfig().SetPlan(&Plan{
+				Name:   "Upgrade-1",
+				Height: 1,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 11,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-3",
+				Height: 20,
 			}),
 			args: args{
 				height: 20,
@@ -61,6 +53,54 @@ func TestUpgradeConfig_GetPlan(t *testing.T) {
 			want: []*Plan{{
 				Name:   "Upgrade-3",
 				Height: 20,
+			}},
+		},
+		{
+			name: "TestUpgradeConfig_SetPlan Override 1",
+			c: NewUpgradeConfig().SetPlan(&Plan{
+				Name:   "Upgrade-1",
+				Height: 1,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 11,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-3",
+				Height: 20,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 19,
+			}),
+			args: args{
+				height: 11,
+			},
+			want: []*Plan{{
+				Name:   "Upgrade-2",
+				Height: 19,
+			}},
+		},
+		{
+			name: "TestUpgradeConfig_SetPlan Override 2",
+			c: NewUpgradeConfig().SetPlan(&Plan{
+				Name:   "Upgrade-1",
+				Height: 1,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 11,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-3",
+				Height: 20,
+			}).SetPlan(&Plan{
+				Name:   "Upgrade-2",
+				Height: 11,
+				Info:   "override",
+			}),
+			args: args{
+				height: 10,
+			},
+			want: []*Plan{{
+				Name:   "Upgrade-2",
+				Height: 11,
+				Info:   "override",
 			}},
 		},
 	}

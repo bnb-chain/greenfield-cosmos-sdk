@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-func convertUpgradeConfig(ctx sdk.Context, plans []serverconfig.UpgradeConfig) (types.UpgradeConfig, error) {
+func convertUpgradeConfig(ctx sdk.Context, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
 	upgradeConfig := types.NewUpgradeConfig()
 	if ctx.ChainID() == types.MainnetChainID {
 		upgradeConfig = types.MainnetConfig

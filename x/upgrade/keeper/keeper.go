@@ -27,7 +27,7 @@ type Keeper struct {
 	storeKey           storetypes.StoreKey             // key to access x/upgrade store
 	cdc                codec.BinaryCodec               // App-wide binary codec
 	upgradeHandlers    map[string]types.UpgradeHandler // map of plan name to upgrade handler
-	upgradeConfig      types.UpgradeConfig
+	upgradeConfig      *types.UpgradeConfig
 }
 
 // NewKeeper constructs an upgrade Keeper which requires the following arguments:
@@ -271,7 +271,7 @@ func (k Keeper) ClearUpgradePlan(ctx sdk.Context) {
 		}
 	}
 
-	k.upgradeConfig.ClearPlan(planHeight)
+	k.upgradeConfig.Clear(planHeight)
 }
 
 // Logger returns a module-specific logger.
