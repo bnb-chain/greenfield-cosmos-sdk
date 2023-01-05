@@ -29,7 +29,7 @@ func (s *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(s.T(), false)
 	homeDir := filepath.Join(s.T().TempDir(), "x_upgrade_keeper_test")
 	app.UpgradeKeeper, err = keeper.NewKeeper( // recreate keeper in order to use a custom home Path
-		make(map[int64]bool), app.GetKey(types.StoreKey), app.AppCodec(), homeDir,
+		app.GetKey(types.StoreKey), app.AppCodec(), homeDir,
 	)
 	if err != nil {
 		s.T().Fatal(err)
@@ -125,6 +125,7 @@ func (s *KeeperTestSuite) TestScheduleUpgrade() {
 				s.app.UpgradeKeeper.SetUpgradeHandler("all-good", func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 					return vm, nil
 				})
+				s.app.UpgradeKeeper.SetUpgradeInitializer("all-good", func() error { return nil })
 				s.app.UpgradeKeeper.ApplyUpgrade(s.ctx, types.Plan{
 					Name:   "all-good",
 					Info:   "some text here",
@@ -210,6 +211,7 @@ func (s *KeeperTestSuite) TestMigrations() {
 		vm["bank"] = vm["bank"] + 1
 		return vm, nil
 	})
+	s.app.UpgradeKeeper.SetUpgradeInitializer("dummy", func() error { return nil })
 	dummyPlan := types.Plan{
 		Name:   "dummy",
 		Info:   "some text here",
@@ -233,6 +235,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgrade() {
 	keeper.SetUpgradeHandler("test0", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test0", func() error { return nil })
 
 	keeper.ApplyUpgrade(s.ctx, types.Plan{
 		Name:   "test0",
@@ -247,6 +250,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgrade() {
 	keeper.SetUpgradeHandler("test1", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test1", func() error { return nil })
 
 	newCtx := s.ctx.WithBlockHeight(15)
 	keeper.ApplyUpgrade(newCtx, types.Plan{
@@ -270,6 +274,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgradeOrdering() {
 	keeper.SetUpgradeHandler("test-v0.9", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test-v0.9", func() error { return nil })
 
 	keeper.ApplyUpgrade(s.ctx, types.Plan{
 		Name:   "test-v0.9",
@@ -284,6 +289,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgradeOrdering() {
 	keeper.SetUpgradeHandler("test-v0.10", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test-v0.10", func() error { return nil })
 
 	newCtx := s.ctx.WithBlockHeight(15)
 	keeper.ApplyUpgrade(newCtx, types.Plan{

@@ -29,16 +29,15 @@ type TestSuite struct {
 
 var s TestSuite
 
-func setupTest(t *testing.T, height int64, skip map[int64]bool) TestSuite {
+func setupTest(t *testing.T, height int64) TestSuite {
 	db := dbm.NewMemDB()
 	app := simapp.NewSimappWithCustomOptions(t, false, simapp.SetupOptions{
-		Logger:             log.NewNopLogger(),
-		SkipUpgradeHeights: skip,
-		DB:                 db,
-		InvCheckPeriod:     0,
-		HomePath:           simapp.DefaultNodeHome,
-		EncConfig:          simapp.MakeTestEncodingConfig(),
-		AppOpts:            simapp.EmptyAppOptions{},
+		Logger:         log.NewNopLogger(),
+		DB:             db,
+		InvCheckPeriod: 0,
+		HomePath:       simapp.DefaultNodeHome,
+		EncConfig:      simapp.MakeTestEncodingConfig(),
+		AppOpts:        simapp.EmptyAppOptions{},
 	})
 
 	s.keeper = app.UpgradeKeeper
@@ -50,19 +49,19 @@ func setupTest(t *testing.T, height int64, skip map[int64]bool) TestSuite {
 }
 
 func TestRequireName(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{})
 	require.Error(t, err)
 }
 
 func TestRequireFutureBlock(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() - 1})
 	require.Error(t, err)
 }
 
 func TestDoHeightUpgrade(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	t.Log("Verify can schedule an upgrade")
 
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 1})
@@ -72,7 +71,7 @@ func TestDoHeightUpgrade(t *testing.T) {
 }
 
 func TestCanOverwriteScheduleUpgrade(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	t.Log("Can overwrite plan")
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 10})
 	require.NoError(t, err)
@@ -118,13 +117,14 @@ func VerifyDoUpgradeWithCtx(t *testing.T, newCtx sdk.Context, proposalName strin
 }
 
 func TestHaltIfTooNew(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	t.Log("Verify that we don't panic with registered plan not in database at all")
 	var called int
 	s.keeper.SetUpgradeHandler("future", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		called++
 		return vm, nil
 	})
+	s.keeper.SetUpgradeInitializer("future", func() error { return nil })
 
 	newCtx := s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1).WithBlockTime(time.Now())
 	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
@@ -161,7 +161,7 @@ func VerifyCleared(t *testing.T, newCtx sdk.Context) {
 }
 
 func TestCanClear(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	t.Log("Verify upgrade is scheduled")
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 100})
 	require.NoError(t, err)
@@ -194,149 +194,15 @@ func VerifyDone(t *testing.T, newCtx sdk.Context, name string) {
 	require.NotZero(t, height)
 }
 
-func VerifySet(t *testing.T, skipUpgradeHeights map[int64]bool) {
-	t.Log("Verify if the skip upgrade has been set")
-
-	for k := range skipUpgradeHeights {
-		require.True(t, s.keeper.IsSkipHeight(k))
-	}
-}
-
-func TestContains(t *testing.T) {
-	var skipOne int64 = 11
-	s := setupTest(t, 10, map[int64]bool{skipOne: true})
-
-	VerifySet(t, map[int64]bool{skipOne: true})
-	t.Log("case where array contains the element")
-	require.True(t, s.keeper.IsSkipHeight(11))
-
-	t.Log("case where array doesn't contain the element")
-	require.False(t, s.keeper.IsSkipHeight(4))
-}
-
-func TestSkipUpgradeSkippingAll(t *testing.T) {
-	var (
-		skipOne int64 = 11
-		skipTwo int64 = 20
-	)
-	s := setupTest(t, 10, map[int64]bool{skipOne: true, skipTwo: true})
-
-	newCtx := s.ctx
-
-	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
-	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: skipOne})
-	require.NoError(t, err)
-
-	t.Log("Verify if skip upgrade flag clears upgrade plan in both cases")
-	VerifySet(t, map[int64]bool{skipOne: true, skipTwo: true})
-
-	newCtx = newCtx.WithBlockHeight(skipOne)
-	require.NotPanics(t, func() {
-		s.module.BeginBlock(newCtx, req)
-	})
-
-	t.Log("Verify a second proposal also is being cleared")
-	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test2", Height: skipTwo})
-	require.NoError(t, err)
-
-	newCtx = newCtx.WithBlockHeight(skipTwo)
-	require.NotPanics(t, func() {
-		s.module.BeginBlock(newCtx, req)
-	})
-
-	// To ensure verification is being done only after both upgrades are cleared
-	t.Log("Verify if both proposals are cleared")
-	VerifyCleared(t, s.ctx)
-	VerifyNotDone(t, s.ctx, "test")
-	VerifyNotDone(t, s.ctx, "test2")
-}
-
-func TestUpgradeSkippingOne(t *testing.T) {
-	var (
-		skipOne int64 = 11
-		skipTwo int64 = 20
-	)
-	s := setupTest(t, 10, map[int64]bool{skipOne: true})
-
-	newCtx := s.ctx
-
-	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
-	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: skipOne})
-	require.NoError(t, err)
-
-	t.Log("Verify if skip upgrade flag clears upgrade plan in one case and does upgrade on another")
-	VerifySet(t, map[int64]bool{skipOne: true})
-
-	// Setting block height of proposal test
-	newCtx = newCtx.WithBlockHeight(skipOne)
-	require.NotPanics(t, func() {
-		s.module.BeginBlock(newCtx, req)
-	})
-
-	t.Log("Verify the second proposal is not skipped")
-	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test2", Height: skipTwo})
-	require.NoError(t, err)
-	// Setting block height of proposal test2
-	newCtx = newCtx.WithBlockHeight(skipTwo)
-	VerifyDoUpgradeWithCtx(t, newCtx, "test2")
-
-	t.Log("Verify first proposal is cleared and second is done")
-	VerifyNotDone(t, s.ctx, "test")
-	VerifyDone(t, s.ctx, "test2")
-}
-
-func TestUpgradeSkippingOnlyTwo(t *testing.T) {
-	var (
-		skipOne   int64 = 11
-		skipTwo   int64 = 20
-		skipThree int64 = 25
-	)
-	s := setupTest(t, 10, map[int64]bool{skipOne: true, skipTwo: true})
-
-	newCtx := s.ctx
-
-	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
-	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: skipOne})
-	require.NoError(t, err)
-
-	t.Log("Verify if skip upgrade flag clears upgrade plan in both cases and does third upgrade")
-	VerifySet(t, map[int64]bool{skipOne: true, skipTwo: true})
-
-	// Setting block height of proposal test
-	newCtx = newCtx.WithBlockHeight(skipOne)
-	require.NotPanics(t, func() {
-		s.module.BeginBlock(newCtx, req)
-	})
-
-	// A new proposal with height in skipUpgradeHeights
-	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test2", Height: skipTwo})
-	require.NoError(t, err)
-	// Setting block height of proposal test2
-	newCtx = newCtx.WithBlockHeight(skipTwo)
-	require.NotPanics(t, func() {
-		s.module.BeginBlock(newCtx, req)
-	})
-
-	t.Log("Verify a new proposal is not skipped")
-	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test3", Height: skipThree})
-	require.NoError(t, err)
-	newCtx = newCtx.WithBlockHeight(skipThree)
-	VerifyDoUpgradeWithCtx(t, newCtx, "test3")
-
-	t.Log("Verify two proposals are cleared and third is done")
-	VerifyNotDone(t, s.ctx, "test")
-	VerifyNotDone(t, s.ctx, "test2")
-	VerifyDone(t, s.ctx, "test3")
-}
-
-func TestUpgradeWithoutSkip(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+func TestUpgrade(t *testing.T) {
+	s := setupTest(t, 10)
 	newCtx := s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1).WithBlockTime(time.Now())
 	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 1})
 	s.keeper.SetUpgradeHandler("test", func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	s.keeper.SetUpgradeInitializer("test", func() error { return nil })
 	require.NoError(t, err)
 	t.Log("Verify if upgrade happens without skip upgrade")
 	require.NotPanics(t, func() {
@@ -348,7 +214,7 @@ func TestUpgradeWithoutSkip(t *testing.T) {
 }
 
 func TestDumpUpgradeInfoToFile(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
+	s := setupTest(t, 10)
 	require := require.New(t)
 
 	// require no error when the upgrade info file does not exist
@@ -380,8 +246,7 @@ func TestDumpUpgradeInfoToFile(t *testing.T) {
 
 // TODO: add testcase to for `no upgrade handler is present for last applied upgrade`.
 func TestBinaryVersion(t *testing.T) {
-	var skipHeight int64 = 15
-	s := setupTest(t, 10, map[int64]bool{skipHeight: true})
+	s := setupTest(t, 10)
 
 	testCases := []struct {
 		name        string

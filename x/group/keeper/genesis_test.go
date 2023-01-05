@@ -46,7 +46,7 @@ func (s *GenesisTestSuite) SetupSuite() {
 	checkTx := false
 	db := dbm.NewMemDB()
 	encCdc := simapp.MakeTestEncodingConfig()
-	app := simapp.NewSimApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, simapp.DefaultNodeHome, 5, encCdc, simapp.EmptyAppOptions{})
+	app := simapp.NewSimApp(log.NewNopLogger(), db, nil, true, simapp.DefaultNodeHome, 5, encCdc, simapp.EmptyAppOptions{})
 
 	s.app = app
 	s.sdkCtx = app.BaseApp.NewUncachedContext(checkTx, tmproto.Header{})

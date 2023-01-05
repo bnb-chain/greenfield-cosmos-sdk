@@ -24,7 +24,6 @@ import (
 
 type Keeper struct {
 	homePath           string                              // root directory of app config
-	skipUpgradeHeights map[int64]bool                      // map of heights to skip for an upgrade
 	storeKey           storetypes.StoreKey                 // key to access x/upgrade store
 	cdc                codec.BinaryCodec                   // App-wide binary codec
 	upgradeHandlers    map[string]types.UpgradeHandler     // map of plan name to upgrade handler
@@ -37,10 +36,9 @@ type Keeper struct {
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
-func NewKeeper(skipUpgradeHeights map[int64]bool, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...KeeperOption) (Keeper, error) {
+func NewKeeper(storeKey storetypes.StoreKey, cdc codec.BinaryCodec, homePath string, opts ...KeeperOption) (Keeper, error) {
 	keeper := Keeper{
 		homePath:           homePath,
-		skipUpgradeHeights: skipUpgradeHeights,
 		storeKey:           storeKey,
 		cdc:                cdc,
 		upgradeHandlers:    make(map[string]types.UpgradeHandler),
@@ -326,8 +324,19 @@ func (k Keeper) HasHandler(name string) bool {
 
 // ApplyUpgrade will execute the handler associated with the Plan and mark the plan as done.
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
-	handler := k.upgradeHandlers[plan.Name]
+	initializer := k.upgradeInitializer[plan.Name]
+	if initializer == nil {
+		ctx.Logger().Error("missing initializer to upgrade [" + plan.Name + "]")
+		return
+	}
 
+	err := initializer()
+	if err != nil {
+		ctx.Logger().Error("failed to init upgrade ["+plan.Name+"]", "err", err)
+		return
+	}
+
+	handler := k.upgradeHandlers[plan.Name]
 	if handler == nil {
 		ctx.Logger().Error("missing handler to upgrade [" + plan.Name + "]")
 		return
@@ -343,11 +352,6 @@ func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 	// Must clear IBC state after upgrade is applied as it is stored separately from the upgrade plan.
 	// This will prevent resubmission of upgrade msg after upgrade is already completed.
 	k.setDone(ctx, plan.Name)
-}
-
-// IsSkipHeight checks if the given height is part of skipUpgradeHeights
-func (k Keeper) IsSkipHeight(height int64) bool {
-	return k.skipUpgradeHeights[height]
 }
 
 // DumpUpgradeInfoToDisk writes upgrade information to UpgradeInfoFileName.
@@ -421,10 +425,8 @@ func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
 	if height == 0 {
 		return false
 	}
-	if height <= ctx.BlockHeight() {
-		return true
-	}
-	return false
+
+	return height <= ctx.BlockHeight()
 }
 
 // InitUpgraded execute the upgrade initializer that the upgrade is already applied.

@@ -99,19 +99,20 @@ func (c Context) Err() error {
 }
 
 // create a new context
-func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, logger log.Logger) Context {
+func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, upgradeChecker func(Context, string) bool, logger log.Logger) Context {
 	// https://github.com/gogo/protobuf/issues/519
 	header.Time = header.Time.UTC()
 	return Context{
-		baseCtx:      context.Background(),
-		ms:           ms,
-		header:       header,
-		chainID:      header.ChainID,
-		checkTx:      isCheckTx,
-		logger:       logger,
-		gasMeter:     storetypes.NewInfiniteGasMeter(),
-		minGasPrice:  DecCoins{},
-		eventManager: NewEventManager(),
+		baseCtx:        context.Background(),
+		ms:             ms,
+		header:         header,
+		chainID:        header.ChainID,
+		checkTx:        isCheckTx,
+		logger:         logger,
+		gasMeter:       storetypes.NewInfiniteGasMeter(),
+		minGasPrice:    DecCoins{},
+		eventManager:   NewEventManager(),
+		upgradeChecker: upgradeChecker,
 	}
 }
 
@@ -245,12 +246,6 @@ func (c Context) WithPriority(p int64) Context {
 // WithTxSize returns a Context with an updated tx bytes length
 func (c Context) WithTxSize(s uint64) Context {
 	c.txSize = s
-	return c
-}
-
-// WithUpgradeChecker returns a Context with an upgrade checker
-func (c Context) WithUpgradeChecker(checker func(ctx Context, name string) bool) Context {
-	c.upgradeChecker = checker
 	return c
 }
 

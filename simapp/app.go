@@ -206,7 +206,7 @@ func init() {
 
 // NewSimApp returns a reference to an initialized SimApp.
 func NewSimApp(
-	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
+	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig,
 	appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
@@ -361,20 +361,10 @@ func NewSimApp(
 		upgradekeeper.RegisterUpgradeHandler(upgradeHandler),
 		upgradekeeper.RegisterUpgradeInitializer(upgradeInitlizier),
 	}
-	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
+	app.UpgradeKeeper, err = upgradekeeper.NewKeeper(keys[upgradetypes.StoreKey], appCodec, homePath, upgradeKeeperOpts...)
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		ms := app.CommitMultiStore()
-		ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
-		if loadLatest {
-			err = app.UpgradeKeeper.InitUpgraded(ctx)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}()
 
 	/****  Module Options ****/
 
@@ -499,6 +489,18 @@ func NewSimApp(
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
+		}
+
+		// Execute the upgraded register, such as the newly added Msg type
+		// ex.
+		// app.GovKeeper.Router().RegisterService(...)
+		ms := app.CommitMultiStore()
+		ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.UpgradeKeeper.IsUpgraded, app.Logger())
+		if loadLatest {
+			err = app.UpgradeKeeper.InitUpgraded(ctx)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 

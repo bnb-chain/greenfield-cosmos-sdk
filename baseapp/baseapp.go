@@ -433,7 +433,7 @@ func (app *BaseApp) setCheckState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.checkState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, true, app.logger).WithMinGasPrices(app.minGasPrices).WithUpgradeChecker(app.upgradeChecker),
+		ctx: sdk.NewContext(ms, header, true, app.upgradeChecker, app.logger).WithMinGasPrices(app.minGasPrices),
 	}
 }
 
@@ -445,7 +445,7 @@ func (app *BaseApp) setDeliverState(header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	app.deliverState = &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, false, app.logger).WithUpgradeChecker(app.upgradeChecker),
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
 	}
 }
 

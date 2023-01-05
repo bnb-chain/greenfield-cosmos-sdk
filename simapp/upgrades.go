@@ -26,7 +26,7 @@ func (app SimApp) RegisterUpgradeHandlers() {
 		panic(err)
 	}
 
-	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+	if upgradeInfo.Name == UpgradeName {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{
 				group.ModuleName,

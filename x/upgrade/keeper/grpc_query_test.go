@@ -117,6 +117,9 @@ func (suite *UpgradeTestSuite) TestAppliedCurrentPlan() {
 				suite.app.UpgradeKeeper.SetUpgradeHandler(planName, func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 					return vm, nil
 				})
+				suite.app.UpgradeKeeper.SetUpgradeInitializer(planName, func() error {
+					return nil
+				})
 				suite.app.UpgradeKeeper.ApplyUpgrade(suite.ctx, plan)
 
 				req = &types.QueryAppliedPlanRequest{Name: planName}
