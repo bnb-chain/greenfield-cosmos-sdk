@@ -53,13 +53,10 @@ func GrantCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 		if err != nil {
 			return 0, err
 		}
-		switch authorization := authorization.(type) {
-		case *staking.StakeAuthorization:
+		if authorization, ok := authorization.(*staking.StakeAuthorization); ok {
 			allowList := authorization.GetAllowList().GetAddress()
 			denyList := authorization.GetDenyList().GetAddress()
 			num = len(allowList) + len(denyList)
-		case *bank.SendAuthorization:
-			num = len(authorization.SpendLimit)
 		}
 
 		totalGas := fixedGas + uint64(num)*gasPerItem
@@ -97,19 +94,8 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 		if err != nil {
 			return 0, err
 		}
-		switch feeAllowance := feeAllowance.(type) {
-		case *feegrant.AllowedMsgAllowance:
+		if feeAllowance, ok := feeAllowance.(*feegrant.AllowedMsgAllowance); ok {
 			num = len(feeAllowance.AllowedMessages)
-		case *feegrant.PeriodicAllowance:
-			spendLimit := len(feeAllowance.PeriodSpendLimit)
-			canSpend := len(feeAllowance.PeriodCanSpend)
-			if spendLimit > canSpend {
-				num = spendLimit
-			} else {
-				num = canSpend
-			}
-		case *feegrant.BasicAllowance:
-			num = len(feeAllowance.SpendLimit)
 		}
 
 		totalGas := fixedGas + uint64(num)*gasPerItem

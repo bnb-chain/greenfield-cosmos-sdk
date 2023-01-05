@@ -222,7 +222,7 @@ func validateMsgGas(i interface{}) error {
 	}
 
 	if v == 0 {
-		return fmt.Errorf("invalid msg send fee: %d", v)
+		return fmt.Errorf("invalid msg gas: %d", v)
 	}
 
 	return nil

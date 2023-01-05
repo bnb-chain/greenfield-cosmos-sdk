@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const maxAllowedMessagesLength = 22
+const allowedMessagesListSizeLimitation = 22
 
 var (
 	_ FeeAllowanceI                 = (*AllowedMsgAllowance)(nil)
@@ -111,8 +111,8 @@ func (a *AllowedMsgAllowance) ValidateBasic() error {
 	if len(a.AllowedMessages) == 0 {
 		return errors.Wrap(ErrNoMessages, "allowed messages shouldn't be empty")
 	}
-	if len(a.AllowedMessages) > maxAllowedMessagesLength {
-		return errors.Wrapf(ErrTooManyMessages, "allowed messages number: %d, limit: %d", len(a.AllowedMessages), maxAllowedMessagesLength)
+	if len(a.AllowedMessages) > allowedMessagesListSizeLimitation {
+		return errors.Wrapf(ErrTooManyMessages, "allowed messages number: %d, limit: %d", len(a.AllowedMessages), allowedMessagesListSizeLimitation)
 	}
 
 	allowance, err := a.GetAllowance()

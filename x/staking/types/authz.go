@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-const maxValidatorsNumber = 41
+const authListSizeLimitation = 41
 
 var _ authz.Authorization = &StakeAuthorization{}
 
@@ -51,13 +51,13 @@ func (a StakeAuthorization) ValidateBasic() error {
 		return authz.ErrUnknownAuthorizationType
 	}
 	if allowList := a.GetAllowList().GetAddress(); allowList != nil {
-		if len(allowList) > maxValidatorsNumber {
-			return errors.Wrapf(authz.ErrTooManyValidators, "allow list number: %d, limit: %d", len(allowList), maxValidatorsNumber)
+		if len(allowList) > authListSizeLimitation {
+			return errors.Wrapf(authz.ErrTooManyValidators, "allow list number: %d, limit: %d", len(allowList), authListSizeLimitation)
 		}
 	}
 	if denyList := a.GetDenyList().GetAddress(); denyList != nil {
-		if len(denyList) > maxValidatorsNumber {
-			return errors.Wrapf(authz.ErrTooManyValidators, "deny list number: %d, limit: %d", len(denyList), maxValidatorsNumber)
+		if len(denyList) > authListSizeLimitation {
+			return errors.Wrapf(authz.ErrTooManyValidators, "deny list number: %d, limit: %d", len(denyList), authListSizeLimitation)
 		}
 	}
 
