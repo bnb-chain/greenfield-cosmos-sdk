@@ -3,7 +3,6 @@ package keeper
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -32,7 +31,6 @@ type Keeper struct {
 }
 
 // NewKeeper constructs an upgrade Keeper which requires the following arguments:
-// skipUpgradeHeights - map of heights to skip an upgrade
 // storeKey - a store key with which to access upgrade's store
 // cdc - the app-wide binary codec
 // homePath - root directory of the application's config
@@ -325,15 +323,13 @@ func (k Keeper) HasHandler(name string) bool {
 // ApplyUpgrade will execute the handler associated with the Plan and mark the plan as done.
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 	initializer := k.upgradeInitializer[plan.Name]
-	if initializer == nil {
-		ctx.Logger().Error("missing initializer to upgrade [" + plan.Name + "]")
-		return
-	}
 
-	err := initializer()
-	if err != nil {
-		ctx.Logger().Error("failed to init upgrade ["+plan.Name+"]", "err", err)
-		return
+	if initializer != nil {
+		err := initializer()
+		if err != nil {
+			ctx.Logger().Error("failed to init upgrade ["+plan.Name+"]", "err", err)
+			return
+		}
 	}
 
 	handler := k.upgradeHandlers[plan.Name]
@@ -439,7 +435,7 @@ func (k Keeper) InitUpgraded(ctx sdk.Context) error {
 		if height < ctx.BlockHeight() {
 			f := k.upgradeInitializer[upgradeName]
 			if f == nil {
-				return fmt.Errorf("missing initializer for the upgrade [" + upgradeName + "]")
+				continue
 			}
 
 			err := f()
