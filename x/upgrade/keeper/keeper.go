@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -327,14 +328,17 @@ func (k Keeper) HasHandler(name string) bool {
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
 	handler := k.upgradeHandlers[plan.Name]
 
-	if handler != nil {
-		updatedVM, err := handler(ctx, plan, k.GetModuleVersionMap(ctx))
-		if err != nil {
-			ctx.Logger().Error("failed to upgrade ["+plan.Name+"]", "err", err)
-			return
-		}
-		k.SetModuleVersionMap(ctx, updatedVM)
+	if handler == nil {
+		ctx.Logger().Error("missing handler to upgrade [" + plan.Name + "]")
+		return
 	}
+
+	updatedVM, err := handler(ctx, plan, k.GetModuleVersionMap(ctx))
+	if err != nil {
+		ctx.Logger().Error("failed to upgrade ["+plan.Name+"]", "err", err)
+		return
+	}
+	k.SetModuleVersionMap(ctx, updatedVM)
 
 	// Must clear IBC state after upgrade is applied as it is stored separately from the upgrade plan.
 	// This will prevent resubmission of upgrade msg after upgrade is already completed.
@@ -431,11 +435,14 @@ func (k Keeper) InitUpgraded(ctx sdk.Context) error {
 	for ; iter.Valid(); iter.Next() {
 		upgradeName, height := parseDoneKey(iter.Key())
 		if height < ctx.BlockHeight() {
-			if f := k.upgradeInitializer[upgradeName]; f != nil {
-				err := f()
-				if err != nil {
-					return err
-				}
+			f := k.upgradeInitializer[upgradeName]
+			if f == nil {
+				return fmt.Errorf("missing initializer for the upgrade [" + upgradeName + "]")
+			}
+
+			err := f()
+			if err != nil {
+				return err
 			}
 		}
 	}
