@@ -11,17 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
 
-const (
-	keyFixedMsgGas = "FixedMsgGas"
-)
-
 // ParamChanges defines the parameters that can be modified by param change proposals
 // on the simulation
 func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
-		simulation.NewSimParamChange(types.ModuleName, keyFixedMsgGas,
+		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMsgSendGas),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("%d", GenMsgGas(r))
+				return fmt.Sprintf("\"%d\"", GenMsgGas(r))
 			},
 		),
 	}
