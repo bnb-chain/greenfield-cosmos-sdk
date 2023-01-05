@@ -207,6 +207,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 	encCfg := MakeTestEncodingConfig()
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	app := NewSimApp(logger, db, nil, true, DefaultNodeHome, 0, encCfg, EmptyAppOptions{})
+	app.SetUpgradeChecker(app.UpgradeKeeper.IsUpgraded)
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
 	// Create a mock module. This module will serve as the new module we're
@@ -216,7 +217,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 	mockModule := mocks.NewMockAppModule(mockCtrl)
 	mockDefaultGenesis := json.RawMessage(`{"key": "value"}`)
 	mockModule.EXPECT().DefaultGenesis(gomock.Eq(app.appCodec)).Times(1).Return(mockDefaultGenesis)
-	mockModule.EXPECT().InitGenesis(gomock.Eq(ctx), gomock.Eq(app.appCodec), gomock.Eq(mockDefaultGenesis)).Times(1).Return(nil)
+	mockModule.EXPECT().InitGenesis(gomock.Any(), gomock.Eq(app.appCodec), gomock.Eq(mockDefaultGenesis)).Times(1).Return(nil)
 	mockModule.EXPECT().ConsensusVersion().Times(1).Return(uint64(0))
 
 	app.mm.Modules["mock"] = mockModule
