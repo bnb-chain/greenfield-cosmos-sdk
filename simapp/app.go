@@ -368,9 +368,11 @@ func NewSimApp(
 	defer func() {
 		ms := app.CommitMultiStore()
 		ctx := sdk.NewContext(ms, tmproto.Header{ChainID: app.ChainID(), Height: app.LastBlockHeight()}, true, app.Logger())
-		err = app.UpgradeKeeper.InitUpgraded(ctx)
-		if err != nil {
-			panic(err)
+		if loadLatest {
+			err = app.UpgradeKeeper.InitUpgraded(ctx)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}()
 
