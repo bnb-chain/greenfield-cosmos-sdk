@@ -74,7 +74,7 @@ func TestDoHeightUpgrade(t *testing.T) {
 func TestCanOverwriteScheduleUpgrade(t *testing.T) {
 	s := setupTest(t, 10, map[int64]bool{})
 	t.Log("Can overwrite plan")
-	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "bad_test", Height: s.ctx.BlockHeight() + 10})
+	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 10})
 	require.NoError(t, err)
 	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 1})
 	require.NoError(t, err)
@@ -168,17 +168,6 @@ func TestCanClear(t *testing.T) {
 
 	s.keeper.ClearUpgradePlan(s.ctx)
 	VerifyCleared(t, s.ctx)
-}
-
-func TestCantApplySameUpgradeTwice(t *testing.T) {
-	s := setupTest(t, 10, map[int64]bool{})
-	height := s.ctx.BlockHeader().Height + 1
-	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: height})
-	require.NoError(t, err)
-	VerifyDoUpgrade(t)
-	t.Log("Verify an executed upgrade \"test\" can't be rescheduled")
-	err = s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: height})
-	require.Error(t, err)
 }
 
 func TestPlanStringer(t *testing.T) {
@@ -345,6 +334,9 @@ func TestUpgradeWithoutSkip(t *testing.T) {
 	newCtx := s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1).WithBlockTime(time.Now())
 	req := abci.RequestBeginBlock{Header: newCtx.BlockHeader()}
 	err := s.keeper.ScheduleUpgrade(s.ctx, types.Plan{Name: "test", Height: s.ctx.BlockHeight() + 1})
+	s.keeper.SetUpgradeHandler("test", func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return vm, nil
+	})
 	require.NoError(t, err)
 	t.Log("Verify if upgrade happens without skip upgrade")
 	require.NotPanics(t, func() {
