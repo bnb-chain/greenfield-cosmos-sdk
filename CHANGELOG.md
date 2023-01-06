@@ -10,8 +10,8 @@ This release includes features and bug fixes, mainly:
 5. EIP712 bug fix;
 
 * [\#72](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/72) feat: add gashub module
-* [\#79](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/79) fix: disable create validator operation #79
-* [\#80](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/80) fix: EIP712 issue with uint8[] type #80
+* [\#79](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/79) fix: disable create validator operation
+* [\#80](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/80) fix: EIP712 issue with uint8[] type
 * [\#81](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/81) feat: update tendermint to enable validator updates and votepool
 * [\#82](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/82) feat: custom upgrade module
 * [\#83](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/83) ci: fix release flow
