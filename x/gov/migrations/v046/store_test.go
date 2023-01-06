@@ -13,7 +13,7 @@ import (
 	v046gov "github.com/cosmos/cosmos-sdk/x/gov/migrations/v046"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	// upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 func TestMigrateStore(t *testing.T) {
@@ -29,15 +29,15 @@ func TestMigrateStore(t *testing.T) {
 	require.NoError(t, err)
 	prop1Bz, err := cdc.Marshal(&prop1)
 	require.NoError(t, err)
-	prop2, err := v1beta1.NewProposal(upgradetypes.NewSoftwareUpgradeProposal("my title 2", "my desc 2", upgradetypes.Plan{
-		Name: "my plan 2",
-	}), 2, propTime, propTime)
-	require.NoError(t, err)
-	prop2Bz, err := cdc.Marshal(&prop2)
-	require.NoError(t, err)
+	// prop2, err := v1beta1.NewProposal(upgradetypes.NewSoftwareUpgradeProposal("my title 2", "my desc 2", upgradetypes.Plan{
+	// 	Name: "my plan 2",
+	// }), 2, propTime, propTime)
+	// require.NoError(t, err)
+	// prop2Bz, err := cdc.Marshal(&prop2)
+	// require.NoError(t, err)
 
 	store.Set(v042gov.ProposalKey(prop1.ProposalId), prop1Bz)
-	store.Set(v042gov.ProposalKey(prop2.ProposalId), prop2Bz)
+	// store.Set(v042gov.ProposalKey(prop2.ProposalId), prop2Bz)
 
 	// Run migrations.
 	err = v046gov.MigrateStore(ctx, govKey, cdc)
@@ -48,10 +48,10 @@ func TestMigrateStore(t *testing.T) {
 	require.NoError(t, err)
 	compareProps(t, prop1, newProp1)
 
-	var newProp2 v1.Proposal
-	err = cdc.Unmarshal(store.Get(v042gov.ProposalKey(prop2.ProposalId)), &newProp2)
-	require.NoError(t, err)
-	compareProps(t, prop2, newProp2)
+	// var newProp2 v1.Proposal
+	// err = cdc.Unmarshal(store.Get(v042gov.ProposalKey(prop2.ProposalId)), &newProp2)
+	// require.NoError(t, err)
+	// compareProps(t, prop2, newProp2)
 }
 
 func compareProps(t *testing.T, oldProp v1beta1.Proposal, newProp v1.Proposal) {

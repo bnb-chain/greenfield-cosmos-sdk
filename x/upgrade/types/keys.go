@@ -17,16 +17,11 @@ const (
 )
 
 const (
-	// PlanByte specifies the Byte under which a pending upgrade plan is stored in the store
-	PlanByte = 0x0
 	// DoneByte is a prefix for to look up completed upgrade plan by name
 	DoneByte = 0x1
 
 	// VersionMapByte is a prefix to look up module names (key) and versions (value)
 	VersionMapByte = 0x2
-
-	// ProtocolVersionByte is a prefix to look up Protocol Version
-	ProtocolVersionByte = 0x3
 
 	// KeyUpgradedIBCState is the key under which upgraded ibc state is stored in the upgrade store
 	KeyUpgradedIBCState = "upgradedIBCState"
@@ -37,12 +32,6 @@ const (
 	// KeyUpgradedConsState is the sub-key under which upgraded consensus state will be stored
 	KeyUpgradedConsState = "upgradedConsState"
 )
-
-// PlanKey is the key under which the current plan is saved
-// We store PlanByte as a const to keep it immutable (unlike a []byte)
-func PlanKey() []byte {
-	return []byte{PlanByte}
-}
 
 // UpgradedClientKey is the key under which the upgraded client state is saved
 // Connecting IBC chains can verify against the upgraded client in this path before

@@ -12,8 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -57,10 +55,13 @@ func (suite *UpgradeTestSuite) TestQueryCurrentPlan() {
 			"with current upgrade plan",
 			func() {
 				plan := types.Plan{Name: "test-plan", Height: 5}
-				suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
+				err := suite.app.UpgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
+				if err != nil {
+					suite.T().Fatal(err)
+				}
 
 				req = &types.QueryCurrentPlanRequest{}
-				expResponse = types.QueryCurrentPlanResponse{Plan: &plan}
+				expResponse = types.QueryCurrentPlanResponse{Plan: []*types.Plan{&plan}}
 			},
 			true,
 		},
@@ -115,6 +116,9 @@ func (suite *UpgradeTestSuite) TestAppliedCurrentPlan() {
 				suite.ctx = suite.ctx.WithBlockHeight(expHeight)
 				suite.app.UpgradeKeeper.SetUpgradeHandler(planName, func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 					return vm, nil
+				})
+				suite.app.UpgradeKeeper.SetUpgradeInitializer(planName, func() error {
+					return nil
 				})
 				suite.app.UpgradeKeeper.ApplyUpgrade(suite.ctx, plan)
 
@@ -203,12 +207,6 @@ func (suite *UpgradeTestSuite) TestModuleVersions() {
 			}
 		})
 	}
-}
-
-func (suite *UpgradeTestSuite) TestAuthority() {
-	res, err := suite.queryClient.Authority(gocontext.Background(), &types.QueryAuthorityRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(authtypes.NewModuleAddress(govtypes.ModuleName).String(), res.Address)
 }
 
 func TestUpgradeTestSuite(t *testing.T) {

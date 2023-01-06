@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/spf13/cobra"
 	tmcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+	"github.com/tendermint/tendermint/node"
 )
 
 // NewRollbackCmd creates a command to rollback tendermint and multistore state by one height.
@@ -30,7 +32,16 @@ application.
 			if err != nil {
 				return err
 			}
-			app := appCreator(ctx.Logger, db, nil, ctx.Viper)
+			config, err := serverconfig.GetConfig(ctx.Viper)
+			if err != nil {
+				return err
+			}
+			genDocProvider := node.DefaultGenesisDocProviderFunc(ctx.Config)
+			genDoc, err := genDocProvider()
+			if err != nil {
+				return err
+			}
+			app := appCreator(ctx.Logger, db, nil, config, genDoc.ChainID, ctx.Viper)
 			// rollback tendermint state
 			height, hash, err := tmcmd.RollbackState(ctx.Config)
 			if err != nil {

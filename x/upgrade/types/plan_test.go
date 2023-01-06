@@ -9,7 +9,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
@@ -69,15 +68,9 @@ func TestPlanValid(t *testing.T) {
 				Height: 123450000,
 			},
 		},
-		"time-base upgrade": {
-			p: types.Plan{
-				Time: time.Now(),
-			},
-		},
 		"IBC upgrade": {
 			p: types.Plan{
-				Height:              123450000,
-				UpgradedClientState: &codectypes.Any{},
+				Height: 123450000,
 			},
 		},
 		"no due at": {
@@ -146,7 +139,7 @@ func TestShouldExecute(t *testing.T) {
 	for name, tc := range cases {
 		tc := tc // copy to local variable for scopelint
 		t.Run(name, func(t *testing.T) {
-			ctx := sdk.NewContext(nil, tmproto.Header{Height: tc.ctxHeight, Time: tc.ctxTime}, false, log.NewNopLogger())
+			ctx := sdk.NewContext(nil, tmproto.Header{Height: tc.ctxHeight, Time: tc.ctxTime}, false, nil, log.NewNopLogger())
 			should := tc.p.ShouldExecute(ctx)
 			assert.Equal(t, tc.expected, should)
 		})

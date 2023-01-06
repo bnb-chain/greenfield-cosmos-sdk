@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/store"
-	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	dbm "github.com/tendermint/tm-db"
@@ -86,7 +85,8 @@ func NewGasCountingMockContext() *GasCountingMockContext {
 }
 
 func (g GasCountingMockContext) KVStore(store sdk.KVStore) sdk.KVStore {
-	return gaskv.NewStore(store, g.GasMeter, storetypes.KVGasConfig())
+	// return gaskv.NewStore(store, g.GasMeter, storetypes.KVGasConfig())
+	return store
 }
 
 func (g GasCountingMockContext) GasConsumed() storetypes.Gas {

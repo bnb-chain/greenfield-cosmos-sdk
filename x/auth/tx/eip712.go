@@ -453,6 +453,9 @@ func traverseFields(
 			// Support array of uint64
 			if isCollection && fieldType.Kind() != reflect.Slice && fieldType.Kind() != reflect.Array {
 				ethTyp += "[]"
+				if ethTyp == "uint8[]" {
+					ethTyp = "string"
+				}
 			}
 
 			if prefix == typeDefPrefix {
