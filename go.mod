@@ -58,8 +58,8 @@ require (
 	github.com/tendermint/tendermint v0.34.22
 	github.com/tendermint/tm-db v0.6.7
 	github.com/wealdtech/go-eth2-util v1.6.3
-	golang.org/x/crypto v0.1.0
 	github.com/willf/bitset v1.1.3
+	golang.org/x/crypto v0.1.0
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	golang.org/x/text v0.4.0
 	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
