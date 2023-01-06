@@ -193,7 +193,7 @@ replace (
 
 	github.com/jhump/protoreflect => github.com/jhump/protoreflect v1.9.0
 
-	github.com/tendermint/tendermint => github.com/bnb-chain/inscription-tendermint v0.34.25-0.20230105070542-7af7d2210d96
+	github.com/tendermint/tendermint => github.com/bnb-chain/inscription-tendermint v0.0.1
 )
 
 retract v0.46.2
