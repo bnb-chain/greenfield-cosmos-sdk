@@ -52,14 +52,14 @@ func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
 }
 
 // GetRelayerFeeParam returns the default relayer fee for cross chain tx
-func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) (relayerFee *big.Int, err error) {
+func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) *big.Int {
 	var relayerFeeParam string
 	k.paramSpace.Get(ctx, types.KeyParamRelayerFee, &relayerFeeParam)
-	relayerFee, valid := relayerFee.SetString(relayerFeeParam, 10)
+	relayerFee, valid := big.NewInt(0).SetString(relayerFeeParam, 10)
 	if !valid {
-		return nil, fmt.Errorf("invalid relayer fee: %s", relayerFeeParam)
+		panic(fmt.Errorf("invalid relayer fee: %s", relayerFeeParam))
 	}
-	return relayerFee, nil
+	return relayerFee
 }
 
 // SetParams sets the params of cross chain module
@@ -71,10 +71,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 func (k Keeper) CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
 	packageType sdk.CrossChainPackageType, packageLoad []byte) (uint64, error) {
 
-	relayerFee, err := k.GetRelayerFeeParam(ctx)
-	if err != nil {
-		return 0, fmt.Errorf("fail to load relayerFee, %v", err)
-	}
+	relayerFee := k.GetRelayerFeeParam(ctx)
 
 	return k.CreateRawIBCPackageWithFee(ctx, destChainID, channelID, packageType, packageLoad, *relayerFee)
 }
