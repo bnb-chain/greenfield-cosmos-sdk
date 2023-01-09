@@ -118,8 +118,6 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 	crash, result := executeClaim(cacheCtx, crossChainApp, pack.Payload, packageType, &relayFee)
 	if result.IsOk() {
 		write()
-	} else {
-		oracleKeeper.Metrics.ErrNumOfChannels.With("channel_id", fmt.Sprintf("%d", pack.ChannelId)).Add(1)
 	}
 
 	// write ack package

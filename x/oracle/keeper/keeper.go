@@ -12,7 +12,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
-	"github.com/cosmos/cosmos-sdk/x/oracle/metrics"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -26,7 +25,6 @@ type Keeper struct {
 	StakingKeeper    types.StakingKeeper
 	CrossChainKeeper types.CrossChainKeeper
 	BankKeeper       types.BankKeeper
-	Metrics          *metrics.Metrics
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -49,8 +47,6 @@ func NewKeeper(
 		CrossChainKeeper: crossChainKeeper,
 		BankKeeper:       bankKeeper,
 		StakingKeeper:    stakingKeeper,
-
-		Metrics: metrics.PrometheusMetrics(),
 	}
 }
 
