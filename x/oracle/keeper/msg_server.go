@@ -49,7 +49,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence))
 	}
 
-	err := k.oracleKeeper.ProcessClaim(ctx, req)
+	err := k.oracleKeeper.CheckClaim(ctx, req)
 	if err != nil {
 		return nil, err
 	}

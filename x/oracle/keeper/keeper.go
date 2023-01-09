@@ -74,16 +74,21 @@ func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
 }
 
 func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
+	fromAddress, err := sdk.AccAddressFromHexUnsafe(claim.FromAddress)
+	if err != nil {
+		return false, sdkerrors.Wrapf(types.ErrInvalidAddress, fmt.Sprintf("from address (%s) is invalid", claim.FromAddress))
+	}
+
 	var validatorIndex int64 = -1
 	for index, validator := range validators {
-		if validator.RelayerAddress == claim.FromAddress {
+		if validator.RelayerAddress == fromAddress.String() {
 			validatorIndex = int64(index)
 			break
 		}
 	}
 
 	if validatorIndex < 0 {
-		return false, sdkerrors.Wrapf(types.ErrNotValidator, fmt.Sprintf("sender is not validator"))
+		return false, sdkerrors.Wrapf(types.ErrNotRelayer, fmt.Sprintf("sender(%s) is not a relayer", fromAddress.String()))
 	}
 
 	// check inturn validator index
@@ -105,8 +110,8 @@ func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Val
 	return uint64(validatorIndex) == (inturnValidatorIndex+backoffIndex)%uint64(len(validators)), nil
 }
 
-// ProcessClaim checks the bls signature
-func (k Keeper) ProcessClaim(ctx sdk.Context, claim *types.MsgClaim) error {
+// CheckClaim checks the bls signature
+func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrValidatorSet, fmt.Sprintf("get historical validators failed"))
