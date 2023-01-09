@@ -59,6 +59,11 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
+	k.Logger(ctx).Info("set oracle genesis state", "params", state.Params.String())
+	k.SetParams(ctx, state.Params)
+}
+
 // SetParams sets the params of oarcle module
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
