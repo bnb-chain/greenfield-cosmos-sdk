@@ -1,6 +1,7 @@
 package feegrant
 
 import (
+	"cosmossdk.io/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -22,4 +23,6 @@ var (
 	ErrNoMessages = sdkerrors.Register(DefaultCodespace, 6, "allowed messages are empty")
 	// ErrMessageNotAllowed error if message is not allowed
 	ErrMessageNotAllowed = sdkerrors.Register(DefaultCodespace, 7, "message not allowed")
+	// ErrTooManyMessages error if the number of allowed messages exceeds limit
+	ErrTooManyMessages = errors.Register(DefaultCodespace, 8, "the number of allowed messages cannot exceed the limit")
 )

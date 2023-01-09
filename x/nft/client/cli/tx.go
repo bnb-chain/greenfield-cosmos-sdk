@@ -35,7 +35,7 @@ func NewCmdSend() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send [class-id] [nft-id] [receiver] --from [sender]",
 		Args:  cobra.ExactArgs(3),
-		Short: "transfer ownership of nft",
+		Short: "Transfer ownership of nft",
 		Long: strings.TrimSpace(fmt.Sprintf(`
 			$ %s tx %s send <class-id> <nft-id> <receiver> --from <sender> --chain-id <chain-id>`, version.AppName, nft.ModuleName),
 		),

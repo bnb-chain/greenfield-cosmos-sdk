@@ -55,7 +55,7 @@ func NewTxCmd() *cobra.Command {
 func NewEditValidatorCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit-validator",
-		Short: "edit an existing validator account",
+		Short: "Edit an existing validator account",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

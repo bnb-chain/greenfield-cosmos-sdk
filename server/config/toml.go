@@ -85,6 +85,21 @@ iavl-disable-fastnode = {{ .BaseConfig.IAVLDisableFastNode }}
 app-db-backend = "{{ .BaseConfig.AppDBBackend }}"
 
 ###############################################################################
+###                           Upgrade Configuration                         ###
+###############################################################################
+
+# Example:
+# [[upgrade]]
+# name = "BEP111"
+# height = 100
+# info = "https://github.com/bnb-chain/BEPs/pull/111"
+
+# [[upgrade]]
+# name = "BEP112"
+# height = 120
+# info = "https://github.com/bnb-chain/BEPs/pull/112"
+
+###############################################################################
 ###                         Telemetry Configuration                         ###
 ###############################################################################
 

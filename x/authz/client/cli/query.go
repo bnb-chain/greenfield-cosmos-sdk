@@ -39,7 +39,7 @@ func GetCmdQueryGrants() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grants [granter-addr] [grantee-addr] [msg-type-url]?",
 		Args:  cobra.RangeArgs(2, 3),
-		Short: "query grants for a granter-grantee pair and optionally a msg-type-url",
+		Short: "Query grants for a granter-grantee pair and optionally a msg-type-url",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query authorization grants for a granter-grantee pair. If msg-type-url
 is set, it will select grants only for that msg type.
@@ -100,7 +100,7 @@ func GetQueryGranterGrants() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grants-by-granter [granter-addr]",
 		Args:  cobra.ExactArgs(1),
-		Short: "query authorization grants granted by granter",
+		Short: "Query authorization grants granted by granter",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query authorization grants granted by granter.
 Examples:
@@ -149,7 +149,7 @@ func GetQueryGranteeGrants() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grants-by-grantee [grantee-addr]",
 		Args:  cobra.ExactArgs(1),
-		Short: "query authorization grants granted to a grantee",
+		Short: "Query authorization grants granted to a grantee",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query authorization grants granted to a grantee.
 Examples:

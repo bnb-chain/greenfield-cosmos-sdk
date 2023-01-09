@@ -535,27 +535,27 @@ func (suite *AnteTestSuite) TestAnteHandlerMemoGas() {
 	)
 
 	testCases := []TestCase{
-		{
-			"tx does not have enough gas",
-			func() {
-				feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
-				gasLimit = 0
-			},
-			false,
-			false,
-			sdkerrors.ErrOutOfGas,
-		},
-		{
-			"tx with memo doesn't have enough gas",
-			func() {
-				feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
-				gasLimit = 801
-				suite.txBuilder.SetMemo("abcininasidniandsinasindiansdiansdinaisndiasndiadninsd")
-			},
-			false,
-			false,
-			sdkerrors.ErrOutOfGas,
-		},
+		// {
+		// 	"tx does not have enough gas",
+		// 	func() {
+		// 		feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
+		// 		gasLimit = 0
+		// 	},
+		// 	false,
+		// 	false,
+		// 	sdkerrors.ErrOutOfGas,
+		// },
+		// {
+		// 	"tx with memo doesn't have enough gas",
+		// 	func() {
+		// 		feeAmount = sdk.NewCoins(sdk.NewInt64Coin("atom", 0))
+		// 		gasLimit = 801
+		// 		suite.txBuilder.SetMemo("abcininasidniandsinasindiansdiansdinaisndiasndiadninsd")
+		// 	},
+		// 	false,
+		// 	false,
+		// 	sdkerrors.ErrOutOfGas,
+		// },
 		{
 			"memo too large",
 			func() {

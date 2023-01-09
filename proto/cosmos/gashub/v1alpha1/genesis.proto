@@ -1,0 +1,13 @@
+syntax = "proto3";
+package cosmos.gashub.v1alpha1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/gashub/v1alpha1/gashub.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// GenesisState defines the gashub module's genesis state.
+message GenesisState {
+  // params defines all the paramaters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

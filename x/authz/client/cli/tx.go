@@ -204,7 +204,7 @@ func getExpireTime(cmd *cobra.Command) (*time.Time, error) {
 func NewCmdRevokeAuthorization() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "revoke [grantee] [msg-type-url] --from=[granter]",
-		Short: "revoke authorization",
+		Short: "Revoke authorization",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`revoke authorization from a granter to a grantee:
 Example:
@@ -238,7 +238,7 @@ Example:
 func NewCmdExecAuthorization() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "exec [tx-json-file] --from [grantee]",
-		Short: "execute tx on behalf of granter account",
+		Short: "Execute tx on behalf of granter account",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`execute tx on behalf of granter account:
 Example:

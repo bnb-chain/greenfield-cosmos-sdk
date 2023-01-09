@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	pruningtypes "github.com/cosmos/cosmos-sdk/pruning/types"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	"github.com/tendermint/tendermint/libs/log"
@@ -62,7 +63,13 @@ func PruningCmd(appCreator servertypes.AppCreator) *cobra.Command {
 			}
 
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-			app := appCreator(logger, db, nil, vp)
+
+			config, err := serverconfig.GetConfig(vp)
+			if err != nil {
+				return err
+			}
+
+			app := appCreator(logger, db, nil, config, "", vp)
 			cms := app.CommitMultiStore()
 
 			rootMultiStore, ok := cms.(*rootmulti.Store)

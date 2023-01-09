@@ -21,8 +21,7 @@ import (
 func TestValidatorTestEquivalent(t *testing.T) {
 	val1 := newValidator(t, valAddr1, pk1)
 	val2 := newValidator(t, valAddr1, pk1)
-	// When call newValidator, its bls pubkey is generated randomly
-	require.NotEqual(t, val1.String(), val2.String())
+	require.Equal(t, val1.String(), val2.String())
 
 	val2 = newValidator(t, valAddr2, pk2)
 	require.NotEqual(t, val1.String(), val2.String())

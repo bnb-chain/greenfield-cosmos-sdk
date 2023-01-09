@@ -2,13 +2,13 @@ package types
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 	"sigs.k8s.io/yaml"
@@ -48,7 +48,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 		return Validator{}, err
 	}
 
-	blsSk, err := bls.RandKey()
+	blsPk, err := hex.DecodeString(sdk.BLSEmptyPubKey)
 	if err != nil {
 		return Validator{}, err
 	}
@@ -67,7 +67,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 		MinSelfDelegation: sdk.OneInt(),
 		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		RelayerBlsKey:     blsSk.PublicKey().Marshal(),
+		RelayerBlsKey:     blsPk,
 	}, nil
 }
 
@@ -300,9 +300,19 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey: tmProtoPk,
-		Power:  v.ConsensusPower(r),
+		PubKey:         tmProtoPk,
+		Power:          v.ConsensusPower(r),
+		RelayerAddress: relayer,
+		RelayerBlsKey:  v.RelayerBlsKey,
 	}
 }
 
