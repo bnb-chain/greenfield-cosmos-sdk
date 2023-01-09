@@ -17,8 +17,8 @@ import (
 )
 
 func TestBaseAddressPubKey(t *testing.T) {
-	_, pub1, addr1 := testdata.KeyTestPubAddr()
-	_, pub2, addr2 := testdata.KeyTestPubAddr()
+	_, pub1, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, pub2, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 	acc := types.NewBaseAccountWithAddress(addr1)
 
 	// check the address (set) and pubkey (not set)
@@ -40,7 +40,7 @@ func TestBaseAddressPubKey(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, pub2, acc.GetPubKey())
 
-	//------------------------------------
+	// ------------------------------------
 
 	// can set address on empty account
 	acc2 := types.BaseAccount{}
@@ -50,7 +50,7 @@ func TestBaseAddressPubKey(t *testing.T) {
 }
 
 func TestBaseSequence(t *testing.T) {
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	acc := types.NewBaseAccountWithAddress(addr)
 	seq := uint64(7)
 
@@ -61,7 +61,7 @@ func TestBaseSequence(t *testing.T) {
 
 func TestBaseAccountMarshal(t *testing.T) {
 	app := simapp.Setup(t, false)
-	_, pub, addr := testdata.KeyTestPubAddr()
+	_, pub, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	acc := types.NewBaseAccountWithAddress(addr)
 	seq := uint64(7)
 

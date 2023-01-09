@@ -1,8 +1,10 @@
 package simapp
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/std"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
 // MakeTestEncodingConfig creates an EncodingConfig for testing. This function
@@ -15,5 +17,6 @@ func MakeTestEncodingConfig() simappparams.EncodingConfig {
 	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ModuleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	ModuleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	authtx.MsgCodec = codec.NewProtoCodec(encodingConfig.InterfaceRegistry)
 	return encodingConfig
 }

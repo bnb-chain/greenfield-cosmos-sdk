@@ -14,7 +14,7 @@ func TestMsgUnjailGetSignBytes(t *testing.T) {
 	bytes := msg.GetSignBytes()
 	require.Equal(
 		t,
-		`{"type":"cosmos-sdk/MsgUnjail","value":{"address":"0x0000000000000000000000000000000061626364"}}`,
+		`{"type":"cosmos-sdk/MsgUnjail","value":{"validator_addr":"0x0000000000000000000000000000000061626364"}}`,
 		string(bytes),
 	)
 }

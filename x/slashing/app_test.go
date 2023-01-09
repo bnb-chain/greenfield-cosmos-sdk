@@ -5,13 +5,13 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,8 +22,8 @@ import (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	addr1 = sdk.AccAddress(priv1.PubKey().Address())
+	priv1, _ = ethsecp256k1.GenerateKey()
+	addr1    = sdk.AccAddress(priv1.PubKey().Address())
 
 	valKey  = ed25519.GenPrivKey()
 	valAddr = sdk.AccAddress(valKey.PubKey().Address())
@@ -31,7 +31,7 @@ var (
 
 func checkValidator(t *testing.T, app *simapp.SimApp, _ sdk.AccAddress, expFound bool) stakingtypes.Validator {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
-	validator, found := app.StakingKeeper.GetValidator(ctxCheck, sdk.AccAddress(addr1))
+	validator, found := app.StakingKeeper.GetValidator(ctxCheck, addr1)
 	require.Equal(t, expFound, found)
 	return validator
 }
@@ -75,13 +75,13 @@ func TestSlashingMsgs(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
 	simapp.CheckBalance(t, app, addr1, sdk.Coins{genCoin.Sub(bondCoin)})
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	validator := checkValidator(t, app, addr1, true)
@@ -93,8 +93,8 @@ func TestSlashingMsgs(t *testing.T) {
 	checkValidatorSigningInfo(t, app, sdk.ConsAddress(valAddr), true)
 
 	// unjail should fail with unknown validator
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, res, err := simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{unjailMsg}, "", []uint64{0}, []uint64{1}, false, false, []cryptotypes.PrivKey{priv1})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, res, err := simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{unjailMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{1}, false, false, []cryptotypes.PrivKey{priv1})
 	require.Error(t, err)
 	require.Nil(t, res)
 	require.True(t, errors.Is(types.ErrValidatorNotJailed, err))

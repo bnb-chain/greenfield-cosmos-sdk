@@ -76,13 +76,13 @@ func TestStakingMsgs(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
 	simapp.CheckBalance(t, app, addr1, sdk.Coins{genCoin.Sub(bondCoin)})
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	validator := checkValidator(t, app, addr1, true)
@@ -90,7 +90,7 @@ func TestStakingMsgs(t *testing.T) {
 	require.Equal(t, types.Bonded, validator.Status)
 	require.True(sdk.IntEq(t, bondTokens, validator.BondedTokens()))
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	// edit the validator
@@ -100,8 +100,8 @@ func TestStakingMsgs(t *testing.T) {
 		sdk.AccAddress(""), "",
 	)
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
 	require.NoError(t, err)
 
 	validator = checkValidator(t, app, addr1, true)
@@ -111,8 +111,8 @@ func TestStakingMsgs(t *testing.T) {
 	simapp.CheckBalance(t, app, addr2, sdk.Coins{genCoin})
 	delegateMsg := types.NewMsgDelegate(addr2, addr1, bondCoin)
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{delegateMsg}, "", []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{delegateMsg}, simapp.DefaultChainId, []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	simapp.CheckBalance(t, app, addr2, sdk.Coins{genCoin.Sub(bondCoin)})
@@ -120,8 +120,8 @@ func TestStakingMsgs(t *testing.T) {
 
 	// begin unbonding
 	beginUnbondingMsg := types.NewMsgUndelegate(addr2, addr1, bondCoin)
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, "", []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, simapp.DefaultChainId, []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	// delegation should exist anymore

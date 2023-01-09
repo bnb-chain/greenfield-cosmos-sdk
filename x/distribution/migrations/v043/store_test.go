@@ -19,9 +19,9 @@ func TestStoreMigration(t *testing.T) {
 	ctx := testutil.DefaultContext(distributionKey, sdk.NewTransientStoreKey("transient_test"))
 	store := ctx.KVStore(distributionKey)
 
-	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 	valAddr := addr1
-	_, _, addr2 := testdata.KeyTestPubAddr()
+	_, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 	// Use dummy value for all keys.
 	value := []byte("foo")
 

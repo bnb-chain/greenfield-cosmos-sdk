@@ -270,7 +270,7 @@ func (s IntegrationTestSuite) mkTxBuilder() client.TxBuilder {
 		WithChainID(val.ClientCtx.ChainID).
 		WithKeybase(val.ClientCtx.Keyring).
 		WithTxConfig(val.ClientCtx.TxConfig).
-		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT)
+		WithSignMode(signing.SignMode_SIGN_MODE_EIP_712)
 
 	// Sign Tx.
 	err := authclient.SignTx(txFactory, val.ClientCtx, val.Moniker, txBuilder, false, true)

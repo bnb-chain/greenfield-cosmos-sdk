@@ -11,7 +11,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,6 +23,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing/simulation"
 	"github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 // TestWeightedOperations tests the weights of the operations.
@@ -58,7 +58,7 @@ func TestWeightedOperations(t *testing.T) {
 // Abonormal scenarios, where the message is created by an errors, are not tested here.
 func TestSimulateMsgUnjail(t *testing.T) {
 	// setup 3 accounts
-	s := rand.NewSource(5)
+	s := rand.NewSource(3)
 	r := rand.New(s)
 	app, ctx, accounts := createTestApp(t, false, r, 3)
 	blockTime := time.Now().UTC()
@@ -91,11 +91,11 @@ func TestSimulateMsgUnjail(t *testing.T) {
 	app.DistrKeeper.SetDelegatorStartingInfo(ctx, validator0.GetOperator(), val0AccAddress.Bytes(), distrtypes.NewDelegatorStartingInfo(2, sdk.OneDec(), 200))
 
 	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash, Time: blockTime}})
+	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash, Time: blockTime}})
 
 	// execute operation
 	op := simulation.SimulateMsgUnjail(app.AccountKeeper, app.BankKeeper, app.SlashingKeeper, app.StakingKeeper)
-	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(t, err)
 
 	var msg types.MsgUnjail
@@ -103,7 +103,7 @@ func TestSimulateMsgUnjail(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, types.TypeMsgUnjail, msg.Type())
-	require.Equal(t, "0xf40b5089d784EBDBAa8BCE15e779F3D52f45aA18", msg.ValidatorAddr)
+	require.Equal(t, "0x87C4f0688CB0C0650d819a43F27d9934bd51a2b5", msg.ValidatorAddr)
 	require.Len(t, futureOperations, 0)
 }
 
@@ -119,7 +119,7 @@ func createTestApp(t *testing.T, isCheckTx bool, r *rand.Rand, n int) (*simapp.S
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
 	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
+	senderPrivKey, _ := ethsecp256k1.GenerateKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),

@@ -56,6 +56,8 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
+var DefaultChainId = "inscription_9000-1"
+
 // SetupOptions defines arguments that are passed into `Simapp` constructor.
 type SetupOptions struct {
 	Logger             log.Logger
@@ -223,6 +225,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -232,6 +235,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            DefaultChainId,
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),

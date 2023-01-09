@@ -71,7 +71,7 @@ func TestBalanceKeysMigration(t *testing.T) {
 	ctx := testutil.DefaultContext(bankKey, sdk.NewTransientStoreKey("transient_test"))
 	store := ctx.KVStore(bankKey)
 
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// set 10 foo coin
 	fooCoin := sdk.NewCoin("foo", sdk.NewInt(10))

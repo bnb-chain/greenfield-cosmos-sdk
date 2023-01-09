@@ -18,8 +18,8 @@ var addrBytes = []byte{0x8e, 0x22, 0xda, 0xb8, 0xa, 0x5a, 0x94, 0xdf, 0xbd, 0xb0
 
 func (suite *KeeperTestSuite) TestGRPCQueryAccounts() {
 	var req *types.QueryAccountsRequest
-	_, _, first := testdata.KeyTestPubAddr()
-	_, _, second := testdata.KeyTestPubAddr()
+	_, _, first := testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, second := testdata.KeyEthSecp256k1TestPubAddr()
 
 	testCases := []struct {
 		msg       string
@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryAccounts() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryAccount() {
 	var req *types.QueryAccountRequest
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 
 	testCases := []struct {
 		msg       string
@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryAccount() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryAccountAddressByID() {
 	var req *types.QueryAccountAddressByIDRequest
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 
 	testCases := []struct {
 		msg       string

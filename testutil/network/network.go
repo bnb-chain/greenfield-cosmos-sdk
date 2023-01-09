@@ -21,7 +21,6 @@ import (
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/node"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	dbm "github.com/tendermint/tm-db"
@@ -114,7 +113,7 @@ func DefaultConfig() Config {
 		AppConstructor:    NewAppConstructor(encCfg),
 		GenesisState:      simapp.ModuleBasics.DefaultGenesis(encCfg.Codec),
 		TimeoutCommit:     2 * time.Second,
-		ChainID:           "chain-" + tmrand.Str(6),
+		ChainID:           simapp.DefaultChainId,
 		NumValidators:     4,
 		BondDenom:         sdk.DefaultBondDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),

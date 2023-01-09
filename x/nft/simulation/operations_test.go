@@ -56,7 +56,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightedOps {
-		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, simapp.DefaultChainId)
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
 		// will fail
@@ -100,7 +100,7 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 	// execute operation
 	registry := suite.app.InterfaceRegistry()
 	op := simulation.SimulateMsgSend(codec.NewProtoCodec(registry), suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.NFTKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg nft.MsgSend

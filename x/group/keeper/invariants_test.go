@@ -67,8 +67,8 @@ func (s *invariantTestSuite) TestGroupTotalWeightInvariant() {
 	}, group.GroupMember{}.GroupId)
 	s.Require().NoError(err)
 
-	_, _, addr1 := testdata.KeyTestPubAddr()
-	_, _, addr2 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	specs := map[string]struct {
 		groupsInfo   *group.GroupInfo

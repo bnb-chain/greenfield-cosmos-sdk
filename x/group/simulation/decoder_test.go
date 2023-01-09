@@ -23,14 +23,14 @@ func TestDecodeStore(t *testing.T) {
 	groupBz, err := cdc.Marshal(&g)
 	require.NoError(t, err)
 
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	member := group.GroupMember{GroupId: 1, Member: &group.Member{
 		Address: addr.String(),
 	}}
 	memberBz, err := cdc.Marshal(&member)
 	require.NoError(t, err)
 
-	_, _, accAddr := testdata.KeyTestPubAddr()
+	_, _, accAddr := testdata.KeyEthSecp256k1TestPubAddr()
 	acc := group.GroupPolicyInfo{Address: accAddr.String()}
 	accBz, err := cdc.Marshal(&acc)
 	require.NoError(t, err)

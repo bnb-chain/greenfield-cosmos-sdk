@@ -23,7 +23,7 @@ func TestMigrateStore(t *testing.T) {
 	ctx := testutil.DefaultContext(govKey, sdk.NewTransientStoreKey("transient_test"))
 	store := ctx.KVStore(govKey)
 
-	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 	proposalID := uint64(6)
 	now := time.Now()
 	// Use dummy value for keys where we don't test values.

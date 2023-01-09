@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	_, _, addr   = testdata.KeyTestPubAddr()
+	_, _, addr   = testdata.KeyEthSecp256k1TestPubAddr()
 	govAcct      = authtypes.NewModuleAddress(types.ModuleName)
 	TestProposal = getTestProposal()
 )

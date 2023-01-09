@@ -71,19 +71,20 @@ func TestBaseApp_BlockGas(t *testing.T) {
 			stateBytes, err := tmjson.MarshalIndent(genState, "", " ")
 			require.NoError(t, err)
 			app.InitChain(abci.RequestInitChain{
+				ChainId:         simapp.DefaultChainId,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simapp.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			})
 
-			ctx := app.NewContext(false, tmproto.Header{})
+			ctx := app.NewContext(false, tmproto.Header{}).WithChainID(simapp.DefaultChainId)
 
 			// tx fee
 			feeCoin := sdk.NewCoin("atom", sdk.NewInt(150))
 			feeAmount := sdk.NewCoins(feeCoin)
 
 			// test account and fund
-			priv1, _, addr1 := testdata.KeyTestPubAddr()
+			priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 			err = app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, feeAmount)
 			require.NoError(t, err)
 			err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr1, feeAmount)
@@ -123,7 +124,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 				require.Equal(t, []byte("ok"), okValue)
 			}
 			// check block gas is always consumed
-			baseGas := uint64(74343) // baseGas is the gas consumed before tx msg
+			baseGas := uint64(79104) // baseGas is the gas consumed before tx msg
 			expGasConsumed := addUint64Saturating(tc.gasToConsume, baseGas)
 			if expGasConsumed > txtypes.MaxGasWanted {
 				// capped by gasLimit

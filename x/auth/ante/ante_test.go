@@ -82,9 +82,9 @@ func (suite *AnteTestSuite) TestAnteHandlerSigErrors() {
 	suite.SetupTest(false) // reset
 
 	// Same data for every test cases
-	priv0, _, addr0 := testdata.KeyTestPubAddr()
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
-	priv2, _, addr2 := testdata.KeyTestPubAddr()
+	priv0, _, addr0 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv2, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 	msgs := []sdk.Msg{
 		testdata.NewTestMsg(addr0, addr1),
 		testdata.NewTestMsg(addr0, addr2),
@@ -443,7 +443,7 @@ func (suite *AnteTestSuite) TestAnteHandlerFees() {
 	suite.SetupTest(false) // setup
 
 	// Same data for every test cases
-	priv0, _, addr0 := testdata.KeyTestPubAddr()
+	priv0, _, addr0 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	acc1 := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr0)
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc1)
@@ -906,11 +906,11 @@ func generatePubKeysAndSignatures(n int, msg []byte, _ bool) (pubkeys []cryptoty
 		// TODO: also generate ed25519 keys as below when ed25519 keys are
 		//  actually supported, https://github.com/cosmos/cosmos-sdk/issues/4789
 		// for now this fails:
-		//if rand.Int63()%2 == 0 {
+		// if rand.Int63()%2 == 0 {
 		//	privkey = ed25519.GenPrivKey()
-		//} else {
+		// } else {
 		//	privkey = secp256k1.GenPrivKey()
-		//}
+		// }
 
 		pubkeys[i] = privkey.PubKey()
 		signatures[i], _ = privkey.Sign(msg)

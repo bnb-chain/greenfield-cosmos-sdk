@@ -18,7 +18,7 @@ import (
 
 func (suite *IntegrationTestSuite) TestQueryBalance() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 
 	_, err := queryClient.Balance(gocontext.Background(), &types.QueryBalanceRequest{})
 	suite.Require().Error(err)
@@ -46,7 +46,7 @@ func (suite *IntegrationTestSuite) TestQueryBalance() {
 
 func (suite *IntegrationTestSuite) TestQueryAllBalances() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	_, err := queryClient.AllBalances(gocontext.Background(), &types.QueryAllBalancesRequest{})
 	suite.Require().Error(err)
 
@@ -91,7 +91,7 @@ func (suite *IntegrationTestSuite) TestQueryAllBalances() {
 
 func (suite *IntegrationTestSuite) TestSpendableBalances() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	ctx = ctx.WithBlockTime(time.Now())
 
 	_, err := queryClient.SpendableBalances(sdk.WrapSDKContext(ctx), &types.QuerySpendableBalancesRequest{})

@@ -42,7 +42,7 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Equal(t, true, bankGenesis.Params.GetDefaultSendEnabled())
 	require.Len(t, bankGenesis.Params.GetSendEnabled(), 1)
 	require.Len(t, bankGenesis.Balances, 3)
-	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", bankGenesis.Balances[2].GetAddress().String())
+	require.Equal(t, "0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", bankGenesis.Balances[2].GetAddress().String())
 	require.Equal(t, "1000stake", bankGenesis.Balances[2].GetCoins().String())
 	require.Equal(t, "6000stake", bankGenesis.Supply.String())
 }

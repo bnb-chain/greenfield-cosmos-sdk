@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -14,13 +15,14 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
 var (
 	// The final TX has 3 signers, in this order.
-	tipperPriv, tipperPk, tipperAddr       = testdata.KeyTestPubAddr()
-	aux2Priv, aux2Pk, aux2Addr             = testdata.KeyTestPubAddr()
-	feepayerPriv, feepayerPk, feepayerAddr = testdata.KeyTestPubAddr()
+	tipperPriv, tipperPk, tipperAddr       = testdata.KeyEthSecp256k1TestPubAddr()
+	aux2Priv, aux2Pk, aux2Addr             = testdata.KeyEthSecp256k1TestPubAddr()
+	feepayerPriv, feepayerPk, feepayerAddr = testdata.KeyEthSecp256k1TestPubAddr()
 
 	msg     = testdata.NewTestMsg(tipperAddr, aux2Addr)
 	memo    = "test-memo"
@@ -38,6 +40,8 @@ var (
 // client.TxBuilder created by the fee payer.
 func TestBuilderWithAux(t *testing.T) {
 	encCfg := simapp.MakeTestEncodingConfig()
+	protoCodec := codec.NewProtoCodec(encCfg.InterfaceRegistry)
+	encCfg.TxConfig = authtx.NewTxConfig(protoCodec, authtx.DefaultSignModes)
 	testdata.RegisterInterfaces(encCfg.InterfaceRegistry)
 
 	// Create an AuxTxBuilder for tipper (1st signer)

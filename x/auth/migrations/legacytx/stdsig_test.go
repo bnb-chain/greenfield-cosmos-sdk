@@ -11,7 +11,7 @@ import (
 )
 
 func TestStdSignatureMarshalYAML(t *testing.T) {
-	_, pk, _ := testdata.KeyTestPubAddr()
+	_, pk, _ := testdata.KeyEthSecp256k1TestPubAddr()
 	pkStr := pk.String()
 
 	testCases := []struct {
