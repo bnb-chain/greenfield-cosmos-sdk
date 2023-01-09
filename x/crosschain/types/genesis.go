@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"math/big"
 )
 
 // NewGenesisState creates a new GenesisState object
@@ -22,12 +23,16 @@ func DefaultGenesisState() *GenesisState {
 
 // ValidateGenesis validates the slashing genesis parameters
 func ValidateGenesis(data GenesisState) error {
-	if data.Params.RelayerTimeout <= 0 {
-		return fmt.Errorf("relayer timeout should be positive, is %d", data.Params.RelayerTimeout)
+	relayerFee := big.NewInt(0)
+	relayerFee, valid := relayerFee.SetString(data.Params.RelayerFee, 10)
+
+	if !valid {
+		return fmt.Errorf("invalid relayer fee, is %s", data.Params.RelayerFee)
 	}
 
-	if data.Params.RelayerBackoffTime <= 0 {
-		return fmt.Errorf("the relayer backoff time must be positive, is %d", data.Params.RelayerBackoffTime)
+	if relayerFee.Cmp(big.NewInt(0)) < 0 {
+		return fmt.Errorf("relayer fee should not be negative, is %s", data.Params.RelayerFee)
 	}
+
 	return nil
 }

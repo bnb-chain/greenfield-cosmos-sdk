@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultRelayerFeeParam string = "100000000" // TODO: tbd
+	DefaultRelayerFeeParam string = "1"
 )
 
 var (

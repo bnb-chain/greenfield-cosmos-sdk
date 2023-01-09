@@ -45,6 +45,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+// InitGenesis inits the genesis state of cross chain module
+func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
+	k.Logger(ctx).Info("set cross chain genesis state", "params", state.Params.String())
+	k.SetParams(ctx, state.Params)
+}
+
 // GetRelayerFeeParam returns the default relayer fee for cross chain tx
 func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) (relayerFee *big.Int, err error) {
 	var relayerFeeParam string

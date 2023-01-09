@@ -59,6 +59,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
+// InitGenesis inits the genesis state of oracle module
 func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
 	k.Logger(ctx).Info("set oracle genesis state", "params", state.Params.String())
 	k.SetParams(ctx, state.Params)
