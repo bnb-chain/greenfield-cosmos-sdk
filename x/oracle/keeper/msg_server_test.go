@@ -115,9 +115,6 @@ func (s *TestSuite) TestInvalidClaim() {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
-	println("------------------")
-	println("relayer: ", validators[0].RelayerAddress)
-
 	msgClaim := types.MsgClaim{
 		FromAddress:    validators[0].RelayerAddress,
 		SrcChainId:     56,

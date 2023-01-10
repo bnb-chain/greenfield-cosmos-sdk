@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 	"time"
 
@@ -112,7 +113,7 @@ func (s *TestSuite) TestProcessClaim() {
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp)+6, 0))
 	err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().NotNil(err, "error should not be nil")
-	s.Require().Contains(err.Error(), "validator is not in turn")
+	s.Require().Contains(err.Error(), fmt.Sprintf("relayer(%s) is not in turn", validators[0].RelayerAddress))
 
 	// wrong validator set
 	wrongValBitSet := bitset.New(256)
