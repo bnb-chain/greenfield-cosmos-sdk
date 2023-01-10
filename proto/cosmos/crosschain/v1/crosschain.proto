@@ -3,9 +3,6 @@ package cosmos.crosschain.v1;
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
-import "gogoproto/gogo.proto";
-import "cosmos_proto/cosmos.proto";
-
 // Params holds parameters for the cross chain module.
 message Params {
   string relayer_fee = 1;

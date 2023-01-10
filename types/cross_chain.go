@@ -10,8 +10,10 @@ import (
 
 type CrossChainPackageType uint8
 
-type ChannelID uint8
-type ChainID uint16
+type (
+	ChannelID uint8
+	ChainID   uint16
+)
 
 const (
 	SynCrossChainPackageType     CrossChainPackageType = 0x00
@@ -59,7 +61,6 @@ type CrossChainApplication interface {
 	ExecuteFailAckPackage(ctx Context, payload []byte) ExecuteResult
 }
 
-// TODO: define the execute result
 type ExecuteResult struct {
 	Err     error
 	Payload []byte

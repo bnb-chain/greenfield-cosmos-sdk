@@ -15,8 +15,10 @@ const (
 	BLSSignatureLength    = 96
 )
 
-type BLSPublicKey [BLSPublicKeyLength]byte
-type BLSSignature [BLSSignatureLength]byte
+type (
+	BLSPublicKey [BLSPublicKeyLength]byte
+	BLSSignature [BLSSignatureLength]byte
+)
 
 func NewMsgClaim(fromAddr string, srcShainId, destChainId uint32, sequence uint64, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
 	return &MsgClaim{
@@ -59,7 +61,7 @@ func (m *MsgClaim) ValidateBasic() error {
 	}
 
 	if len(m.Payload) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("payload should not be empty"))
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "payload should not be empty")
 	}
 
 	if len(m.VoteAddressSet) != ValidatorBitSetLength {
@@ -74,9 +76,7 @@ func (m *MsgClaim) ValidateBasic() error {
 	}
 
 	if m.Timestamp == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
-			fmt.Sprintf("timestamp should not be 0"),
-		)
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "timestamp should not be 0")
 	}
 
 	return nil

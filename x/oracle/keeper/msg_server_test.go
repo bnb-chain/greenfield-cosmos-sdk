@@ -13,8 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-type DummyCrossChainApp struct {
-}
+type DummyCrossChainApp struct{}
 
 func (ta *DummyCrossChainApp) ExecuteSynPackage(ctx sdk.Context, payload []byte, relayerFee *big.Int) sdk.ExecuteResult {
 	return sdk.ExecuteResult{}

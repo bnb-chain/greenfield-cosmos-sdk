@@ -57,18 +57,20 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	packages := types.Packages{}
 	err = rlp.DecodeBytes(req.Payload, &packages)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidPayload, fmt.Sprintf("decode payload error"))
+		return nil, sdkerrors.Wrapf(types.ErrInvalidPayload, "decode payload error")
 	}
 
 	events := make([]proto.Message, 0, len(packages))
-	for _, pack := range packages {
+	for idx := range packages {
+		pack := packages[idx]
+
 		event, err := handlePackage(ctx, req, k.oracleKeeper, sdk.ChainID(req.SrcChainId), &pack)
 		if err != nil {
-			// only do log, but let reset package get chance to execute.
-			logger.Error(fmt.Sprintf("process package failed, channel=%d, sequence=%d, error=%v", pack.ChannelId, pack.Sequence, err))
+			// only do log, but let rest package get chance to execute.
+			logger.Error("process package failed", "channel", pack.ChannelId, "sequence", pack.Sequence, "error", err.Error())
 			return nil, err
 		}
-		logger.Info(fmt.Sprintf("process package success, channel=%d, sequence=%d", pack.ChannelId, pack.Sequence))
+		logger.Info("process package success", "channel", pack.ChannelId, "sequence", pack.Sequence)
 
 		events = append(events, event)
 
@@ -131,7 +133,7 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 					pack.ChannelId, sdk.FailAckCrossChainPackageType, pack.Payload[sdk.PackageHeaderLength:])
 			} else {
 				logger.Error("found payload without header", "channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
-				return nil, sdkerrors.Wrapf(types.ErrInvalidPackage, fmt.Sprintf("payload without header"))
+				return nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
 			}
 
 			if ibcErr != nil {
@@ -139,21 +141,20 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 				return nil, ibcErr
 			}
 			sendSequence = int64(sendSeq)
-		} else {
-			if len(result.Payload) != 0 {
-				sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackage(ctx, chainId,
-					pack.ChannelId, sdk.AckCrossChainPackageType, result.Payload)
-				if err != nil {
-					logger.Error("failed to write AckCrossChainPackage", "err", err)
-					return nil, err
-				}
-				sendSequence = int64(sendSeq)
+		} else if len(result.Payload) != 0 {
+			sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackage(ctx, chainId,
+				pack.ChannelId, sdk.AckCrossChainPackageType, result.Payload)
+			if err != nil {
+				logger.Error("failed to write AckCrossChainPackage", "err", err)
+				return nil, err
 			}
+			sendSequence = int64(sendSeq)
 		}
 	}
 
 	claimEvent := &types.EventPackageClaim{
-		ChainId:         uint32(chainId),
+		SrcChainId:      req.SrcChainId,
+		DestChainId:     req.DestChainId,
 		ChannelId:       uint32(pack.ChannelId),
 		PackageType:     uint32(packageType),
 		ReceiveSequence: pack.Sequence,

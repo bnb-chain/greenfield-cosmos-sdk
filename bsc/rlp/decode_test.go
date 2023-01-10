@@ -369,11 +369,9 @@ type intField struct {
 	X int
 }
 
-var (
-	veryBigInt = big.NewInt(0).Add(
-		big.NewInt(0).Lsh(big.NewInt(0xFFFFFFFFFFFFFF), 16),
-		big.NewInt(0xFFFF),
-	)
+var veryBigInt = big.NewInt(0).Add(
+	big.NewInt(0).Lsh(big.NewInt(0xFFFFFFFFFFFFFF), 16),
+	big.NewInt(0xFFFF),
 )
 
 type hasIgnoredField struct {

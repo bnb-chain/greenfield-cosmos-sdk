@@ -17,8 +17,8 @@ type CrossChainKeeper interface {
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
 	GetSrcChainID() sdk.ChainID
 	IsDestChainSupported(chainID sdk.ChainID) bool
-	GetReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID) uint64
-	IncrReceiveSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID)
+	GetReceiveSequence(ctx sdk.Context, srcChainID sdk.ChainID, channelID sdk.ChannelID) uint64
+	IncrReceiveSequence(ctx sdk.Context, srcChainID sdk.ChainID, channelID sdk.ChannelID)
 }
 
 type BankKeeper interface {

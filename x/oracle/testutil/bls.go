@@ -17,16 +17,14 @@ type Vote struct {
 
 func (vote *Vote) Verify(eventHash []byte) error {
 	blsPubKey, err := bls.PublicKeyFromBytes(vote.PubKey[:])
-
 	if err != nil {
 		return err
 	}
 	sig, err := bls.SignatureFromBytes(vote.Signature[:])
-
 	if err != nil {
 		return err
 	}
-	if !sig.Verify(blsPubKey, eventHash[:]) {
+	if !sig.Verify(blsPubKey, eventHash) {
 		return fmt.Errorf("verify sig error")
 	}
 	return nil
@@ -64,9 +62,9 @@ func NewVoteSignerV2(privkey []byte) (*VoteSigner, error) {
 
 // SignVote sign a vote, data is used to signed to generate the signature
 func (signer *VoteSigner) SignVote(vote *Vote, data []byte) error {
-	signature := signer.privkey.Sign(data[:])
-	copy(vote.PubKey[:], signer.pubKey.Marshal()[:])
-	copy(vote.Signature[:], signature.Marshal()[:])
+	signature := signer.privkey.Sign(data)
+	copy(vote.PubKey[:], signer.pubKey.Marshal())
+	copy(vote.Signature[:], signature.Marshal())
 	return nil
 }
 

@@ -2,10 +2,9 @@
 syntax = "proto3";
 package cosmos.crosschain.v1;
 
-import "cosmos_proto/cosmos.proto";
-
 option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
+// EventCrossChain is emitted when there is a cross chain package created
 message EventCrossChain {
   uint32 src_chain_id = 1;
   uint32 dest_chain_id = 2;

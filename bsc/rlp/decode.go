@@ -33,7 +33,7 @@ import (
 
 // EOL is returned when the end of the current list
 // has been reached during streaming.
-var EOL = errors.New("rlp: end of list")
+var EOL = errors.New("rlp: end of list") //nolint:all
 
 var (
 	ErrExpectedString   = errors.New("rlp: expected String or Byte")
@@ -65,16 +65,6 @@ type Decoder interface {
 	DecodeRLP(*Stream) error
 }
 
-// Decode parses RLP-encoded data from r and stores the result in the value pointed to by
-// val. Please see package-level documentation for the decoding rules. Val must be a
-// non-nil pointer.
-//
-// If r does not implement ByteReader, Decode will do its own buffering.
-//
-// Note that Decode does not set an input limit for all readers and may be vulnerable to
-// panics cause by huge value sizes. If you need an input limit, use
-//
-//     NewStream(r, limit).Decode(val)
 func Decode(r io.Reader, val interface{}) error {
 	stream := streamPool.Get().(*Stream)
 	defer streamPool.Put(stream)

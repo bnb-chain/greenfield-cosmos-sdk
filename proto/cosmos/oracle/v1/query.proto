@@ -1,9 +1,6 @@
 syntax = "proto3";
 package cosmos.oracle.v1;
 
-import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
-
 option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
 
 // Query provides defines the gRPC querier service.

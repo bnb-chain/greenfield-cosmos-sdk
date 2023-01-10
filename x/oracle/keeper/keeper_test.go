@@ -250,7 +250,7 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 
 	for _, test := range tests {
 		s.ctx = s.ctx.WithBlockTime(time.Unix(test.blockTime, 0))
-		isInturn, err := s.app.OracleKeeper.IsValidatorInturn(s.ctx, vals, &test.claimMsg)
+		isInturn, err := s.app.OracleKeeper.IsRelayerInturn(s.ctx, vals, &test.claimMsg)
 
 		if test.expectedPass {
 			s.Require().Nil(err)
@@ -259,7 +259,6 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 			s.Require().False(isInturn)
 		}
 	}
-
 }
 
 // Creates a new validators and asserts the error check.

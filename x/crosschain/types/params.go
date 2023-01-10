@@ -11,9 +11,7 @@ const (
 	DefaultRelayerFeeParam string = "1"
 )
 
-var (
-	KeyParamRelayerFee = []byte("RelayerFee")
-)
+var KeyParamRelayerFee = []byte("RelayerFee")
 
 func DefaultParams() Params {
 	return Params{

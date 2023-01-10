@@ -75,7 +75,8 @@ func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
 	return relayerTimeoutParam, relayerBackoffTimeParam
 }
 
-func (k Keeper) IsValidatorInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
+// IsRelayerInturn checks the inturn status of the relayer
+func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
 	fromAddress, err := sdk.AccAddressFromHexUnsafe(claim.FromAddress)
 	if err != nil {
 		return false, sdkerrors.Wrapf(types.ErrInvalidAddress, fmt.Sprintf("from address (%s) is invalid", claim.FromAddress))
@@ -120,7 +121,7 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	}
 	validators := historicalInfo.Valset
 
-	inturn, err := k.IsValidatorInturn(ctx, validators, claim)
+	inturn, err := k.IsRelayerInturn(ctx, validators, claim)
 	if err != nil {
 		return err
 	}
@@ -142,7 +143,6 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
 		if err != nil {
 			return sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
-
 		}
 		votedPubKeys = append(votedPubKeys, votePubKey)
 	}

@@ -13,7 +13,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgClaim{}, "cosmos-sdk/MsgClaim", nil)
 
-	//legacy.RegisterAminoMsg(cdc, &MsgClaim{}, "cosmos-sdk/MsgClaim")
+	// legacy.RegisterAminoMsg(cdc, &MsgClaim{}, "cosmos-sdk/MsgClaim")
 	// this line is used by starport scaffolding # 2
 }
 

@@ -360,7 +360,7 @@ func writeRawValue(val reflect.Value, w *encbuf) error {
 
 func writeUint(val reflect.Value, w *encbuf) error {
 	i := val.Uint()
-	if i == 0 {
+	if i == 0 { //nolint:all
 		w.str = append(w.str, 0x80)
 	} else if i < 128 {
 		// fits single byte
@@ -398,7 +398,7 @@ func writeBigIntNoPtr(val reflect.Value, w *encbuf) error {
 }
 
 func writeBigInt(i *big.Int, w *encbuf) error {
-	if cmp := i.Cmp(big0); cmp == -1 {
+	if cmp := i.Cmp(big0); cmp == -1 { //nolint:all
 		return fmt.Errorf("rlp: cannot encode negative *big.Int")
 	} else if cmp == 0 {
 		w.str = append(w.str, 0x80)
