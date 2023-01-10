@@ -14,7 +14,7 @@ var (
 	ErrBlsVotesNotEnough      = sdkerrors.Register(ModuleName, 10, "bls votes is not enough")
 	ErrInvalidBlsSignature    = sdkerrors.Register(ModuleName, 11, "bls signature is invalid")
 	ErrNotRelayer             = sdkerrors.Register(ModuleName, 12, "sender is not a relayer")
-	ErrValidatorNotInTurn     = sdkerrors.Register(ModuleName, 13, "validator is not in turn")
+	ErrRelayerNotInTurn       = sdkerrors.Register(ModuleName, 13, "relayer is not in turn")
 	ErrInvalidDestChainId     = sdkerrors.Register(ModuleName, 14, "dest chain id is invalid")
 	ErrInvalidSrcChainId      = sdkerrors.Register(ModuleName, 15, "src chain id is invalid")
 	ErrInvalidAddress         = sdkerrors.Register(ModuleName, 16, "address is invalid")

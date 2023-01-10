@@ -117,7 +117,7 @@ func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Valid
 func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
 	if !ok {
-		return sdkerrors.Wrapf(types.ErrValidatorSet, fmt.Sprintf("get historical validators failed"))
+		return sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
 	}
 	validators := historicalInfo.Valset
 
@@ -126,12 +126,12 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 		return err
 	}
 	if !inturn {
-		return sdkerrors.Wrapf(types.ErrValidatorNotInTurn, fmt.Sprintf("validator is not in turn"))
+		return sdkerrors.Wrapf(types.ErrRelayerNotInTurn, fmt.Sprintf("relayer(%s) is not in turn", claim.FromAddress))
 	}
 
 	validatorsBitSet := bitset.From(claim.VoteAddressSet)
 	if validatorsBitSet.Count() > uint(len(validators)) {
-		return sdkerrors.Wrapf(types.ErrValidatorSet, fmt.Sprintf("number of validator set is larger than validators"))
+		return sdkerrors.Wrapf(types.ErrValidatorSet, "number of validator set is larger than validators")
 	}
 
 	votedPubKeys := make([]bls.PublicKey, 0, validatorsBitSet.Count())
@@ -159,7 +159,7 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
 	}
 
 	if !aggSig.FastAggregateVerify(votedPubKeys, claim.GetBlsSignBytes()) {
-		return sdkerrors.Wrapf(types.ErrInvalidBlsSignature, fmt.Sprintf("signature verify failed"))
+		return sdkerrors.Wrapf(types.ErrInvalidBlsSignature, "signature verify failed")
 	}
 
 	return nil
