@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -75,6 +74,13 @@ func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
 	return relayerTimeoutParam, relayerBackoffTimeParam
 }
 
+// GetRelayerRewardShare returns the relayer reward share
+func (k Keeper) GetRelayerRewardShare(ctx sdk.Context) uint32 {
+	var relayerRewardShare uint32
+	k.paramSpace.Get(ctx, types.KeyParamRelayerRewardShare, &relayerRewardShare)
+	return relayerRewardShare
+}
+
 // IsRelayerInturn checks the inturn status of the relayer
 func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
 	fromAddress, err := sdk.AccAddressFromHexUnsafe(claim.FromAddress)
@@ -114,58 +120,56 @@ func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Valid
 }
 
 // CheckClaim checks the bls signature
-func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) error {
+func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) ([]string, error) {
 	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
 	if !ok {
-		return sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
+		return nil, sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
 	}
 	validators := historicalInfo.Valset
 
 	inturn, err := k.IsRelayerInturn(ctx, validators, claim)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !inturn {
-		return sdkerrors.Wrapf(types.ErrRelayerNotInTurn, fmt.Sprintf("relayer(%s) is not in turn", claim.FromAddress))
+		return nil, sdkerrors.Wrapf(types.ErrRelayerNotInTurn, fmt.Sprintf("relayer(%s) is not in turn", claim.FromAddress))
 	}
 
 	validatorsBitSet := bitset.From(claim.VoteAddressSet)
 	if validatorsBitSet.Count() > uint(len(validators)) {
-		return sdkerrors.Wrapf(types.ErrValidatorSet, "number of validator set is larger than validators")
+		return nil, sdkerrors.Wrapf(types.ErrValidatorSet, "number of validator set is larger than validators")
 	}
 
+	signedRelayers := make([]string, 0, validatorsBitSet.Count())
 	votedPubKeys := make([]bls.PublicKey, 0, validatorsBitSet.Count())
 	for index, val := range validators {
 		if !validatorsBitSet.Test(uint(index)) {
 			continue
 		}
 
+		signedRelayers = append(signedRelayers, val.RelayerAddress)
+
 		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
 		if err != nil {
-			return sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
+			return nil, sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
 		}
 		votedPubKeys = append(votedPubKeys, votePubKey)
 	}
 
 	// The valid voted validators should be no less than 2/3 validators.
 	if len(votedPubKeys) <= len(validators)*2/3 {
-		return sdkerrors.Wrapf(types.ErrBlsVotesNotEnough, fmt.Sprintf("not enough validators voted, need: %d, voted: %d", len(validators)*2/3, len(votedPubKeys)))
+		return nil, sdkerrors.Wrapf(types.ErrBlsVotesNotEnough, fmt.Sprintf("not enough validators voted, need: %d, voted: %d", len(validators)*2/3, len(votedPubKeys)))
 	}
 
 	// Verify the aggregated signature.
 	aggSig, err := bls.SignatureFromBytes(claim.AggSignature)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrInvalidBlsSignature, fmt.Sprintf("BLS signature converts failed: %v", err))
+		return nil, sdkerrors.Wrapf(types.ErrInvalidBlsSignature, fmt.Sprintf("BLS signature converts failed: %v", err))
 	}
 
 	if !aggSig.FastAggregateVerify(votedPubKeys, claim.GetBlsSignBytes()) {
-		return sdkerrors.Wrapf(types.ErrInvalidBlsSignature, "signature verify failed")
+		return nil, sdkerrors.Wrapf(types.ErrInvalidBlsSignature, "signature verify failed")
 	}
 
-	return nil
-}
-
-// SendCoinsToFeeCollector transfers amt to the fee collector account.
-func (k Keeper) SendCoinsToFeeCollector(ctx sdk.Context, amt sdk.Coins) error {
-	return k.BankKeeper.SendCoinsFromModuleToModule(ctx, crosschaintypes.ModuleName, k.feeCollectorName, amt)
+	return signedRelayers, nil
 }
