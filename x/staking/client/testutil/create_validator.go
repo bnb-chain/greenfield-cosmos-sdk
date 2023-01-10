@@ -57,6 +57,12 @@ func (s *CreateValidatorTestSuite) SetupSuite() {
 	proposalID := fmt.Sprintf("%d", 1)
 	s.proposalIDs = append(s.proposalIDs, proposalID)
 	s.voteProposal(proposalID)
+
+	newVal2 := s.submitProposal()
+	s.validators = append(s.validators, newVal2)
+	proposalID2 := fmt.Sprintf("%d", 2)
+	s.proposalIDs = append(s.proposalIDs, proposalID2)
+	s.voteProposal(proposalID2)
 }
 
 func (s *CreateValidatorTestSuite) SetupNewSuite() {
