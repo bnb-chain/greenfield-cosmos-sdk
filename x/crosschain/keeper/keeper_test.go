@@ -3,13 +3,14 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmtime "github.com/tendermint/tendermint/types/time"
+
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/crosschain/testutil"
 	"github.com/cosmos/cosmos-sdk/x/crosschain/types"
-	"github.com/stretchr/testify/suite"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
 )
 
 type TestSuite struct {
@@ -88,15 +89,6 @@ func (s *TestSuite) TestRegisterChannel() {
 	// check nil app
 	err = s.app.CrossChainKeeper.RegisterChannel("another channel", sdk.ChannelID(101), nil)
 	s.Require().ErrorContains(err, "nil cross chain app")
-}
-
-func (s *TestSuite) TestCreateIBCPackage() {
-	sequence, err := s.app.CrossChainKeeper.CreateRawIBCPackage(s.ctx, sdk.ChainID(1), sdk.ChannelID(1), sdk.CrossChainPackageType(1), []byte("test payload"))
-	s.Require().NoError(err)
-	s.Require().EqualValues(0, sequence)
-
-	_, err = s.app.CrossChainKeeper.GetIBCPackage(s.ctx, sdk.ChainID(1), sdk.ChannelID(1), sequence)
-	s.Require().NoError(err)
 }
 
 func (s *TestSuite) TestSetChannelSendPermission() {

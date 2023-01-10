@@ -67,18 +67,9 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
 
-// CreateRawIBCPackage creates a cross chain package with default cross chain fee
-func (k Keeper) CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
-	packageType sdk.CrossChainPackageType, packageLoad []byte,
-) (uint64, error) {
-	relayerFee := k.GetRelayerFeeParam(ctx)
-
-	return k.CreateRawIBCPackageWithFee(ctx, destChainID, channelID, packageType, packageLoad, *relayerFee)
-}
-
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
-	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee big.Int,
+	packageType sdk.CrossChainPackageType, packageLoad []byte, synRelayerFee *big.Int, ackRelayerFee *big.Int,
 ) (uint64, error) {
 	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, destChainID, channelID) != sdk.ChannelAllow {
 		return 0, fmt.Errorf("channel %d is not allowed to write syn package", channelID)
@@ -92,7 +83,12 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.Chai
 	}
 
 	// Assemble the package header
-	packageHeader := sdk.EncodePackageHeader(packageType, uint64(ctx.BlockTime().Unix()), relayerFee)
+	packageHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
+		PackageType:   packageType,
+		Timestamp:     uint64(ctx.BlockTime().Unix()),
+		SynRelayerFee: synRelayerFee,
+		AckRelayerFee: ackRelayerFee,
+	})
 
 	kvStore.Set(key, append(packageHeader, packageLoad...))
 
@@ -106,7 +102,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.Chai
 		PackageType: uint32(packageType),
 		Timestamp:   uint64(ctx.BlockTime().Unix()),
 		PackageLoad: packageLoad,
-		RelayerFee:  relayerFee.String(),
+		RelayerFee:  synRelayerFee.String(),
 	})
 	if err != nil {
 		return 0, err

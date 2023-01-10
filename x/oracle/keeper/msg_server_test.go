@@ -50,7 +50,12 @@ func (s *TestSuite) TestClaim() {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
-	payloadHeader := sdk.EncodePackageHeader(sdk.SynCrossChainPackageType, 1992, *big.NewInt(1))
+	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
+		PackageType:   sdk.SynCrossChainPackageType,
+		Timestamp:     1992,
+		SynRelayerFee: big.NewInt(1),
+		AckRelayerFee: big.NewInt(1),
+	})
 
 	testPackage := types.Package{
 		ChannelId: 1,
@@ -110,6 +115,9 @@ func (s *TestSuite) TestInvalidClaim() {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
+	println("------------------")
+	println("relayer: ", validators[0].RelayerAddress)
+
 	msgClaim := types.MsgClaim{
 		FromAddress:    validators[0].RelayerAddress,
 		SrcChainId:     56,
@@ -147,7 +155,12 @@ func (s *TestSuite) TestInvalidClaim() {
 	s.Require().Contains(err.Error(), "decode payload error")
 
 	// invalid timestamp
-	payloadHeader := sdk.EncodePackageHeader(sdk.SynCrossChainPackageType, 1993, *big.NewInt(1))
+	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
+		PackageType:   sdk.SynCrossChainPackageType,
+		Timestamp:     1993,
+		SynRelayerFee: big.NewInt(1),
+		AckRelayerFee: big.NewInt(1),
+	})
 	testPackage := types.Package{
 		ChannelId: 1,
 		Sequence:  0,

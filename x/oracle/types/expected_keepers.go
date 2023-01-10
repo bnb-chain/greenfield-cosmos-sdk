@@ -1,6 +1,8 @@
 package types
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -12,8 +14,9 @@ type StakingKeeper interface {
 }
 
 type CrossChainKeeper interface {
-	CreateRawIBCPackage(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
-		packageType sdk.CrossChainPackageType, packageLoad []byte) (uint64, error)
+	CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
+		packageType sdk.CrossChainPackageType, packageLoad []byte, synRelayerFee *big.Int, ackRelayerFee *big.Int,
+	) (uint64, error)
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
 	GetSrcChainID() sdk.ChainID
 	IsDestChainSupported(chainID sdk.ChainID) bool
