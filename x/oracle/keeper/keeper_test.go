@@ -151,6 +151,7 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
 		RelayerBackoffTime: 3,
+		RelayerRewardShare: 50,
 	})
 
 	vals := make([]stakingtypes.Validator, 5)

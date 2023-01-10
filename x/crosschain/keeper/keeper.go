@@ -51,17 +51,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
 	k.SetParams(ctx, state.Params)
 }
 
-// GetRelayerFeeParam returns the default relayer fee for cross chain tx
-func (k Keeper) GetRelayerFeeParam(ctx sdk.Context) *big.Int {
-	var relayerFeeParam string
-	k.paramSpace.Get(ctx, types.KeyParamRelayerFee, &relayerFeeParam)
-	relayerFee, valid := big.NewInt(0).SetString(relayerFeeParam, 10)
-	if !valid {
-		panic(fmt.Errorf("invalid relayer fee: %s", relayerFeeParam))
-	}
-	return relayerFee
-}
-
 // SetParams sets the params of cross chain module
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
