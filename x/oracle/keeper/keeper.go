@@ -106,7 +106,7 @@ func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Valid
 	curTime := ctx.BlockTime().Unix()
 	relayerTimeout, relayerBackoffTime := k.GetRelayerParam(ctx)
 
-	// inturn validator can always relay pacakge
+	// inturn validator can always relay package
 	if uint64(validatorIndex) == inturnValidatorIndex {
 		return true, nil
 	}

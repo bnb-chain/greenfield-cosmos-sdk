@@ -83,6 +83,9 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	}
 
 	err = distributeReward(ctx, k.oracleKeeper, req.FromAddress, signedRelayers, totalRelayerFee)
+	if err != nil {
+		return nil, err
+	}
 
 	ctx.EventManager().EmitTypedEvents(events...)
 
