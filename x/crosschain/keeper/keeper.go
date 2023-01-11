@@ -46,9 +46,31 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // InitGenesis inits the genesis state of cross chain module
-func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState, bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper) {
 	k.Logger(ctx).Info("set cross chain genesis state", "params", state.Params.String())
 	k.SetParams(ctx, state.Params)
+
+	initModuleBalance := k.GetInitModuleBalance(ctx)
+	bondDenom := stakingKeeper.BondDenom(ctx)
+
+	err := bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.Coin{
+		Denom:  bondDenom,
+		Amount: sdk.NewIntFromBigInt(initModuleBalance),
+	}})
+	if err != nil {
+		panic(fmt.Sprintf("mint initial cross chain module balance error, err=%s", err.Error()))
+	}
+}
+
+// GetInitModuleBalance returns the initial balance of cross chain module
+func (k Keeper) GetInitModuleBalance(ctx sdk.Context) *big.Int {
+	var initModuleBlaanceParam string
+	k.paramSpace.Get(ctx, types.KeyParamInitModuleBalance, &initModuleBlaanceParam)
+	moduleBalance, valid := big.NewInt(0).SetString(initModuleBlaanceParam, 10)
+	if !valid {
+		panic(fmt.Errorf("invalid init module balance: %s", initModuleBlaanceParam))
+	}
+	return moduleBalance
 }
 
 // SetParams sets the params of cross chain module
@@ -119,26 +141,9 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 	return nil
 }
 
-// RegisterDestChain registers a dest chain
-func (k Keeper) RegisterDestChain(chainID sdk.ChainID) error {
-	for _, chain := range k.cfg.destChains {
-		if chainID == chain {
-			return fmt.Errorf("duplicated destination chain chainID")
-		}
-	}
-
-	k.cfg.destChains = append(k.cfg.destChains, chainID)
-	return nil
-}
-
 // IsDestChainSupported returns the support status of a dest chain
 func (k Keeper) IsDestChainSupported(chainID sdk.ChainID) bool {
-	for _, chain := range k.cfg.destChains {
-		if chainID == chain {
-			return true
-		}
-	}
-	return false
+	return chainID == k.cfg.destChainId
 }
 
 // SetChannelSendPermission sets the channel send permission
@@ -165,6 +170,16 @@ func (k Keeper) SetSrcChainID(srcChainID sdk.ChainID) {
 // GetSrcChainID gets the current  chain id
 func (k Keeper) GetSrcChainID() sdk.ChainID {
 	return k.cfg.srcChainID
+}
+
+// SetDestChainID sets the destination chain id
+func (k Keeper) SetDestChainID(destChainId sdk.ChainID) {
+	k.cfg.destChainId = destChainId
+}
+
+// GetDestChainID gets the destination chain id
+func (k Keeper) GetDestChainID() sdk.ChainID {
+	return k.cfg.destChainId
 }
 
 // GetIBCPackage returns the ibc package by sequence

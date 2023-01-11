@@ -29,7 +29,6 @@ func (ta *DummyCrossChainApp) ExecuteFailAckPackage(ctx sdk.Context, payload []b
 
 func (s *TestSuite) TestClaim() {
 	s.app.CrossChainKeeper.RegisterChannel("test", sdk.ChannelID(1), &DummyCrossChainApp{})
-	s.app.CrossChainKeeper.RegisterDestChain(sdk.ChainID(56))
 
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
@@ -119,7 +118,7 @@ func (s *TestSuite) TestInvalidClaim() {
 
 	msgClaim := types.MsgClaim{
 		FromAddress:    validators[0].RelayerAddress,
-		SrcChainId:     56,
+		SrcChainId:     65,
 		DestChainId:    1,
 		Sequence:       0,
 		Timestamp:      1992,
@@ -145,7 +144,7 @@ func (s *TestSuite) TestInvalidClaim() {
 	s.Require().NotNil(err, "process claim should return error")
 	s.Require().Contains(err.Error(), "src chain id is invalid")
 
-	s.app.CrossChainKeeper.RegisterDestChain(sdk.ChainID(56))
+	s.app.CrossChainKeeper.SetDestChainID(sdk.ChainID(65))
 
 	// invalid payload
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))

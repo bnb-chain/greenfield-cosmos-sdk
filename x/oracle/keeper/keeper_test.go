@@ -49,6 +49,7 @@ func (s *TestSuite) SetupTest() {
 	s.ctx = ctx
 
 	s.app.CrossChainKeeper.SetSrcChainID(sdk.ChainID(1))
+	s.app.CrossChainKeeper.SetDestChainID(sdk.ChainID(56))
 
 	coins := sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000)))
 	err := s.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)

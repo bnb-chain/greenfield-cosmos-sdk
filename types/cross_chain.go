@@ -72,13 +72,11 @@ func GetPackageHeaderLength(packageType CrossChainPackageType) int {
 type PackageHeader struct {
 	PackageType   CrossChainPackageType
 	Timestamp     uint64
-	SynRelayerFee *big.Int
-	AckRelayerFee *big.Int
+	SynRelayerFee *big.Int // syn relayer fee is the relayer fee paid to relayer src source chain to dest chain
+	AckRelayerFee *big.Int // ack relayer fee is the relayer fee paid to relayer for the ack or fail ack package if there is any
 }
 
-var (
-	NilAckRelayerFee = big.NewInt(0) // For ack packages, the ack relayer fee should be nil, and it would not be encoded into package header
-)
+var NilAckRelayerFee = big.NewInt(0) // For ack packages, the ack relayer fee should be nil, and it would not be encoded into package header
 
 func EncodePackageHeader(header PackageHeader) []byte {
 	packageHeader := make([]byte, GetPackageHeaderLength(header.PackageType))
