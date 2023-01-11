@@ -94,6 +94,11 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 // distributeReward will distribute reward to relayers
 func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer string, signedRelayers []string, relayerFee *big.Int) error {
+	if relayerFee.Cmp(big.NewInt(0)) <= 0 {
+		oracleKeeper.Logger(ctx).Info("total relayer fee is zero")
+		return nil
+	}
+
 	relayerAddr, err := sdk.AccAddressFromHexUnsafe(relayer)
 	if err != nil {
 		return sdkerrors.Wrapf(types.ErrInvalidAddress, fmt.Sprintf("relayer address (%s) is invalid", relayer))
@@ -122,24 +127,32 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer string, sign
 	}
 
 	bondDenom := oracleKeeper.StakingKeeper.BondDenom(ctx)
-	for idx := range otherRelayers {
+	if otherRelayerReward.Cmp(big.NewInt(0)) > 0 {
+		for idx := range otherRelayers {
+			err = oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
+				crosschaintypes.ModuleName,
+				otherRelayers[idx],
+				sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(otherRelayerReward)}},
+			)
+			if err != nil {
+				return err
+			}
+			totalDistributed = totalDistributed.Add(totalDistributed, otherRelayerReward)
+		}
+	}
+
+	remainingReward := relayerFee.Sub(relayerFee, totalDistributed)
+	if remainingReward.Cmp(big.NewInt(0)) > 0 {
 		err = oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 			crosschaintypes.ModuleName,
-			otherRelayers[idx],
-			sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(otherRelayerReward)}},
+			relayerAddr,
+			sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(remainingReward)}},
 		)
 		if err != nil {
 			return err
 		}
-		totalDistributed = totalDistributed.Add(totalDistributed, otherRelayerReward)
 	}
 
-	remainingReward := relayerFee.Sub(relayerFee, totalDistributed)
-	err = oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
-		crosschaintypes.ModuleName,
-		relayerAddr,
-		sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(remainingReward)}},
-	)
 	return err
 }
 
