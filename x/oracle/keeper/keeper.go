@@ -106,17 +106,17 @@ func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Valid
 	curTime := ctx.BlockTime().Unix()
 	relayerTimeout, relayerBackoffTime := k.GetRelayerParam(ctx)
 
-	// check block time with package timestamp
-	if uint64(curTime)-claim.Timestamp <= relayerTimeout {
-		if uint64(validatorIndex) == inturnValidatorIndex {
-			return true, nil
-		}
-		return false, nil
+	// inturn validator can always relay pacakge
+	if uint64(validatorIndex) == inturnValidatorIndex {
+		return true, nil
 	}
 
-	backoffIndex := (uint64(curTime)-claim.Timestamp-relayerTimeout-1)/relayerBackoffTime + 1
-
-	return uint64(validatorIndex) == (inturnValidatorIndex+backoffIndex)%uint64(len(validators)), nil
+	// not inturn validators can not relay in the timeout duration
+	if uint64(curTime)-claim.Timestamp <= relayerTimeout {
+		return false, nil
+	}
+	validatorDistance := (validatorIndex - int64(inturnValidatorIndex) + int64(len(validators))) % int64(len(validators))
+	return curTime > int64(claim.Timestamp+relayerTimeout)+(validatorDistance-1)*int64(relayerBackoffTime), nil
 }
 
 // CheckClaim checks the bls signature

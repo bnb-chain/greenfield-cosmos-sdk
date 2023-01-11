@@ -111,12 +111,6 @@ func (s *TestSuite) TestProcessClaim() {
 	_, err := s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().Nil(err, "error should be nil")
 
-	// not in turn
-	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp)+6, 0))
-	_, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
-	s.Require().NotNil(err, "error should not be nil")
-	s.Require().Contains(err.Error(), fmt.Sprintf("relayer(%s) is not in turn", validators[0].RelayerAddress))
-
 	// wrong validator set
 	wrongValBitSet := bitset.New(256)
 	for i := 0; i < 10; i++ {
@@ -231,7 +225,7 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 				AggSignature:   []byte("test sig"),
 			},
 			1992,
-			false,
+			true,
 			"",
 		},
 		// right validator in backoff time
@@ -252,15 +246,15 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 		},
 	}
 
-	for _, test := range tests {
+	for idx, test := range tests {
 		s.ctx = s.ctx.WithBlockTime(time.Unix(test.blockTime, 0))
 		isInturn, err := s.app.OracleKeeper.IsRelayerInturn(s.ctx, vals, &test.claimMsg)
 
 		if test.expectedPass {
 			s.Require().Nil(err)
-			s.Require().True(isInturn)
+			s.Require().True(isInturn, fmt.Sprintf("test case %d should be right", idx))
 		} else {
-			s.Require().False(isInturn)
+			s.Require().False(isInturn, fmt.Sprintf("test case %d should be false", idx))
 		}
 	}
 }
