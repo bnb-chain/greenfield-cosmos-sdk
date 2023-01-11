@@ -14,14 +14,14 @@ type StakingKeeper interface {
 }
 
 type CrossChainKeeper interface {
-	CreateRawIBCPackageWithFee(ctx sdk.Context, destChainID sdk.ChainID, channelID sdk.ChannelID,
+	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
 		packageType sdk.CrossChainPackageType, packageLoad []byte, synRelayerFee *big.Int, ackRelayerFee *big.Int,
 	) (uint64, error)
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
 	GetSrcChainID() sdk.ChainID
 	IsDestChainSupported(chainID sdk.ChainID) bool
-	GetReceiveSequence(ctx sdk.Context, srcChainID sdk.ChainID, channelID sdk.ChannelID) uint64
-	IncrReceiveSequence(ctx sdk.Context, srcChainID sdk.ChainID, channelID sdk.ChannelID)
+	GetReceiveSequence(ctx sdk.Context, channelID sdk.ChannelID) uint64
+	IncrReceiveSequence(ctx sdk.Context, channelID sdk.ChannelID)
 }
 
 type BankKeeper interface {

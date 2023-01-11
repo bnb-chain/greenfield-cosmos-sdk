@@ -45,7 +45,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		return nil, sdkerrors.Wrapf(types.ErrInvalidSrcChainId, fmt.Sprintf("src chain id(%d) is not supported", req.SrcChainId))
 	}
 
-	sequence := k.oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), types.RelayPackagesChannelId)
+	sequence := k.oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, types.RelayPackagesChannelId)
 	if sequence != req.Sequence {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence))
 	}
@@ -66,7 +66,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	for idx := range packages {
 		pack := packages[idx]
 
-		relayerFee, event, err := handlePackage(ctx, req, k.oracleKeeper, sdk.ChainID(req.SrcChainId), &pack)
+		relayerFee, event, err := handlePackage(ctx, req, k.oracleKeeper, &pack)
 		if err != nil {
 			// only do log, but let rest package get chance to execute.
 			logger.Error("process package failed", "channel", pack.ChannelId, "sequence", pack.Sequence, "error", err.Error())
@@ -79,7 +79,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		totalRelayerFee = totalRelayerFee.Add(totalRelayerFee, relayerFee)
 
 		// increase channel sequence
-		k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), pack.ChannelId)
+		k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, pack.ChannelId)
 	}
 
 	err = distributeReward(ctx, k.oracleKeeper, req.FromAddress, signedRelayers, totalRelayerFee)
@@ -140,7 +140,12 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer string, sign
 	return err
 }
 
-func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, chainId sdk.ChainID, pack *types.Package) (*big.Int, *types.EventPackageClaim, error) {
+func handlePackage(
+	ctx sdk.Context,
+	req *types.MsgClaim,
+	oracleKeeper Keeper,
+	pack *types.Package,
+) (*big.Int, *types.EventPackageClaim, error) {
 	logger := oracleKeeper.Logger(ctx)
 
 	crossChainApp := oracleKeeper.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
@@ -148,9 +153,10 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 		return nil, nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
 	}
 
-	sequence := oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, chainId, pack.ChannelId)
+	sequence := oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, pack.ChannelId)
 	if sequence != pack.Sequence {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", pack.ChannelId, sequence))
+		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence,
+			fmt.Sprintf("current sequence of channel %d is %d", pack.ChannelId, sequence))
 	}
 
 	packageHeader, err := sdk.DecodePackageHeader(pack.Payload)
@@ -159,11 +165,13 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 	}
 
 	if packageHeader.Timestamp != req.Timestamp {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader, "timestamp(%d) is not the same in payload header(%d)", req.Timestamp, packageHeader.Timestamp)
+		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader,
+			"timestamp(%d) is not the same in payload header(%d)", req.Timestamp, packageHeader.Timestamp)
 	}
 
 	if !sdk.IsValidCrossChainPackageType(packageHeader.PackageType) {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackageType, fmt.Sprintf("package type %d is invalid", packageHeader.PackageType))
+		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackageType,
+			fmt.Sprintf("package type %d is invalid", packageHeader.PackageType))
 	}
 
 	cacheCtx, write := ctx.CacheContext()
@@ -179,10 +187,11 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 			var ibcErr error
 			var sendSeq uint64
 			if len(pack.Payload) >= sdk.SynPackageHeaderLength {
-				sendSeq, ibcErr = oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, chainId,
-					pack.ChannelId, sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
+				sendSeq, ibcErr = oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+					sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			} else {
-				logger.Error("found payload without header", "channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
+				logger.Error("found payload without header",
+					"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
 				return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
 			}
 
@@ -192,8 +201,8 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 			}
 			sendSequence = int64(sendSeq)
 		} else if len(result.Payload) != 0 {
-			sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, chainId,
-				pack.ChannelId, sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
+			sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+				sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if err != nil {
 				logger.Error("failed to write AckCrossChainPackage", "err", err)
 				return nil, nil, err
@@ -218,7 +227,13 @@ func handlePackage(ctx sdk.Context, req *types.MsgClaim, oracleKeeper Keeper, ch
 	return packageHeader.SynRelayerFee, claimEvent, nil
 }
 
-func executeClaim(ctx sdk.Context, app sdk.CrossChainApplication, payload []byte, packageType sdk.CrossChainPackageType, relayerFee *big.Int) (crash bool, result sdk.ExecuteResult) {
+func executeClaim(
+	ctx sdk.Context,
+	app sdk.CrossChainApplication,
+	payload []byte,
+	packageType sdk.CrossChainPackageType,
+	relayerFee *big.Int,
+) (crash bool, result sdk.ExecuteResult) {
 	defer func() {
 		if r := recover(); r != nil {
 			log := fmt.Sprintf("recovered: %v\nstack:\n%v", r, string(debug.Stack()))

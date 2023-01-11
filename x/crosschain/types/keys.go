@@ -37,7 +37,7 @@ var (
 	PrefixForChannelPermissionKey = []byte{0xc0}
 )
 
-func BuildIBCPackageKey(srcChainID, destChainID sdk.ChainID, channelID sdk.ChannelID, sequence uint64) []byte {
+func BuildCrossChainPackageKey(srcChainID, destChainID sdk.ChainID, channelID sdk.ChannelID, sequence uint64) []byte {
 	key := make([]byte, totalPackageKeyLength)
 
 	copy(key[:prefixLength], PrefixForIbcPackageKey)

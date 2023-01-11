@@ -109,7 +109,7 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // LegacyQuerierHandler returns the x/params querier handler.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
+	return nil
 }
 
 // RegisterServices registers a gRPC query service to respond to the

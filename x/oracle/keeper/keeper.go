@@ -173,3 +173,9 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) ([]string, er
 
 	return signedRelayers, nil
 }
+
+// GetParams returns the current params
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	k.paramSpace.GetParamSet(ctx, &params)
+	return params
+}

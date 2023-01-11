@@ -36,21 +36,21 @@ func TestTestSuite(t *testing.T) {
 }
 
 func (s *TestSuite) TestIncrSendSequence() {
-	beforeSequence := s.app.CrossChainKeeper.GetSendSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	beforeSequence := s.app.CrossChainKeeper.GetSendSequence(s.ctx, sdk.ChannelID(1))
 
-	s.app.CrossChainKeeper.IncrSendSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	s.app.CrossChainKeeper.IncrSendSequence(s.ctx, sdk.ChannelID(1))
 
-	afterSequence := s.app.CrossChainKeeper.GetSendSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	afterSequence := s.app.CrossChainKeeper.GetSendSequence(s.ctx, sdk.ChannelID(1))
 
 	s.Require().EqualValues(afterSequence, beforeSequence+1)
 }
 
 func (s *TestSuite) TestIncrReceiveSequence() {
-	beforeSequence := s.app.CrossChainKeeper.GetReceiveSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	beforeSequence := s.app.CrossChainKeeper.GetReceiveSequence(s.ctx, sdk.ChannelID(1))
 
-	s.app.CrossChainKeeper.IncrReceiveSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	s.app.CrossChainKeeper.IncrReceiveSequence(s.ctx, sdk.ChannelID(1))
 
-	afterSequence := s.app.CrossChainKeeper.GetReceiveSequence(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	afterSequence := s.app.CrossChainKeeper.GetReceiveSequence(s.ctx, sdk.ChannelID(1))
 
 	s.Require().EqualValues(afterSequence, beforeSequence+1)
 }
