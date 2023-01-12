@@ -29,7 +29,6 @@ type ImpeachValidatorTestSuite struct {
 	cfg         network.Config
 	network     *network.Network
 	proposalIDs []string
-	validators  []sdk.AccAddress
 }
 
 func NewImpeachValidatorTestSuite(cfg network.Config) *ImpeachValidatorTestSuite {
@@ -88,7 +87,6 @@ func (s *ImpeachValidatorTestSuite) submitProposal(from string, isValidTestCase 
 
 	kickedVal := s.network.Validators[2]
 
-	//nolint:staticcheck
 	args := append([]string{
 		s.ImpeachValidatorProposal(kickedVal.Address, from).Name(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.ValAddress.String()),
@@ -117,7 +115,6 @@ func (s *ImpeachValidatorTestSuite) voteProposal(proposalID string, val *network
 	clientCtx := val.ClientCtx
 	clientCtx.Client = s.network.Validators[0].RPCClient
 
-	//nolint:staticcheck
 	args := append([]string{
 		proposalID,
 		voteOption,
