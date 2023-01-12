@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -112,22 +111,6 @@ func (s *ImpeachValidatorTestSuite) submitProposal(from string, isValidTestCase 
 	} else {
 		s.Require().Error(err)
 	}
-}
-
-func (s *ImpeachValidatorTestSuite) getCoin(recipientVal sdk.Address) {
-	val := s.network.Validators[0]
-
-	// Get coin from current validator
-	_, err := banktestutil.MsgSendExec(
-		val.ClientCtx,
-		val.Address,
-		recipientVal.Bytes(),
-		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(200000000))),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-	)
-	s.Require().NoError(err)
 }
 
 func (s *ImpeachValidatorTestSuite) voteProposal(proposalID string, val *network.Validator, voteOption string) {
