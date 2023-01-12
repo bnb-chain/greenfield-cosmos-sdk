@@ -75,19 +75,7 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 			}
 			return nil
 		}
-
 	case *signing.MultiSignatureData:
-		// multiPK, ok := pubKey.(multisig.PubKey)
-		// if !ok {
-		// 	return fmt.Errorf("expected %T, got %T", (multisig.PubKey)(nil), pubKey)
-		// }
-		// err := multiPK.VerifyMultisignature(func(mode signing.SignMode) ([]byte, error) {
-		// 	return handler.GetSignBytes(mode, signerData, tx)
-		// }, data)
-		// if err != nil {
-		// 	return err
-		// }
-		// return nil
 		return fmt.Errorf("multi signature is not allowed")
 	default:
 		return fmt.Errorf("unexpected SignatureData %T", sigData)

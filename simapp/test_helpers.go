@@ -56,7 +56,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
-var DefaultChainId = "inscription_9000-1"
+const DefaultChainId = "inscription_9000-1"
 
 // SetupOptions defines arguments that are passed into `Simapp` constructor.
 type SetupOptions struct {

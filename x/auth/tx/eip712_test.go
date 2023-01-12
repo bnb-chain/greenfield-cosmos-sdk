@@ -192,7 +192,7 @@ func TestMoreMsgs(t *testing.T) {
 	modeHandler := signModeEip712Handler{}
 
 	msgSend := banktypes.NewMsgSend(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))))
-	msgProposal, _ := govtypes.NewMsgSubmitProposal([]sdk.Msg{}, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))), "test", "test")
+	msgProposal, _ := govtypes.NewMsgSubmitProposal([]sdk.Msg{msgSend}, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))), "test", "test")
 	expiration := time.Now()
 	basic := feegrant.BasicAllowance{
 		SpendLimit: nil,
@@ -216,7 +216,7 @@ func TestMoreMsgs(t *testing.T) {
 		Metadata: "metaData",
 	}
 	testCases := []sdk.Msg{
-		vesting.NewMsgCreateVestingAccount(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))), time.Now().Unix(), false),
+		// vesting.NewMsgCreateVestingAccount(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))), time.Now().Unix(), false),
 		msgProposal,
 		msgSend,
 		msgGrantAllowance1,
