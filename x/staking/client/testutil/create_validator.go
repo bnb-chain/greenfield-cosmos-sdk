@@ -5,11 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 	"time"
-
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-	"github.com/stretchr/testify/suite"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -27,6 +24,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/stretchr/testify/suite"
+	tmcli "github.com/tendermint/tendermint/libs/cli"
 )
 
 type CreateValidatorTestSuite struct {
@@ -52,17 +52,45 @@ func (s *CreateValidatorTestSuite) SetupSuite() {
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
 
-	newVal := s.submitProposal()
+	// Valid case
+	blsSecretKey, _ := bls.RandKey()
+	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
+	newVal := s.getCoin()
+	s.grantDelegator(newVal)
+	s.submitProposal(newVal, gov.ModuleName, blsPubKey, true)
 	s.validators = append(s.validators, newVal)
 	proposalID := fmt.Sprintf("%d", 1)
 	s.proposalIDs = append(s.proposalIDs, proposalID)
 	s.voteProposal(proposalID)
 
-	newVal2 := s.submitProposal()
-	s.validators = append(s.validators, newVal2)
-	proposalID2 := fmt.Sprintf("%d", 2)
-	s.proposalIDs = append(s.proposalIDs, proposalID2)
-	s.voteProposal(proposalID2)
+	// Invalid case (No grant)
+	blsSecretKey2, _ := bls.RandKey()
+	blsPubKey2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
+
+	newVal2 := s.getCoin()
+	s.submitProposal(newVal2, gov.ModuleName, blsPubKey2, false)
+
+	// Invalid case (--from account not gov)
+	blsSecretKey3, _ := bls.RandKey()
+	blsPubKey3 := hex.EncodeToString(blsSecretKey3.PublicKey().Marshal())
+
+	newVal3 := s.getCoin()
+	s.grantDelegator(newVal3)
+	s.submitProposal(newVal3, newVal3.String(), blsPubKey3, false)
+
+	// Invalid case (Repeated relayer address)
+	blsSecretKey4, _ := bls.RandKey()
+	blsPubKey4 := hex.EncodeToString(blsSecretKey4.PublicKey().Marshal())
+
+	newVal4 := s.getCoin()
+	s.grantDelegator(newVal4)
+	s.submitProposal(newVal, gov.ModuleName, blsPubKey4, false)
+
+	// Invalid case (Repeated relayer key)
+	newVal5 := s.getCoin()
+	s.grantDelegator(newVal5)
+	s.submitProposal(newVal5, gov.ModuleName, blsPubKey, false)
 }
 
 func (s *CreateValidatorTestSuite) SetupNewSuite() {
@@ -76,9 +104,8 @@ func (s *CreateValidatorTestSuite) SetupNewSuite() {
 	s.Require().NoError(err)
 }
 
-func (s *CreateValidatorTestSuite) submitProposal() sdk.AccAddress {
+func (s *CreateValidatorTestSuite) getCoin() sdk.AccAddress {
 	val := s.network.Validators[0]
-	clientCtx := val.ClientCtx
 
 	// Get coin from current validator
 	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
@@ -98,6 +125,12 @@ func (s *CreateValidatorTestSuite) submitProposal() sdk.AccAddress {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 	)
 	s.Require().NoError(err)
+	return newVal
+}
+
+func (s *CreateValidatorTestSuite) grantDelegator(newVal sdk.AccAddress) {
+	val := s.network.Validators[0]
+	_, err := val.ClientCtx.Keyring.KeyByAddress(newVal)
 
 	// Grant delegate authorization
 	_, err = authztestutil.CreateGrant(val, []string{
@@ -111,17 +144,35 @@ func (s *CreateValidatorTestSuite) submitProposal() sdk.AccAddress {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
 	})
 	s.Require().NoError(err)
+}
+
+func (s *CreateValidatorTestSuite) submitProposal(newVal sdk.AccAddress, from string, blsPubKey string, isValidTestCase bool) {
+	val := s.network.Validators[0]
+	clientCtx := val.ClientCtx
 
 	args := append([]string{
-		s.createValidatorProposal(newVal).Name(),
+		s.createValidatorProposal(newVal, blsPubKey, from).Name(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
 		fmt.Sprintf("--gas=%s", fmt.Sprintf("%d", flags.DefaultGasLimit+100000)),
-	}, commonArgs...)
+	}, CommonArgs...)
 
-	_, err = clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdSubmitProposal(), args)
-	s.Require().NoError(err)
+	response, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdSubmitProposal(), args)
 
-	return newVal
+	// For testcases with errors found in the response instead (Invalid --from account testcase)
+	if err == nil {
+		splits := strings.Split(response.String(), ",")
+		splits = strings.Split(splits[2], ":")
+		codespace := strings.Trim(splits[1], "\"")
+		if string(codespace) != "" {
+			err = gov.ErrInvalidProposalMsg
+		}
+	}
+
+	if isValidTestCase {
+		s.Require().NoError(err)
+	} else {
+		s.Require().Error(err)
+	}
 }
 
 func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
@@ -132,7 +183,7 @@ func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
 		proposalID,
 		"yes",
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-	}, commonArgs...)
+	}, CommonArgs...)
 	_, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdVote(), args)
 	s.Require().NoError(err)
 }
@@ -171,11 +222,8 @@ func (s *CreateValidatorTestSuite) TestQuerySuccessfulCreatedValidator() {
 	s.Require().Equal(result.GetStatus(), types.Bonded, fmt.Sprintf("validator %s not in bonded status", newVal.String()))
 }
 
-func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress) *os.File {
+func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress, blsPubKey string, from string) *os.File {
 	pubKey := base64.StdEncoding.EncodeToString(ed25519.GenPrivKey().PubKey().Bytes())
-
-	blsSecretKey, _ := bls.RandKey()
-	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	propMetadata := []byte{42}
 	proposal := fmt.Sprintf(`
@@ -217,9 +265,9 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 		valAddr.String(),
 		valAddr.String(),
 		pubKey,
-		authtypes.NewModuleAddress(gov.ModuleName),
+		authtypes.NewModuleAddress(from),
 		valAddr.String(),
-		blsPk,
+		blsPubKey,
 		base64.StdEncoding.EncodeToString(propMetadata),
 		sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens),
 	)
