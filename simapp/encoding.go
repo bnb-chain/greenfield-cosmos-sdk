@@ -17,6 +17,8 @@ func MakeTestEncodingConfig() simappparams.EncodingConfig {
 	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ModuleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	ModuleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	authtx.MsgCodec = codec.NewProtoCodec(encodingConfig.InterfaceRegistry)
+	if authtx.MsgCodec == nil {
+		authtx.MsgCodec = codec.NewProtoCodec(encodingConfig.InterfaceRegistry)
+	}
 	return encodingConfig
 }

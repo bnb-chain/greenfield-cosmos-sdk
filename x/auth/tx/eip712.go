@@ -460,6 +460,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 				newValue["value"] = bz
 				msgValue[encName] = newValue
 			}
+			typedData[encType] = anyApiTypes
 			delete(msgValue, encName[:len(encName)-3])
 			continue
 		}
@@ -604,6 +605,17 @@ var (
 	enumType         = reflect.TypeOf(stakingtypes.AuthorizationType(0))
 	edType           = reflect.TypeOf(ed25519.PubKey{})
 	secpType         = reflect.TypeOf(ethsecp256k1.PubKey{})
+
+	anyApiTypes = []apitypes.Type{
+		{
+			Name: "type",
+			Type: "string",
+		},
+		{
+			Name: "value",
+			Type: "bytes",
+		},
+	}
 )
 
 // typToEth supports only basic types and arrays of basic types.
