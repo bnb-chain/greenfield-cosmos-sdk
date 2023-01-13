@@ -281,5 +281,5 @@ func executeClaim(
 	default:
 		panic(fmt.Sprintf("receive unexpected package type %d", header.PackageType))
 	}
-	return
+	return crash, result
 }
