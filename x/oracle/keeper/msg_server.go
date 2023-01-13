@@ -191,7 +191,7 @@ func handlePackage(
 	}
 
 	cacheCtx, write := ctx.CacheContext()
-	crash, result := executeClaim(cacheCtx, crossChainApp, pack.Payload, &packageHeader)
+	crash, result := executeClaim(cacheCtx, crossChainApp, sequence, pack.Payload, &packageHeader)
 	if result.IsOk() {
 		write()
 	}
@@ -246,6 +246,7 @@ func handlePackage(
 func executeClaim(
 	ctx sdk.Context,
 	app sdk.CrossChainApplication,
+	sequence uint64,
 	payload []byte,
 	header *sdk.PackageHeader,
 ) (crash bool, result sdk.ExecuteResult) {
@@ -263,11 +264,20 @@ func executeClaim(
 
 	switch header.PackageType {
 	case sdk.SynCrossChainPackageType:
-		result = app.ExecuteSynPackage(ctx, header, payload[sdk.SynPackageHeaderLength:])
+		result = app.ExecuteSynPackage(ctx, &sdk.CrossChainAppContext{
+			Sequence: sequence,
+			Header:   header,
+		}, payload[sdk.SynPackageHeaderLength:])
 	case sdk.AckCrossChainPackageType:
-		result = app.ExecuteAckPackage(ctx, header, payload[sdk.AckPackageHeaderLength:])
+		result = app.ExecuteAckPackage(ctx, &sdk.CrossChainAppContext{
+			Sequence: sequence,
+			Header:   header,
+		}, payload[sdk.AckPackageHeaderLength:])
 	case sdk.FailAckCrossChainPackageType:
-		result = app.ExecuteFailAckPackage(ctx, header, payload[sdk.AckPackageHeaderLength:])
+		result = app.ExecuteFailAckPackage(ctx, &sdk.CrossChainAppContext{
+			Sequence: sequence,
+			Header:   header,
+		}, payload[sdk.AckPackageHeaderLength:])
 	default:
 		panic(fmt.Sprintf("receive unexpected package type %d", header.PackageType))
 	}

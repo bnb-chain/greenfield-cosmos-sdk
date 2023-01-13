@@ -34,7 +34,7 @@ func (m *MockCrossChainApplication) EXPECT() *MockCrossChainApplicationMockRecor
 }
 
 // ExecuteSynPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, appCtx *types.CrossChainAppContext, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteSynPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
@@ -48,7 +48,7 @@ func (mr *MockCrossChainApplicationMockRecorder) ExecuteSynPackage(ctx, header, 
 }
 
 // ExecuteAckPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteAckPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteAckPackage(ctx types.Context, header *types.CrossChainAppContext, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteAckPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
@@ -62,7 +62,7 @@ func (mr *MockCrossChainApplicationMockRecorder) ExecuteAckPackage(ctx, header, 
 }
 
 // ExecuteFailAckPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteFailAckPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteFailAckPackage(ctx types.Context, header *types.CrossChainAppContext, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteFailAckPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
