@@ -7,7 +7,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-const DefaultInitModuleBalance string = "1000000000"
+const DefaultInitModuleBalance string = "1000000000000000000000000000"
 
 var KeyParamInitModuleBalance = []byte("InitModuleBalance")
 

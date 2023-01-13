@@ -53,7 +53,7 @@ func (s *TestSuite) TestClaim() {
 	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
 		PackageType:   sdk.SynCrossChainPackageType,
 		Timestamp:     1992,
-		SynRelayerFee: big.NewInt(1),
+		RelayerFee:    big.NewInt(1),
 		AckRelayerFee: big.NewInt(1),
 	})
 
@@ -156,7 +156,7 @@ func (s *TestSuite) TestInvalidClaim() {
 	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
 		PackageType:   sdk.SynCrossChainPackageType,
 		Timestamp:     1993,
-		SynRelayerFee: big.NewInt(1),
+		RelayerFee:    big.NewInt(1),
 		AckRelayerFee: big.NewInt(1),
 	})
 	testPackage := types.Package{

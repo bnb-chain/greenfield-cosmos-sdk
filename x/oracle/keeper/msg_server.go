@@ -191,7 +191,7 @@ func handlePackage(
 	}
 
 	cacheCtx, write := ctx.CacheContext()
-	crash, result := executeClaim(cacheCtx, crossChainApp, pack.Payload, packageHeader.PackageType, packageHeader.SynRelayerFee)
+	crash, result := executeClaim(cacheCtx, crossChainApp, pack.Payload, packageHeader.PackageType, packageHeader.RelayerFee)
 	if result.IsOk() {
 		write()
 	}
@@ -234,13 +234,13 @@ func handlePackage(
 		PackageType:     uint32(packageHeader.PackageType),
 		ReceiveSequence: pack.Sequence,
 		SendSequence:    sendSequence,
-		SynRelayFee:     packageHeader.SynRelayerFee.String(),
-		AckRelayFee:     packageHeader.AckRelayerFee.String(),
+		RelayerFee:      packageHeader.RelayerFee.String(),
+		AckRelayerFee:   packageHeader.AckRelayerFee.String(),
 		Crash:           crash,
 		ErrorMsg:        result.ErrMsg(),
 	}
 
-	return packageHeader.SynRelayerFee, claimEvent, nil
+	return packageHeader.RelayerFee, claimEvent, nil
 }
 
 func executeClaim(

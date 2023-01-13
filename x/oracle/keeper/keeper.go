@@ -81,8 +81,8 @@ func (k Keeper) GetRelayerRewardShare(ctx sdk.Context) uint32 {
 	return relayerRewardShare
 }
 
-// IsRelayerInturn checks the inturn status of the relayer
-func (k Keeper) IsRelayerInturn(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
+// IsRelayerValid returns true if the relayer is valid and allowed to send the claim message
+func (k Keeper) IsRelayerValid(ctx sdk.Context, validators []stakingtypes.Validator, claim *types.MsgClaim) (bool, error) {
 	fromAddress, err := sdk.AccAddressFromHexUnsafe(claim.FromAddress)
 	if err != nil {
 		return false, sdkerrors.Wrapf(types.ErrInvalidAddress, fmt.Sprintf("from address (%s) is invalid", claim.FromAddress))
@@ -127,11 +127,11 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) ([]string, er
 	}
 	validators := historicalInfo.Valset
 
-	inturn, err := k.IsRelayerInturn(ctx, validators, claim)
+	isValid, err := k.IsRelayerValid(ctx, validators, claim)
 	if err != nil {
 		return nil, err
 	}
-	if !inturn {
+	if !isValid {
 		return nil, sdkerrors.Wrapf(types.ErrRelayerNotInTurn, fmt.Sprintf("relayer(%s) is not in turn", claim.FromAddress))
 	}
 

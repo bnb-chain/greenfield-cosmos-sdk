@@ -70,10 +70,12 @@ func GetPackageHeaderLength(packageType CrossChainPackageType) int {
 }
 
 type PackageHeader struct {
-	PackageType   CrossChainPackageType
-	Timestamp     uint64
-	SynRelayerFee *big.Int // syn relayer fee is the relayer fee paid to relayer src source chain to dest chain
-	AckRelayerFee *big.Int // ack relayer fee is the relayer fee paid to relayer for the ack or fail ack package if there is any
+	PackageType CrossChainPackageType
+	Timestamp   uint64
+	RelayerFee  *big.Int // relayer fee is the relayer fee paid to relayer src source chain to dest chain
+	// ack relayer fee is the relayer fee paid to relayer for the ack or fail ack package if there is any
+	// Ack and FailAck packages don't have ack relayer fee, since there is no corresponding ack or fail ack packages
+	AckRelayerFee *big.Int
 }
 
 var NilAckRelayerFee = big.NewInt(0) // For ack packages, the ack relayer fee should be nil, and it would not be encoded into package header
@@ -86,8 +88,8 @@ func EncodePackageHeader(header PackageHeader) []byte {
 	binary.BigEndian.PutUint64(timestampBytes, header.Timestamp)
 	copy(packageHeader[PackageTypeLength:PackageTypeLength+TimestampLength], timestampBytes)
 
-	synRelayerFeeLength := len(header.SynRelayerFee.Bytes())
-	copy(packageHeader[AckPackageHeaderLength-synRelayerFeeLength:AckPackageHeaderLength], header.SynRelayerFee.Bytes())
+	relayerFeeLength := len(header.RelayerFee.Bytes())
+	copy(packageHeader[AckPackageHeaderLength-relayerFeeLength:AckPackageHeaderLength], header.RelayerFee.Bytes())
 
 	// add ack relayer fee to header for syn package
 	if header.PackageType == SynCrossChainPackageType {
@@ -116,12 +118,12 @@ func DecodePackageHeader(packageHeader []byte) (PackageHeader, error) {
 
 	timestamp := binary.BigEndian.Uint64(packageHeader[PackageTypeLength : PackageTypeLength+TimestampLength])
 
-	synRelayFee := big.NewInt(0).SetBytes(packageHeader[PackageTypeLength+TimestampLength : AckPackageHeaderLength])
+	relayerFee := big.NewInt(0).SetBytes(packageHeader[PackageTypeLength+TimestampLength : AckPackageHeaderLength])
 
 	header := PackageHeader{
 		PackageType:   packageType,
 		Timestamp:     timestamp,
-		SynRelayerFee: synRelayFee,
+		RelayerFee:    relayerFee,
 		AckRelayerFee: big.NewInt(0),
 	}
 

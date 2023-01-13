@@ -15,6 +15,6 @@ message EventPackageClaim {
   int64 send_sequence = 6;
   bool crash = 7;
   string error_msg = 8;
-  string syn_relay_fee = 9;
-  string ack_relay_fee = 10;
+  string relayer_fee = 9;
+  string ack_relayer_fee = 10;
 }

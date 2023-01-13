@@ -142,7 +142,7 @@ func (s *TestSuite) TestProcessClaim() {
 	s.Require().Contains(err.Error(), "BLS signature converts failed")
 }
 
-func (s *TestSuite) TestKeeper_IsValidatorInturn() {
+func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
 		RelayerBackoffTime: 3,
@@ -248,13 +248,13 @@ func (s *TestSuite) TestKeeper_IsValidatorInturn() {
 
 	for idx, test := range tests {
 		s.ctx = s.ctx.WithBlockTime(time.Unix(test.blockTime, 0))
-		isInturn, err := s.app.OracleKeeper.IsRelayerInturn(s.ctx, vals, &test.claimMsg)
+		isValid, err := s.app.OracleKeeper.IsRelayerValid(s.ctx, vals, &test.claimMsg)
 
 		if test.expectedPass {
 			s.Require().Nil(err)
-			s.Require().True(isInturn, fmt.Sprintf("test case %d should be right", idx))
+			s.Require().True(isValid, fmt.Sprintf("test case %d should be right", idx))
 		} else {
-			s.Require().False(isInturn, fmt.Sprintf("test case %d should be false", idx))
+			s.Require().False(isValid, fmt.Sprintf("test case %d should be false", idx))
 		}
 	}
 }

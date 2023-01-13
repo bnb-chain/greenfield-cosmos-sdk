@@ -80,7 +80,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
-	packageType sdk.CrossChainPackageType, packageLoad []byte, synRelayerFee *big.Int, ackRelayerFee *big.Int,
+	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
 ) (uint64, error) {
 	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, k.GetDestChainID(), channelID) != sdk.ChannelAllow {
 		return 0, fmt.Errorf("channel %d is not allowed to write syn package", channelID)
@@ -97,7 +97,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 	packageHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
 		PackageType:   packageType,
 		Timestamp:     uint64(ctx.BlockTime().Unix()),
-		SynRelayerFee: synRelayerFee,
+		RelayerFee:    relayerFee,
 		AckRelayerFee: ackRelayerFee,
 	})
 
@@ -106,14 +106,15 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 	k.IncrSendSequence(ctx, channelID)
 
 	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChain{
-		SrcChainId:  uint32(k.GetSrcChainID()),
-		DestChainId: uint32(k.GetDestChainID()),
-		ChannelId:   uint32(channelID),
-		Sequence:    sequence,
-		PackageType: uint32(packageType),
-		Timestamp:   uint64(ctx.BlockTime().Unix()),
-		PackageLoad: packageLoad,
-		RelayerFee:  synRelayerFee.String(),
+		SrcChainId:    uint32(k.GetSrcChainID()),
+		DestChainId:   uint32(k.GetDestChainID()),
+		ChannelId:     uint32(channelID),
+		Sequence:      sequence,
+		PackageType:   uint32(packageType),
+		Timestamp:     uint64(ctx.BlockTime().Unix()),
+		PackageLoad:   packageLoad,
+		RelayerFee:    relayerFee.String(),
+		AckRelayerFee: ackRelayerFee.String(),
 	})
 	if err != nil {
 		return 0, err
