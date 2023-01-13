@@ -3,7 +3,6 @@
 package testutil
 
 import (
-	"math/big"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,21 +34,21 @@ func (m *MockCrossChainApplication) EXPECT() *MockCrossChainApplicationMockRecor
 }
 
 // ExecuteSynPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, payload []byte, relayerFee *big.Int) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteSynPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExecuteSynPackage", ctx, payload, relayerFee)
+	ret := m.ctrl.Call(m, "ExecuteSynPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
 	return ret0
 }
 
 // ExecuteSynPackage indicates an expected call of ExecuteSynPackage
-func (mr *MockCrossChainApplicationMockRecorder) ExecuteSynPackage(ctx, payload, relayerFee interface{}) *gomock.Call {
+func (mr *MockCrossChainApplicationMockRecorder) ExecuteSynPackage(ctx, header, payload, relayerFee interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteSynPackage", reflect.TypeOf((*MockCrossChainApplication)(nil).ExecuteSynPackage), ctx, payload, relayerFee)
 }
 
 // ExecuteAckPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteAckPackage(ctx types.Context, payload []byte) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteAckPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteAckPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
@@ -57,13 +56,13 @@ func (m *MockCrossChainApplication) ExecuteAckPackage(ctx types.Context, payload
 }
 
 // ExecuteAckPackage indicates an expected call of ExecuteAckPackage
-func (mr *MockCrossChainApplicationMockRecorder) ExecuteAckPackage(ctx, payload interface{}) *gomock.Call {
+func (mr *MockCrossChainApplicationMockRecorder) ExecuteAckPackage(ctx, header, payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteAckPackage", reflect.TypeOf((*MockCrossChainApplication)(nil).ExecuteAckPackage), ctx, payload)
 }
 
 // ExecuteFailAckPackage mocks base method
-func (m *MockCrossChainApplication) ExecuteFailAckPackage(ctx types.Context, payload []byte) types.ExecuteResult {
+func (m *MockCrossChainApplication) ExecuteFailAckPackage(ctx types.Context, header *types.PackageHeader, payload []byte) types.ExecuteResult {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExecuteFailAckPackage", ctx, payload)
 	ret0, _ := ret[0].(types.ExecuteResult)
@@ -71,7 +70,7 @@ func (m *MockCrossChainApplication) ExecuteFailAckPackage(ctx types.Context, pay
 }
 
 // ExecuteFailAckPackage indicates an expected call of ExecuteFailAckPackage
-func (mr *MockCrossChainApplicationMockRecorder) ExecuteFailAckPackage(ctx, payload interface{}) *gomock.Call {
+func (mr *MockCrossChainApplicationMockRecorder) ExecuteFailAckPackage(ctx, header, payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecuteFailAckPackage", reflect.TypeOf((*MockCrossChainApplication)(nil).ExecuteFailAckPackage), ctx, payload)
 }

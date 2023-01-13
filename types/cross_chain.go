@@ -31,10 +31,10 @@ func IsValidCrossChainPackageType(packageType CrossChainPackageType) bool {
 }
 
 type CrossChainApplication interface {
-	ExecuteSynPackage(ctx Context, payload []byte, relayerFee *big.Int) ExecuteResult
-	ExecuteAckPackage(ctx Context, payload []byte) ExecuteResult
+	ExecuteSynPackage(ctx Context, header *PackageHeader, payload []byte) ExecuteResult
+	ExecuteAckPackage(ctx Context, header *PackageHeader, payload []byte) ExecuteResult
 	// When the ack application crash, payload is the payload of the origin package.
-	ExecuteFailAckPackage(ctx Context, payload []byte) ExecuteResult
+	ExecuteFailAckPackage(ctx Context, header *PackageHeader, payload []byte) ExecuteResult
 }
 
 type ExecuteResult struct {
