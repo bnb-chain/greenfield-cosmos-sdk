@@ -87,6 +87,8 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		return nil, err
 	}
 
+	k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, types.RelayPackagesChannelId)
+
 	ctx.EventManager().EmitTypedEvents(events...)
 
 	return &types.MsgClaimResponse{}, nil
