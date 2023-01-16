@@ -1,0 +1,71 @@
+syntax = "proto3";
+package cosmos.crosschain.v1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/crosschain/v1/crosschain.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
+
+// Query provides defines the gRPC querier service.
+service Query {
+  // Params returns the total set of cross chain parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/cosmos/crosschain/v1/params";
+  }
+
+  // CrossChainPackage returns the specified cross chain package
+  rpc CrossChainPackage(QueryCrossChainPackageRequest) returns (QueryCrossChainPackageResponse) {
+    option (google.api.http).get = "/cosmos/crosschain/v1/cross_chain_package";
+  }
+
+  // SendSequence returns the send sequence of the channel
+  rpc SendSequence(QuerySendSequenceRequest) returns (QuerySendSequenceResponse) {
+    option (google.api.http).get = "/cosmos/crosschain/v1/send_sequence";
+  }
+
+  // ReceiveSequence returns the receive sequence of the channel
+  rpc ReceiveSequence(QueryReceiveSequenceRequest) returns (QueryReceiveSequenceResponse) {
+    option (google.api.http).get = "/cosmos/crosschain/v1/receive_sequence";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryCrossChainPackageRequest is the request type for the Query/CrossChainPackage RPC method.
+message QueryCrossChainPackageRequest {
+  uint32 channel_id = 1;
+  uint64 sequence = 2;
+}
+
+// QueryCrossChainPackageResponse is the response type for the Query/CrossChainPackage RPC method.
+message QueryCrossChainPackageResponse {
+  bytes package = 1;
+}
+
+// QuerySendSequenceRequest is the request type for the Query/SendSequence RPC method.
+message QuerySendSequenceRequest {
+  uint32 channel_id = 1;
+}
+
+// QuerySendSequenceResponse is the response type for the Query/SendSequence RPC method.
+message QuerySendSequenceResponse {
+  uint64 sequence = 1;
+}
+
+// QuerySendSequenceRequest is the request type for the Query/ReceiveSequence RPC method.
+message QueryReceiveSequenceRequest {
+  uint32 channel_id = 1;
+}
+
+// QuerySendSequenceResponse is the response type for the Query/ReceiveSequence RPC method.
+message QueryReceiveSequenceResponse {
+  uint64 sequence = 1;
+}
