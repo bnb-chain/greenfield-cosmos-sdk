@@ -28,7 +28,6 @@ func TestEIP712Handler(t *testing.T) {
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &banktypes.MsgSend{})
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	MsgCodec = marshaler
 
 	txConfig := NewTxConfig(marshaler, []signingtypes.SignMode{signingtypes.SignMode_SIGN_MODE_EIP_712})
 	txBuilder := txConfig.NewTxBuilder()
@@ -149,7 +148,6 @@ func TestMoreMsgs(t *testing.T) {
 		&feegrant.AllowedMsgAllowance{},
 	)
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	MsgCodec = marshaler
 
 	txConfig := NewTxConfig(marshaler, []signingtypes.SignMode{signingtypes.SignMode_SIGN_MODE_EIP_712})
 	txBuilder := txConfig.NewTxBuilder()

@@ -19,7 +19,6 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,9 +28,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/gogo/protobuf/jsonpb"
 )
 
-var MsgCodec codec.ProtoCodecMarshaler
+var MsgCodec = jsonpb.Marshaler{
+	EmitDefaults: true,
+	OrigName:     true,
+}
 
 var domain = apitypes.TypedDataDomain{
 	Name:              "Inscription Tx",
@@ -61,19 +64,9 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
 	}
 
-	protoTx, ok := tx.(*wrapper)
+	_, ok := tx.(*wrapper)
 	if !ok {
 		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
-	}
-
-	var msgCodec codec.Codec
-	if MsgCodec == nil {
-		if protoTx.cdc == nil {
-			return nil, fmt.Errorf("no proto codec marshaler")
-		}
-		msgCodec = protoTx.cdc
-	} else {
-		msgCodec = MsgCodec
 	}
 
 	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
@@ -81,12 +74,12 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
-	msgTypes, signDoc, err := GetMsgTypes(msgCodec, signerData, tx, typedChainID)
+	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, typedChainID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get msg types")
 	}
 
-	typedData, err := WrapTxToTypedData(msgCodec, typedChainID.Uint64(), signDoc, msgTypes)
+	typedData, err := WrapTxToTypedData(typedChainID.Uint64(), signDoc, msgTypes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
 	}
@@ -99,7 +92,7 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 	return sigHash, nil
 }
 
-func GetMsgTypes(cdc codectypes.AnyUnpacker, signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
+func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
 	protoTx, ok := tx.(*wrapper)
 	if !ok {
 		return nil, nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
@@ -122,7 +115,7 @@ func GetMsgTypes(cdc codectypes.AnyUnpacker, signerData signing.SignerData, tx s
 		Msg:  msgAny,
 	}
 
-	msgTypes, err := extractMsgTypes(cdc, protoTx.GetMsgs()[0])
+	msgTypes, err := extractMsgTypes(protoTx.GetMsgs()[0])
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,17 +160,16 @@ func ComputeTypedDataHash(typedData apitypes.TypedData) ([]byte, error) {
 }
 
 func WrapTxToTypedData(
-	cdc codec.Codec,
 	chainID uint64,
 	signDoc *types.SignDocEip712,
 	msgTypes apitypes.Types,
 ) (apitypes.TypedData, error) {
 	var txData map[string]interface{}
-	bz, err := cdc.MarshalJSON(signDoc)
+	bz, err := MsgCodec.MarshalToString(signDoc)
 	if err != nil {
 		return apitypes.TypedData{}, errors.Wrap(err, "failed to JSON marshal data")
 	}
-	if err := json.Unmarshal(bz, &txData); err != nil {
+	if err := json.Unmarshal([]byte(bz), &txData); err != nil {
 		return apitypes.TypedData{}, errors.Wrap(err, "failed to JSON unmarshal data")
 	}
 
@@ -199,7 +191,7 @@ func WrapTxToTypedData(
 	return typedData, nil
 }
 
-func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, error) {
+func extractMsgTypes(msg sdk.Msg) (apitypes.Types, error) {
 	rootTypes := apitypes.Types{
 		"EIP712Domain": {
 			{
@@ -247,7 +239,7 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, e
 		},
 	}
 
-	if err := walkFields(cdc, rootTypes, msg); err != nil {
+	if err := walkFields(rootTypes, msg); err != nil {
 		return nil, err
 	}
 
@@ -256,7 +248,7 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, e
 
 const typeDefPrefix = "_"
 
-func walkFields(cdc codectypes.AnyUnpacker, typeMap apitypes.Types, in interface{}) (err error) {
+func walkFields(typeMap apitypes.Types, in interface{}) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -274,7 +266,7 @@ func walkFields(cdc codectypes.AnyUnpacker, typeMap apitypes.Types, in interface
 		break
 	}
 
-	return traverseFields(cdc, typeMap, typeDefPrefix, t, v)
+	return traverseFields(typeMap, typeDefPrefix, t, v)
 }
 
 type anyWrapper struct {
@@ -283,7 +275,6 @@ type anyWrapper struct {
 }
 
 func traverseFields(
-	cdc codectypes.AnyUnpacker,
 	typeMap apitypes.Types,
 	prefix string,
 	t reflect.Type,
@@ -394,7 +385,7 @@ func traverseFields(
 				})
 			}
 
-			if err := traverseFields(cdc, typeMap, fieldPrefix, fieldType, field); err != nil {
+			if err := traverseFields(typeMap, fieldPrefix, fieldType, field); err != nil {
 				return err
 			}
 			continue

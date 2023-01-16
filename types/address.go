@@ -137,7 +137,7 @@ var (
 // ----------------------------------------------------------------------------
 
 // AccAddress a wrapper around bytes meant to represent an account address.
-// When marshaled to a string or JSON, it uses Bech32.
+// When marshaled to a string or JSON, it uses hex.
 type AccAddress []byte
 
 // MustAccAddressFromHex calls AccAddressFromHexUnsafe and panics on error.
@@ -238,17 +238,17 @@ func (aa *AccAddress) Unmarshal(data []byte) error {
 	return nil
 }
 
-// MarshalJSON marshals to JSON using Bech32.
+// MarshalJSON marshals to JSON.
 func (aa AccAddress) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aa.String())
 }
 
-// MarshalYAML marshals to YAML using Bech32.
+// MarshalYAML marshals to YAML.
 func (aa AccAddress) MarshalYAML() (interface{}, error) {
 	return aa.String(), nil
 }
 
-// UnmarshalJSON unmarshals from JSON assuming Bech32 encoding.
+// UnmarshalJSON unmarshals from JSON assuming hex encoding.
 func (aa *AccAddress) UnmarshalJSON(data []byte) error {
 	var s string
 	err := json.Unmarshal(data, &s)
@@ -269,7 +269,7 @@ func (aa *AccAddress) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// UnmarshalYAML unmarshals from JSON assuming Bech32 encoding.
+// UnmarshalYAML unmarshals from JSON assuming hex encoding.
 func (aa *AccAddress) UnmarshalYAML(data []byte) error {
 	var s string
 	err := yaml.Unmarshal(data, &s)
@@ -329,7 +329,7 @@ func (aa AccAddress) Format(s fmt.State, verb rune) {
 // ----------------------------------------------------------------------------
 
 // ValAddress defines a wrapper around bytes meant to present a validator's
-// operator. When marshaled to a string or JSON, it uses Bech32.
+// operator. When marshaled to a string or JSON, it uses hex.
 type ValAddress []byte
 
 // ValAddressFromHex creates a ValAddress from a hex string.
@@ -370,17 +370,17 @@ func (va *ValAddress) Unmarshal(data []byte) error {
 	return nil
 }
 
-// MarshalJSON marshals to JSON using Bech32.
+// MarshalJSON marshals to JSON.
 func (va ValAddress) MarshalJSON() ([]byte, error) {
 	return json.Marshal(va.String())
 }
 
-// MarshalYAML marshals to YAML using Bech32.
+// MarshalYAML marshals to YAML.
 func (va ValAddress) MarshalYAML() (interface{}, error) {
 	return va.String(), nil
 }
 
-// UnmarshalJSON unmarshals from JSON assuming Bech32 encoding.
+// UnmarshalJSON unmarshals from JSON assuming hex encoding.
 func (va *ValAddress) UnmarshalJSON(data []byte) error {
 	var s string
 
@@ -402,7 +402,7 @@ func (va *ValAddress) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// UnmarshalYAML unmarshals from YAML assuming Bech32 encoding.
+// UnmarshalYAML unmarshals from YAML assuming hex encoding.
 func (va *ValAddress) UnmarshalYAML(data []byte) error {
 	var s string
 
@@ -463,7 +463,7 @@ func (va ValAddress) Format(s fmt.State, verb rune) {
 // ----------------------------------------------------------------------------
 
 // ConsAddress defines a wrapper around bytes meant to present a consensus node.
-// When marshaled to a string or JSON, it uses Bech32.
+// When marshaled to a string or JSON, it uses hex.
 type ConsAddress []byte
 
 // ConsAddressFromHex creates a ConsAddress from a hex string.
@@ -509,17 +509,17 @@ func (ca *ConsAddress) Unmarshal(data []byte) error {
 	return nil
 }
 
-// MarshalJSON marshals to JSON using Bech32.
+// MarshalJSON marshals to JSON.
 func (ca ConsAddress) MarshalJSON() ([]byte, error) {
 	return json.Marshal(ca.String())
 }
 
-// MarshalYAML marshals to YAML using Bech32.
+// MarshalYAML marshals to YAML.
 func (ca ConsAddress) MarshalYAML() (interface{}, error) {
 	return ca.String(), nil
 }
 
-// UnmarshalJSON unmarshals from JSON assuming Bech32 encoding.
+// UnmarshalJSON unmarshals from JSON assuming hex encoding.
 func (ca *ConsAddress) UnmarshalJSON(data []byte) error {
 	var s string
 
@@ -541,7 +541,7 @@ func (ca *ConsAddress) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// UnmarshalYAML unmarshals from YAML assuming Bech32 encoding.
+// UnmarshalYAML unmarshals from YAML assuming hex encoding.
 func (ca *ConsAddress) UnmarshalYAML(data []byte) error {
 	var s string
 
