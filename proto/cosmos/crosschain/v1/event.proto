@@ -12,7 +12,7 @@ message EventCrossChain {
   uint64 sequence = 4;
   uint32 package_type = 5;
   uint64 timestamp = 6;
-  bytes package_load = 7;
+  string package_load = 7;
   string relayer_fee = 8;
   string ack_relayer_fee = 9;
 }

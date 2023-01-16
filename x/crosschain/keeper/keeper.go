@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 
@@ -112,7 +113,7 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 		Sequence:      sequence,
 		PackageType:   uint32(packageType),
 		Timestamp:     uint64(ctx.BlockTime().Unix()),
-		PackageLoad:   packageLoad,
+		PackageLoad:   hex.EncodeToString(packageLoad),
 		RelayerFee:    relayerFee.String(),
 		AckRelayerFee: ackRelayerFee.String(),
 	})
