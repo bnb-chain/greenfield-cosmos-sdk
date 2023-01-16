@@ -15,15 +15,15 @@ import (
 
 type DummyCrossChainApp struct{}
 
-func (ta *DummyCrossChainApp) ExecuteSynPackage(ctx sdk.Context, header *sdk.PackageHeader, payload []byte, relayerFee *big.Int) sdk.ExecuteResult {
+func (ta *DummyCrossChainApp) ExecuteSynPackage(ctx sdk.Context, header *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	return sdk.ExecuteResult{}
 }
 
-func (ta *DummyCrossChainApp) ExecuteAckPackage(ctx sdk.Context, header *sdk.PackageHeader, payload []byte) sdk.ExecuteResult {
+func (ta *DummyCrossChainApp) ExecuteAckPackage(ctx sdk.Context, header *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	return sdk.ExecuteResult{}
 }
 
-func (ta *DummyCrossChainApp) ExecuteFailAckPackage(ctx sdk.Context, header *sdk.PackageHeader, payload []byte) sdk.ExecuteResult {
+func (ta *DummyCrossChainApp) ExecuteFailAckPackage(ctx sdk.Context, header *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	return sdk.ExecuteResult{}
 }
 
