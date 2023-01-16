@@ -48,12 +48,12 @@ service Query {
     option (google.api.http).get = "/cosmos/auth/v1beta1/module_accounts/{name}";
   }
 
-  // Bech32Prefix queries bech32Prefix
-  //
-  // Since: cosmos-sdk 0.46
-  rpc Bech32Prefix(Bech32PrefixRequest) returns (Bech32PrefixResponse) {
-    option (google.api.http).get = "/cosmos/auth/v1beta1/bech32";
-  }
+//  // Bech32Prefix queries bech32Prefix
+//  //
+//  // Since: cosmos-sdk 0.46
+//  rpc Bech32Prefix(Bech32PrefixRequest) returns (Bech32PrefixResponse) {
+//    option (google.api.http).get = "/cosmos/auth/v1beta1/bech32";
+//  }
 
   // AddressBytesToString converts Account Address bytes to string
   //
@@ -135,17 +135,17 @@ message QueryModuleAccountByNameResponse {
   google.protobuf.Any account = 1 [(cosmos_proto.accepts_interface) = "ModuleAccountI"];
 }
 
-// Bech32PrefixRequest is the request type for Bech32Prefix rpc method.
-//
-// Since: cosmos-sdk 0.46
-message Bech32PrefixRequest {}
+//// Bech32PrefixRequest is the request type for Bech32Prefix rpc method.
+////
+//// Since: cosmos-sdk 0.46
+//message Bech32PrefixRequest {}
 
-// Bech32PrefixResponse is the response type for Bech32Prefix rpc method.
-//
-// Since: cosmos-sdk 0.46
-message Bech32PrefixResponse {
-  string bech32_prefix = 1;
-}
+//// Bech32PrefixResponse is the response type for Bech32Prefix rpc method.
+////
+//// Since: cosmos-sdk 0.46
+//message Bech32PrefixResponse {
+//  string bech32_prefix = 1;
+//}
 
 // AddressBytesToStringRequest is the request type for AddressString rpc method.
 //

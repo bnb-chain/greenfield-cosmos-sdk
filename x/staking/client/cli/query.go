@@ -68,7 +68,7 @@ $ %s query staking validator 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			addr, err := sdk.ValAddressFromHex(args[0])
+			addr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -156,7 +156,7 @@ $ %s query staking unbonding-delegations-from 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -211,7 +211,7 @@ $ %s query staking redelegations-from 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valSrcAddr, err := sdk.ValAddressFromHex(args[0])
+			valSrcAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -375,7 +375,7 @@ $ %s query staking delegations-to 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

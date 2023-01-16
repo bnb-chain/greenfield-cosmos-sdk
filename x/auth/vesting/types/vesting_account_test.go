@@ -831,7 +831,7 @@ func (s *VestingAccountTestSuite) TestPermanentLockedAccountMarshal() {
 }
 
 func initBaseAccount() (*authtypes.BaseAccount, sdk.Coins) {
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	origCoins := sdk.Coins{sdk.NewInt64Coin(feeDenom, 1000), sdk.NewInt64Coin(stakeDenom, 100)}
 	bacc := authtypes.NewBaseAccountWithAddress(addr)
 

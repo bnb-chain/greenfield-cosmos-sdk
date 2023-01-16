@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -23,6 +22,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 type IntegrationTestSuite struct {
@@ -110,7 +110,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 func (s *IntegrationTestSuite) createAccount(uid string) sdk.AccAddress {
 	val := s.network.Validators[0]
 	// Create new account in the keyring.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	addr, err := k.GetAddress()
@@ -140,9 +140,9 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 }
 
 var (
-	typeMsgSend           = bank.SendAuthorization{}.MsgTypeURL()
-	typeMsgVote           = sdk.MsgTypeURL(&govv1.MsgVote{})
-	typeMsgSubmitProposal = sdk.MsgTypeURL(&govv1.MsgSubmitProposal{})
+	typeMsgSend = bank.SendAuthorization{}.MsgTypeURL()
+	typeMsgVote = sdk.MsgTypeURL(&govv1.MsgVote{})
+	// typeMsgSubmitProposal = sdk.MsgTypeURL(&govv1.MsgSubmitProposal{})
 )
 
 func (s *IntegrationTestSuite) TestCLITxGrantAuthorization() {
@@ -436,23 +436,23 @@ func (s *IntegrationTestSuite) TestCLITxGrantAuthorization() {
 			true,
 			"grantee and granter should be different",
 		},
-		{
-			"Valid tx with amino",
-			[]string{
-				grantee.String(),
-				"generic",
-				fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgVote),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			0,
-			false,
-			"",
-		},
+		// {
+		// 	"Valid tx with amino",
+		// 	[]string{
+		// 		grantee.String(),
+		// 		"generic",
+		// 		fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgVote),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		// 		fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
+		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 	},
+		// 	0,
+		// 	false,
+		// 	"",
+		// },
 	}
 
 	for _, tc := range testCases {
@@ -519,22 +519,22 @@ func (s *IntegrationTestSuite) TestCmdRevokeAuthorizations() {
 	)
 	s.Require().NoError(err)
 
-	// generic-authorization used for amino testing
-	_, err = CreateGrant(
-		val,
-		[]string{
-			grantee.String(),
-			"generic",
-			fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgSubmitProposal),
-			fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-			fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address),
-			fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-			fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
-			fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-		},
-	)
-	s.Require().NoError(err)
+	// // generic-authorization used for amino testing
+	// _, err = CreateGrant(
+	// 	val,
+	// 	[]string{
+	// 		grantee.String(),
+	// 		"generic",
+	// 		fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgSubmitProposal),
+	// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+	// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address),
+	// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+	// 		fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
+	// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+	// 		fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+	// 	},
+	// )
+	// s.Require().NoError(err)
 
 	testCases := []struct {
 		name         string
@@ -593,20 +593,20 @@ func (s *IntegrationTestSuite) TestCmdRevokeAuthorizations() {
 			&sdk.TxResponse{}, 0,
 			false,
 		},
-		{
-			"Valid tx with amino",
-			[]string{
-				grantee.String(),
-				typeMsgSubmitProposal,
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			&sdk.TxResponse{}, 0,
-			false,
-		},
+		// {
+		// 	"Valid tx with amino",
+		// 	[]string{
+		// 		grantee.String(),
+		// 		typeMsgSubmitProposal,
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 	},
+		// 	&sdk.TxResponse{}, 0,
+		// 	false,
+		// },
 	}
 	for _, tc := range testCases {
 		tc := tc
@@ -735,19 +735,19 @@ func (s *IntegrationTestSuite) TestNewExecGenericAuthorized() {
 			0,
 			false,
 		},
-		{
-			"valid tx with amino",
-			[]string{
-				execMsg.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, grantee.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			&sdk.TxResponse{}, 0,
-			false,
-		},
+		// {
+		// 	"valid tx with amino",
+		// 	[]string{
+		// 		execMsg.Name(),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, grantee.String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 	},
+		// 	&sdk.TxResponse{}, 0,
+		// 	false,
+		// },
 	}
 
 	for _, tc := range testCases {

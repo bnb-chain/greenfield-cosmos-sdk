@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
 
-func (k Keeper) AfterValidatorBonded(ctx sdk.Context, address sdk.ConsAddress, _ sdk.ValAddress) error {
+func (k Keeper) AfterValidatorBonded(ctx sdk.Context, address sdk.ConsAddress, _ sdk.AccAddress) error {
 	// Update the signing info start height or create a new signing info
 	signingInfo, found := k.GetValidatorSigningInfo(ctx, address)
 	if found {
@@ -31,7 +31,7 @@ func (k Keeper) AfterValidatorBonded(ctx sdk.Context, address sdk.ConsAddress, _
 }
 
 // AfterValidatorCreated adds the address-pubkey relation when a validator is created.
-func (k Keeper) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
+func (k Keeper) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.AccAddress) error {
 	validator := k.sk.Validator(ctx, valAddr)
 	consPk, err := validator.ConsPubKey()
 	if err != nil {
@@ -60,44 +60,44 @@ func (k Keeper) Hooks() Hooks {
 }
 
 // Implements sdk.ValidatorHooks
-func (h Hooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error {
+func (h Hooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.AccAddress) error {
 	return h.k.AfterValidatorBonded(ctx, consAddr, valAddr)
 }
 
 // Implements sdk.ValidatorHooks
-func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, _ sdk.AccAddress) error {
 	return h.k.AfterValidatorRemoved(ctx, consAddr)
 }
 
 // Implements sdk.ValidatorHooks
-func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error {
+func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.AccAddress) error {
 	return h.k.AfterValidatorCreated(ctx, valAddr)
 }
 
-func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeValidatorModified(_ sdk.Context, _ sdk.ValAddress) error {
+func (h Hooks) BeforeValidatorModified(_ sdk.Context, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationCreated(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationCreated(_ sdk.Context, _ sdk.AccAddress, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) AfterDelegationModified(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterDelegationModified(_ sdk.Context, _ sdk.AccAddress, _ sdk.AccAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec) error {
+func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.AccAddress, _ sdk.Dec) error {
 	return nil
 }

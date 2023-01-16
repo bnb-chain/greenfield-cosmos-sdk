@@ -16,7 +16,7 @@ import (
 )
 
 func TestDirectModeHandler(t *testing.T) {
-	privKey, pubkey, addr := testdata.KeyTestPubAddr()
+	privKey, pubkey, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &testdata.TestMsg{})
 	marshaler := codec.NewProtoCodec(interfaceRegistry)

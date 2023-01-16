@@ -131,7 +131,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				val.Address.String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -142,7 +142,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			[]string{
 				fmt.Sprintf("--%s=text", tmcli.OutputFlag),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				val.Address.String(),
 			},
 			false,
 			`rewards:
@@ -194,7 +194,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorCommission() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				val.Address.String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -205,7 +205,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorCommission() {
 			[]string{
 				fmt.Sprintf("--%s=text", tmcli.OutputFlag),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				val.Address.String(),
 			},
 			false,
 			`commission:
@@ -257,7 +257,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid start height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "-1", "3",
+				val.Address.String(), "-1", "3",
 			},
 			true,
 			"",
@@ -266,7 +266,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid end height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "-3",
+				val.Address.String(), "1", "-3",
 			},
 			true,
 			"",
@@ -275,7 +275,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorSlashes() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "3",
+				val.Address.String(), "1", "3",
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -286,7 +286,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorSlashes() {
 			[]string{
 				fmt.Sprintf("--%s=text", tmcli.OutputFlag),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "3",
+				val.Address.String(), "1", "3",
 			},
 			false,
 			"pagination:\n  next_key: null\n  total: \"0\"\nslashes: []",
@@ -314,7 +314,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryValidatorSlashes() {
 func (s *IntegrationTestSuite) TestGetCmdQueryDelegatorRewards() {
 	val := s.network.Validators[0]
 	addr := val.Address
-	valAddr := sdk.ValAddress(addr)
+	valAddr := addr
 
 	_, err := s.network.WaitForHeightWithTimeout(11, time.Minute)
 	s.Require().NoError(err)
@@ -329,7 +329,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryDelegatorRewards() {
 			"invalid delegator address",
 			[]string{
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				"foo", sdk.AccAddress(valAddr).String(),
+				"foo", valAddr.String(),
 			},
 			true,
 			"",
@@ -357,7 +357,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryDelegatorRewards() {
 			"json output (specific validator)",
 			[]string{
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				addr.String(), sdk.AccAddress(valAddr).String(),
+				addr.String(), valAddr.String(),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -385,7 +385,7 @@ total:
 			[]string{
 				fmt.Sprintf("--%s=text", tmcli.OutputFlag),
 				fmt.Sprintf("--%s=5", flags.FlagHeight),
-				addr.String(), sdk.AccAddress(valAddr).String(),
+				addr.String(), valAddr.String(),
 			},
 			false,
 			`rewards:
@@ -477,7 +477,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 		// },
 		{
 			"valid transaction",
-			sdk.ValAddress(val.Address),
+			val.Address,
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -491,7 +491,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 		},
 		{
 			"valid transaction (with commission)",
-			sdk.ValAddress(val.Address),
+			val.Address,
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),

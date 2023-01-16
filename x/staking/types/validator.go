@@ -42,7 +42,7 @@ var _ ValidatorI = Validator{}
 // NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
 //
 //nolint:interfacerh
-func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
+func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
 	pkAny, err := codectypes.NewAnyWithValue(pubKey)
 	if err != nil {
 		return Validator{}, err
@@ -75,7 +75,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 //
 //nolint:interfacerh
 func NewValidator(
-	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+	operator sdk.AccAddress, pubKey cryptotypes.PubKey,
 	description Description, selfDelegator sdk.AccAddress,
 	relayer sdk.AccAddress, relayerBlsKey []byte,
 ) (Validator, error) {
@@ -509,11 +509,11 @@ func (v Validator) IsJailed() bool           { return v.Jailed }
 func (v Validator) GetMoniker() string       { return v.Description.Moniker }
 func (v Validator) GetStatus() BondStatus    { return v.Status }
 func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
-func (v Validator) GetOperator() sdk.ValAddress {
+func (v Validator) GetOperator() sdk.AccAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
-	addr, err := sdk.ValAddressFromHex(v.OperatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

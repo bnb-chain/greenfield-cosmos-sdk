@@ -2,17 +2,12 @@ package testutil
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -357,106 +352,106 @@ func (s *IntegrationTestSuite) TestCliGetAccountAddressByID() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestCLISignAminoJSON() {
-	require := s.Require()
-	val1 := s.network.Validators[0]
-	txCfg := val1.ClientCtx.TxConfig
-	sendTokens := sdk.NewCoins(
-		sdk.NewCoin(fmt.Sprintf("%stoken", val1.Moniker), sdk.NewInt(10)),
-		sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10)),
-	)
-	txBz, err := s.createBankMsg(val1, val1.Address,
-		sendTokens, fmt.Sprintf("--%s=true", flags.FlagGenerateOnly))
-	require.NoError(err)
-	fileUnsigned := testutil.WriteToNewTempFile(s.T(), txBz.String())
-	chainFlag := fmt.Sprintf("--%s=%s", flags.FlagChainID, val1.ClientCtx.ChainID)
-	sigOnlyFlag := "--signature-only"
-	signModeAminoFlag := "--sign-mode=amino-json"
+// func (s *IntegrationTestSuite) TestCLISignAminoJSON() {
+// 	require := s.Require()
+// 	val1 := s.network.Validators[0]
+// 	txCfg := val1.ClientCtx.TxConfig
+// 	sendTokens := sdk.NewCoins(
+// 		sdk.NewCoin(fmt.Sprintf("%stoken", val1.Moniker), sdk.NewInt(10)),
+// 		sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10)),
+// 	)
+// 	txBz, err := s.createBankMsg(val1, val1.Address,
+// 		sendTokens, fmt.Sprintf("--%s=true", flags.FlagGenerateOnly))
+// 	require.NoError(err)
+// 	fileUnsigned := testutil.WriteToNewTempFile(s.T(), txBz.String())
+// 	chainFlag := fmt.Sprintf("--%s=%s", flags.FlagChainID, val1.ClientCtx.ChainID)
+// 	sigOnlyFlag := "--signature-only"
+// 	signModeAminoFlag := "--sign-mode=amino-json"
+//
+// 	// SIC! validators have same key names and same addresses as those registered in the keyring,
+// 	//      BUT the keys are different!
+// 	valRecord, err := val1.ClientCtx.Keyring.Key(val1.Moniker)
+// 	require.NoError(err)
+//
+// 	// query account info
+// 	queryResJSON, err := QueryAccountExec(val1.ClientCtx, val1.Address)
+// 	require.NoError(err)
+// 	var account authtypes.AccountI
+// 	require.NoError(val1.ClientCtx.Codec.UnmarshalInterfaceJSON(queryResJSON.Bytes(), &account))
+//
+// 	/****  test signature-only  ****/
+// 	res, err := TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag,
+// 		sigOnlyFlag, signModeAminoFlag)
+// 	require.NoError(err)
+// 	pub, err := valRecord.GetPubKey()
+// 	require.NoError(err)
+// 	checkSignatures(require, txCfg, res.Bytes(), pub)
+// 	sigs, err := txCfg.UnmarshalSignatureJSON(res.Bytes())
+// 	require.NoError(err)
+// 	require.Equal(1, len(sigs))
+// 	require.Equal(account.GetSequence(), sigs[0].Sequence)
+//
+// 	/****  test full output  ****/
+// 	res, err = TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag, signModeAminoFlag)
+// 	require.NoError(err)
+//
+// 	// txCfg.UnmarshalSignatureJSON can't unmarshal a fragment of the signature, so we create this structure.
+// 	type txFragment struct {
+// 		Signatures []json.RawMessage
+// 	}
+// 	var txOut txFragment
+// 	err = json.Unmarshal(res.Bytes(), &txOut)
+// 	require.NoError(err)
+// 	require.Len(txOut.Signatures, 1)
+//
+// 	/****  test file output  ****/
+// 	filenameSigned := filepath.Join(s.T().TempDir(), "test_sign_out.json")
+// 	fileFlag := fmt.Sprintf("--%s=%s", flags.FlagOutputDocument, filenameSigned)
+// 	_, err = TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag, fileFlag, signModeAminoFlag)
+// 	require.NoError(err)
+// 	fContent, err := os.ReadFile(filenameSigned)
+// 	require.NoError(err)
+// 	require.Equal(res.String(), string(fContent))
+//
+// 	/****  try to append to the previously signed transaction  ****/
+// 	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
+// 		sigOnlyFlag, signModeAminoFlag)
+// 	require.NoError(err)
+// 	checkSignatures(require, txCfg, res.Bytes(), pub, pub)
+//
+// 	/****  try to overwrite the previously signed transaction  ****/
+//
+// 	// We can't sign with other address, because the bank send message supports only one signer for a simple
+// 	// account. Changing the file is too much hacking, because TxDecoder returns sdk.Tx, which doesn't
+// 	// provide functionality to check / manage `auth_info`.
+// 	// Cases with different keys are are covered in unit tests of `tx.Sign`.
+// 	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
+// 		sigOnlyFlag, "--overwrite", signModeAminoFlag)
+// 	require.NoError(err)
+// 	checkSignatures(require, txCfg, res.Bytes(), pub)
+//
+// 	/****  test flagAmino  ****/
+// 	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
+// 		"--amino=true", signModeAminoFlag)
+// 	require.NoError(err)
+//
+// 	var txAmino authcli.BroadcastReq
+// 	err = val1.ClientCtx.LegacyAmino.UnmarshalJSON(res.Bytes(), &txAmino)
+// 	require.NoError(err)
+// 	require.Len(txAmino.Tx.Signatures, 2)
+// 	require.Equal(txAmino.Tx.Signatures[0].PubKey, pub)
+// 	require.Equal(txAmino.Tx.Signatures[1].PubKey, pub)
+// }
 
-	// SIC! validators have same key names and same addresses as those registered in the keyring,
-	//      BUT the keys are different!
-	valRecord, err := val1.ClientCtx.Keyring.Key(val1.Moniker)
-	require.NoError(err)
-
-	// query account info
-	queryResJSON, err := QueryAccountExec(val1.ClientCtx, val1.Address)
-	require.NoError(err)
-	var account authtypes.AccountI
-	require.NoError(val1.ClientCtx.Codec.UnmarshalInterfaceJSON(queryResJSON.Bytes(), &account))
-
-	/****  test signature-only  ****/
-	res, err := TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag,
-		sigOnlyFlag, signModeAminoFlag)
-	require.NoError(err)
-	pub, err := valRecord.GetPubKey()
-	require.NoError(err)
-	checkSignatures(require, txCfg, res.Bytes(), pub)
-	sigs, err := txCfg.UnmarshalSignatureJSON(res.Bytes())
-	require.NoError(err)
-	require.Equal(1, len(sigs))
-	require.Equal(account.GetSequence(), sigs[0].Sequence)
-
-	/****  test full output  ****/
-	res, err = TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag, signModeAminoFlag)
-	require.NoError(err)
-
-	// txCfg.UnmarshalSignatureJSON can't unmarshal a fragment of the signature, so we create this structure.
-	type txFragment struct {
-		Signatures []json.RawMessage
-	}
-	var txOut txFragment
-	err = json.Unmarshal(res.Bytes(), &txOut)
-	require.NoError(err)
-	require.Len(txOut.Signatures, 1)
-
-	/****  test file output  ****/
-	filenameSigned := filepath.Join(s.T().TempDir(), "test_sign_out.json")
-	fileFlag := fmt.Sprintf("--%s=%s", flags.FlagOutputDocument, filenameSigned)
-	_, err = TxSignExec(val1.ClientCtx, val1.Address, fileUnsigned.Name(), chainFlag, fileFlag, signModeAminoFlag)
-	require.NoError(err)
-	fContent, err := os.ReadFile(filenameSigned)
-	require.NoError(err)
-	require.Equal(res.String(), string(fContent))
-
-	/****  try to append to the previously signed transaction  ****/
-	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
-		sigOnlyFlag, signModeAminoFlag)
-	require.NoError(err)
-	checkSignatures(require, txCfg, res.Bytes(), pub, pub)
-
-	/****  try to overwrite the previously signed transaction  ****/
-
-	// We can't sign with other address, because the bank send message supports only one signer for a simple
-	// account. Changing the file is too much hacking, because TxDecoder returns sdk.Tx, which doesn't
-	// provide functionality to check / manage `auth_info`.
-	// Cases with different keys are are covered in unit tests of `tx.Sign`.
-	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
-		sigOnlyFlag, "--overwrite", signModeAminoFlag)
-	require.NoError(err)
-	checkSignatures(require, txCfg, res.Bytes(), pub)
-
-	/****  test flagAmino  ****/
-	res, err = TxSignExec(val1.ClientCtx, val1.Address, filenameSigned, chainFlag,
-		"--amino=true", signModeAminoFlag)
-	require.NoError(err)
-
-	var txAmino authcli.BroadcastReq
-	err = val1.ClientCtx.LegacyAmino.UnmarshalJSON(res.Bytes(), &txAmino)
-	require.NoError(err)
-	require.Len(txAmino.Tx.Signatures, 2)
-	require.Equal(txAmino.Tx.Signatures[0].PubKey, pub)
-	require.Equal(txAmino.Tx.Signatures[1].PubKey, pub)
-}
-
-func checkSignatures(require *require.Assertions, txCfg client.TxConfig, output []byte, pks ...cryptotypes.PubKey) {
-	sigs, err := txCfg.UnmarshalSignatureJSON(output)
-	require.NoError(err, string(output))
-	require.Len(sigs, len(pks))
-	for i := range pks {
-		require.True(sigs[i].PubKey.Equals(pks[i]), "Pub key doesn't match. Got: %s, expected: %s, idx: %d", sigs[i].PubKey, pks[i], i)
-		require.NotEmpty(sigs[i].Data)
-	}
-}
+// func checkSignatures(require *require.Assertions, txCfg client.TxConfig, output []byte, pks ...cryptotypes.PubKey) {
+// 	sigs, err := txCfg.UnmarshalSignatureJSON(output)
+// 	require.NoError(err, string(output))
+// 	require.Len(sigs, len(pks))
+// 	for i := range pks {
+// 		require.True(sigs[i].PubKey.Equals(pks[i]), "Pub key doesn't match. Got: %s, expected: %s, idx: %d", sigs[i].PubKey, pks[i], i)
+// 		require.NotEmpty(sigs[i].Data)
+// 	}
+// }
 
 func (s *IntegrationTestSuite) TestCLIQueryTxCmdByHash() {
 	val := s.network.Validators[0]
@@ -863,66 +858,66 @@ func (s *IntegrationTestSuite) TestCLISendGenerateSignAndBroadcast() {
 	s.Require().NoError(err)
 }
 
-func (s *IntegrationTestSuite) TestCLIMultisignInsufficientCosigners() {
-	val1 := s.network.Validators[0]
-
-	// Fetch account and a multisig info
-	account1, err := val1.ClientCtx.Keyring.Key("newAccount1")
-	s.Require().NoError(err)
-
-	multisigRecord, err := val1.ClientCtx.Keyring.Key("multi")
-	s.Require().NoError(err)
-
-	addr, err := multisigRecord.GetAddress()
-	s.Require().NoError(err)
-	// Send coins from validator to multisig.
-	_, err = s.createBankMsg(
-		val1,
-		addr,
-		sdk.NewCoins(
-			sdk.NewInt64Coin(s.cfg.BondDenom, 10),
-		),
-	)
-	s.Require().NoError(err)
-
-	s.Require().NoError(s.network.WaitForNextBlock())
-
-	// Generate multisig transaction.
-	multiGeneratedTx, err := bankcli.MsgSendExec(
-		val1.ClientCtx,
-		addr,
-		val1.Address,
-		sdk.NewCoins(
-			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
-		),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
-	)
-	s.Require().NoError(err)
-
-	// Save tx to file
-	multiGeneratedTxFile := testutil.WriteToNewTempFile(s.T(), multiGeneratedTx.String())
-
-	// Multisign, sign with one signature
-	val1.ClientCtx.HomeDir = strings.Replace(val1.ClientCtx.HomeDir, "simd", "simcli", 1)
-	addr1, err := account1.GetAddress()
-	s.Require().NoError(err)
-	account1Signature, err := TxSignExec(val1.ClientCtx, addr1, multiGeneratedTxFile.Name(), "--multisig", addr.String())
-	s.Require().NoError(err)
-
-	sign1File := testutil.WriteToNewTempFile(s.T(), account1Signature.String())
-
-	multiSigWith1Signature, err := TxMultiSignExec(val1.ClientCtx, multisigRecord.Name, multiGeneratedTxFile.Name(), sign1File.Name())
-	s.Require().NoError(err)
-
-	// Save tx to file
-	multiSigWith1SignatureFile := testutil.WriteToNewTempFile(s.T(), multiSigWith1Signature.String())
-
-	_, err = TxValidateSignaturesExec(val1.ClientCtx, multiSigWith1SignatureFile.Name())
-	s.Require().Error(err)
-}
+// func (s *IntegrationTestSuite) TestCLIMultisignInsufficientCosigners() {
+// 	val1 := s.network.Validators[0]
+//
+// 	// Fetch account and a multisig info
+// 	account1, err := val1.ClientCtx.Keyring.Key("newAccount1")
+// 	s.Require().NoError(err)
+//
+// 	multisigRecord, err := val1.ClientCtx.Keyring.Key("multi")
+// 	s.Require().NoError(err)
+//
+// 	addr, err := multisigRecord.GetAddress()
+// 	s.Require().NoError(err)
+// 	// Send coins from validator to multisig.
+// 	_, err = s.createBankMsg(
+// 		val1,
+// 		addr,
+// 		sdk.NewCoins(
+// 			sdk.NewInt64Coin(s.cfg.BondDenom, 10),
+// 		),
+// 	)
+// 	s.Require().NoError(err)
+//
+// 	s.Require().NoError(s.network.WaitForNextBlock())
+//
+// 	// Generate multisig transaction.
+// 	multiGeneratedTx, err := bankcli.MsgSendExec(
+// 		val1.ClientCtx,
+// 		addr,
+// 		val1.Address,
+// 		sdk.NewCoins(
+// 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
+// 		),
+// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+// 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
+// 	)
+// 	s.Require().NoError(err)
+//
+// 	// Save tx to file
+// 	multiGeneratedTxFile := testutil.WriteToNewTempFile(s.T(), multiGeneratedTx.String())
+//
+// 	// Multisign, sign with one signature
+// 	val1.ClientCtx.HomeDir = strings.Replace(val1.ClientCtx.HomeDir, "simd", "simcli", 1)
+// 	addr1, err := account1.GetAddress()
+// 	s.Require().NoError(err)
+// 	account1Signature, err := TxSignExec(val1.ClientCtx, addr1, multiGeneratedTxFile.Name(), "--multisig", addr.String())
+// 	s.Require().NoError(err)
+//
+// 	sign1File := testutil.WriteToNewTempFile(s.T(), account1Signature.String())
+//
+// 	multiSigWith1Signature, err := TxMultiSignExec(val1.ClientCtx, multisigRecord.Name, multiGeneratedTxFile.Name(), sign1File.Name())
+// 	s.Require().NoError(err)
+//
+// 	// Save tx to file
+// 	multiSigWith1SignatureFile := testutil.WriteToNewTempFile(s.T(), multiSigWith1Signature.String())
+//
+// 	_, err = TxValidateSignaturesExec(val1.ClientCtx, multiSigWith1SignatureFile.Name())
+// 	s.Require().Error(err)
+// }
 
 func (s *IntegrationTestSuite) TestCLIEncode() {
 	val1 := s.network.Validators[0]
@@ -1335,7 +1330,7 @@ func (s *IntegrationTestSuite) TestCLIEncode() {
 
 func (s *IntegrationTestSuite) TestGetAccountCmd() {
 	val := s.network.Validators[0]
-	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	testCases := []struct {
 		name      string

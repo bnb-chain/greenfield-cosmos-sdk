@@ -13,8 +13,8 @@ import (
 var (
 	pk1   = ed25519.GenPrivKey().PubKey()
 	pk2   = ed25519.GenPrivKey().PubKey()
-	addr1 = sdk.ValAddress(pk1.Address())
-	addr2 = sdk.ValAddress(pk2.Address())
+	addr1 = sdk.AccAddress(pk1.Address())
+	addr2 = sdk.AccAddress(pk2.Address())
 )
 
 // require invalid vesting account fails validation

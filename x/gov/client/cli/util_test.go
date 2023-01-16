@@ -119,7 +119,7 @@ func TestParseSubmitLegacyProposalFlags(t *testing.T) {
 }
 
 func TestParseSubmitProposal(t *testing.T) {
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	banktypes.RegisterInterfaces(interfaceRegistry)

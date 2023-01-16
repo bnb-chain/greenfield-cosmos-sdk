@@ -99,7 +99,7 @@ func SimulateMsgSetWithdrawAddress(ak types.AccountKeeper, bk types.BankKeeper, 
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),
-			Context:         ctx,
+			Context:         ctx.WithChainID(chainID),
 			SimAccount:      simAccount,
 			AccountKeeper:   ak,
 			Bankkeeper:      bk,
@@ -141,7 +141,7 @@ func SimulateMsgWithdrawDelegatorReward(ak types.AccountKeeper, bk types.BankKee
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),
-			Context:         ctx,
+			Context:         ctx.WithChainID(chainID),
 			SimAccount:      simAccount,
 			AccountKeeper:   ak,
 			Bankkeeper:      bk,
@@ -168,7 +168,7 @@ func SimulateMsgWithdrawValidatorCommission(ak types.AccountKeeper, bk types.Ban
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawValidatorCommission, "validator commission is zero"), nil, nil
 		}
 
-		simAccount, found := simtypes.FindAccount(accs, sdk.AccAddress(validator.GetOperator()))
+		simAccount, found := simtypes.FindAccount(accs, validator.GetOperator())
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawValidatorCommission, "could not find account"), nil, fmt.Errorf("validator %s not found", validator.GetOperator())
 		}
@@ -185,7 +185,7 @@ func SimulateMsgWithdrawValidatorCommission(ak types.AccountKeeper, bk types.Ban
 			Cdc:             nil,
 			Msg:             msg,
 			MsgType:         msg.Type(),
-			Context:         ctx,
+			Context:         ctx.WithChainID(chainID),
 			SimAccount:      simAccount,
 			AccountKeeper:   ak,
 			Bankkeeper:      bk,
@@ -235,7 +235,7 @@ func SimulateMsgFundCommunityPool(ak types.AccountKeeper, bk types.BankKeeper, k
 			Cdc:           nil,
 			Msg:           msg,
 			MsgType:       msg.Type(),
-			Context:       ctx,
+			Context:       ctx.WithChainID(chainID),
 			SimAccount:    funder,
 			AccountKeeper: ak,
 			ModuleName:    types.ModuleName,

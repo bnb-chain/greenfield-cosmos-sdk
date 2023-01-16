@@ -16,7 +16,7 @@ func (suite *AnteTestSuite) TestValidateBasic() {
 	suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)
@@ -57,7 +57,7 @@ func (suite *AnteTestSuite) TestValidateMemo() {
 	suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)
@@ -92,7 +92,7 @@ func (suite *AnteTestSuite) TestConsumeGasForTxSize() {
 	suite.SetupTest(true) // setup
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)
@@ -178,7 +178,7 @@ func (suite *AnteTestSuite) TestTxHeightTimeoutDecorator() {
 	antehandler := sdk.ChainAnteDecorators(ante.NewTxTimeoutHeightDecorator())
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)

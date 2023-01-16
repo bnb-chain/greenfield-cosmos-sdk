@@ -44,7 +44,7 @@ func TestQueryAccount(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, res)
 
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	req.Data = legacyQuerierCdc.MustMarshalJSON(&types.QueryAccountRequest{Address: addr.String()})
 	res, err = querier(ctx, path, req)
 	require.Error(t, err)

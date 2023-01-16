@@ -26,7 +26,7 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	addrs       []sdk.AccAddress
-	valAddrs    []sdk.ValAddress
+	valAddrs    []sdk.AccAddress
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

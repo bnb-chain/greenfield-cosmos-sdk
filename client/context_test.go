@@ -84,8 +84,8 @@ func TestContext_PrintObjectLegacy(t *testing.T) {
 	}
 
 	// amino
-	amino := testdata.NewTestAmino()
-	ctx = ctx.WithLegacyAmino(&codec.LegacyAmino{Amino: amino})
+	amino := testdata.Amino
+	ctx = ctx.WithLegacyAmino(amino)
 
 	// json
 	buf := &bytes.Buffer{}

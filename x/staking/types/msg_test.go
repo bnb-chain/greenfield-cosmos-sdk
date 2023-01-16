@@ -67,7 +67,7 @@ func TestMsgCreateValidator(t *testing.T) {
 		name, moniker, identity, website, securityContact, details string
 		CommissionRates                                            types.CommissionRates
 		minSelfDelegation                                          sdk.Int
-		validatorAddr                                              sdk.ValAddress
+		validatorAddr                                              sdk.AccAddress
 		pubkey                                                     cryptotypes.PubKey
 		bond                                                       sdk.Coin
 		expectPass                                                 bool
@@ -106,7 +106,7 @@ func TestMsgCreateValidator(t *testing.T) {
 func TestMsgEditValidator(t *testing.T) {
 	tests := []struct {
 		name, moniker, identity, website, securityContact, details string
-		validatorAddr                                              sdk.ValAddress
+		validatorAddr                                              sdk.AccAddress
 		expectPass                                                 bool
 		minSelfDelegation                                          sdk.Int
 	}{
@@ -139,7 +139,7 @@ func TestMsgDelegate(t *testing.T) {
 	tests := []struct {
 		name          string
 		delegatorAddr sdk.AccAddress
-		validatorAddr sdk.ValAddress
+		validatorAddr sdk.AccAddress
 		bond          sdk.Coin
 		expectPass    bool
 	}{
@@ -166,8 +166,8 @@ func TestMsgBeginRedelegate(t *testing.T) {
 	tests := []struct {
 		name             string
 		delegatorAddr    sdk.AccAddress
-		validatorSrcAddr sdk.ValAddress
-		validatorDstAddr sdk.ValAddress
+		validatorSrcAddr sdk.AccAddress
+		validatorDstAddr sdk.AccAddress
 		amount           sdk.Coin
 		expectPass       bool
 	}{
@@ -194,7 +194,7 @@ func TestMsgUndelegate(t *testing.T) {
 	tests := []struct {
 		name          string
 		delegatorAddr sdk.AccAddress
-		validatorAddr sdk.ValAddress
+		validatorAddr sdk.AccAddress
 		amount        sdk.Coin
 		expectPass    bool
 	}{

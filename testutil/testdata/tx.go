@@ -1,8 +1,6 @@
 package testdata
 
 import (
-	"encoding/json"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,7 +8,7 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
-// KeyTestPubAddr generates a new eth_secp256k1 keypair.
+// KeyEthSecp256k1TestPubAddr generates a new eth_secp256k1 keypair.
 func KeyEthSecp256k1TestPubAddr() (cryptotypes.PrivKey, cryptotypes.PubKey, sdk.AccAddress) {
 	key, _ := ethsecp256k1.GenerateKey()
 	pub := key.PubKey()
@@ -54,11 +52,7 @@ var _ sdk.Msg = (*TestMsg)(nil)
 func (msg *TestMsg) Route() string { return "TestMsg" }
 func (msg *TestMsg) Type() string  { return "Test message" }
 func (msg *TestMsg) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg.Signers)
-	if err != nil {
-		panic(err)
-	}
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 func (msg *TestMsg) GetSigners() []sdk.AccAddress {

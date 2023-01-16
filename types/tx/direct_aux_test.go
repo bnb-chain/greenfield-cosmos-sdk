@@ -14,7 +14,7 @@ import (
 
 func TestSignDocDirectAux(t *testing.T) {
 	bodyBz := []byte{42}
-	_, pk, addr := testdata.KeyTestPubAddr()
+	_, pk, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	pkAny, err := codectypes.NewAnyWithValue(pk)
 	require.NoError(t, err)
 
@@ -50,7 +50,7 @@ func TestSignDocDirectAux(t *testing.T) {
 
 func TestAuxSignerData(t *testing.T) {
 	bodyBz := []byte{42}
-	_, pk, addr := testdata.KeyTestPubAddr()
+	_, pk, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	pkAny, err := codectypes.NewAnyWithValue(pk)
 	require.NoError(t, err)
 	sig := []byte{42}

@@ -45,7 +45,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightesOps {
-		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, simapp.DefaultChainId)
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
 		// will fail
@@ -68,15 +68,15 @@ func (suite *SimTestSuite) TestSimulateMsgSetWithdrawAddress() {
 
 	// execute operation
 	op := simulation.SimulateMsgSetWithdrawAddress(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgSetWithdrawAddress
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	suite.Require().True(operationMsg.OK)
-	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.DelegatorAddress)
-	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.WithdrawAddress)
+	suite.Require().Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.DelegatorAddress)
+	suite.Require().Equal("0x6b11EA2aF9b83C6E0BBCe6254d776F82BB6b6C13", msg.WithdrawAddress)
 	suite.Require().Equal(types.TypeMsgSetWithdrawAddress, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -109,15 +109,15 @@ func (suite *SimTestSuite) TestSimulateMsgWithdrawDelegatorReward() {
 
 	// execute operation
 	op := simulation.SimulateMsgWithdrawDelegatorReward(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgWithdrawDelegatorReward
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	suite.Require().True(operationMsg.OK)
-	suite.Require().Equal("0xFD60fA55E53DAc5bEC74f5238D5A3B559DAa5f47", msg.ValidatorAddress)
-	suite.Require().Equal("0x6eb9e15e4edC39886bc76f8132D380Ec9B5e63e5", msg.DelegatorAddress)
+	suite.Require().Equal("0x0a12a929C9711b1f71d7C2D67Ff5b81B40a7B916", msg.ValidatorAddress)
+	suite.Require().Equal("0x5A698439CCb612132474445A62720649A2FB00E7", msg.DelegatorAddress)
 	suite.Require().Equal(types.TypeMsgWithdrawDelegatorReward, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -167,7 +167,7 @@ func (suite *SimTestSuite) testSimulateMsgWithdrawValidatorCommission(tokenName 
 
 	// execute operation
 	op := simulation.SimulateMsgWithdrawValidatorCommission(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	if !operationMsg.OK {
 		suite.Require().Equal("could not find account", operationMsg.Comment)
 	} else {
@@ -177,7 +177,7 @@ func (suite *SimTestSuite) testSimulateMsgWithdrawValidatorCommission(tokenName 
 		types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 		suite.Require().True(operationMsg.OK)
-		suite.Require().Equal("0x5cEEa0528c3b88442d6580c548753DD89b99a213", msg.ValidatorAddress)
+		suite.Require().Equal("0x520ecc4903A9F355246c1FF384E694b6dFFcE2Ec", msg.ValidatorAddress)
 		suite.Require().Equal(types.TypeMsgWithdrawValidatorCommission, msg.Type())
 		suite.Require().Equal(types.ModuleName, msg.Route())
 		suite.Require().Len(futureOperations, 0)
@@ -197,7 +197,7 @@ func (suite *SimTestSuite) TestSimulateMsgFundCommunityPool() {
 
 	// execute operation
 	op := simulation.SimulateMsgFundCommunityPool(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgFundCommunityPool
@@ -205,7 +205,7 @@ func (suite *SimTestSuite) TestSimulateMsgFundCommunityPool() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("4896096stake", msg.Amount.String())
-	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Depositor)
+	suite.Require().Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Depositor)
 	suite.Require().Equal(types.TypeMsgFundCommunityPool, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -254,7 +254,7 @@ func (suite *SimTestSuite) getTestingValidator(accounts []simtypes.Account, comm
 	require := suite.Require()
 	account := accounts[n]
 	valPubKey := account.PubKey
-	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
 	validator, err := stakingtypes.NewSimpleValidator(valAddr, valPubKey, stakingtypes.
 		Description{})
 	require.NoError(err)
@@ -268,7 +268,7 @@ func (suite *SimTestSuite) getTestingValidator(accounts []simtypes.Account, comm
 	return validator
 }
 
-func (suite *SimTestSuite) setupValidatorRewards(valAddress sdk.ValAddress) {
+func (suite *SimTestSuite) setupValidatorRewards(valAddress sdk.AccAddress) {
 	decCoins := sdk.DecCoins{sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, sdk.OneDec())}
 	historicalRewards := distrtypes.NewValidatorHistoricalRewards(decCoins, 2)
 	suite.app.DistrKeeper.SetValidatorHistoricalRewards(suite.ctx, valAddress, 2, historicalRewards)

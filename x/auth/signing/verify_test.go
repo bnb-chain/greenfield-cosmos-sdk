@@ -18,7 +18,7 @@ import (
 )
 
 func TestVerifySignature(t *testing.T) {
-	priv, pubKey, addr := testdata.KeyTestPubAddr()
+	priv, pubKey, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	// priv1, pubKey1, addr1 := testdata.KeyTestPubAddr()
 
 	const (

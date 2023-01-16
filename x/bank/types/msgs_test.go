@@ -40,8 +40,8 @@ func TestMsgSendValidation(t *testing.T) {
 		{"", NewMsgSend(addr1, addrLong, atom123)},                             // valid send with long addr recipient
 		{": invalid coins", NewMsgSend(addr1, addr2, atom0)},                   // non positive coin
 		{"123atom,0eth: invalid coins", NewMsgSend(addr1, addr2, atom123eth0)}, // non positive coin in multicoins
-		{"invalid from address: empty address string is not allowed: invalid address", NewMsgSend(addrEmpty, addr2, atom123)},
-		{"invalid to address: empty address string is not allowed: invalid address", NewMsgSend(addr1, addrEmpty, atom123)},
+		{"invalid from address: decoding address from hex string failed: empty address: invalid address", NewMsgSend(addrEmpty, addr2, atom123)},
+		{"invalid to address: decoding address from hex string failed: empty address: invalid address", NewMsgSend(addr1, addrEmpty, atom123)},
 	}
 
 	for _, tc := range cases {
@@ -104,7 +104,7 @@ func TestInputValidation(t *testing.T) {
 		{"", NewInput(addr2, multiCoins)},
 		{"", NewInput(addrLong, someCoins)},
 
-		{"invalid input address: empty address string is not allowed: invalid address", NewInput(addrEmpty, someCoins)},
+		{"invalid input address: decoding address from hex string failed: empty address: invalid address", NewInput(addrEmpty, someCoins)},
 		{": invalid coins", NewInput(addr1, emptyCoins)},                // invalid coins
 		{": invalid coins", NewInput(addr1, emptyCoins2)},               // invalid coins
 		{"10eth,0atom: invalid coins", NewInput(addr1, someEmptyCoins)}, // invalid coins
@@ -145,7 +145,7 @@ func TestOutputValidation(t *testing.T) {
 		{"", NewOutput(addr2, multiCoins)},
 		{"", NewOutput(addrLong, someCoins)},
 
-		{"invalid output address: empty address string is not allowed: invalid address", NewOutput(addrEmpty, someCoins)},
+		{"invalid output address: decoding address from hex string failed: empty address: invalid address", NewOutput(addrEmpty, someCoins)},
 		{": invalid coins", NewOutput(addr1, emptyCoins)},                // invalid coins
 		{": invalid coins", NewOutput(addr1, emptyCoins2)},               // invalid coins
 		{"10eth,0atom: invalid coins", NewOutput(addr1, someEmptyCoins)}, // invalid coins

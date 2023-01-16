@@ -28,8 +28,8 @@ const (
 
 var (
 	fee            = types.NewCoins(types.NewInt64Coin("bam", 100))
-	_, pub1, addr1 = testdata.KeyTestPubAddr()
-	_, _, addr2    = testdata.KeyTestPubAddr()
+	_, pub1, addr1 = testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr2    = testdata.KeyEthSecp256k1TestPubAddr()
 	rawSig         = []byte("dummy")
 	sig            = signing2.SignatureV2{
 		PubKey: pub1,

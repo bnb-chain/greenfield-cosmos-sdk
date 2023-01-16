@@ -39,11 +39,11 @@ func (suite *AnteTestSuite) TestDeductFeesNoDelegation() {
 	anteHandlerStack := suite.anteHandler
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
-	priv2, _, addr2 := testdata.KeyTestPubAddr()
-	priv3, _, addr3 := testdata.KeyTestPubAddr()
-	priv4, _, addr4 := testdata.KeyTestPubAddr()
-	priv5, _, addr5 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv2, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv3, _, addr3 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv4, _, addr4 := testdata.KeyEthSecp256k1TestPubAddr()
+	priv5, _, addr5 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// Set addr1 with insufficient funds
 	err := testutil.FundAccount(suite.app.BankKeeper, suite.ctx, addr1, []sdk.Coin{sdk.NewCoin("atom", sdk.NewInt(10))})

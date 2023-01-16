@@ -67,7 +67,7 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (k Querier) ValidatorDelegations(c context.Context, req *types.QueryValidat
 	store := ctx.KVStore(k.storeKey)
 	valStore := prefix.NewStore(store, types.DelegationKey)
 	delegations, pageRes, err := query.GenericFilteredPaginate(k.cdc, valStore, req.Pagination, func(key []byte, delegation *types.Delegation) (*types.Delegation, error) {
-		valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+		valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +141,7 @@ func (k Querier) ValidatorUnbondingDelegations(c context.Context, req *types.Que
 
 	store := ctx.KVStore(k.storeKey)
 
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (k Querier) Delegation(c context.Context, req *types.QueryDelegationRequest
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (k Querier) UnbondingDelegation(c context.Context, req *types.QueryUnbondin
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +303,7 @@ func (k Querier) DelegatorValidator(c context.Context, req *types.QueryDelegator
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -470,12 +470,12 @@ func queryRedelegation(ctx sdk.Context, k Querier, req *types.QueryRedelegations
 		return nil, err
 	}
 
-	srcValAddr, err := sdk.ValAddressFromHex(req.SrcValidatorAddr)
+	srcValAddr, err := sdk.AccAddressFromHexUnsafe(req.SrcValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	dstValAddr, err := sdk.ValAddressFromHex(req.DstValidatorAddr)
+	dstValAddr, err := sdk.AccAddressFromHexUnsafe(req.DstValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -493,7 +493,7 @@ func queryRedelegation(ctx sdk.Context, k Querier, req *types.QueryRedelegations
 }
 
 func queryRedelegationsFromSrcValidator(store sdk.KVStore, k Querier, req *types.QueryRedelegationsRequest) (redels types.Redelegations, res *query.PageResponse, err error) {
-	valAddr, err := sdk.ValAddressFromHex(req.SrcValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.SrcValidatorAddr)
 	if err != nil {
 		return nil, nil, err
 	}

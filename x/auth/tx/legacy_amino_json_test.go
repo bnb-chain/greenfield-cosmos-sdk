@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	_, pubkey1, addr1 = testdata.KeyTestPubAddr()
-	_, _, addr2       = testdata.KeyTestPubAddr()
+	_, pubkey1, addr1 = testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr2       = testdata.KeyEthSecp256k1TestPubAddr()
 
 	coins   = sdk.Coins{sdk.NewInt64Coin("foocoin", 10)}
 	gas     = uint64(10000)

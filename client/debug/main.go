@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
 
@@ -32,7 +31,7 @@ func Cmd() *cobra.Command {
 
 	cmd.AddCommand(PubkeyCmd())
 	cmd.AddCommand(PubkeyRawCmd())
-	cmd.AddCommand(AddrCmd())
+	// cmd.AddCommand(AddrCmd())
 	cmd.AddCommand(RawBytesCmd())
 
 	return cmd
@@ -69,7 +68,7 @@ $ %s debug pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AurroA7jvfP
 }
 
 func bytesToPubkey(bz []byte, keytype string) (cryptotypes.PubKey, bool) {
-	if keytype == "ed25519" { //nolint:goconst
+	if keytype == "ed25519" {
 		if len(bz) == ed25519.PubKeySize {
 			return &ed25519.PubKey{Key: bz}, true
 		}
@@ -122,7 +121,7 @@ func getPubKeyFromRawString(pkstr string, keytype string) (cryptotypes.PubKey, e
 
 func PubkeyRawCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pubkey-raw [pubkey] -t [{ed25519, secp256k1}]",
+		Use:   "pubkey-raw [pubkey] -t [{ed25519, eth_secp256k1}]",
 		Short: "Decode a ED25519 or eth_secp256k1 pubkey from hex, or base64",
 		Long: fmt.Sprintf(`Decode a pubkey from hex, or base64.
 Example:
@@ -146,84 +145,60 @@ $ %s debug pubkey-raw 0x9f86D081884C7d659A2fEaA0C55AD015A3bf4F1B
 			if err != nil {
 				return err
 			}
-
-			var consensusPub string
-			edPK, ok := pk.(*ed25519.PubKey)
-			if ok && pubkeyType == "ed25519" {
-				consensusPub, err = legacybech32.MarshalPubKey(legacybech32.ConsPK, edPK) //nolint:staticcheck
-				if err != nil {
-					return err
-				}
-
-				cmd.Printf("Hex: %X\n", edPK.Key)
-			}
 			cmd.Println("Parsed key as", pk.Type())
 
 			pubKeyJSONBytes, err := clientCtx.LegacyAmino.MarshalJSON(pk)
 			if err != nil {
 				return err
 			}
-			accPub, err := legacybech32.MarshalPubKey(legacybech32.AccPK, pk) //nolint:staticcheck
-			if err != nil {
-				return err
-			}
-			valPub, err := legacybech32.MarshalPubKey(legacybech32.ValPK, pk) //nolint:staticcheck
-			if err != nil {
-				return err
-			}
 			cmd.Println("Address:", pk.Address())
 			cmd.Println("JSON (base64):", string(pubKeyJSONBytes))
-			cmd.Println("Bech32 Acc:", accPub)
-			cmd.Println("Bech32 Validator Operator:", valPub)
-			if pubkeyType == "ed25519" {
-				cmd.Println("Bech32 Validator Consensus:", consensusPub)
-			}
 
 			return nil
 		},
 	}
-	cmd.Flags().StringP(flagPubkeyType, "t", "ed25519", "Pubkey type to decode (oneof secp256k1, ed25519)")
+	cmd.Flags().StringP(flagPubkeyType, "t", "ed25519", "Pubkey type to decode (oneof eth_secp256k1, ed25519)")
 	return cmd
 }
 
-func AddrCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "addr [address]",
-		Short: "Convert an address between hex and bech32",
-		Long: fmt.Sprintf(`Convert an address between hex encoding and bech32.
-
-Example:
-$ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
-			`, version.AppName),
-		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			addrString := args[0]
-			var addr []byte
-
-			// try hex, then bech32
-			var err error
-			addr, err = hex.DecodeString(addrString)
-			if err != nil {
-				var err2 error
-				addr, err2 = sdk.AccAddressFromHexUnsafe(addrString)
-				if err2 != nil {
-					var err3 error
-					addr, err3 = sdk.ValAddressFromHex(addrString)
-
-					if err3 != nil {
-						return fmt.Errorf("expected hex or bech32. Got errors: hex: %v, bech32 acc: %v, bech32 val: %v", err, err2, err3)
-					}
-				}
-			}
-
-			cmd.Println("Address:", addr)
-			cmd.Printf("Address (hex): %X\n", addr)
-			cmd.Printf("Bech32 Acc: %s\n", sdk.AccAddress(addr))
-			cmd.Printf("Bech32 Val: %s\n", sdk.ValAddress(addr))
-			return nil
-		},
-	}
-}
+// func AddrCmd() *cobra.Command {
+// 	return &cobra.Command{
+// 		Use:   "addr [address]",
+// 		Short: "Convert an address between hex and bech32",
+// 		Long: fmt.Sprintf(`Convert an address between hex encoding and bech32.
+//
+// Example:
+// $ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
+// 			`, version.AppName),
+// 		Args: cobra.ExactArgs(1),
+// 		RunE: func(cmd *cobra.Command, args []string) error {
+// 			addrString := args[0]
+// 			var addr []byte
+//
+// 			// try hex, then bech32
+// 			var err error
+// 			addr, err = hex.DecodeString(addrString)
+// 			if err != nil {
+// 				var err2 error
+// 				addr, err2 = sdk.AccAddressFromHexUnsafe(addrString)
+// 				if err2 != nil {
+// 					var err3 error
+// 					addr, err3 = sdk.AccAddressFromHex(addrString)
+//
+// 					if err3 != nil {
+// 						return fmt.Errorf("expected hex or bech32. Got errors: hex: %v, bech32 acc: %v, bech32 val: %v", err, err2, err3)
+// 					}
+// 				}
+// 			}
+//
+// 			cmd.Println("Address:", addr)
+// 			cmd.Printf("Address (hex): %X\n", addr)
+// 			cmd.Printf("Bech32 Acc: %s\n", sdk.AccAddress(addr))
+// 			cmd.Printf("Bech32 Val: %s\n", sdk.AccAddress(addr))
+// 			return nil
+// 		},
+// 	}
+// }
 
 func RawBytesCmd() *cobra.Command {
 	return &cobra.Command{
