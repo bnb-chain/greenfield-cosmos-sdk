@@ -153,7 +153,7 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	for i := range vals {
 		pk := ed25519.GenPrivKey().PubKey()
 
-		vals[i] = newValidator(s.T(), sdk.ValAddress(pk.Address()), pk)
+		vals[i] = newValidator(s.T(), sdk.AccAddress(pk.Address()), pk)
 	}
 
 	val0Addr := vals[0].RelayerAddress
@@ -260,13 +260,13 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 }
 
 // Creates a new validators and asserts the error check.
-func newValidator(t *testing.T, operator sdk.ValAddress, pubKey cryptotypes.PubKey) stakingtypes.Validator {
+func newValidator(t *testing.T, operator sdk.AccAddress, pubKey cryptotypes.PubKey) stakingtypes.Validator {
 	v, err := stakingtypes.NewSimpleValidator(operator, pubKey, stakingtypes.Description{})
 	require.NoError(t, err)
 	return v
 }
 
-func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.ValAddress, []stakingtypes.Validator, []bls.SecretKey) {
+func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.AccAddress, []stakingtypes.Validator, []bls.SecretKey) {
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 5, app.StakingKeeper.TokensFromConsensusPower(ctx, 300))
 	valAddrs := simapp.ConvertAddrsToValAddrs(addrs)
 	pks := simapp.CreateTestPubKeys(5)
