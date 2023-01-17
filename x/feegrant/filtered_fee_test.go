@@ -15,7 +15,7 @@ import (
 )
 
 func TestFilteredFeeValidAllow(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 
 	ctx := app.BaseApp.NewContext(false, ocproto.Header{
 		Time: time.Now(),

@@ -13,7 +13,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 
 	ctx := app.NewContext(true, tmproto.Header{})
 
@@ -23,7 +23,7 @@ func TestLogger(t *testing.T) {
 }
 
 func TestInvariants(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1}})
 
@@ -36,7 +36,7 @@ func TestInvariants(t *testing.T) {
 }
 
 func TestAssertInvariants(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1}})
 

@@ -60,7 +60,7 @@ func TestBaseSequence(t *testing.T) {
 }
 
 func TestBaseAccountMarshal(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	_, pub, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	acc := types.NewBaseAccountWithAddress(addr)
 	seq := uint64(7)

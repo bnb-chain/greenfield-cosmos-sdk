@@ -64,6 +64,7 @@ func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 			simapp.EmptyAppOptions{},
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
+			baseapp.SetAppConfig(*val.AppConfig),
 		)
 	}
 }
@@ -234,6 +235,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 	// generate private keys, node IDs, and initial transactions
 	for i := 0; i < cfg.NumValidators; i++ {
 		appCfg := srvconfig.DefaultConfig()
+		appCfg.Upgrade = simapp.InitUpgradeConfig()
 		appCfg.Pruning = cfg.PruningStrategy
 		appCfg.MinGasPrices = cfg.MinGasPrices
 		appCfg.API.Enable = true

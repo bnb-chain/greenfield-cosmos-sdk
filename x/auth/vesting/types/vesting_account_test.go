@@ -31,7 +31,7 @@ type VestingAccountTestSuite struct {
 
 func (s *VestingAccountTestSuite) SetupTest() {
 	checkTx := false
-	s.app = simapp.Setup(s.T(), checkTx)
+	s.app = simapp.Setup(s.T(), checkTx, true)
 
 	s.ctx = s.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1})
 }

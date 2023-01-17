@@ -13,7 +13,7 @@ import (
 )
 
 func TestQueryGroupsByMember(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	group.RegisterQueryServer(queryHelper, app.GroupKeeper)

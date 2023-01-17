@@ -126,7 +126,7 @@ func createTestApp(t *testing.T, isCheckTx bool, r *rand.Rand, n int) (*simapp.S
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
 
-	app := simapp.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	app := simapp.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, true, balance)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	initAmt := app.StakingKeeper.TokensFromConsensusPower(ctx, 200)

@@ -13,7 +13,7 @@ import (
 )
 
 func TestGrant(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	addr, err := sdk.AccAddressFromHexUnsafe("0x058b15d64f210480217ab50093b7373a41a86c33")
 	require.NoError(t, err)
 	addr2, err := sdk.AccAddressFromHexUnsafe("0x09417afda96ea6f066fc943bfadbc87e63eb67e5")
