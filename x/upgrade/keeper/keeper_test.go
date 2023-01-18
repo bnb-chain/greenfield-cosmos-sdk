@@ -229,8 +229,8 @@ func (s *KeeperTestSuite) TestLastCompletedUpgrade() {
 
 	s.T().Log("verify empty name if applied upgrades are empty")
 	name, height := keeper.GetLastCompletedUpgrade(s.ctx)
-	require.Equal("", name)
-	require.Equal(int64(0), height)
+	require.Equal("EnablePublicDelegationUpgrade", name)
+	require.Equal(int64(2), height)
 
 	keeper.SetUpgradeHandler("test0", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
