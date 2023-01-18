@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 // Account contains a privkey, pubkey, address tuple
@@ -40,7 +41,7 @@ func RandomAccounts(r *rand.Rand, n int) []Account {
 		privkeySeed := make([]byte, 15)
 		r.Read(privkeySeed)
 
-		accs[i].PrivKey = secp256k1.GenPrivKeyFromSecret(privkeySeed)
+		accs[i].PrivKey = &ethsecp256k1.PrivKey{Key: secp256k1.GenPrivKeyFromSecret(privkeySeed).Key}
 		accs[i].PubKey = accs[i].PrivKey.PubKey()
 		accs[i].Address = sdk.AccAddress(accs[i].PubKey.Address())
 

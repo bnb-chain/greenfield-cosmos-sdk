@@ -17,6 +17,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type msgServer struct {
@@ -35,7 +36,7 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +202,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValidator) (*types.MsgEditValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +303,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, valErr := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, valErr := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if valErr != nil {
 		return nil, valErr
 	}
@@ -317,7 +318,12 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
-	// TODO: And a hard fork to allow all delegations, before that fork, only self delegation allowed.
+	if !ctx.IsUpgraded(upgrade.EnablePublicDelegationUpgrade) {
+		selfDelAddress := validator.GetSelfDelegator()
+		if delegatorAddress.String() != selfDelAddress.String() {
+			return nil, types.ErrDelegationNotAllowed
+		}
+	}
 
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
@@ -363,7 +369,11 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valSrcAddr, err := sdk.ValAddressFromHex(msg.ValidatorSrcAddress)
+	if !ctx.IsUpgraded(upgrade.EnablePublicDelegationUpgrade) {
+		return nil, types.ErrRedelegationNotAllowed
+	}
+
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorSrcAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -378,8 +388,6 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
-	// TODO: And a hard fork to allow all redelegations
-
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
 		return nil, sdkerrors.Wrapf(
@@ -387,7 +395,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		)
 	}
 
-	valDstAddr, err := sdk.ValAddressFromHex(msg.ValidatorDstAddress)
+	valDstAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorDstAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -434,7 +442,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	addr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -496,7 +504,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

@@ -9,12 +9,13 @@ import (
 	"strings"
 	"testing"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/simapp/helpers"
@@ -314,6 +315,10 @@ func TestAppStateDeterminism(t *testing.T) {
 
 			db := dbm.NewMemDB()
 			app := NewSimApp(logger, db, nil, true, DefaultNodeHome, FlagPeriodValue, MakeTestEncodingConfig(), EmptyAppOptions{}, interBlockCacheOpt())
+
+			app.SetUpgradeChecker(func(context sdk.Context, s string) bool {
+				return true
+			})
 
 			fmt.Printf(
 				"running non-determinism simulation; seed %d: %d/%d, attempt: %d/%d\n",

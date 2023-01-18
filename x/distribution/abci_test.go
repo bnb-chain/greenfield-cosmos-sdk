@@ -26,14 +26,14 @@ var (
 )
 
 type validator struct {
-	addr   sdk.ValAddress
+	addr   sdk.AccAddress
 	pubkey cryptotypes.PubKey
 	votes  []abci.VoteInfo
 }
 
 // Context in https://github.com/cosmos/cosmos-sdk/issues/9161
 func TestVerifyProposerRewardAssignement(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, totalValidators, valTokens)
 	tstaking := teststaking.NewHelper(t, ctx, app.StakingKeeper)
@@ -42,7 +42,7 @@ func TestVerifyProposerRewardAssignement(t *testing.T) {
 	// create validators
 	validators := make([]validator, totalValidators-1)
 	for i := range validators {
-		validators[i].addr = sdk.ValAddress(addrs[i])
+		validators[i].addr = addrs[i]
 		validators[i].pubkey = ed25519.GenPrivKey().PubKey()
 		validators[i].votes = make([]abci.VoteInfo, totalValidators)
 		tstaking.CreateValidatorWithValPower(validators[i].addr, validators[i].pubkey, power, true)

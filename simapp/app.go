@@ -54,6 +54,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	crosschainkeeper "github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
+	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrclient "github.com/cosmos/cosmos-sdk/x/distribution/client"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -84,6 +86,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	nftkeeper "github.com/cosmos/cosmos-sdk/x/nft/keeper"
 	nftmodule "github.com/cosmos/cosmos-sdk/x/nft/module"
+	oraclekeeper "github.com/cosmos/cosmos-sdk/x/oracle/keeper"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -142,6 +146,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		nft.ModuleName:                 nil,
+		crosschaintypes.ModuleName:     {authtypes.Minter},
 	}
 )
 
@@ -184,6 +189,8 @@ type SimApp struct {
 	GroupKeeper      groupkeeper.Keeper
 	NFTKeeper        nftkeeper.Keeper
 	GashubKeeper     gashubkeeper.Keeper
+	CrossChainKeeper crosschainkeeper.Keeper
+	OracleKeeper     oraclekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -224,7 +231,8 @@ func NewSimApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
-		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, gashubtypes.StoreKey,
+		authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, gashubtypes.StoreKey, crosschaintypes.StoreKey,
+		oracletypes.ModuleName,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	// NOTE: The testingkey is just mounted for testing purposes. Actual applications should
@@ -260,7 +268,7 @@ func NewSimApp(
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
+		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
 	app.AuthzKeeper = authzkeeper.NewKeeper(
 		keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter(), app.AccountKeeper,
@@ -327,6 +335,10 @@ func NewSimApp(
 
 	app.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper)
 
+	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], app.GetSubspace(crosschaintypes.ModuleName))
+	app.OracleKeeper = oraclekeeper.NewKeeper(appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), authtypes.FeeCollectorName,
+		app.CrossChainKeeper, app.BankKeeper, app.StakingKeeper)
+
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
@@ -344,6 +356,11 @@ func NewSimApp(
 		// 	app.Logger().Info("upgrade to ", plan.Name)
 		// 	return fromVM, nil
 		// },
+
+		upgradetypes.EnablePublicDelegationUpgrade: func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			app.Logger().Info("upgrade to ", plan.Name)
+			return fromVM, nil
+		},
 	}
 
 	upgradeInitlizier := map[string]upgradetypes.UpgradeInitializer{
@@ -353,6 +370,11 @@ func NewSimApp(
 		// 	app.Logger().Info("Init BEP111")
 		// 	return nil
 		// },
+
+		upgradetypes.EnablePublicDelegationUpgrade: func() error {
+			app.Logger().Info("Init enable public delegation upgrade")
+			return nil
+		},
 	}
 
 	var err error
@@ -702,6 +724,18 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(gashubtypes.ModuleName)
+	paramsKeeper.Subspace(crosschaintypes.ModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func InitUpgradeConfig() []config.UpgradeConfig {
+	return []config.UpgradeConfig{
+		{
+			Name:   upgradetypes.EnablePublicDelegationUpgrade,
+			Height: 2,
+			Info:   "Enable public delegation, after this fork, anyone can delegate and redelegate to any validator.",
+		},
+	}
 }

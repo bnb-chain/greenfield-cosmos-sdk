@@ -55,7 +55,7 @@ func (invalidProposalRoute) ProposalRoute() string { return "nonexistingroute" }
 
 func (suite *KeeperTestSuite) TestSubmitProposal() {
 	govAcct := suite.app.GovKeeper.GetGovernanceAccount(suite.ctx).GetAddress().String()
-	_, _, randomAddr := testdata.KeyTestPubAddr()
+	_, _, randomAddr := testdata.KeyEthSecp256k1TestPubAddr()
 	tp := v1beta1.TextProposal{Title: "title", Description: "description"}
 
 	testCases := []struct {

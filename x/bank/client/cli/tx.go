@@ -39,7 +39,7 @@ func NewSendTxCmd() *cobra.Command {
 		Short: "Send funds from one account to another.",
 		Long: `Send funds from one account to another.
 Note, the '--from' flag is ignored as it is implied from [from_key_or_address].
-When using '--dry-run' a key name cannot be used, only a bech32 address.
+When using '--dry-run' a key name cannot be used, only a smart chain address.
 `,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -80,7 +80,7 @@ func NewMultiSendTxCmd() *cobra.Command {
 By default, sends the [amount] to each address of the list.
 Using the '--split' flag, the [amount] is split equally between the addresses.
 Note, the '--from' flag is ignored as it is implied from [from_key_or_address].
-When using '--dry-run' a key name cannot be used, only a bech32 address.
+When using '--dry-run' a key name cannot be used, only a smart chain address.
 `,
 		Args: cobra.MinimumNArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {

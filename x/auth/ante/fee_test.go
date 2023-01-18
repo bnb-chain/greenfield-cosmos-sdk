@@ -16,7 +16,7 @@ func (s *AnteTestSuite) TestDeductFeeDecorator_ZeroGas() {
 	antehandler := sdk.ChainAnteDecorators(mfd)
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 	coins := sdk.NewCoins(sdk.NewCoin("atom", sdk.NewInt(300)))
 	testutil.FundAccount(s.app.BankKeeper, s.ctx, addr1, coins)
 
@@ -50,7 +50,7 @@ func (s *AnteTestSuite) TestEnsureMempoolFees() {
 	antehandler := sdk.ChainAnteDecorators(mfd)
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 	coins := sdk.NewCoins(sdk.NewCoin("atom", sdk.NewInt(300)))
 	testutil.FundAccount(s.app.BankKeeper, s.ctx, addr1, coins)
 
@@ -109,7 +109,7 @@ func (s *AnteTestSuite) TestDeductFees() {
 	s.txBuilder = s.clientCtx.TxConfig.NewTxBuilder()
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)

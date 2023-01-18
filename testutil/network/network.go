@@ -21,7 +21,6 @@ import (
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/node"
 	tmclient "github.com/tendermint/tendermint/rpc/client"
 	dbm "github.com/tendermint/tm-db"
@@ -65,6 +64,7 @@ func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
 			simapp.EmptyAppOptions{},
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
+			baseapp.SetAppConfig(*val.AppConfig),
 		)
 	}
 }
@@ -114,7 +114,7 @@ func DefaultConfig() Config {
 		AppConstructor:    NewAppConstructor(encCfg),
 		GenesisState:      simapp.ModuleBasics.DefaultGenesis(encCfg.Codec),
 		TimeoutCommit:     2 * time.Second,
-		ChainID:           "chain-" + tmrand.Str(6),
+		ChainID:           simapp.DefaultChainId,
 		NumValidators:     4,
 		BondDenom:         sdk.DefaultBondDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
@@ -163,7 +163,7 @@ type (
 		RPCAddress string
 		P2PAddress string
 		Address    sdk.AccAddress
-		ValAddress sdk.ValAddress
+		ValAddress sdk.AccAddress
 		RPCClient  tmclient.Client
 
 		tmNode  *node.Node
@@ -235,6 +235,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 	// generate private keys, node IDs, and initial transactions
 	for i := 0; i < cfg.NumValidators; i++ {
 		appCfg := srvconfig.DefaultConfig()
+		appCfg.Upgrade = simapp.InitUpgradeConfig()
 		appCfg.Pruning = cfg.PruningStrategy
 		appCfg.MinGasPrices = cfg.MinGasPrices
 		appCfg.API.Enable = true
@@ -409,7 +410,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+			addr,
 			valPubKeys[i],
 			sdk.NewCoin(cfg.BondDenom, cfg.BondedTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
@@ -484,7 +485,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			P2PAddress: tmCfg.P2P.ListenAddress,
 			APIAddress: apiAddr,
 			Address:    addr,
-			ValAddress: sdk.ValAddress(addr),
+			ValAddress: addr,
 		}
 	}
 

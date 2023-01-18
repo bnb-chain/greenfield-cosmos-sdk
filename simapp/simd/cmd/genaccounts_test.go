@@ -27,7 +27,7 @@ import (
 var testMbm = module.NewBasicManager(genutil.AppModuleBasic{})
 
 func TestAddGenesisAccountCmd(t *testing.T) {
-	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 	tests := []struct {
 		name        string
 		addr        string

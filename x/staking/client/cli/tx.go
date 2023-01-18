@@ -104,7 +104,7 @@ func NewEditValidatorCmd() *cobra.Command {
 			}
 
 			msg := types.NewMsgEditValidator(
-				sdk.ValAddress(valAddr), description, newRate, newMinSelfDelegation,
+				valAddr, description, newRate, newMinSelfDelegation,
 				relayer, blsPk,
 			)
 
@@ -150,7 +150,7 @@ $ %s tx staking delegate 0x91D7d.. 1000stake --from mykey
 			}
 
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -189,12 +189,12 @@ $ %s tx staking redelegate 0x91D7d.. 0x9fB29.. 100stake --from mykey
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valSrcAddr, err := sdk.ValAddressFromHex(args[0])
+			valSrcAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
 
-			valDstAddr, err := sdk.ValAddressFromHex(args[1])
+			valDstAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -238,7 +238,7 @@ $ %s tx staking unbond 0x91D7d.. 100stake --from mykey
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -284,7 +284,7 @@ $ %s tx staking cancel-unbond 0x91D7d.. 100stake 2 --from mykey
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -359,7 +359,7 @@ type TxCreateValidatorConfig struct {
 	Details         string
 	Identity        string
 
-	Validator     sdk.ValAddress
+	Validator     sdk.AccAddress
 	Delegator     sdk.AccAddress
 	Relayer       sdk.AccAddress
 	RelayerBlsKey string

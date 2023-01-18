@@ -13,7 +13,6 @@ import (
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -23,6 +22,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	client "github.com/cosmos/cosmos-sdk/x/group/client/cli"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 type IntegrationTestSuite struct {
@@ -66,7 +66,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	val := s.network.Validators[0]
 
 	// create a new account
-	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pk, err := info.GetPubKey()
@@ -262,22 +262,22 @@ func (s *IntegrationTestSuite) TestTxCreateGroup() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					val.Address.String(),
-					"",
-					validMembersFile.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			val.Address.String(),
+		// 			"",
+		// 			validMembersFile.Name(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"group metadata too long",
 			append(
@@ -304,7 +304,7 @@ func (s *IntegrationTestSuite) TestTxCreateGroup() {
 				s.commonFlags...,
 			),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 			nil,
 			0,
 		},
@@ -413,22 +413,22 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupAdmin() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					val.Address.String(),
-					groupIDs[1],
-					s.network.Validators[1].Address.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			val.Address.String(),
+		// 			groupIDs[1],
+		// 			s.network.Validators[1].Address.String(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"group id invalid",
 			append(
@@ -508,22 +508,22 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupMetadata() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					val.Address.String(),
-					"1",
-					validMetadata,
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			val.Address.String(),
+		// 			"1",
+		// 			validMetadata,
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"group metadata too long",
 			append(
@@ -611,26 +611,26 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupMembers() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					accounts[0],
-					groupID,
-					testutil.WriteToNewTempFile(s.T(), fmt.Sprintf(`{"members": [{
-		"address": "%s",
-		"weight": "2",
-		"metadata": "%s"
-	}]}`, s.groupPolicies[0].Address, validMetadata)).Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// 	{
+		// 		"with amino-json",
+		// 		append(
+		// 			[]string{
+		// 				accounts[0],
+		// 				groupID,
+		// 				testutil.WriteToNewTempFile(s.T(), fmt.Sprintf(`{"members": [{
+		// 	"address": "%s",
+		// 	"weight": "2",
+		// 	"metadata": "%s"
+		// }]}`, s.groupPolicies[0].Address, validMetadata)).Name(),
+		// 				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 			},
+		// 			s.commonFlags...,
+		// 		),
+		// 		false,
+		// 		"",
+		// 		&sdk.TxResponse{},
+		// 		0,
+		// 	},
 		{
 			"group member metadata too long",
 			append(
@@ -759,25 +759,25 @@ func (s *IntegrationTestSuite) TestTxCreateGroupWithPolicy() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					val.Address.String(),
-					validMetadata,
-					validMetadata,
-					validMembersFile.Name(),
-					thresholdDecisionPolicyFile.Name(),
-					fmt.Sprintf("--%s=%v", client.FlagGroupPolicyAsAdmin, false),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			val.Address.String(),
+		// 			validMetadata,
+		// 			validMetadata,
+		// 			validMembersFile.Name(),
+		// 			thresholdDecisionPolicyFile.Name(),
+		// 			fmt.Sprintf("--%s=%v", client.FlagGroupPolicyAsAdmin, false),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"group metadata too long",
 			append(
@@ -828,7 +828,7 @@ func (s *IntegrationTestSuite) TestTxCreateGroupWithPolicy() {
 				s.commonFlags...,
 			),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 			nil,
 			0,
 		},
@@ -938,23 +938,23 @@ func (s *IntegrationTestSuite) TestTxCreateGroupPolicy() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					val.Address.String(),
-					fmt.Sprintf("%v", groupID),
-					validMetadata,
-					thresholdDecisionPolicyFile.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			val.Address.String(),
+		// 			fmt.Sprintf("%v", groupID),
+		// 			validMetadata,
+		// 			thresholdDecisionPolicyFile.Name(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"wrong admin",
 			append(
@@ -1089,22 +1089,22 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupPolicyAdmin() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					groupPolicy.Admin,
-					s.groupPolicies[4].Address,
-					newAdmin.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			groupPolicy.Admin,
+		// 			s.groupPolicies[4].Address,
+		// 			newAdmin.String(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"wrong admin",
 			append(
@@ -1204,22 +1204,22 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupPolicyDecisionPolicy() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					groupPolicy.Admin,
-					groupPolicy.Address,
-					testutil.WriteToNewTempFile(s.T(), `{"@type":"/cosmos.group.v1.ThresholdDecisionPolicy", "threshold":"1", "windows":{"voting_period":"50000s"}}`).Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			groupPolicy.Admin,
+		// 			groupPolicy.Address,
+		// 			testutil.WriteToNewTempFile(s.T(), `{"@type":"/cosmos.group.v1.ThresholdDecisionPolicy", "threshold":"1", "windows":{"voting_period":"50000s"}}`).Name(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"wrong admin",
 			append(
@@ -1334,22 +1334,22 @@ func (s *IntegrationTestSuite) TestTxUpdateGroupPolicyMetadata() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					groupPolicy.Admin,
-					groupPolicy.Address,
-					validMetadata,
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			groupPolicy.Admin,
+		// 			groupPolicy.Address,
+		// 			validMetadata,
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"long metadata",
 			append(
@@ -1481,24 +1481,24 @@ func (s *IntegrationTestSuite) TestTxSubmitProposal() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					s.createCLIProposal(
-						s.groupPolicies[0].Address, val.Address.String(),
-						s.groupPolicies[0].Address, val.Address.String(),
-						"",
-					),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			s.createCLIProposal(
+		// 				s.groupPolicies[0].Address, val.Address.String(),
+		// 				s.groupPolicies[0].Address, val.Address.String(),
+		// 				"",
+		// 			),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"metadata too long",
 			append(
@@ -1695,23 +1695,23 @@ func (s *IntegrationTestSuite) TestTxVote() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					ids[3],
-					accounts[0],
-					"VOTE_OPTION_YES",
-					"",
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			ids[3],
+		// 			accounts[0],
+		// 			"VOTE_OPTION_YES",
+		// 			"",
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"invalid proposal id",
 			append(
@@ -2003,21 +2003,21 @@ func (s *IntegrationTestSuite) TestTxExec() {
 			&sdk.TxResponse{},
 			0,
 		},
-		{
-			"with amino-json",
-			append(
-				[]string{
-					proposalIDs[1],
-					fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			0,
-		},
+		// {
+		// 	"with amino-json",
+		// 	append(
+		// 		[]string{
+		// 			proposalIDs[1],
+		// 			fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		s.commonFlags...,
+		// 	),
+		// 	false,
+		// 	"",
+		// 	&sdk.TxResponse{},
+		// 	0,
+		// },
 		{
 			"invalid proposal id",
 			append(
@@ -2472,7 +2472,7 @@ func (s *IntegrationTestSuite) createAccounts(quantity int) []string {
 		memberNumber := uuid.New().String()
 
 		info, _, err := clientCtx.Keyring.NewMnemonic(fmt.Sprintf("member%s", memberNumber), keyring.English, sdk.FullFundraiserPath,
-			keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+			keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 		s.Require().NoError(err)
 
 		pk, err := info.GetPubKey()

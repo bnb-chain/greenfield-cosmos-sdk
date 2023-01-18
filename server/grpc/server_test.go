@@ -47,7 +47,7 @@ type IntegrationTestSuite struct {
 
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
-	s.app = simapp.Setup(s.T(), false)
+	s.app = simapp.Setup(s.T(), false, true)
 	cfg := network.DefaultConfig()
 	cfg.NumValidators = 1
 	s.cfg = cfg
@@ -270,7 +270,7 @@ func (s IntegrationTestSuite) mkTxBuilder() client.TxBuilder {
 		WithChainID(val.ClientCtx.ChainID).
 		WithKeybase(val.ClientCtx.Keyring).
 		WithTxConfig(val.ClientCtx.TxConfig).
-		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT)
+		WithSignMode(signing.SignMode_SIGN_MODE_EIP_712)
 
 	// Sign Tx.
 	err := authclient.SignTx(txFactory, val.ClientCtx, val.Moniker, txBuilder, false, true)

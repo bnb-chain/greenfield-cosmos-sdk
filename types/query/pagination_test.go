@@ -337,7 +337,7 @@ func ExamplePaginate(t *testing.T) {
 }
 
 func setupTest(t *testing.T) (*simapp.SimApp, sdk.Context, codec.Codec) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{Height: 1})
 	appCodec := app.AppCodec()
 

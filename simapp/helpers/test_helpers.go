@@ -14,7 +14,7 @@ import (
 // SimAppChainID hardcoded chainID for simulation
 const (
 	DefaultGenTxGas = 10000000
-	SimAppChainID   = "simulation-app"
+	SimAppChainID   = "inscription_9000-1"
 )
 
 // GenSignedMockTx generates a signed mock transaction.

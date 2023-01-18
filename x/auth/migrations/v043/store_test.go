@@ -489,7 +489,7 @@ func TestMigrateVestingAccounts(t *testing.T) {
 
 				ctx = ctx.WithBlockTime(ctx.BlockTime().AddDate(1, 0, 0))
 
-				valAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
+				valAddr, err := sdk.AccAddressFromHexUnsafe(validator.OperatorAddress)
 				require.NoError(t, err)
 
 				// un-delegation of the original vesting
@@ -539,7 +539,7 @@ func TestMigrateVestingAccounts(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			app := simapp.Setup(t, false)
+			app := simapp.Setup(t, false, true)
 			ctx := app.BaseApp.NewContext(false, tmproto.Header{
 				Time: time.Now(),
 			})
@@ -645,7 +645,7 @@ func dirtyTrackingFields(ctx sdk.Context, vesting exported.VestingAccount, app *
 	return nil
 }
 
-func createValidator(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers int64) (sdk.AccAddress, sdk.ValAddress) {
+func createValidator(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers int64) (sdk.AccAddress, sdk.AccAddress) {
 	valTokens := sdk.TokensFromConsensusPower(powers, sdk.DefaultPowerReduction)
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 1, valTokens)
 	valAddrs := simapp.ConvertAddrsToValAddrs(addrs)

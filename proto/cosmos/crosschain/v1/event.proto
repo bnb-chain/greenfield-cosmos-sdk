@@ -1,0 +1,18 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.crosschain.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
+
+// EventCrossChain is emitted when there is a cross chain package created
+message EventCrossChain {
+  uint32 src_chain_id = 1;
+  uint32 dest_chain_id = 2;
+  uint32 channel_id = 3;
+  uint64 sequence = 4;
+  uint32 package_type = 5;
+  uint64 timestamp = 6;
+  string package_load = 7;
+  string relayer_fee = 8;
+  string ack_relayer_fee = 9;
+}

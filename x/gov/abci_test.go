@@ -22,7 +22,7 @@ import (
 )
 
 func TestTickExpiredDepositPeriod(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 10, valTokens)
 
@@ -75,7 +75,7 @@ func TestTickExpiredDepositPeriod(t *testing.T) {
 }
 
 func TestTickMultipleExpiredDepositPeriod(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 10, valTokens)
 
@@ -154,7 +154,7 @@ func TestTickMultipleExpiredDepositPeriod(t *testing.T) {
 }
 
 func TestTickPassedDepositPeriod(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 10, valTokens)
 
@@ -208,7 +208,7 @@ func TestTickPassedDepositPeriod(t *testing.T) {
 }
 
 func TestTickPassedVotingPeriod(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 10, valTokens)
 
@@ -274,7 +274,7 @@ func TestTickPassedVotingPeriod(t *testing.T) {
 }
 
 func TestProposalPassedEndblocker(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 10, valTokens)
 
@@ -286,9 +286,9 @@ func TestProposalPassedEndblocker(t *testing.T) {
 	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	valAddr := sdk.ValAddress(addrs[0])
+	valAddr := addrs[0]
 
-	createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+	createValidators(t, stakingMsgSvr, ctx, []sdk.AccAddress{valAddr}, []int64{10})
 	staking.EndBlocker(ctx, app.StakingKeeper)
 
 	macc := app.GovKeeper.GetGovernanceAccount(ctx)
@@ -327,7 +327,7 @@ func TestProposalPassedEndblocker(t *testing.T) {
 }
 
 func TestEndBlockerProposalHandlerFailed(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 1, valTokens)
 
@@ -337,9 +337,9 @@ func TestEndBlockerProposalHandlerFailed(t *testing.T) {
 	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	valAddr := sdk.ValAddress(addrs[0])
+	valAddr := addrs[0]
 
-	createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+	createValidators(t, stakingMsgSvr, ctx, []sdk.AccAddress{valAddr}, []int64{10})
 	staking.EndBlocker(ctx, app.StakingKeeper)
 
 	// Create a proposal where the handler will pass for the test proposal
@@ -371,7 +371,7 @@ func TestEndBlockerProposalHandlerFailed(t *testing.T) {
 	gov.EndBlocker(ctx, app.GovKeeper)
 }
 
-func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sdk.Context, addrs []sdk.ValAddress, powerAmt []int64) {
+func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sdk.Context, addrs []sdk.AccAddress, powerAmt []int64) {
 	require.True(t, len(addrs) <= len(pubkeys), "Not enough pubkeys specified at top of file.")
 
 	for i := 0; i < len(addrs); i++ {

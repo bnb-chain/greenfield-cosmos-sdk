@@ -19,31 +19,28 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	types "github.com/cosmos/cosmos-sdk/types/tx"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/gogo/protobuf/jsonpb"
 )
 
-var msgCodec codec.ProtoCodecMarshaler
+var MsgCodec = jsonpb.Marshaler{
+	EmitDefaults: true,
+	OrigName:     true,
+}
 
 var domain = apitypes.TypedDataDomain{
 	Name:              "Inscription Tx",
 	Version:           "1.0.0",
 	VerifyingContract: "inscription",
 	Salt:              "0",
-}
-
-func init() {
-	registry := codectypes.NewInterfaceRegistry()
-	std.RegisterInterfaces(registry)
-	msgCodec = codec.NewProtoCodec(registry)
 }
 
 // signModeEip712Handler defines the SIGN_MODE_DIRECT SignModeHandler
@@ -67,14 +64,9 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
 	}
 
-	protoTx, ok := tx.(*wrapper)
+	_, ok := tx.(*wrapper)
 	if !ok {
 		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
-	}
-
-	cdc := protoTx.cdc
-	if protoTx.cdc == nil {
-		cdc = msgCodec
 	}
 
 	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
@@ -82,12 +74,12 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
-	msgTypes, signDoc, err := GetMsgTypes(cdc, signerData, tx, typedChainID)
+	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, typedChainID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get msg types")
 	}
 
-	typedData, err := WrapTxToTypedData(cdc, typedChainID.Uint64(), protoTx.GetMsgs()[0], signDoc, msgTypes)
+	typedData, err := WrapTxToTypedData(typedChainID.Uint64(), signDoc, msgTypes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
 	}
@@ -100,12 +92,13 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 	return sigHash, nil
 }
 
-func GetMsgTypes(cdc codectypes.AnyUnpacker, signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
+func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int) (apitypes.Types, *types.SignDocEip712, error) {
 	protoTx, ok := tx.(*wrapper)
 	if !ok {
 		return nil, nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
 	}
 
+	msgAny, _ := codectypes.NewAnyWithValue(protoTx.GetMsgs()[0])
 	signDoc := &types.SignDocEip712{
 		AccountNumber: signerData.AccountNumber,
 		Sequence:      signerData.Sequence,
@@ -119,9 +112,10 @@ func GetMsgTypes(cdc codectypes.AnyUnpacker, signerData signing.SignerData, tx s
 		},
 		Memo: protoTx.GetMemo(),
 		Tip:  protoTx.GetTip(),
+		Msg:  msgAny,
 	}
 
-	msgTypes, err := extractMsgTypes(cdc, protoTx.GetMsgs()[0])
+	msgTypes, err := extractMsgTypes(protoTx.GetMsgs()[0])
 	if err != nil {
 		return nil, nil, err
 	}
@@ -166,39 +160,27 @@ func ComputeTypedDataHash(typedData apitypes.TypedData) ([]byte, error) {
 }
 
 func WrapTxToTypedData(
-	cdc codec.Codec,
 	chainID uint64,
-	msg sdk.Msg,
 	signDoc *types.SignDocEip712,
 	msgTypes apitypes.Types,
 ) (apitypes.TypedData, error) {
 	var txData map[string]interface{}
-	bz, err := cdc.MarshalJSON(signDoc)
+	bz, err := MsgCodec.MarshalToString(signDoc)
 	if err != nil {
-		return apitypes.TypedData{}, errors.Wrap(sdkerrors.ErrJSONMarshal, "failed to JSON marshal data")
+		return apitypes.TypedData{}, errors.Wrap(err, "failed to JSON marshal data")
 	}
-	if err := json.Unmarshal(bz, &txData); err != nil {
-		return apitypes.TypedData{}, errors.Wrap(sdkerrors.ErrJSONUnmarshal, "failed to JSON unmarshal data")
+	if err := json.Unmarshal([]byte(bz), &txData); err != nil {
+		return apitypes.TypedData{}, errors.Wrap(err, "failed to JSON unmarshal data")
 	}
-
-	// encode msg
-	type msgWrapper struct {
-		Msg json.RawMessage `json:"msg"`
-	}
-	msgValue := make(map[string]interface{})
-	legacyMsg := msg.(legacytx.LegacyMsg)
-	bz, _ = json.Marshal(msgWrapper{Msg: legacyMsg.GetSignBytes()})
-	if err := json.Unmarshal(bz, &msgValue); err != nil {
-		panic(err)
-	}
-	txData["msg"] = msgValue["msg"]
 
 	if txData["tip"] == nil {
 		delete(txData, "tip")
 	}
 
-	domain.ChainId = math.NewHexOrDecimal256(int64(chainID))
+	// filling nil value
+	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
 
+	domain.ChainId = math.NewHexOrDecimal256(int64(chainID))
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
@@ -209,7 +191,7 @@ func WrapTxToTypedData(
 	return typedData, nil
 }
 
-func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, error) {
+func extractMsgTypes(msg sdk.Msg) (apitypes.Types, error) {
 	rootTypes := apitypes.Types{
 		"EIP712Domain": {
 			{
@@ -254,12 +236,10 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, e
 		},
 		"Msg": {
 			{Name: "type", Type: "string"},
-			{Name: "value", Type: "MsgValue"},
 		},
-		"MsgValue": {},
 	}
 
-	if err := walkFields(cdc, rootTypes, msg); err != nil {
+	if err := walkFields(rootTypes, msg); err != nil {
 		return nil, err
 	}
 
@@ -268,7 +248,7 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msg sdk.Msg) (apitypes.Types, e
 
 const typeDefPrefix = "_"
 
-func walkFields(cdc codectypes.AnyUnpacker, typeMap apitypes.Types, in interface{}) (err error) {
+func walkFields(typeMap apitypes.Types, in interface{}) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -286,33 +266,21 @@ func walkFields(cdc codectypes.AnyUnpacker, typeMap apitypes.Types, in interface
 		break
 	}
 
-	return traverseFields(cdc, typeMap, typeDefPrefix, t, v)
+	return traverseFields(typeMap, typeDefPrefix, t, v)
 }
 
-type cosmosAnyWrapper struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
+type anyWrapper struct {
+	Type  string `json:"type"`
+	Value []byte `json:"value"`
 }
 
 func traverseFields(
-	cdc codectypes.AnyUnpacker,
 	typeMap apitypes.Types,
 	prefix string,
 	t reflect.Type,
 	v reflect.Value,
 ) error {
 	n := t.NumField()
-
-	if prefix == typeDefPrefix {
-		if len(typeMap["MsgValue"]) == n {
-			return nil
-		}
-	} else {
-		typeDef := sanitizeTypedef(prefix)
-		if len(typeMap[typeDef]) == n {
-			return nil
-		}
-	}
 
 	for i := 0; i < n; i++ {
 		var field reflect.Value
@@ -322,144 +290,65 @@ func traverseFields(
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
+		isOmitEmpty := isOmitEmpty(t.Field(i).Tag)
 
 		if fieldName == "" {
 			// For protobuf one_of interface, there's no json tag.
-			// So we need to wrap it first.
+			// So we need to unwrap it first.
 			if isProtobufOneOf(t.Field(i).Tag) {
-				fieldName = t.Field(i).Name
-				anyWrapper := &cosmosAnyWrapper{
-					Type:  fmt.Sprint(reflect.TypeOf(field.Interface())),
-					Value: field.Interface(),
+				fieldType = reflect.TypeOf(field.Interface())
+				field = reflect.ValueOf(field.Interface())
+				if fieldType.Kind() == reflect.Ptr {
+					fieldType = fieldType.Elem()
+					if field.IsValid() {
+						field = field.Elem()
+					}
 				}
-				field = reflect.ValueOf(anyWrapper)
-				fieldType = reflect.TypeOf(anyWrapper)
+				field = field.Field(0)
+				fieldName = jsonNameFromTag(fieldType.Field(0).Tag)
+				fieldType = fieldType.Field(0).Type
 			} else {
 				panic("empty json tag")
 			}
 		}
 
-		// Unpack any type into the wrapper to keep align between the structs' json tag and field name
-		if fieldType == cosmosAnyType {
-			typeAny, ok := field.Interface().(*codectypes.Any)
-			if !ok {
-				return errors.Wrapf(sdkerrors.ErrPackAny, "%T", field.Interface())
-			}
-
-			anyWrapper := &cosmosAnyWrapper{
-				Type: typeAny.TypeUrl,
-			}
-
-			if err := cdc.UnpackAny(typeAny, &anyWrapper.Value); err != nil {
-				return errors.Wrap(err, "failed to unpack Any in msg struct")
-			}
-
-			fieldType = reflect.TypeOf(anyWrapper)
-			field = reflect.ValueOf(anyWrapper)
-		}
-
-		// If it's a nil pointer or empty string, do not include in types
-		if fieldType.Kind() == reflect.Ptr && field.IsNil() {
-			continue
-		}
-		if fieldType.Kind() == reflect.String && field.String() == "" {
-			continue
-		}
-
-		for {
-			if fieldType.Kind() == reflect.Ptr {
-				fieldType = fieldType.Elem()
-
-				if field.IsValid() {
-					field = field.Elem()
-				}
-
-				continue
-			}
-
-			if fieldType.Kind() == reflect.Interface {
-				fieldType = reflect.TypeOf(field.Interface())
-				continue
-			}
-
-			if field.Kind() == reflect.Ptr {
-				field = field.Elem()
-				continue
-			}
-
-			break
-		}
+		fieldType, field, fieldName = unwrapField(fieldType, field, fieldName)
 
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			if field.Len() == 0 {
-				// skip empty collections from type mapping
-				continue
-			}
-
-			fieldType = fieldType.Elem()
-			field = field.Index(0)
-
-			// Unpack any type into the wrapper to keep align between the structs' json tag and field name
-			if fieldType == cosmosAnyType {
-				typeAny, ok := field.Interface().(*codectypes.Any)
-				if !ok {
-					return errors.Wrapf(sdkerrors.ErrPackAny, "%T", field.Interface())
-				}
-
-				anyWrapper := &cosmosAnyWrapper{
-					Type: typeAny.TypeUrl,
-				}
-
-				if err := cdc.UnpackAny(typeAny, &anyWrapper.Value); err != nil {
-					return errors.Wrap(err, "failed to unpack Any in msg struct")
-				}
-
-				fieldType = reflect.TypeOf(anyWrapper.Value)
-				field = reflect.ValueOf(anyWrapper.Value)
-			}
-
 			isCollection = true
-		}
-
-		for {
-			if fieldType.Kind() == reflect.Ptr {
-				fieldType = fieldType.Elem()
-
-				if field.IsValid() {
-					field = field.Elem()
+			if field.Len() == 0 {
+				if !isOmitEmpty {
+					fieldType = reflect.TypeOf("str")
+				} else {
+					// skip empty collections from type mapping if is omitEmpty
+					continue
 				}
+			} else {
+				fieldType = fieldType.Elem()
+				field = field.Index(0)
 
-				continue
+				fieldType, field, fieldName = unwrapField(fieldType, field, fieldName)
 			}
-
-			if fieldType.Kind() == reflect.Interface {
-				fieldType = reflect.TypeOf(field.Interface())
-				continue
-			}
-
-			if field.Kind() == reflect.Ptr {
-				field = field.Elem()
-				continue
-			}
-
-			break
 		}
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 
 		ethTyp := typToEth(fieldType)
 		if len(ethTyp) > 0 {
-			// Support array of uint64
-			if isCollection && fieldType.Kind() != reflect.Slice && fieldType.Kind() != reflect.Array {
-				ethTyp += "[]"
-				if ethTyp == "uint8[]" {
-					ethTyp = "string"
+			if isCollection {
+				if fieldType.Kind() != reflect.Slice && fieldType.Kind() != reflect.Array {
+					ethTyp += "[]"
+					if ethTyp == "uint8[]" {
+						ethTyp = "bytes"
+					}
+				} else if ethTyp == "uint8[]" {
+					ethTyp = "bytes[]"
 				}
 			}
 
 			if prefix == typeDefPrefix {
-				typeMap["MsgValue"] = append(typeMap["MsgValue"], apitypes.Type{
+				typeMap["Msg"] = append(typeMap["Msg"], apitypes.Type{
 					Name: fieldName,
 					Type: ethTyp,
 				})
@@ -484,7 +373,7 @@ func traverseFields(
 			}
 
 			if prefix == typeDefPrefix {
-				typeMap["MsgValue"] = append(typeMap["MsgValue"], apitypes.Type{
+				typeMap["Msg"] = append(typeMap["Msg"], apitypes.Type{
 					Name: fieldName,
 					Type: fieldTypedef,
 				})
@@ -496,10 +385,9 @@ func traverseFields(
 				})
 			}
 
-			if err := traverseFields(cdc, typeMap, fieldPrefix, fieldType, field); err != nil {
+			if err := traverseFields(typeMap, fieldPrefix, fieldType, field); err != nil {
 				return err
 			}
-
 			continue
 		}
 	}
@@ -507,14 +395,168 @@ func traverseFields(
 	return nil
 }
 
+// jsonNameFromTag gets json name
 func jsonNameFromTag(tag reflect.StructTag) string {
 	jsonTags := tag.Get("json")
 	parts := strings.Split(jsonTags, ",")
 	return parts[0]
 }
 
+// isOmitEmpty returns if the struct has emitempty tag
+func isOmitEmpty(tag reflect.StructTag) bool {
+	jsonTags := tag.Get("json")
+	parts := strings.Split(jsonTags, ",")
+	for _, tag := range parts {
+		if tag == "omitempty" {
+			return true
+		}
+	}
+	return false
+}
+
+// isProtobufOneOf returns if the struct is protobuf_oneof type
 func isProtobufOneOf(tag reflect.StructTag) bool {
 	return tag.Get("protobuf_oneof") != ""
+}
+
+func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValue map[string]interface{}) {
+	// 1. the proto codec will set *types.Any's type struct name to be "@type". Need remove prefix "@"
+	if msgValue["@type"] != nil {
+		msgValue["type"] = msgValue["@type"]
+		delete(msgValue, "@type")
+	}
+
+	// 2. clean msg value.
+	for i, field := range typedData[primaryType] {
+		encName := field.Name
+		encType := field.Type
+		if strings.HasSuffix(encName, "Any") {
+			if encType[len(encType)-1:] == "]" {
+				anySet := msgValue[encName[:len(encName)-3]].([]interface{})
+				newAnySet := make([]interface{}, len(anySet))
+				for i, item := range anySet {
+					anyValue := item.(map[string]interface{})
+					newValue := make(map[string]interface{})
+					bz, _ := json.Marshal(anyValue)
+					newValue["type"] = anyValue["@type"]
+					newValue["value"] = bz
+					newAnySet[i] = newValue
+				}
+				msgValue[encName] = newAnySet
+			} else {
+				anyValue := msgValue[encName[:len(encName)-3]].(map[string]interface{})
+				newValue := make(map[string]interface{})
+				bz, _ := json.Marshal(anyValue)
+				newValue["type"] = anyValue["@type"]
+				newValue["value"] = bz
+				msgValue[encName] = newValue
+			}
+			typedData[encType] = anyApiTypes
+			delete(msgValue, encName[:len(encName)-3])
+			continue
+		}
+		encValue := msgValue[encName]
+		switch {
+		case encType[len(encType)-1:] == "]":
+			if typedData[encType[:len(encType)-2]] != nil {
+				for i := 0; i < len(msgValue[encName].([]interface{})); i++ {
+					cleanTypesAndMsgValue(typedData, encType[:len(encType)-2], msgValue[encName].([]interface{})[i].(map[string]interface{}))
+				}
+			} else if encType == "bytes[]" {
+				// convert string to type
+				byteList, ok := encValue.([]interface{})
+				if !ok {
+					continue
+				}
+				newBytesList := make([]interface{}, len(byteList))
+				for j, item := range byteList {
+					newBytesList[j] = []byte(item.(string))
+				}
+				msgValue[encName] = newBytesList
+			}
+		case typedData[encType] != nil:
+			subType, ok := msgValue[encName].(map[string]interface{})
+			if !ok {
+				// Delete nil struct
+				typedData[primaryType] = append(typedData[primaryType][:i], typedData[primaryType][i+1:]...)
+				delete(typedData, encType)
+				delete(msgValue, encName)
+			} else {
+				cleanTypesAndMsgValue(typedData, encType, subType)
+			}
+		case encValue == nil:
+			// For nil primitive value, fill in default value
+			switch encType {
+			case "bool":
+				msgValue[encName] = false
+			case "string":
+				msgValue[encName] = ""
+			default:
+				if strings.HasPrefix(encType, "uint") || strings.HasPrefix(encType, "int") {
+					msgValue[encName] = "0"
+				}
+			}
+		case encType == "bytes":
+			if reflect.TypeOf(encValue).Kind() == reflect.String {
+				msgValue[encName] = []byte(encValue.(string))
+			}
+		}
+	}
+
+	// Delete nil struct
+	for key := range msgValue {
+		var isExist bool
+		for _, field := range typedData[primaryType] {
+			if field.Name == key {
+				isExist = true
+			}
+		}
+		if !isExist {
+			delete(msgValue, key)
+		}
+	}
+}
+
+func unwrapField(fieldType reflect.Type, field reflect.Value, fieldName string) (reflect.Type, reflect.Value, string) {
+	// Unpack any type into the wrapper to keep align between the structs' json tag and field name
+	var anyValue *anyWrapper
+	if fieldType == cosmosAnyType {
+		typeAny, ok := field.Interface().(*codectypes.Any)
+		if !ok {
+			panic(sdkerrors.ErrPackAny)
+		}
+
+		anyValue = &anyWrapper{
+			Type:  typeAny.TypeUrl,
+			Value: typeAny.Value,
+		}
+
+		fieldType = reflect.TypeOf(anyValue)
+		field = reflect.ValueOf(anyValue)
+		fieldName += "Any"
+	}
+
+	for {
+		if fieldType.Kind() == reflect.Ptr {
+			fieldType = fieldType.Elem()
+
+			if field.IsValid() {
+				field = field.Elem()
+			}
+
+			continue
+		}
+
+		if fieldType.Kind() == reflect.Interface {
+			fieldType = reflect.TypeOf(field.Interface())
+			field = reflect.ValueOf(field.Interface())
+			continue
+		}
+
+		break
+	}
+
+	return fieldType, field, fieldName
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
@@ -542,15 +584,29 @@ func sanitizeTypedef(str string) string {
 }
 
 var (
-	hashType      = reflect.TypeOf(common.Hash{})
-	addressType   = reflect.TypeOf(common.Address{})
-	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
-	cosmDecType   = reflect.TypeOf(sdk.Dec{})
-	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
-	timeType      = reflect.TypeOf(time.Time{})
+	hashType         = reflect.TypeOf(common.Hash{})
+	addressType      = reflect.TypeOf(common.Address{})
+	bigIntType       = reflect.TypeOf(big.Int{})
+	cosmosIntType    = reflect.TypeOf(sdkmath.Int{})
+	cosmosDecType    = reflect.TypeOf(sdk.Dec{})
+	cosmosAnyType    = reflect.TypeOf(&codectypes.Any{})
+	timeType         = reflect.TypeOf(time.Time{})
+	timePtrType      = reflect.TypeOf(&time.Time{})
+	timeDurationType = reflect.TypeOf(time.Duration(1))
+	enumType         = reflect.TypeOf(stakingtypes.AuthorizationType(0))
+	edType           = reflect.TypeOf(ed25519.PubKey{})
+	secpType         = reflect.TypeOf(ethsecp256k1.PubKey{})
 
-	edType = reflect.TypeOf(ed25519.PubKey{})
+	anyApiTypes = []apitypes.Type{
+		{
+			Name: "type",
+			Type: "string",
+		},
+		{
+			Name: "value",
+			Type: "bytes",
+		},
+	}
 )
 
 // typToEth supports only basic types and arrays of basic types.
@@ -570,8 +626,14 @@ func typToEth(typ reflect.Type) string {
 	case reflect.Int16:
 		return "int16"
 	case reflect.Int32:
+		if typ.ConvertibleTo(enumType) {
+			return str
+		}
 		return "int32"
 	case reflect.Int64:
+		if typ.ConvertibleTo(timeDurationType) {
+			return str
+		}
 		return "int64"
 	case reflect.Uint:
 		return "uint64"
@@ -583,22 +645,18 @@ func typToEth(typ reflect.Type) string {
 		return "uint32"
 	case reflect.Uint64:
 		return "uint64"
-	case reflect.Slice:
-		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
-			return ethName + "[]"
-		}
-	case reflect.Array:
+	case reflect.Slice, reflect.Array:
 		ethName := typToEth(typ.Elem())
 		if len(ethName) > 0 {
 			return ethName + "[]"
 		}
 	case reflect.Ptr:
 		if typ.Elem().ConvertibleTo(bigIntType) ||
-			typ.Elem().ConvertibleTo(timeType) ||
+			typ.Elem().ConvertibleTo(timePtrType) ||
 			typ.Elem().ConvertibleTo(edType) ||
-			typ.Elem().ConvertibleTo(cosmDecType) ||
-			typ.Elem().ConvertibleTo(cosmIntType) {
+			typ.Elem().ConvertibleTo(secpType) ||
+			typ.Elem().ConvertibleTo(cosmosDecType) ||
+			typ.Elem().ConvertibleTo(cosmosIntType) {
 			return str
 		}
 	case reflect.Struct:
@@ -606,9 +664,10 @@ func typToEth(typ reflect.Type) string {
 			typ.ConvertibleTo(addressType) ||
 			typ.ConvertibleTo(bigIntType) ||
 			typ.ConvertibleTo(edType) ||
+			typ.ConvertibleTo(secpType) ||
 			typ.ConvertibleTo(timeType) ||
-			typ.ConvertibleTo(cosmDecType) ||
-			typ.ConvertibleTo(cosmIntType) {
+			typ.ConvertibleTo(cosmosDecType) ||
+			typ.ConvertibleTo(cosmosIntType) {
 			return str
 		}
 	}

@@ -16,7 +16,7 @@ import (
 )
 
 func TestTxBuilder(t *testing.T) {
-	_, pubkey, addr := testdata.KeyTestPubAddr()
+	_, pubkey, addr := testdata.KeyEthSecp256k1TestPubAddr()
 
 	marshaler := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 	txBuilder := newBuilder(nil)
@@ -125,8 +125,8 @@ func TestTxBuilder(t *testing.T) {
 
 func TestBuilderValidateBasic(t *testing.T) {
 	// keys and addresses
-	_, pubKey1, addr1 := testdata.KeyTestPubAddr()
-	_, pubKey2, addr2 := testdata.KeyTestPubAddr()
+	_, pubKey1, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, pubKey2, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg1 := testdata.NewTestMsg(addr1, addr2)
@@ -244,9 +244,9 @@ func TestBuilderValidateBasic(t *testing.T) {
 
 func TestBuilderFeePayer(t *testing.T) {
 	// keys and addresses
-	_, _, addr1 := testdata.KeyTestPubAddr()
-	_, _, addr2 := testdata.KeyTestPubAddr()
-	_, _, addr3 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr3 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg1 := testdata.NewTestMsg(addr1, addr2)
@@ -294,7 +294,7 @@ func TestBuilderFeePayer(t *testing.T) {
 
 func TestBuilderFeeGranter(t *testing.T) {
 	// keys and addresses
-	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg1 := testdata.NewTestMsg(addr1, addr2)

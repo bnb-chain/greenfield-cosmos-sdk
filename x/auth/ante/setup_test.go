@@ -13,7 +13,7 @@ func (suite *AnteTestSuite) TestSetup() {
 	suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)
@@ -48,7 +48,7 @@ func (suite *AnteTestSuite) TestRecoverPanic() {
 	suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
 
 	// msg and signatures
 	msg := testdata.NewTestMsg(addr1)

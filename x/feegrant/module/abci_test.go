@@ -14,7 +14,7 @@ import (
 )
 
 func TestFeegrantPruning(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrs(app, ctx, 4, sdk.NewInt(1000))

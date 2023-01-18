@@ -17,12 +17,12 @@ import (
 )
 
 func TestBeginBlocker(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	pks := simapp.CreateTestPubKeys(1)
 	simapp.AddTestAddrsFromPubKeys(app, ctx, pks, app.StakingKeeper.TokensFromConsensusPower(ctx, 200))
-	addr, pk := sdk.ValAddress(pks[0].Address()), pks[0]
+	addr, pk := sdk.AccAddress(pks[0].Address()), pks[0]
 	tstaking := teststaking.NewHelper(t, ctx, app.StakingKeeper)
 
 	// bond the validator

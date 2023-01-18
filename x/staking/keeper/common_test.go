@@ -22,7 +22,7 @@ func init() {
 // createTestInput Returns a simapp with custom StakingKeeper
 // to avoid messing with the hooks.
 func createTestInput(t *testing.T) (*codec.LegacyAmino, *simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	app.StakingKeeper = keeper.NewKeeper(
@@ -42,7 +42,7 @@ func ValEq(t *testing.T, exp, got types.Validator) (*testing.T, bool, string, ty
 }
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
-func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.ValAddress) {
+func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.AccAddress) {
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
 	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
 

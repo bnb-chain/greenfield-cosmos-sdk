@@ -15,15 +15,15 @@ import (
 
 const (
 	OwnerName  = "owner"
-	Owner      = "0xb0a6314dcea85ba419e270c2bbcada3a5bb01032"
+	Owner      = "0xBA2E913CBF8D547EF986EB548EB772A2A5367D53"
 	OwnerArmor = `-----BEGIN TENDERMINT PRIVATE KEY-----
-salt: C3586B75587D2824187D2CDA22B6AFB6
-type: secp256k1
 kdf: bcrypt
+salt: DC7D31FDFC7C160E398DE892CB4F31A0
+type: eth_secp256k1
 
-1+15OrCKgjnwym1zO3cjo/SGe3PPqAYChQ5wMHjdUbTZM7mWsH3/ueL6swgjzI3b
-DDzEQAPXBQflzNW6wbne9IfT651zCSm+j1MWaGk=
-=wEHs
+wdSa9ukIFcDx3L0f30DuFDAQAYs6TPE9SLukLWVPl9bhdzqRqdwSoROzXS8+WHfO
+JPubPn7jxv6nFbuGYyjhjCgHTW/FlQyGjQEtUCE=
+=njW8
 -----END TENDERMINT PRIVATE KEY-----`
 
 	testClassID          = "kitty"

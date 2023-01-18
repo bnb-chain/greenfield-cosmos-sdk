@@ -26,7 +26,7 @@ type SimTestSuite struct {
 
 func (suite *SimTestSuite) SetupTest() {
 	checkTx := false
-	app := simapp.Setup(suite.T(), checkTx)
+	app := simapp.Setup(suite.T(), checkTx, true)
 	suite.app = app
 	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{})
 }
@@ -53,7 +53,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightesOps {
-		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, simapp.DefaultChainId)
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
 		// will fail
@@ -76,7 +76,7 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 
 	// execute operation
 	op := simulation.SimulateMsgSend(suite.app.AccountKeeper, suite.app.BankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgSend
@@ -84,8 +84,8 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("65337742stake", msg.Amount.String())
-	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.FromAddress)
-	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.ToAddress)
+	suite.Require().Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.FromAddress)
+	suite.Require().Equal("0x6b11EA2aF9b83C6E0BBCe6254d776F82BB6b6C13", msg.ToAddress)
 	suite.Require().Equal(types.TypeMsgSend, msg.Type())
 	suite.Require().Equal(types.ModuleName, msg.Route())
 	suite.Require().Len(futureOperations, 0)
@@ -104,7 +104,7 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 
 	// execute operation
 	op := simulation.SimulateMsgMultiSend(suite.app.AccountKeeper, suite.app.BankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	require := suite.Require()
 	require.NoError(err)
 
@@ -113,10 +113,10 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 
 	require.True(operationMsg.OK)
 	require.Len(msg.Inputs, 3)
-	require.Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.Inputs[1].Address)
+	require.Equal("0x6b11EA2aF9b83C6E0BBCe6254d776F82BB6b6C13", msg.Inputs[1].Address)
 	require.Equal("185121068stake", msg.Inputs[1].Coins.String())
 	require.Len(msg.Outputs, 2)
-	require.Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Outputs[1].Address)
+	require.Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Outputs[1].Address)
 	require.Equal("260469617stake", msg.Outputs[1].Coins.String())
 	require.Equal(types.TypeMsgMultiSend, msg.Type())
 	require.Equal(types.ModuleName, msg.Route())
@@ -142,7 +142,7 @@ func (suite *SimTestSuite) TestSimulateModuleAccountMsgSend() {
 	s = rand.NewSource(1)
 	r = rand.New(s)
 
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().Error(err)
 
 	var msg types.MsgSend
@@ -171,7 +171,7 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSendToModuleAccount() {
 	// execute operation
 	op := simulation.SimulateMsgMultiSendToModuleAccount(suite.app.AccountKeeper, suite.app.BankKeeper, mAccCount)
 
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().Error(err)
 
 	var msg types.MsgMultiSend

@@ -87,7 +87,7 @@ $ %s query distribution validator-outstanding-rewards 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			validatorAddr, err := sdk.ValAddressFromHex(args[0])
+			validatorAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -132,7 +132,7 @@ $ %s query distribution commission 0x91D7d..
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			validatorAddr, err := sdk.ValAddressFromHex(args[0])
+			validatorAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

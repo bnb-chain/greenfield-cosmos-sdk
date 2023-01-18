@@ -27,7 +27,7 @@ type SimTestSuite struct {
 
 func (suite *SimTestSuite) SetupTest() {
 	checkTx := false
-	app := simapp.Setup(suite.T(), checkTx)
+	app := simapp.Setup(suite.T(), checkTx, true)
 	suite.app = app
 	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{})
 }
@@ -55,7 +55,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 
 	require := suite.Require()
 	for i, w := range weightedOps {
-		op, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		op, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, simapp.DefaultChainId)
 		require.NoError(err)
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
@@ -105,7 +105,7 @@ func (suite *SimTestSuite) TestSimulateGrant() {
 
 	// execute operation
 	op := simulation.SimulateMsgGrant(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.AuthzKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgGrant
@@ -143,7 +143,7 @@ func (suite *SimTestSuite) TestSimulateRevoke() {
 
 	// execute operation
 	op := simulation.SimulateMsgRevoke(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.AuthzKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgRevoke
@@ -178,7 +178,7 @@ func (suite *SimTestSuite) TestSimulateExec() {
 
 	// execute operation
 	op := simulation.SimulateMsgExec(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.AuthzKeeper, suite.app.AppCodec())
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgExec

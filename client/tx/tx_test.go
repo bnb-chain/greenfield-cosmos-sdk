@@ -10,6 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -18,6 +19,7 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
@@ -155,6 +157,8 @@ func TestSign(t *testing.T) {
 	requireT := require.New(t)
 	path := hd.CreateHDPath(118, 0, 0).String()
 	encCfg := simapp.MakeTestEncodingConfig()
+	protoCodec := codec.NewProtoCodec(encCfg.InterfaceRegistry)
+	encCfg.TxConfig = authtx.NewTxConfig(protoCodec, authtx.DefaultSignModes)
 	kb, err := keyring.New(t.Name(), "test", t.TempDir(), nil, encCfg.Codec)
 	requireT.NoError(err)
 
@@ -179,7 +183,7 @@ func TestSign(t *testing.T) {
 	t.Log("Pub keys:", pubKey1, pubKey2)
 
 	txfNoKeybase := tx.Factory{}.
-		WithTxConfig(NewTestTxConfig()).
+		WithTxConfig(encCfg.TxConfig).
 		WithAccountNumber(50).
 		WithSequence(23).
 		WithFees("50stake").

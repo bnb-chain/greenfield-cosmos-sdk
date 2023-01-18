@@ -86,7 +86,7 @@ func SetAppConfig(config serverconfig.Config) func(*BaseApp) {
 	return func(app *BaseApp) { app.setAppConfig(config) }
 }
 
-// SetAppConfig sets the chain id.
+// SetChainID sets the chain id.
 func SetChainID(chainID string) func(*BaseApp) {
 	return func(app *BaseApp) { app.setChainID(chainID) }
 }

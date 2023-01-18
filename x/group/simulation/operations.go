@@ -753,12 +753,12 @@ func SimulateMsgUpdateGroupPolicyDecisionPolicy(ak group.AccountKeeper,
 			return simtypes.NoOpMsg(group.ModuleName, TypeMsgUpdateGroupPolicyDecisionPolicy, "fee error"), nil, err
 		}
 
-		groupPolicyBech32, err := sdk.AccAddressFromHexUnsafe(groupPolicyAddr)
+		groupPolicyAcc, err := sdk.AccAddressFromHexUnsafe(groupPolicyAddr)
 		if err != nil {
-			return simtypes.NoOpMsg(group.ModuleName, TypeMsgUpdateGroupPolicyDecisionPolicy, fmt.Sprintf("fail to decide bech32 address: %s", err.Error())), nil, nil
+			return simtypes.NoOpMsg(group.ModuleName, TypeMsgUpdateGroupPolicyDecisionPolicy, fmt.Sprintf("fail to decide hex address: %s", err.Error())), nil, nil
 		}
 
-		msg, err := group.NewMsgUpdateGroupPolicyDecisionPolicy(acc.Address, groupPolicyBech32, &group.ThresholdDecisionPolicy{
+		msg, err := group.NewMsgUpdateGroupPolicyDecisionPolicy(acc.Address, groupPolicyAcc, &group.ThresholdDecisionPolicy{
 			Threshold: fmt.Sprintf("%d", simtypes.RandIntBetween(r, 1, 10)),
 			Windows: &group.DecisionPolicyWindows{
 				VotingPeriod: time.Second * time.Duration(simtypes.RandIntBetween(r, 100, 1000)),

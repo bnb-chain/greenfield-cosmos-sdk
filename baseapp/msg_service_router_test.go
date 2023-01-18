@@ -12,10 +12,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
 func TestRegisterMsgService(t *testing.T) {
@@ -70,6 +72,8 @@ func TestRegisterMsgServiceTwice(t *testing.T) {
 func TestMsgService(t *testing.T) {
 	priv, _, _ := testdata.KeyTestPubAddr()
 	encCfg := simapp.MakeTestEncodingConfig()
+	protoCodec := codec.NewProtoCodec(encCfg.InterfaceRegistry)
+	encCfg.TxConfig = authtx.NewTxConfig(protoCodec, authtx.DefaultSignModes)
 	testdata.RegisterInterfaces(encCfg.InterfaceRegistry)
 	db := dbm.NewMemDB()
 	app := baseapp.NewBaseApp("test", log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, encCfg.TxConfig.TxDecoder())

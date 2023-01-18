@@ -60,7 +60,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	allowedAddrsMap := make(map[string]bool)
 
 	for _, addr := range jailAllowedAddrs {
-		_, err := sdk.ValAddressFromHex(addr)
+		_, err := sdk.AccAddressFromHexUnsafe(addr)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -81,7 +81,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	// withdraw all delegator rewards
 	dels := app.StakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		valAddr, err := sdk.ValAddressFromHex(delegation.ValidatorAddress)
+		valAddr, err := sdk.AccAddressFromHexUnsafe(delegation.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -117,7 +117,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		valAddr, err := sdk.ValAddressFromHex(del.ValidatorAddress)
+		valAddr, err := sdk.AccAddressFromHexUnsafe(del.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -164,7 +164,7 @@ func (app *SimApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []
 	counter := int16(0)
 
 	for ; iter.Valid(); iter.Next() {
-		addr := sdk.ValAddress(stakingtypes.AddressFromValidatorsKey(iter.Key()))
+		addr := sdk.AccAddress(stakingtypes.AddressFromValidatorsKey(iter.Key()))
 		validator, found := app.StakingKeeper.GetValidator(ctx, addr)
 		if !found {
 			panic("expected validator, not found")

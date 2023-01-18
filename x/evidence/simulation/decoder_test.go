@@ -16,7 +16,7 @@ import (
 )
 
 func TestDecodeStore(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	dec := simulation.NewDecodeStore(app.EvidenceKeeper)
 
 	delPk1 := ed25519.GenPrivKey().PubKey()

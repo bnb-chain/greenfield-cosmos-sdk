@@ -47,7 +47,7 @@ func (h *MockGovHooksReceiver) AfterProposalVotingPeriodEnded(ctx sdk.Context, p
 }
 
 func TestHooks(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	minDeposit := app.GovKeeper.GetDepositParams(ctx).MinDeposit

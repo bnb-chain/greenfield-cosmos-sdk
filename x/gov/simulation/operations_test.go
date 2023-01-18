@@ -57,7 +57,7 @@ func mockWeightedProposalContent(n int) []simtypes.WeightedProposalContent {
 // TestWeightedOperations tests the weights of the operations.
 func TestWeightedOperations(t *testing.T) {
 	app, ctx := createTestApp(t, false)
-	ctx.WithChainID("test-chain")
+	ctx = ctx.WithChainID(simapp.DefaultChainId)
 
 	cdc := app.AppCodec()
 	appParams := make(simtypes.AppParams)
@@ -110,7 +110,7 @@ func TestSimulateMsgSubmitProposal(t *testing.T) {
 
 	// execute operation
 	op := simulation.SimulateMsgSubmitProposal(app.AccountKeeper, app.BankKeeper, app.GovKeeper, MockWeightedProposalContent{3}.ContentSimulatorFn())
-	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(t, err)
 
 	var msg v1.MsgSubmitProposal
@@ -118,7 +118,7 @@ func TestSimulateMsgSubmitProposal(t *testing.T) {
 	require.NoError(t, err)
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.Proposer)
+	require.Equal(t, "0x6b11EA2aF9b83C6E0BBCe6254d776F82BB6b6C13", msg.Proposer)
 	require.NotEqual(t, len(msg.InitialDeposit), 0)
 	require.Equal(t, "2686011stake", msg.InitialDeposit[0].String())
 	require.Equal(t, "title-3: ZBSpYuLyYggwexjxusrBqDOTtGTOWeLrQKjLxzIivHSlcxgdXhhuTSkuxKGLwQvuyNhYFmBZHeAerqyNEUzXPFGkqEGqiQWIXnku", msg.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle())
@@ -132,7 +132,7 @@ func TestSimulateMsgSubmitProposal(t *testing.T) {
 func TestSimulateMsgDeposit(t *testing.T) {
 	app, ctx := createTestApp(t, false)
 	blockTime := time.Now().UTC()
-	ctx = ctx.WithBlockTime(blockTime)
+	ctx = ctx.WithBlockTime(blockTime).WithChainID(simapp.DefaultChainId)
 
 	// setup 3 accounts
 	s := rand.NewSource(1)
@@ -157,7 +157,7 @@ func TestSimulateMsgDeposit(t *testing.T) {
 
 	// execute operation
 	op := simulation.SimulateMsgDeposit(app.AccountKeeper, app.BankKeeper, app.GovKeeper)
-	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(t, err)
 
 	var msg v1.MsgDeposit
@@ -166,7 +166,7 @@ func TestSimulateMsgDeposit(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, uint64(1), msg.ProposalId)
-	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Depositor)
+	require.Equal(t, "0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Depositor)
 	require.NotEqual(t, len(msg.Amount), 0)
 	require.Equal(t, "560969stake", msg.Amount[0].String())
 	require.Equal(t, "gov", msg.Route())
@@ -178,7 +178,7 @@ func TestSimulateMsgDeposit(t *testing.T) {
 func TestSimulateMsgVote(t *testing.T) {
 	app, ctx := createTestApp(t, false)
 	blockTime := time.Now().UTC()
-	ctx = ctx.WithBlockTime(blockTime)
+	ctx = ctx.WithBlockTime(blockTime).WithChainID(simapp.DefaultChainId)
 
 	// setup 3 accounts
 	s := rand.NewSource(1)
@@ -203,7 +203,7 @@ func TestSimulateMsgVote(t *testing.T) {
 
 	// execute operation
 	op := simulation.SimulateMsgVote(app.AccountKeeper, app.BankKeeper, app.GovKeeper)
-	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(t, err)
 
 	var msg v1.MsgVote
@@ -211,7 +211,7 @@ func TestSimulateMsgVote(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, uint64(1), msg.ProposalId)
-	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Voter)
+	require.Equal(t, "0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Voter)
 	require.Equal(t, v1.OptionYes, msg.Option)
 	require.Equal(t, "gov", msg.Route())
 	require.Equal(t, simulation.TypeMsgVote, msg.Type())
@@ -222,7 +222,7 @@ func TestSimulateMsgVote(t *testing.T) {
 func TestSimulateMsgVoteWeighted(t *testing.T) {
 	app, ctx := createTestApp(t, false)
 	blockTime := time.Now().UTC()
-	ctx = ctx.WithBlockTime(blockTime)
+	ctx = ctx.WithBlockTime(blockTime).WithChainID(simapp.DefaultChainId)
 
 	// setup 3 accounts
 	s := rand.NewSource(1)
@@ -246,7 +246,7 @@ func TestSimulateMsgVoteWeighted(t *testing.T) {
 
 	// execute operation
 	op := simulation.SimulateMsgVoteWeighted(app.AccountKeeper, app.BankKeeper, app.GovKeeper)
-	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, _, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(t, err)
 
 	var msg v1.MsgVoteWeighted
@@ -254,7 +254,7 @@ func TestSimulateMsgVoteWeighted(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, uint64(1), msg.ProposalId)
-	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Voter)
+	require.Equal(t, "0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Voter)
 	require.True(t, len(msg.Options) >= 1)
 	require.Equal(t, "gov", msg.Route())
 	require.Equal(t, simulation.TypeMsgVoteWeighted, msg.Type())
@@ -262,7 +262,7 @@ func TestSimulateMsgVoteWeighted(t *testing.T) {
 
 // returns context and an app with updated mint keeper
 func createTestApp(t *testing.T, isCheckTx bool) (*simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(t, isCheckTx)
+	app := simapp.Setup(t, isCheckTx, true)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	app.MintKeeper.SetParams(ctx, minttypes.DefaultParams())

@@ -23,7 +23,7 @@ type IntegrationTestSuite struct {
 }
 
 func (suite *IntegrationTestSuite) SetupTest() {
-	app := simapp.Setup(suite.T(), false)
+	app := simapp.Setup(suite.T(), false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())

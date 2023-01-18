@@ -16,8 +16,8 @@ import (
 )
 
 func TestDirectAuxHandler(t *testing.T) {
-	privKey, pubkey, addr := testdata.KeyTestPubAddr()
-	_, feePayerPubKey, feePayerAddr := testdata.KeyTestPubAddr()
+	privKey, pubkey, addr := testdata.KeyEthSecp256k1TestPubAddr()
+	_, feePayerPubKey, feePayerAddr := testdata.KeyEthSecp256k1TestPubAddr()
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &testdata.TestMsg{})
 	marshaler := codec.NewProtoCodec(interfaceRegistry)

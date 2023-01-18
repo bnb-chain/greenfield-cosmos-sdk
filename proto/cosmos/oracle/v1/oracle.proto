@@ -1,0 +1,11 @@
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+// Params holds parameters for the oracle module.
+message Params {
+  uint64 relayer_timeout = 1; // in s
+  uint64 relayer_backoff_time = 2; // in s
+  uint32 relayer_reward_share = 3; // in percentage
+}

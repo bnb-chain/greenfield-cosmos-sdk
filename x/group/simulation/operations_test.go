@@ -27,7 +27,7 @@ type SimTestSuite struct {
 
 func (suite *SimTestSuite) SetupTest() {
 	checkTx := false
-	app := simapp.Setup(suite.T(), checkTx)
+	app := simapp.Setup(suite.T(), checkTx, true)
 	suite.app = app
 	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{})
 }
@@ -67,7 +67,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightedOps {
-		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, _ := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, simapp.DefaultChainId)
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
 		// will fail
@@ -111,7 +111,7 @@ func (suite *SimTestSuite) TestSimulateCreateGroup() {
 
 	// execute operation
 	op := simulation.SimulateMsgCreateGroup(suite.app.AccountKeeper, suite.app.BankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgCreateGroup
@@ -140,7 +140,7 @@ func (suite *SimTestSuite) TestSimulateCreateGroupWithPolicy() {
 
 	// execute operation
 	op := simulation.SimulateMsgCreateGroupWithPolicy(suite.app.AccountKeeper, suite.app.BankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgCreateGroupWithPolicy
@@ -182,7 +182,7 @@ func (suite *SimTestSuite) TestSimulateCreateGroupPolicy() {
 
 	// execute operation
 	op := simulation.SimulateMsgCreateGroupPolicy(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgCreateGroupPolicy
@@ -235,7 +235,7 @@ func (suite *SimTestSuite) TestSimulateSubmitProposal() {
 
 	// execute operation
 	op := simulation.SimulateMsgSubmitProposal(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgSubmitProposal
@@ -301,7 +301,7 @@ func (suite *SimTestSuite) TestWithdrawProposal() {
 
 	// execute operation
 	op := simulation.SimulateMsgWithdrawProposal(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgWithdrawProposal
@@ -368,7 +368,7 @@ func (suite *SimTestSuite) TestSimulateVote() {
 
 	// execute operation
 	op := simulation.SimulateMsgVote(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgVote
@@ -443,7 +443,7 @@ func (suite *SimTestSuite) TestSimulateExec() {
 
 	// execute operation
 	op := simulation.SimulateMsgExec(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgExec
@@ -485,7 +485,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupAdmin() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupAdmin(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupAdmin
@@ -527,7 +527,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupMetadata() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupMetadata(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupMetadata
@@ -569,7 +569,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupMembers() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupMembers(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupMembers
@@ -622,7 +622,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupPolicyAdmin() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupPolicyAdmin(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupPolicyAdmin
@@ -675,7 +675,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupPolicyDecisionPolicy() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupPolicyDecisionPolicy(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupPolicyDecisionPolicy
@@ -728,7 +728,7 @@ func (suite *SimTestSuite) TestSimulateUpdateGroupPolicyMetadata() {
 
 	// execute operation
 	op := simulation.SimulateMsgUpdateGroupPolicyMetadata(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GroupKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgUpdateGroupPolicyMetadata
@@ -794,7 +794,7 @@ func (suite *SimTestSuite) TestSimulateLeaveGroup() {
 
 	// execute operation
 	op := simulation.SimulateMsgLeaveGroup(suite.app.GroupKeeper, suite.app.AccountKeeper, suite.app.BankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, simapp.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg group.MsgLeaveGroup

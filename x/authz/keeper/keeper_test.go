@@ -33,7 +33,7 @@ type TestSuite struct {
 }
 
 func (s *TestSuite) SetupTest() {
-	app := simapp.Setup(s.T(), false)
+	app := simapp.Setup(s.T(), false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	now := tmtime.Now()
 	ctx = ctx.WithBlockHeader(tmproto.Header{Time: now})

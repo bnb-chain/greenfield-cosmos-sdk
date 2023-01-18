@@ -31,7 +31,7 @@ type VestingAccountTestSuite struct {
 
 func (s *VestingAccountTestSuite) SetupTest() {
 	checkTx := false
-	s.app = simapp.Setup(s.T(), checkTx)
+	s.app = simapp.Setup(s.T(), checkTx, true)
 
 	s.ctx = s.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1})
 }
@@ -831,7 +831,7 @@ func (s *VestingAccountTestSuite) TestPermanentLockedAccountMarshal() {
 }
 
 func initBaseAccount() (*authtypes.BaseAccount, sdk.Coins) {
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	origCoins := sdk.Coins{sdk.NewInt64Coin(feeDenom, 1000), sdk.NewInt64Coin(stakeDenom, 100)}
 	bacc := authtypes.NewBaseAccountWithAddress(addr)
 

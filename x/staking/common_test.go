@@ -9,11 +9,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 func init() {
@@ -22,10 +22,10 @@ func init() {
 
 // nolint:deadcode,unused,varcheck
 var (
-	priv1 = secp256k1.GenPrivKey()
-	addr1 = sdk.AccAddress(priv1.PubKey().Address())
-	priv2 = secp256k1.GenPrivKey()
-	addr2 = sdk.AccAddress(priv2.PubKey().Address())
+	priv1, _ = ethsecp256k1.GenerateKey()
+	addr1    = sdk.AccAddress(priv1.PubKey().Address())
+	priv2, _ = ethsecp256k1.GenerateKey()
+	addr2    = sdk.AccAddress(priv2.PubKey().Address())
 
 	valKey  = ed25519.GenPrivKey()
 	valAddr = sdk.AccAddress(valKey.PubKey().Address())
@@ -38,7 +38,7 @@ var (
 // getBaseSimappWithCustomKeeper Returns a simapp with custom StakingKeeper
 // to avoid messing with the hooks.
 func getBaseSimappWithCustomKeeper(t *testing.T) (*codec.LegacyAmino, *simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	appCodec := app.AppCodec()
@@ -57,7 +57,7 @@ func getBaseSimappWithCustomKeeper(t *testing.T) (*codec.LegacyAmino, *simapp.Si
 }
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
-func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int, accAmount math.Int) ([]sdk.AccAddress, []sdk.ValAddress) {
+func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int, accAmount math.Int) ([]sdk.AccAddress, []sdk.AccAddress) {
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, accAmount)
 	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
 

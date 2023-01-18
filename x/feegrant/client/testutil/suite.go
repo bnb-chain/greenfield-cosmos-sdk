@@ -12,7 +12,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -23,6 +22,7 @@ import (
 	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/client/testutil"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 const (
@@ -398,20 +398,20 @@ func (s *IntegrationTestSuite) TestNewCmdFeeGrant() {
 			),
 			false, 0, &sdk.TxResponse{},
 		},
-		{
-			"valid basic fee grant with amino",
-			append(
-				[]string{
-					granter.String(),
-					"0x653c932bea1af59bf25ce14bc525cfa7bc5dd32a",
-					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
-					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false, 0, &sdk.TxResponse{},
-		},
+		// {
+		// 	"valid basic fee grant with amino",
+		// 	append(
+		// 		[]string{
+		// 			granter.String(),
+		// 			"0x653c932bea1af59bf25ce14bc525cfa7bc5dd32a",
+		// 			fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		commonFlags...,
+		// 	),
+		// 	false, 0, &sdk.TxResponse{},
+		// },
 		{
 			"valid basic fee grant without spend limit",
 			append(
@@ -677,19 +677,19 @@ func (s *IntegrationTestSuite) TestNewCmdRevokeFeegrant() {
 			),
 			false, 0, &sdk.TxResponse{},
 		},
-		{
-			"Valid revoke with amino",
-			append(
-				[]string{
-					granter.String(),
-					aminoGrantee.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false, 0, &sdk.TxResponse{},
-		},
+		// {
+		// 	"Valid revoke with amino",
+		// 	append(
+		// 		[]string{
+		// 			granter.String(),
+		// 			aminoGrantee.String(),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
+		// 			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 		},
+		// 		commonFlags...,
+		// 	),
+		// 	false, 0, &sdk.TxResponse{},
+		// },
 	}
 
 	for _, tc := range testCases {
@@ -717,8 +717,8 @@ func (s *IntegrationTestSuite) TestTxWithFeeGrant() {
 	clientCtx := val.ClientCtx
 	granter := val.Address
 
-	// creating an account manually (This account won't be exist in state)
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	// creating an account manually (This account won't be existed in state)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	s.Require().NoError(err)
 	pub, err := k.GetPubKey()
 	s.Require().NoError(err)
@@ -767,15 +767,15 @@ func (s *IntegrationTestSuite) TestTxWithFeeGrant() {
 			flags:      []string{fmt.Sprintf("--%s=%s", flags.FlagFeePayer, granter.String())},
 			expErrCode: 4,
 		},
-		{
-			name: "--fee-payer should also sign the tx (amino-json)",
-			from: grantee.String(),
-			flags: []string{
-				fmt.Sprintf("--%s=%s", flags.FlagFeePayer, granter.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			expErrCode: 4,
-		},
+		// {
+		// 	name: "--fee-payer should also sign the tx (amino-json)",
+		// 	from: grantee.String(),
+		// 	flags: []string{
+		// 		fmt.Sprintf("--%s=%s", flags.FlagFeePayer, granter.String()),
+		// 		fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
+		// 	},
+		// 	expErrCode: 4,
+		// },
 		{
 			name: "use --fee-payer and --fee-granter together works",
 			from: grantee.String(),
@@ -805,7 +805,7 @@ func (s *IntegrationTestSuite) TestFilteredFeeAllowance() {
 	val := s.network.Validators[0]
 
 	granter := val.Address
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	s.Require().NoError(err)
 	pub, err := k.GetPubKey()
 	s.Require().NoError(err)

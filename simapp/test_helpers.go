@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp/helpers"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
@@ -56,6 +57,8 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
+const DefaultChainId = "inscription_9000-1"
+
 // SetupOptions defines arguments that are passed into `Simapp` constructor.
 type SetupOptions struct {
 	Logger         log.Logger
@@ -66,10 +69,15 @@ type SetupOptions struct {
 	AppOpts        types.AppOptions
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint, enableDefaultUpgrade bool) (*SimApp, GenesisState) {
+	appCfg := srvconfig.DefaultConfig()
+	if enableDefaultUpgrade {
+		appCfg.Upgrade = InitUpgradeConfig()
+	}
+
 	db := dbm.NewMemDB()
 	encCdc := MakeTestEncodingConfig()
-	app := NewSimApp(log.NewNopLogger(), db, nil, true, DefaultNodeHome, invCheckPeriod, encCdc, EmptyAppOptions{})
+	app := NewSimApp(log.NewNopLogger(), db, nil, true, DefaultNodeHome, invCheckPeriod, encCdc, EmptyAppOptions{}, bam.SetAppConfig(*appCfg))
 	if withGenesis {
 		return app, NewDefaultGenesisState(encCdc.Codec)
 	}
@@ -118,7 +126,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 }
 
 // Setup initializes a new SimApp. A Nop logger is set in SimApp.
-func Setup(t *testing.T, isCheckTx bool) *SimApp {
+func Setup(t *testing.T, isCheckTx bool, enableDefaultUpgrade bool) *SimApp {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -137,7 +145,7 @@ func Setup(t *testing.T, isCheckTx bool) *SimApp {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
 
-	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, enableDefaultUpgrade, balance)
 
 	return app
 }
@@ -162,7 +170,8 @@ func genesisStateWithValSet(t *testing.T,
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
 		validator := stakingtypes.Validator{
-			OperatorAddress:   sdk.ValAddress(val.Address).String(),
+			OperatorAddress:   sdk.AccAddress(val.Address).String(),
+			RelayerAddress:    sdk.AccAddress(val.Address).String(),
 			ConsensusPubkey:   pkAny,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
@@ -210,10 +219,10 @@ func genesisStateWithValSet(t *testing.T,
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *SimApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, enableDefaultUpgrade bool, balances ...banktypes.Balance) *SimApp {
 	t.Helper()
 
-	app, genesisState := setup(true, 5)
+	app, genesisState := setup(true, 5, enableDefaultUpgrade)
 	genesisState = genesisStateWithValSet(t, app, genesisState, valSet, genAccs, balances...)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -222,6 +231,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -231,6 +241,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            DefaultChainId,
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
@@ -253,7 +264,7 @@ func SetupWithGenesisAccounts(t *testing.T, genAccs []authtypes.GenesisAccount, 
 	validator := tmtypes.NewValidator(pubKey, 1)
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 
-	return SetupWithGenesisValSet(t, valSet, genAccs, balances...)
+	return SetupWithGenesisValSet(t, valSet, genAccs, true, balances...)
 }
 
 // GenesisStateWithSingleValidator initializes GenesisState with a single validator and genesis accounts
@@ -366,12 +377,9 @@ func initAccountWithCoins(app *SimApp, ctx sdk.Context, addr sdk.AccAddress, coi
 }
 
 // ConvertAddrsToValAddrs converts the provided addresses to ValAddress.
-func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
-	valAddrs := make([]sdk.ValAddress, len(addrs))
-
-	for i, addr := range addrs {
-		valAddrs[i] = sdk.ValAddress(addr)
-	}
+func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.AccAddress {
+	valAddrs := make([]sdk.AccAddress, len(addrs))
+	copy(valAddrs, addrs)
 
 	return valAddrs
 }

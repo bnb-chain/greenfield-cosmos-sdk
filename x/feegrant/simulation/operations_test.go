@@ -27,7 +27,7 @@ type SimTestSuite struct {
 
 func (suite *SimTestSuite) SetupTest() {
 	checkTx := false
-	app := simapp.Setup(suite.T(), checkTx)
+	app := simapp.Setup(suite.T(), checkTx, true)
 	suite.app = app
 	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Time: time.Now(),
@@ -53,7 +53,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	app, ctx := suite.app, suite.ctx
 	require := suite.Require()
 
-	ctx.WithChainID("test-chain")
+	ctx = ctx.WithChainID(simapp.DefaultChainId)
 
 	cdc := app.AppCodec()
 	appParams := make(simtypes.AppParams)
@@ -99,6 +99,8 @@ func (suite *SimTestSuite) TestSimulateMsgGrantAllowance() {
 	app, ctx := suite.app, suite.ctx
 	require := suite.Require()
 
+	ctx = ctx.WithChainID(simapp.DefaultChainId)
+
 	s := rand.NewSource(1)
 	r := rand.New(s)
 	accounts := suite.getTestingAccounts(r, 3)
@@ -108,7 +110,7 @@ func (suite *SimTestSuite) TestSimulateMsgGrantAllowance() {
 
 	// execute operation
 	op := simulation.SimulateMsgGrantAllowance(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper)
-	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(err)
 
 	var msg feegrant.MsgGrantAllowance
@@ -123,6 +125,8 @@ func (suite *SimTestSuite) TestSimulateMsgGrantAllowance() {
 func (suite *SimTestSuite) TestSimulateMsgRevokeAllowance() {
 	app, ctx := suite.app, suite.ctx
 	require := suite.Require()
+
+	ctx = ctx.WithChainID(simapp.DefaultChainId)
 
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -150,7 +154,7 @@ func (suite *SimTestSuite) TestSimulateMsgRevokeAllowance() {
 
 	// execute operation
 	op := simulation.SimulateMsgRevokeAllowance(app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper)
-	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, simapp.DefaultChainId)
 	require.NoError(err)
 
 	var msg feegrant.MsgRevokeAllowance

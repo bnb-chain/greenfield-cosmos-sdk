@@ -17,7 +17,7 @@ import (
 func (suite *IntegrationTestSuite) TestQuerier_QueryBalance() {
 	app, ctx := suite.app, suite.ctx
 	legacyAmino := app.LegacyAmino()
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	req := abci.RequestQuery{
 		Path: fmt.Sprintf("custom/%s/%s", types.ModuleName, types.QueryBalance),
 		Data: []byte{},
@@ -54,7 +54,7 @@ func (suite *IntegrationTestSuite) TestQuerier_QueryBalance() {
 func (suite *IntegrationTestSuite) TestQuerier_QueryAllBalances() {
 	app, ctx := suite.app, suite.ctx
 	legacyAmino := app.LegacyAmino()
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	req := abci.RequestQuery{
 		Path: fmt.Sprintf("custom/%s/%s", types.ModuleName, types.QueryAllBalances),
 		Data: []byte{},

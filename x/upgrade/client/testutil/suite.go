@@ -29,7 +29,7 @@ type IntegrationTestSuite struct {
 
 func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up integration test suite")
-	app := simapp.Setup(s.T(), false)
+	app := simapp.Setup(s.T(), false, true)
 	s.app = app
 	s.ctx = app.BaseApp.NewContext(false, tmproto.Header{})
 

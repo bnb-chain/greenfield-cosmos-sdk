@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func checkValidator(t *testing.T, app *simapp.SimApp, addr sdk.ValAddress, expFound bool) types.Validator {
+func checkValidator(t *testing.T, app *simapp.SimApp, addr sdk.AccAddress, expFound bool) types.Validator {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 	validator, found := app.StakingKeeper.GetValidator(ctxCheck, addr)
 
@@ -27,7 +27,7 @@ func checkValidator(t *testing.T, app *simapp.SimApp, addr sdk.ValAddress, expFo
 
 func checkDelegation(
 	t *testing.T, app *simapp.SimApp, delegatorAddr sdk.AccAddress,
-	validatorAddr sdk.ValAddress, expFound bool, expShares sdk.Dec,
+	validatorAddr sdk.AccAddress, expFound bool, expShares sdk.Dec,
 ) {
 	ctxCheck := app.BaseApp.NewContext(true, tmproto.Header{})
 	delegation, found := app.StakingKeeper.GetDelegation(ctxCheck, delegatorAddr, validatorAddr)
@@ -70,62 +70,62 @@ func TestStakingMsgs(t *testing.T) {
 	blsSecretKey, _ := bls.RandKey()
 	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(),
+		addr1, valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
 		addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 
-	header := tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simapp.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
 	simapp.CheckBalance(t, app, addr1, sdk.Coins{genCoin.Sub(bondCoin)})
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	validator := checkValidator(t, app, sdk.ValAddress(addr1), true)
-	require.Equal(t, sdk.ValAddress(addr1).String(), validator.OperatorAddress)
+	validator := checkValidator(t, app, addr1, true)
+	require.Equal(t, addr1.String(), validator.OperatorAddress)
 	require.Equal(t, types.Bonded, validator.Status)
 	require.True(sdk.IntEq(t, bondTokens, validator.BondedTokens()))
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	// edit the validator
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
-		sdk.ValAddress(addr1), description, nil, nil,
+		addr1, description, nil, nil,
 		sdk.AccAddress(""), "",
 	)
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, simapp.DefaultChainId, []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
 	require.NoError(t, err)
 
-	validator = checkValidator(t, app, sdk.ValAddress(addr1), true)
+	validator = checkValidator(t, app, addr1, true)
 	require.Equal(t, description, validator.Description)
 
 	// delegate
 	simapp.CheckBalance(t, app, addr2, sdk.Coins{genCoin})
-	delegateMsg := types.NewMsgDelegate(addr2, sdk.ValAddress(addr1), bondCoin)
+	delegateMsg := types.NewMsgDelegate(addr2, addr1, bondCoin)
 
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{delegateMsg}, "", []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{delegateMsg}, simapp.DefaultChainId, []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	simapp.CheckBalance(t, app, addr2, sdk.Coins{genCoin.Sub(bondCoin)})
-	checkDelegation(t, app, addr2, sdk.ValAddress(addr1), true, sdk.NewDecFromInt(bondTokens))
+	checkDelegation(t, app, addr2, addr1, true, sdk.NewDecFromInt(bondTokens))
 
 	// begin unbonding
-	beginUnbondingMsg := types.NewMsgUndelegate(addr2, sdk.ValAddress(addr1), bondCoin)
-	header = tmproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, "", []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
+	beginUnbondingMsg := types.NewMsgUndelegate(addr2, addr1, bondCoin)
+	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
+	_, _, err = simapp.SignCheckDeliver(t, txGen, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, simapp.DefaultChainId, []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	// delegation should exist anymore
-	checkDelegation(t, app, addr2, sdk.ValAddress(addr1), false, sdk.Dec{})
+	checkDelegation(t, app, addr2, addr1, false, sdk.Dec{})
 
 	// balance should be the same because bonding not yet complete
 	simapp.CheckBalance(t, app, addr2, sdk.Coins{genCoin.Sub(bondCoin)})

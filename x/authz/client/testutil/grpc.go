@@ -38,13 +38,13 @@ func (s *IntegrationTestSuite) TestQueryGrantGRPC() {
 			"fail with empty granter",
 			fmt.Sprintf(grantsURL, "", grantee.String(), typeMsgSend),
 			true,
-			"empty address string is not allowed: invalid request",
+			"empty address: invalid request",
 		},
 		{
 			"fail with empty grantee",
 			fmt.Sprintf(grantsURL, val.Address.String(), "", typeMsgSend),
 			true,
-			"empty address string is not allowed: invalid request",
+			"empty address: invalid request",
 		},
 		{
 			"fail invalid msg-type",

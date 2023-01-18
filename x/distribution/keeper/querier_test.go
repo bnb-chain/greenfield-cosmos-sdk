@@ -31,7 +31,7 @@ func getQueriedParams(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, que
 	return params
 }
 
-func getQueriedValidatorOutstandingRewards(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.ValAddress) sdk.DecCoins {
+func getQueriedValidatorOutstandingRewards(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.AccAddress) sdk.DecCoins {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryValidatorOutstandingRewards}, "/"),
 		Data: cdc.MustMarshalJSON(types.NewQueryValidatorOutstandingRewardsParams(validatorAddr)),
@@ -45,7 +45,7 @@ func getQueriedValidatorOutstandingRewards(t *testing.T, ctx sdk.Context, cdc *c
 	return outstandingRewards.GetRewards()
 }
 
-func getQueriedValidatorCommission(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.ValAddress) sdk.DecCoins {
+func getQueriedValidatorCommission(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.AccAddress) sdk.DecCoins {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryValidatorCommission}, "/"),
 		Data: cdc.MustMarshalJSON(types.NewQueryValidatorCommissionParams(validatorAddr)),
@@ -59,7 +59,7 @@ func getQueriedValidatorCommission(t *testing.T, ctx sdk.Context, cdc *codec.Leg
 	return validatorCommission.GetCommission()
 }
 
-func getQueriedValidatorSlashes(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.ValAddress, startHeight uint64, endHeight uint64) (slashes []types.ValidatorSlashEvent) {
+func getQueriedValidatorSlashes(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, validatorAddr sdk.AccAddress, startHeight uint64, endHeight uint64) (slashes []types.ValidatorSlashEvent) {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryValidatorSlashes}, "/"),
 		Data: cdc.MustMarshalJSON(types.NewQueryValidatorSlashesParams(validatorAddr, startHeight, endHeight)),
@@ -72,7 +72,7 @@ func getQueriedValidatorSlashes(t *testing.T, ctx sdk.Context, cdc *codec.Legacy
 	return
 }
 
-func getQueriedDelegationRewards(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress) (rewards sdk.DecCoins) {
+func getQueriedDelegationRewards(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, delegatorAddr sdk.AccAddress, validatorAddr sdk.AccAddress) (rewards sdk.DecCoins) {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryDelegationRewards}, "/"),
 		Data: cdc.MustMarshalJSON(types.NewQueryDelegationRewardsParams(delegatorAddr, validatorAddr)),
@@ -116,7 +116,7 @@ func TestQueries(t *testing.T) {
 	types.RegisterLegacyAminoCodec(cdc)
 	banktypes.RegisterLegacyAminoCodec(cdc)
 
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	// reset fee pool

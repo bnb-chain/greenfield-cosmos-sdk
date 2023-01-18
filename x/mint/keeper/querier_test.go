@@ -24,7 +24,7 @@ type MintKeeperTestSuite struct {
 }
 
 func (suite *MintKeeperTestSuite) SetupTest() {
-	app := simapp.Setup(suite.T(), true)
+	app := simapp.Setup(suite.T(), true, true)
 	ctx := app.BaseApp.NewContext(true, tmproto.Header{})
 
 	app.MintKeeper.SetParams(ctx, types.DefaultParams())

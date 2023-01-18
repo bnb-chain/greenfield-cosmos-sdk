@@ -263,7 +263,7 @@ func queryDelegatorValidator(ctx sdk.Context, req abci.RequestQuery, k Keeper, l
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(params.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(params.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -294,7 +294,7 @@ func queryDelegation(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQue
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(params.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(params.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func queryUnbondingDelegation(ctx sdk.Context, req abci.RequestQuery, k Keeper, 
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(params.ValidatorAddr)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(params.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -487,11 +487,11 @@ func RedelegationsToRedelegationResponses(
 	resp := make(types.RedelegationResponses, len(redels))
 
 	for i, redel := range redels {
-		valSrcAddr, err := sdk.ValAddressFromHex(redel.ValidatorSrcAddress)
+		valSrcAddr, err := sdk.AccAddressFromHexUnsafe(redel.ValidatorSrcAddress)
 		if err != nil {
 			panic(err)
 		}
-		valDstAddr, err := sdk.ValAddressFromHex(redel.ValidatorDstAddress)
+		valDstAddr, err := sdk.AccAddressFromHexUnsafe(redel.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}

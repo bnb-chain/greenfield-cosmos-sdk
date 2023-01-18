@@ -10,6 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -17,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -41,7 +43,7 @@ type AnteTestSuite struct {
 
 // returns context and app with params set on account keeper
 func createTestApp(t *testing.T, isCheckTx bool) (*simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(t, isCheckTx)
+	app := simapp.Setup(t, isCheckTx, true)
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
 
@@ -59,6 +61,8 @@ func (s *AnteTestSuite) SetupTest(isCheckTx bool) {
 
 	// Set up TxConfig.
 	encodingConfig := simapp.MakeTestEncodingConfig()
+	protoCodec := codec.NewProtoCodec(encodingConfig.InterfaceRegistry)
+	encodingConfig.TxConfig = authtx.NewTxConfig(protoCodec, authtx.DefaultSignModes)
 	// We're using TestMsg encoding in some tests, so register it here.
 	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
 	testdata.RegisterInterfaces(encodingConfig.InterfaceRegistry)
@@ -86,7 +90,7 @@ func (s *AnteTestSuite) CreateTestAccounts(numAccs int) []TestAccount {
 	var accounts []TestAccount
 
 	for i := 0; i < numAccs; i++ {
-		priv, _, addr := testdata.KeyTestPubAddr()
+		priv, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, addr)
 		err := acc.SetAccountNumber(uint64(i))
 		s.Require().NoError(err)

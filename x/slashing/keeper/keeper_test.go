@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -13,10 +14,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
 )
 
 func TestUnJailNotBonded(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	p := app.StakingKeeper.GetParams(ctx)
@@ -82,7 +84,7 @@ func TestUnJailNotBonded(t *testing.T) {
 // Ensure that SigningInfo.StartHeight is set correctly
 // and that they are not immediately jailed
 func TestHandleNewValidator(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, 1, app.StakingKeeper.TokensFromConsensusPower(ctx, 200))
@@ -128,7 +130,7 @@ func TestHandleNewValidator(t *testing.T) {
 // Ensure that they're only slashed once
 func TestHandleAlreadyJailed(t *testing.T) {
 	// initial setup
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, 1, app.StakingKeeper.TokensFromConsensusPower(ctx, 200))
@@ -181,7 +183,7 @@ func TestHandleAlreadyJailed(t *testing.T) {
 func TestValidatorDippingInAndOut(t *testing.T) {
 	// initial setup
 	// TestParams set the SignedBlocksWindow to 1000 and MaxMissedBlocksPerWindow to 500
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	app.SlashingKeeper.SetParams(ctx, testslashing.TestParams())
 
@@ -196,7 +198,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	addr, val := pks[0].Address(), pks[0]
 	consAddr := sdk.ConsAddress(addr)
 	tstaking := teststaking.NewHelper(t, ctx, app.StakingKeeper)
-	valAddr := sdk.ValAddress(addr)
+	valAddr := sdk.AccAddress(addr)
 
 	tstaking.CreateValidatorWithValPower(valAddr, val, power, true)
 	validatorUpdates := staking.EndBlocker(ctx, app.StakingKeeper)
@@ -207,14 +209,16 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	height := int64(0)
 	for ; height < int64(100); height++ {
 		ctx = ctx.WithBlockHeight(height)
+		// upgrade public delegation
+		upgrade.BeginBlocker(app.UpgradeKeeper, ctx, abci.RequestBeginBlock{})
 		app.SlashingKeeper.HandleValidatorSignature(ctx, val.Address(), power, true)
 	}
 
 	// kick first validator out of validator set
-	tstaking.CreateValidatorWithValPower(sdk.ValAddress(pks[1].Address()), pks[1], power+1, true)
+	tstaking.CreateValidatorWithValPower(sdk.AccAddress(pks[1].Address()), pks[1], power+1, true)
 	validatorUpdates = staking.EndBlocker(ctx, app.StakingKeeper)
 	require.Equal(t, 2, len(validatorUpdates))
-	tstaking.CheckValidator(sdk.ValAddress(pks[1].Address()), stakingtypes.Bonded, false)
+	tstaking.CheckValidator(sdk.AccAddress(pks[1].Address()), stakingtypes.Bonded, false)
 	tstaking.CheckValidator(valAddr, stakingtypes.Unbonding, false)
 
 	// 600 more blocks happened
@@ -222,6 +226,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	ctx = ctx.WithBlockHeight(height)
 
 	// validator added back in
+	tstaking.Ctx = ctx
 	tstaking.DelegateWithPower(sdk.AccAddress(pks[2].Address()), valAddr, 50)
 
 	validatorUpdates = staking.EndBlocker(ctx, app.StakingKeeper)

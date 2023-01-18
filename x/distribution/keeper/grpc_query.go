@@ -37,7 +37,7 @@ func (k Keeper) ValidatorOutstandingRewards(c context.Context, req *types.QueryV
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (k Keeper) ValidatorCommission(c context.Context, req *types.QueryValidator
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (k Keeper) ValidatorSlashes(c context.Context, req *types.QueryValidatorSla
 
 	ctx := sdk.UnwrapSDKContext(c)
 	store := ctx.KVStore(k.storeKey)
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid validator address")
 	}
@@ -126,7 +126,7 @@ func (k Keeper) DelegationRewards(c context.Context, req *types.QueryDelegationR
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (k Keeper) DelegatorValidators(c context.Context, req *types.QueryDelegator
 	k.stakingKeeper.IterateDelegations(
 		ctx, delAdr,
 		func(_ int64, del stakingtypes.DelegationI) (stop bool) {
-			validators = append(validators, sdk.AccAddress(del.GetValidatorAddr()).String())
+			validators = append(validators, del.GetValidatorAddr().String())
 			return false
 		},
 	)

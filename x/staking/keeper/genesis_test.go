@@ -17,7 +17,7 @@ import (
 )
 
 func bootstrapGenesisTest(t *testing.T, numAddrs int) (*simapp.SimApp, sdk.Context, []sdk.AccAddress) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	addrDels, _ := generateAddresses(app, ctx, numAddrs)
@@ -42,7 +42,7 @@ func TestInitGenesis(t *testing.T) {
 
 	// initialize the validators
 	bondedVal1 := types.Validator{
-		OperatorAddress: sdk.ValAddress(addrs[0]).String(),
+		OperatorAddress: addrs[0].String(),
 		ConsensusPubkey: pk0,
 		Status:          types.Bonded,
 		Tokens:          valTokens,
@@ -50,7 +50,7 @@ func TestInitGenesis(t *testing.T) {
 		Description:     types.NewDescription("hoop", "", "", "", ""),
 	}
 	bondedVal2 := types.Validator{
-		OperatorAddress: sdk.ValAddress(addrs[1]).String(),
+		OperatorAddress: addrs[1].String(),
 		ConsensusPubkey: pk1,
 		Status:          types.Bonded,
 		Tokens:          valTokens,
@@ -94,11 +94,11 @@ func TestInitGenesis(t *testing.T) {
 	}
 
 	// now make sure the validators are bonded and intra-tx counters are correct
-	resVal, found := app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(addrs[0]))
+	resVal, found := app.StakingKeeper.GetValidator(ctx, sdk.AccAddress(addrs[0]))
 	require.True(t, found)
 	require.Equal(t, types.Bonded, resVal.Status)
 
-	resVal, found = app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(addrs[1]))
+	resVal, found = app.StakingKeeper.GetValidator(ctx, sdk.AccAddress(addrs[1]))
 	require.True(t, found)
 	require.Equal(t, types.Bonded, resVal.Status)
 
@@ -113,14 +113,14 @@ func TestInitGenesis(t *testing.T) {
 }
 
 func TestInitGenesis_PoolsBalanceMismatch(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.NewContext(false, tmproto.Header{})
 
 	consPub, err := codectypes.NewAnyWithValue(PKs[0])
 	require.NoError(t, err)
 
 	validator := types.Validator{
-		OperatorAddress: sdk.ValAddress("12345678901234567890").String(),
+		OperatorAddress: sdk.AccAddress("12345678901234567890").String(),
 		ConsensusPubkey: consPub,
 		Jailed:          false,
 		Tokens:          sdk.NewInt(10),
@@ -174,7 +174,7 @@ func TestInitGenesisLargeValidatorSet(t *testing.T) {
 	bondedPoolAmt := sdk.ZeroInt()
 	for i := range validators {
 		validators[i], err = types.NewSimpleValidator(
-			sdk.ValAddress(addrs[i]),
+			addrs[i],
 			PKs[i],
 			types.NewDescription(fmt.Sprintf("#%d", i), "", "", "", ""),
 		)

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.4
+This release includes features and bug fixes, mainly:
+1. Introduced `crosschain` and `oracle` module;
+2. Updated EIP712 related functions;
+3. Enabled public delegation upgrade
+
+* [\#42](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/42) feat: implement cross chain and oracle modules
+* [\#78](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/78) fix: update EIP712 related functions (#78)
+* [\#87](https://github.com/bnb-chain/inscription-cosmos-sdk/pull/87) feat: introduce enable public delegation upgrade
+
 ## v0.0.3
 
 This release includes features and bug fixes, mainly:

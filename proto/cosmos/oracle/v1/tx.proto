@@ -1,0 +1,35 @@
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package            = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+option (gogoproto.equal_all) = true;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+
+// Msg defines the oracle Msg service.
+service Msg {
+  // Claim defines a method for claiming oracle messages
+  rpc Claim(MsgClaim) returns (MsgClaimResponse);
+}
+
+// MsgClaim defines the Msg/Claim request type
+message MsgClaim {
+  option (cosmos.msg.v1.signer) = "from_address";
+
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string from_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint32 src_chain_id = 2;
+  uint32 dest_chain_id = 3;
+  uint64 sequence = 4;
+  uint64 timestamp = 5;
+  bytes payload = 6;
+  repeated fixed64 vote_address_set  = 7;
+  bytes agg_signature  = 8;
+}
+
+// MsgClaimResponse defines the Msg/Claim response type
+message MsgClaimResponse {}

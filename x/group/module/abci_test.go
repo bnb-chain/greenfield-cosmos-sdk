@@ -18,7 +18,7 @@ import (
 )
 
 func TestEndBlockerPruning(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 3, sdk.NewInt(30000000))
 	addr1 := addrs[0]
@@ -318,7 +318,7 @@ func TestEndBlockerPruning(t *testing.T) {
 }
 
 func TestEndBlockerTallying(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 4, sdk.NewInt(30000000))

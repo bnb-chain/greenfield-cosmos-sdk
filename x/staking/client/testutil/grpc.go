@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/rest"
@@ -14,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func (s *IntegrationTestSuite) TestGRPCQueryValidatorsHandler() {
@@ -359,7 +359,7 @@ func (s *IntegrationTestSuite) TestGRPCQueryDelegatorDelegations() {
 	baseURL := val.APIAddress
 
 	// Create new account in the keyring for address without delegations.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("test", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("test", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
 	s.Require().NoError(err)
 	newAddr, err := k.GetAddress()
 	s.Require().NoError(err)

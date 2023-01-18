@@ -144,7 +144,7 @@ func getQueriedVotes(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, quer
 }
 
 func TestQueries(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	legacyQuerierCdc := app.LegacyAmino()
 	querier := keeper.NewQuerier(app.GovKeeper, legacyQuerierCdc)
@@ -305,7 +305,7 @@ func TestQueries(t *testing.T) {
 }
 
 func TestPaginatedVotesQuery(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	legacyQuerierCdc := app.LegacyAmino()
 

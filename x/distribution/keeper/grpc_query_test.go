@@ -26,11 +26,11 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	addrs       []sdk.AccAddress
-	valAddrs    []sdk.ValAddress
+	valAddrs    []sdk.AccAddress
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	app := simapp.Setup(suite.T(), false)
+	app := simapp.Setup(suite.T(), false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())

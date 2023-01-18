@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,11 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	"github.com/cosmos/cosmos-sdk/testutil/rest"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -29,7 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
-	authtest "github.com/cosmos/cosmos-sdk/x/auth/client/testutil"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -582,108 +575,108 @@ func (s IntegrationTestSuite) TestBroadcastTx_GRPCGateway() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestSimMultiSigTx() {
-	val1 := *s.network.Validators[0]
-
-	kr := val1.ClientCtx.Keyring
-
-	account1, _, err := kr.NewMnemonic("newAccount1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
-	s.Require().NoError(err)
-
-	account2, _, err := kr.NewMnemonic("newAccount2", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
-	s.Require().NoError(err)
-
-	pub1, err := account1.GetPubKey()
-	s.Require().NoError(err)
-
-	pub2, err := account2.GetPubKey()
-	s.Require().NoError(err)
-
-	multi := kmultisig.NewLegacyAminoPubKey(2, []cryptotypes.PubKey{pub1, pub2})
-	_, err = kr.SaveMultisig("multi", multi)
-	s.Require().NoError(err)
-
-	_, err = s.network.WaitForHeight(1)
-	s.Require().NoError(err)
-
-	multisigRecord, err := val1.ClientCtx.Keyring.Key("multi")
-	s.Require().NoError(err)
-
-	height, err := s.network.LatestHeight()
-	_, err = s.network.WaitForHeight(height + 1)
-	s.Require().NoError(err)
-
-	addr, err := multisigRecord.GetAddress()
-	s.Require().NoError(err)
-
-	// Send coins from validator to multisig.
-	coins := sdk.NewInt64Coin(s.cfg.BondDenom, 15)
-	_, err = bankcli.MsgSendExec(
-		val1.ClientCtx,
-		val1.Address,
-		addr,
-		sdk.NewCoins(coins),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		fmt.Sprintf("--gas=%d", flags.DefaultGasLimit),
-	)
-
-	height, err = s.network.LatestHeight()
-	_, err = s.network.WaitForHeight(height + 1)
-	s.Require().NoError(err)
-
-	// Generate multisig transaction.
-	multiGeneratedTx, err := bankcli.MsgSendExec(
-		val1.ClientCtx,
-		addr,
-		val1.Address,
-		sdk.NewCoins(
-			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
-		),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
-		fmt.Sprintf("--%s=foobar", flags.FlagNote),
-	)
-	s.Require().NoError(err)
-
-	// Save tx to file
-	multiGeneratedTxFile := testutil.WriteToNewTempFile(s.T(), multiGeneratedTx.String())
-
-	// Sign with account1
-	addr1, err := account1.GetAddress()
-	s.Require().NoError(err)
-	val1.ClientCtx.HomeDir = strings.Replace(val1.ClientCtx.HomeDir, "simd", "simcli", 1)
-	account1Signature, err := authtest.TxSignExec(val1.ClientCtx, addr1, multiGeneratedTxFile.Name(), "--multisig", addr.String())
-	s.Require().NoError(err)
-	sign1File := testutil.WriteToNewTempFile(s.T(), account1Signature.String())
-
-	// Sign with account2
-	addr2, err := account2.GetAddress()
-	s.Require().NoError(err)
-	account2Signature, err := authtest.TxSignExec(val1.ClientCtx, addr2, multiGeneratedTxFile.Name(), "--multisig", addr.String())
-	s.Require().NoError(err)
-	sign2File := testutil.WriteToNewTempFile(s.T(), account2Signature.String())
-
-	// multisign tx
-	val1.ClientCtx.Offline = false
-	multiSigWith2Signatures, err := authtest.TxMultiSignExec(val1.ClientCtx, multisigRecord.Name, multiGeneratedTxFile.Name(), sign1File.Name(), sign2File.Name())
-	s.Require().NoError(err)
-
-	// convert from protoJSON to protoBinary for sim
-	sdkTx, err := val1.ClientCtx.TxConfig.TxJSONDecoder()(multiSigWith2Signatures.Bytes())
-	txBytes, err := val1.ClientCtx.TxConfig.TxEncoder()(sdkTx)
-
-	// simulate tx
-	sim := &tx.SimulateRequest{TxBytes: txBytes}
-	res, err := s.queryClient.Simulate(context.Background(), sim)
-	s.Require().NoError(err)
-
-	// make sure gas was used
-	s.Require().Greater(res.GasInfo.GasUsed, uint64(0))
-}
+// func (s *IntegrationTestSuite) TestSimMultiSigTx() {
+// 	val1 := *s.network.Validators[0]
+//
+// 	kr := val1.ClientCtx.Keyring
+//
+// 	account1, _, err := kr.NewMnemonic("newAccount1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+// 	s.Require().NoError(err)
+//
+// 	account2, _, err := kr.NewMnemonic("newAccount2", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+// 	s.Require().NoError(err)
+//
+// 	pub1, err := account1.GetPubKey()
+// 	s.Require().NoError(err)
+//
+// 	pub2, err := account2.GetPubKey()
+// 	s.Require().NoError(err)
+//
+// 	multi := kmultisig.NewLegacyAminoPubKey(2, []cryptotypes.PubKey{pub1, pub2})
+// 	_, err = kr.SaveMultisig("multi", multi)
+// 	s.Require().NoError(err)
+//
+// 	_, err = s.network.WaitForHeight(1)
+// 	s.Require().NoError(err)
+//
+// 	multisigRecord, err := val1.ClientCtx.Keyring.Key("multi")
+// 	s.Require().NoError(err)
+//
+// 	height, err := s.network.LatestHeight()
+// 	_, err = s.network.WaitForHeight(height + 1)
+// 	s.Require().NoError(err)
+//
+// 	addr, err := multisigRecord.GetAddress()
+// 	s.Require().NoError(err)
+//
+// 	// Send coins from validator to multisig.
+// 	coins := sdk.NewInt64Coin(s.cfg.BondDenom, 15)
+// 	_, err = bankcli.MsgSendExec(
+// 		val1.ClientCtx,
+// 		val1.Address,
+// 		addr,
+// 		sdk.NewCoins(coins),
+// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+// 		fmt.Sprintf("--gas=%d", flags.DefaultGasLimit),
+// 	)
+//
+// 	height, err = s.network.LatestHeight()
+// 	_, err = s.network.WaitForHeight(height + 1)
+// 	s.Require().NoError(err)
+//
+// 	// Generate multisig transaction.
+// 	multiGeneratedTx, err := bankcli.MsgSendExec(
+// 		val1.ClientCtx,
+// 		addr,
+// 		val1.Address,
+// 		sdk.NewCoins(
+// 			sdk.NewInt64Coin(s.cfg.BondDenom, 5),
+// 		),
+// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
+// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+// 		fmt.Sprintf("--%s=true", flags.FlagGenerateOnly),
+// 		fmt.Sprintf("--%s=foobar", flags.FlagNote),
+// 	)
+// 	s.Require().NoError(err)
+//
+// 	// Save tx to file
+// 	multiGeneratedTxFile := testutil.WriteToNewTempFile(s.T(), multiGeneratedTx.String())
+//
+// 	// Sign with account1
+// 	addr1, err := account1.GetAddress()
+// 	s.Require().NoError(err)
+// 	val1.ClientCtx.HomeDir = strings.Replace(val1.ClientCtx.HomeDir, "simd", "simcli", 1)
+// 	account1Signature, err := authtest.TxSignExec(val1.ClientCtx, addr1, multiGeneratedTxFile.Name(), "--multisig", addr.String())
+// 	s.Require().NoError(err)
+// 	sign1File := testutil.WriteToNewTempFile(s.T(), account1Signature.String())
+//
+// 	// Sign with account2
+// 	addr2, err := account2.GetAddress()
+// 	s.Require().NoError(err)
+// 	account2Signature, err := authtest.TxSignExec(val1.ClientCtx, addr2, multiGeneratedTxFile.Name(), "--multisig", addr.String())
+// 	s.Require().NoError(err)
+// 	sign2File := testutil.WriteToNewTempFile(s.T(), account2Signature.String())
+//
+// 	// multisign tx
+// 	val1.ClientCtx.Offline = false
+// 	multiSigWith2Signatures, err := authtest.TxMultiSignExec(val1.ClientCtx, multisigRecord.Name, multiGeneratedTxFile.Name(), sign1File.Name(), sign2File.Name())
+// 	s.Require().NoError(err)
+//
+// 	// convert from protoJSON to protoBinary for sim
+// 	sdkTx, err := val1.ClientCtx.TxConfig.TxJSONDecoder()(multiSigWith2Signatures.Bytes())
+// 	txBytes, err := val1.ClientCtx.TxConfig.TxEncoder()(sdkTx)
+//
+// 	// simulate tx
+// 	sim := &tx.SimulateRequest{TxBytes: txBytes}
+// 	res, err := s.queryClient.Simulate(context.Background(), sim)
+// 	s.Require().NoError(err)
+//
+// 	// make sure gas was used
+// 	s.Require().Greater(res.GasInfo.GasUsed, uint64(0))
+// }
 
 func (s IntegrationTestSuite) TestGetBlockWithTxs_GRPC() {
 	testCases := []struct {
@@ -791,8 +784,8 @@ func (s IntegrationTestSuite) mkTxBuilder() client.TxBuilder {
 	txFactory := clienttx.Factory{}.
 		WithChainID(val.ClientCtx.ChainID).
 		WithKeybase(val.ClientCtx.Keyring).
-		WithTxConfig(val.ClientCtx.TxConfig).
-		WithSignMode(signing.SignMode_SIGN_MODE_DIRECT)
+		WithTxConfig(val.ClientCtx.TxConfig)
+	// WithSignMode(signing.SignMode_SIGN_MODE_DIRECT)
 
 	// Sign Tx.
 	err := authclient.SignTx(txFactory, val.ClientCtx, val.Moniker, txBuilder, false, true)

@@ -60,8 +60,8 @@ func (s *TxConfigTestSuite) TestTxBuilderSetMemo() {
 }
 
 func (s *TxConfigTestSuite) TestTxBuilderSetMsgs() {
-	_, _, addr1 := testdata.KeyTestPubAddr()
-	_, _, addr2 := testdata.KeyTestPubAddr()
+	_, _, addr1 := testdata.KeyEthSecp256k1TestPubAddr()
+	_, _, addr2 := testdata.KeyEthSecp256k1TestPubAddr()
 	msg1 := testdata.NewTestMsg(addr1)
 	msg2 := testdata.NewTestMsg(addr2)
 	msgs := []sdk.Msg{msg1, msg2}
@@ -78,8 +78,8 @@ func (s *TxConfigTestSuite) TestTxBuilderSetMsgs() {
 }
 
 func (s *TxConfigTestSuite) TestTxBuilderSetSignatures() {
-	privKey, pubkey, addr := testdata.KeyTestPubAddr()
-	privKey2, pubkey2, _ := testdata.KeyTestPubAddr()
+	privKey, pubkey, addr := testdata.KeyEthSecp256k1TestPubAddr()
+	privKey2, pubkey2, _ := testdata.KeyEthSecp256k1TestPubAddr()
 	multisigPk := kmultisig.NewLegacyAminoPubKey(2, []cryptotypes.PubKey{pubkey, pubkey2})
 
 	txBuilder := s.TxConfig.NewTxBuilder()
@@ -224,7 +224,7 @@ func sigDataEquals(data1, data2 signingtypes.SignatureData) bool {
 
 func (s *TxConfigTestSuite) TestTxEncodeDecode() {
 	log := s.T().Log
-	_, pubkey, addr := testdata.KeyTestPubAddr()
+	_, pubkey, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	feeAmount := sdk.Coins{sdk.NewInt64Coin("atom", 150)}
 	gasLimit := uint64(50000)
 	memo := "foomemo"
@@ -292,7 +292,7 @@ func (s *TxConfigTestSuite) TestTxEncodeDecode() {
 }
 
 func (s *TxConfigTestSuite) TestWrapTxBuilder() {
-	_, _, addr := testdata.KeyTestPubAddr()
+	_, _, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	feeAmount := sdk.Coins{sdk.NewInt64Coin("atom", 150)}
 	gasLimit := uint64(50000)
 	memo := "foomemo"

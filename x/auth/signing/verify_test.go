@@ -18,7 +18,7 @@ import (
 )
 
 func TestVerifySignature(t *testing.T) {
-	priv, pubKey, addr := testdata.KeyTestPubAddr()
+	priv, pubKey, addr := testdata.KeyEthSecp256k1TestPubAddr()
 	// priv1, pubKey1, addr1 := testdata.KeyTestPubAddr()
 
 	const (
@@ -99,7 +99,7 @@ func TestVerifySignature(t *testing.T) {
 
 // returns context and app with params set on account keeper
 func createTestApp(t *testing.T, isCheckTx bool) (*simapp.SimApp, sdk.Context) {
-	app := simapp.Setup(t, isCheckTx)
+	app := simapp.Setup(t, isCheckTx, true)
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	app.AccountKeeper.SetParams(ctx, types.DefaultParams())
 
