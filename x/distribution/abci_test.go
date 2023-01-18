@@ -33,7 +33,7 @@ type validator struct {
 
 // Context in https://github.com/cosmos/cosmos-sdk/issues/9161
 func TestVerifyProposerRewardAssignement(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, totalValidators, valTokens)
 	tstaking := teststaking.NewHelper(t, ctx, app.StakingKeeper)

@@ -15,7 +15,7 @@ import (
 )
 
 func TestExpiredGrantsQueue(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, types.Header{})
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 5, sdk.NewInt(30000000))
 	granter := addrs[0]

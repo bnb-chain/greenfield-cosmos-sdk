@@ -15,7 +15,7 @@ import (
 
 func TestCancelUnbondingDelegation(t *testing.T) {
 	// setup the app
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 	msgServer := keeper.NewMsgServerImpl(app.StakingKeeper)
 	bondDenom := app.StakingKeeper.BondDenom(ctx)

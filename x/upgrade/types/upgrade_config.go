@@ -9,6 +9,10 @@ import (
 // 	BEP111 =	"BEP111"
 // )
 
+const (
+	EnablePublicDelegationUpgrade = "EnablePublicDelegationUpgrade"
+)
+
 var (
 	MainnetChainID = "inscription_9000-1"
 	MainnetConfig  = NewUpgradeConfig()

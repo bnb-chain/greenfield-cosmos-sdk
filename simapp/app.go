@@ -356,6 +356,11 @@ func NewSimApp(
 		// 	app.Logger().Info("upgrade to ", plan.Name)
 		// 	return fromVM, nil
 		// },
+
+		upgradetypes.EnablePublicDelegationUpgrade: func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			app.Logger().Info("upgrade to ", plan.Name)
+			return fromVM, nil
+		},
 	}
 
 	upgradeInitlizier := map[string]upgradetypes.UpgradeInitializer{
@@ -365,6 +370,11 @@ func NewSimApp(
 		// 	app.Logger().Info("Init BEP111")
 		// 	return nil
 		// },
+
+		upgradetypes.EnablePublicDelegationUpgrade: func() error {
+			app.Logger().Info("Init enable public delegation upgrade")
+			return nil
+		},
 	}
 
 	var err error
@@ -718,4 +728,14 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func InitUpgradeConfig() []config.UpgradeConfig {
+	return []config.UpgradeConfig{
+		{
+			Name:   upgradetypes.EnablePublicDelegationUpgrade,
+			Height: 2,
+			Info:   "Enable public delegation, after this fork, anyone can delegate and redelegate to any validator.",
+		},
+	}
 }

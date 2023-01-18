@@ -30,7 +30,7 @@ type KeeperTestSuite struct {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	app := simapp.Setup(suite.T(), false)
+	app := simapp.Setup(suite.T(), false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	// Populate the gov account with some coins, as the TestProposal we have
@@ -60,7 +60,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 }
 
 func TestIncrementProposalNumber(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	tp := TestProposal
@@ -81,7 +81,7 @@ func TestIncrementProposalNumber(t *testing.T) {
 }
 
 func TestProposalQueues(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	// create test proposals

@@ -48,7 +48,7 @@ type GenTxTestSuite struct {
 
 func (suite *GenTxTestSuite) SetupTest() {
 	checkTx := false
-	app := simapp.Setup(suite.T(), checkTx)
+	app := simapp.Setup(suite.T(), checkTx, true)
 	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{ChainID: simapp.DefaultChainId})
 	suite.app = app
 	suite.encodingConfig = simapp.MakeTestEncodingConfig()

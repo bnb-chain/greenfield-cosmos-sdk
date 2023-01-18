@@ -16,7 +16,7 @@ import (
 
 // TestMigrateMapAccAddressToAccNumberKey test cases for state migration of map to accAddr to accNum
 func TestMigrateMapAccAddressToAccNumberKey(t *testing.T) {
-	app := simapp.Setup(t, false)
+	app := simapp.Setup(t, false, true)
 
 	// new base account
 	senderPrivKey := secp256k1.GenPrivKey()
