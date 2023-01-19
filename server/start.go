@@ -3,6 +3,7 @@ package server
 // DONTCOVER
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -78,6 +79,19 @@ const (
 	flagGRPCAddress    = "grpc.address"
 	flagGRPCWebEnable  = "grpc-web.enable"
 	flagGRPCWebAddress = "grpc-web.address"
+
+	// jsonrpc-related flags
+	JSONRPCEnable             = "json-rpc.enable"
+	JSONRPCAPI                = "json-rpc.api"
+	JSONRPCAddress            = "json-rpc.address"
+	JSONWsAddress             = "json-rpc.ws-address"
+	JSONRPCHTTPTimeout        = "json-rpc.http-timeout"
+	JSONRPCHTTPIdleTimeout    = "json-rpc.http-idle-timeout"
+	JSONRPCMaxOpenConnections = "json-rpc.max-open-connections"
+
+	// tls-related flags
+	TLSCertPath = "tls.certificate-path"
+	TLSKeyPath  = "tls.key-path"
 )
 
 // StartCmd runs the service passed in, either stand-alone or in-process with
@@ -187,6 +201,17 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 	cmd.Flags().Uint32(FlagStateSyncSnapshotKeepRecent, 2, "State sync snapshot to keep")
 
 	cmd.Flags().Bool(FlagDisableIAVLFastNode, false, "Disable fast node for IAVL tree")
+
+	cmd.Flags().Bool(JSONRPCEnable, true, "Define if the JSON-RPC server should be enabled")
+	cmd.Flags().StringSlice(JSONRPCAPI, serverconfig.GetDefaultAPINamespaces(), "Defines a list of JSON-RPC namespaces that should be enabled")
+	cmd.Flags().String(JSONRPCAddress, serverconfig.DefaultJSONRPCAddress, "the JSON-RPC server address to listen on")
+	cmd.Flags().String(JSONWsAddress, serverconfig.DefaultJSONRPCWsAddress, "the JSON-RPC WS server address to listen on")
+	cmd.Flags().Duration(JSONRPCHTTPTimeout, serverconfig.DefaultHTTPTimeout, "Sets a read/write timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Duration(JSONRPCHTTPIdleTimeout, serverconfig.DefaultHTTPIdleTimeout, "Sets a idle timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Int(JSONRPCMaxOpenConnections, serverconfig.DefaultMaxOpenConnections, "Sets the maximum number of simultaneous connections for the server listener") //nolint:lll
+
+	cmd.Flags().String(TLSCertPath, "", "the cert.pem file path for the server TLS configuration")
+	cmd.Flags().String(TLSKeyPath, "", "the key.pem file path for the server TLS configuration")
 
 	// add support for all Tendermint-specific command line options
 	tcmd.AddNodeFlags(cmd)
@@ -439,6 +464,40 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 				}
 			}()
 		}
+	}
+
+	var (
+		httpSrv     *http.Server
+		httpSrvDone chan struct{}
+	)
+
+	if config.JSONRPC.Enable {
+		genDoc, err := genDocProvider()
+		if err != nil {
+			return err
+		}
+
+		clientCtx := clientCtx.WithChainID(genDoc.ChainID)
+
+		tmEndpoint := "/websocket"
+		tmRPCAddr := cfg.RPC.ListenAddress
+		httpSrv, httpSrvDone, err = StartJSONRPC(ctx, clientCtx, tmRPCAddr, tmEndpoint, &config)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			shutdownCtx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancelFn()
+			if err := httpSrv.Shutdown(shutdownCtx); err != nil {
+				ctx.Logger.Error("HTTP server shutdown produced a warning", "error", err.Error())
+			} else {
+				ctx.Logger.Info("HTTP server shut down, waiting 5 sec")
+				select {
+				case <-time.Tick(5 * time.Second):
+				case <-httpSrvDone:
+				}
+			}
+		}()
 	}
 
 	// At this point it is safe to block the process if we're in gRPC only mode as

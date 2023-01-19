@@ -8,11 +8,10 @@ import (
 	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/spf13/pflag"
 
-	crg "github.com/cosmos/cosmos-sdk/server/rosetta/lib/server"
-
 	clientflags "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	crg "github.com/cosmos/cosmos-sdk/server/rosetta/lib/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
