@@ -5,9 +5,9 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/server/jsonrpc/backend"
 	"github.com/cosmos/cosmos-sdk/server/jsonrpc/namespaces/ethereum/eth"
 	"github.com/cosmos/cosmos-sdk/server/jsonrpc/namespaces/ethereum/net"
-	"github.com/cosmos/cosmos-sdk/server/jsonrpc/backend"
 )
 
 // RPC namespaces and API version

@@ -124,7 +124,7 @@ func NewPublicAPI(logger log.Logger, backend backend.EVMBackend) *PublicAPI {
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                              Blocks						                ///
+// /                              Blocks						             ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // BlockNumber returns the current block number.
@@ -146,7 +146,7 @@ func (e *PublicAPI) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]in
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                             Read Txs					                ///
+// /                             Read Txs					                 ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // GetTransactionByHash returns the transaction identified by hash.
@@ -197,7 +197,7 @@ func (e *PublicAPI) GetTransactionByBlockNumberAndIndex(blockNum rpctypes.BlockN
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                             Write Txs					                ///
+// /                             Write Txs					                 ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // SendRawTransaction send a raw Ethereum transaction.
@@ -213,7 +213,7 @@ func (e *PublicAPI) SendTransaction(args evmtypes.TransactionArgs) (common.Hash,
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                           Account Information				            ///
+// /                           Account Information				             ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // Accounts returns the list of accounts available to this node.
@@ -259,7 +259,7 @@ func (e *PublicAPI) Call(args evmtypes.TransactionArgs,
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                            Chain Information					        ///
+// /                            Chain Information					         ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // ProtocolVersion returns the supported Ethereum protocol version.
@@ -295,13 +295,13 @@ func (e *PublicAPI) MaxPriorityFeePerGas() (*hexutil.Big, error) {
 }
 
 // ChainId is the EIP-155 replay-protection chain id for the current ethereum chain config.
-func (e *PublicAPI) ChainId() (*hexutil.Big, error) { // nolint
+func (e *PublicAPI) ChainId() (*hexutil.Big, error) {
 	e.logger.Debug("eth_chainId")
 	return e.backend.ChainID()
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                              Uncles										///
+// /                              Uncles							         ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // GetUncleByBlockHashAndIndex returns the uncle identified by hash and index. Always returns nil.
@@ -325,7 +325,7 @@ func (e *PublicAPI) GetUncleCountByBlockNumber(blockNum rpctypes.BlockNumber) he
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                             Proof of Work							    ///
+// /                             Proof of Work							     ///
 // /////////////////////////////////////////////////////////////////////////////
 
 // Hashrate returns the current node's hashrate. Always 0.
@@ -341,10 +341,10 @@ func (e *PublicAPI) Mining() bool {
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-// /                               Other 						            ///
+// /                               Other 						             ///
 // /////////////////////////////////////////////////////////////////////////////
 
-// Syncing returns false in case the node is currently not syncing with the network. It can be up to date or has not
+// Syncing returns false in case the node is currently not syncing with the network. It can be up-to-date or has not
 // yet received the latest block headers from its pears. In case it is synchronizing:
 // - startingBlock: block number this node started to synchronize from
 // - currentBlock:  block number this node is currently importing
@@ -374,7 +374,7 @@ func (e *PublicAPI) GetTransactionLogs(txHash common.Hash) ([]*ethtypes.Log, err
 	return nil, fmt.Errorf("should not be called")
 }
 
-// SignTypedData signs EIP-712 conformant typed data
+// SignTypedData signs EIP-712 conformal typed data
 func (e *PublicAPI) SignTypedData(address common.Address, typedData apitypes.TypedData) (hexutil.Bytes, error) {
 	e.logger.Debug("eth_signTypedData", "address", address.Hex(), "data", typedData)
 	return e.backend.SignTypedData(address, typedData)

@@ -181,22 +181,6 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 	}
 }
 
-// tcpGetAndSendResponse sends error response to client if params is invalid
-func (s *websocketsServer) getParamsAndCheckValid(msg map[string]interface{}, wsConn *wsConn) ([]interface{}, bool) {
-	params, ok := msg["params"].([]interface{})
-	if !ok {
-		s.sendErrResponse(wsConn, "invalid parameters")
-		return nil, false
-	}
-
-	if len(params) == 0 {
-		s.sendErrResponse(wsConn, "empty parameters")
-		return nil, false
-	}
-
-	return params, true
-}
-
 // tcpGetAndSendResponse connects to the rest-server over tcp, posts a JSON-RPC request, and sends the response
 // to the client over websockets
 func (s *websocketsServer) tcpGetAndSendResponse(wsConn *wsConn, mb []byte) error {
