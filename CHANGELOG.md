@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.5
+This release is for rebranding from inscription to greenfield, renaming is applied to all packages, files.
+
+* [\#91](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/91) feat: rebrand from inscription to greenfield
+
 ## v0.0.4
 This release includes features and bug fixes, mainly:
 1. Introduced `crosschain` and `oracle` module;
