@@ -37,9 +37,9 @@ var MsgCodec = jsonpb.Marshaler{
 }
 
 var domain = apitypes.TypedDataDomain{
-	Name:              "Inscription Tx",
+	Name:              "Greenfield Tx",
 	Version:           "1.0.0",
-	VerifyingContract: "inscription",
+	VerifyingContract: "greenfield",
 	Salt:              "0",
 }
 
