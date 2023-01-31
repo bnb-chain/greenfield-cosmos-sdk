@@ -1,9 +1,12 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"math"
+	"path"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 
@@ -26,6 +29,12 @@ const (
 	// DefaultGRPCWebAddress defines the default address to bind the gRPC-web server to.
 	DefaultGRPCWebAddress = "0.0.0.0:9091"
 
+	// DefaultJSONRPCAddress is the default address the JSON-RPC server binds to.
+	DefaultJSONRPCAddress = "0.0.0.0:8545"
+
+	// DefaultJSONRPCWsAddress is the default address the JSON-RPC WebSocket server binds to.
+	DefaultJSONRPCWsAddress = "0.0.0.0:8546"
+
 	// DefaultGRPCMaxRecvMsgSize defines the default gRPC max message size in
 	// bytes the server can receive.
 	DefaultGRPCMaxRecvMsgSize = 1024 * 1024 * 10
@@ -33,6 +42,13 @@ const (
 	// DefaultGRPCMaxSendMsgSize defines the default gRPC max message size in
 	// bytes the server can send.
 	DefaultGRPCMaxSendMsgSize = math.MaxInt32
+
+	DefaultHTTPTimeout = 30 * time.Second
+
+	DefaultHTTPIdleTimeout = 120 * time.Second
+
+	// DefaultMaxOpenConnections represents the amount of open connections (unlimited = 0)
+	DefaultMaxOpenConnections = 0
 )
 
 // BaseConfig defines the server's basic configuration
@@ -196,6 +212,33 @@ type StateSyncConfig struct {
 	SnapshotKeepRecent uint32 `mapstructure:"snapshot-keep-recent"`
 }
 
+// JSONRPCConfig defines configuration for the EVM RPC server.
+type JSONRPCConfig struct {
+	// API defines a list of JSON-RPC namespaces that should be enabled
+	API []string `mapstructure:"api"`
+	// Address defines the HTTP server to listen on
+	Address string `mapstructure:"address"`
+	// WsAddress defines the WebSocket server to listen on
+	WsAddress string `mapstructure:"ws-address"`
+	// Enable defines if the EVM RPC server should be enabled.
+	Enable bool `mapstructure:"enable"`
+	// HTTPTimeout is the read/write timeout of http json-rpc server.
+	HTTPTimeout time.Duration `mapstructure:"http-timeout"`
+	// HTTPIdleTimeout is the idle timeout of http json-rpc server.
+	HTTPIdleTimeout time.Duration `mapstructure:"http-idle-timeout"`
+	// MaxOpenConnections sets the maximum number of simultaneous connections
+	// for the server listener.
+	MaxOpenConnections int `mapstructure:"max-open-connections"`
+}
+
+// TLSConfig defines the certificate and matching private key for the server.
+type TLSConfig struct {
+	// CertificatePath the file path for the certificate .pem file
+	CertificatePath string `mapstructure:"certificate-path"`
+	// KeyPath the file path for the key .pem file
+	KeyPath string `mapstructure:"key-path"`
+}
+
 // UpgradeConfig defines the upgrading configuration.
 type UpgradeConfig struct {
 	Name   string `mapstructure:"name"`
@@ -215,6 +258,8 @@ type Config struct {
 	Rosetta   RosettaConfig    `mapstructure:"rosetta"`
 	GRPCWeb   GRPCWebConfig    `mapstructure:"grpc-web"`
 	StateSync StateSyncConfig  `mapstructure:"state-sync"`
+	JSONRPC   JSONRPCConfig    `mapstructure:"json-rpc"`
+	TLS       TLSConfig        `mapstructure:"tls"`
 }
 
 // SetMinGasPrices sets the validator's minimum gas prices.
@@ -296,6 +341,8 @@ func DefaultConfig() *Config {
 			SnapshotInterval:   0,
 			SnapshotKeepRecent: 2,
 		},
+		JSONRPC: *DefaultJSONRPCConfig(),
+		TLS:     *DefaultTLSConfig(),
 	}
 }
 
@@ -380,10 +427,23 @@ func GetConfig(v *viper.Viper) (Config, error) {
 			SnapshotInterval:   v.GetUint64("state-sync.snapshot-interval"),
 			SnapshotKeepRecent: v.GetUint32("state-sync.snapshot-keep-recent"),
 		},
+		JSONRPC: JSONRPCConfig{
+			API:                v.GetStringSlice("json-rpc.api"),
+			Address:            v.GetString("json-rpc.address"),
+			WsAddress:          v.GetString("json-rpc.ws-address"),
+			Enable:             v.GetBool("json-rpc.enable"),
+			HTTPTimeout:        v.GetDuration("json-rpc.http-timeout"),
+			HTTPIdleTimeout:    v.GetDuration("json-rpc.http-idle-timeout"),
+			MaxOpenConnections: v.GetInt("json-rpc.max-open-connections"),
+		},
+		TLS: TLSConfig{
+			CertificatePath: v.GetString("tls.certificate-path"),
+			KeyPath:         v.GetString("tls.key-path"),
+		},
 	}, nil
 }
 
-// ValidateBasic returns an error if min-gas-prices field is empty in BaseConfig. Otherwise, it returns nil.
+// ValidateBasic returns an error if something is wrong with the config.
 func (c Config) ValidateBasic() error {
 	if c.BaseConfig.MinGasPrices == "" {
 		return sdkerrors.ErrAppConfig.Wrap("set min gas price in app.toml or flag or env variable")
@@ -392,6 +452,84 @@ func (c Config) ValidateBasic() error {
 		return sdkerrors.ErrAppConfig.Wrapf(
 			"cannot enable state sync snapshots with '%s' pruning setting", pruningtypes.PruningOptionEverything,
 		)
+	}
+
+	if err := c.JSONRPC.Validate(); err != nil {
+		return sdkerrors.ErrAppConfig.Wrapf("invalid json-rpc config value: %s", err.Error())
+	}
+
+	if err := c.TLS.Validate(); err != nil {
+		return sdkerrors.ErrAppConfig.Wrapf("invalid tls config value: %s", err.Error())
+	}
+
+	return nil
+}
+
+// GetDefaultAPINamespaces returns the default list of JSON-RPC namespaces that should be enabled
+func GetDefaultAPINamespaces() []string {
+	return []string{"eth", "net"}
+}
+
+// DefaultJSONRPCConfig returns an EVM config with the JSON-RPC API enabled by default
+func DefaultJSONRPCConfig() *JSONRPCConfig {
+	return &JSONRPCConfig{
+		Enable:             true,
+		API:                GetDefaultAPINamespaces(),
+		Address:            DefaultJSONRPCAddress,
+		WsAddress:          DefaultJSONRPCWsAddress,
+		HTTPTimeout:        DefaultHTTPTimeout,
+		HTTPIdleTimeout:    DefaultHTTPIdleTimeout,
+		MaxOpenConnections: DefaultMaxOpenConnections,
+	}
+}
+
+// Validate returns an error if the JSON-RPC configuration fields are invalid.
+func (c JSONRPCConfig) Validate() error {
+	if c.Enable && len(c.API) == 0 {
+		return errors.New("cannot enable JSON-RPC without defining any API namespace")
+	}
+
+	if c.HTTPTimeout < 0 {
+		return errors.New("JSON-RPC HTTP timeout duration cannot be negative")
+	}
+
+	if c.HTTPIdleTimeout < 0 {
+		return errors.New("JSON-RPC HTTP idle timeout duration cannot be negative")
+	}
+
+	// check for duplicates
+	seenAPIs := make(map[string]bool)
+	for _, api := range c.API {
+		if seenAPIs[api] {
+			return fmt.Errorf("repeated API namespace '%s'", api)
+		}
+
+		seenAPIs[api] = true
+	}
+
+	return nil
+}
+
+// DefaultTLSConfig returns the default TLS configuration
+func DefaultTLSConfig() *TLSConfig {
+	return &TLSConfig{
+		CertificatePath: "",
+		KeyPath:         "",
+	}
+}
+
+// Validate returns an error if the TLS certificate and key file extensions are invalid.
+func (c TLSConfig) Validate() error {
+	certExt := path.Ext(c.CertificatePath)
+
+	if c.CertificatePath != "" && certExt != ".pem" {
+		return fmt.Errorf("invalid extension %s for certificate path %s, expected '.pem'", certExt, c.CertificatePath)
+	}
+
+	keyExt := path.Ext(c.KeyPath)
+
+	if c.KeyPath != "" && keyExt != ".pem" {
+		return fmt.Errorf("invalid extension %s for key path %s, expected '.pem'", keyExt, c.KeyPath)
 	}
 
 	return nil

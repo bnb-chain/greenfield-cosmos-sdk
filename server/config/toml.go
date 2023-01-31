@@ -250,6 +250,36 @@ snapshot-interval = {{ .StateSync.SnapshotInterval }}
 
 # snapshot-keep-recent specifies the number of recent snapshots to keep and serve (0 to keep all).
 snapshot-keep-recent = {{ .StateSync.SnapshotKeepRecent }}
+
+###############################################################################
+###                          JSONRPC Configuration                          ###
+###############################################################################
+
+[json-rpc]
+
+api = "{{range $index, $elmt := .JSONRPC.API}}{{if $index}},{{$elmt}}{{else}}{{$elmt}}{{end}}{{end}}"
+
+address = "{{ .JSONRPC.Address }}"
+
+ws-address = "{{ .JSONRPC.WsAddress }}"
+
+enable = {{ .JSONRPC.Enable }}
+
+http-timeout = "{{ .JSONRPC.HTTPTimeout }}"
+
+http-idle-timeout = "{{ .JSONRPC.HTTPIdleTimeout }}"
+
+max-open-connections = {{ .JSONRPC.MaxOpenConnections }}
+
+###############################################################################
+###                            TLS Configuration                            ###
+###############################################################################
+
+[tls]
+
+certificate-path = "{{ .TLS.CertificatePath }}"
+
+key-path = "{{ .TLS.KeyPath }}"
 `
 
 var configTemplate *template.Template

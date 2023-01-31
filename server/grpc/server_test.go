@@ -9,12 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/jhump/protoreflect/grpcreflect"
-
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	rpb "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
@@ -22,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	reflectionv1 "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	reflectionv2 "github.com/cosmos/cosmos-sdk/server/grpc/reflection/v2alpha1"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
