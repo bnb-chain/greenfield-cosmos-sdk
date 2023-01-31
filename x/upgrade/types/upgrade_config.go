@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	MainnetChainID = "inscription_9000-1"
+	MainnetChainID = "greenfield_9000-1"
 	MainnetConfig  = NewUpgradeConfig()
 	// .SetPlan(&Plan{
 	// 	Name: BEP111,
