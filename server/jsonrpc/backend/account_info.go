@@ -8,6 +8,7 @@ import (
 	rpctypes "github.com/evmos/ethermint/rpc/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.BlockNumberOrHash) (*hexutil.Big, error) {
@@ -21,16 +22,23 @@ func (b *Backend) GetBalance(address common.Address, blockNrOrHash rpctypes.Bloc
 		return nil, err
 	}
 
-	req := &banktypes.QueryBalanceRequest{
-		Address: address.String(),
-		Denom:   "BNB",
-	}
-	queryClient := banktypes.NewQueryClient(b.clientCtx)
+	paramsReq := stakingtypes.QueryParamsRequest{}
+	queryStakingClient := stakingtypes.NewQueryClient(b.clientCtx)
 
-	res, err := queryClient.Balance(b.ctx, req)
+	paramsRes, err := queryStakingClient.Params(b.ctx, &paramsReq)
 	if err != nil {
 		return (*hexutil.Big)(big.NewInt(0)), err
 	}
 
-	return (*hexutil.Big)(res.Balance.Amount.BigInt()), nil
+	balanceReq := banktypes.QueryBalanceRequest{
+		Address: address.String(),
+		Denom:   paramsRes.Params.BondDenom,
+	}
+	queryBankClient := banktypes.NewQueryClient(b.clientCtx)
+	balanceRes, err := queryBankClient.Balance(b.ctx, &balanceReq)
+	if err != nil {
+		return (*hexutil.Big)(big.NewInt(0)), err
+	}
+
+	return (*hexutil.Big)(balanceRes.Balance.Amount.BigInt()), nil
 }
