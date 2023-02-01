@@ -11,6 +11,7 @@ import (
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -199,6 +200,32 @@ func init() {
 	})
 	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), func(params Params) GasCalculator {
 		fixedGas := params.GetMsgCancelUnbondingDelegationGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCreateValidator{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgCreateValidatorGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&oracletypes.MsgClaim{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgClaimGas()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	// these msgs are from greenfield, so the msg types need to be hard coded.
+	RegisterCalculatorGen("/bnbchain.greenfield.bridge.MsgTransferOut", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgTransferOutGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgCreateStorageProvider", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgCreateStorageProviderGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgEditStorageProvider", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgEditStorageProviderGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgDeposit", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSpDepositGas()
 		return FixedGasCalculator(fixedGas)
 	})
 }

@@ -6,12 +6,12 @@ import (
 )
 
 // SetParams sets the auth module's parameters.
-func (fhk Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	fhk.paramSubspace.SetParamSet(ctx, &params)
+func (ghk Keeper) SetParams(ctx sdk.Context, params types.Params) {
+	ghk.paramSubspace.SetParamSet(ctx, &params)
 }
 
 // GetParams gets the auth module's parameters.
-func (fhk Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	fhk.paramSubspace.GetParamSet(ctx, &params)
+func (ghk Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	ghk.paramSubspace.GetParamSet(ctx, &params)
 	return
 }

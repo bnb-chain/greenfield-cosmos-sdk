@@ -18,8 +18,8 @@ type Keeper struct {
 	paramSubspace paramtypes.Subspace
 }
 
-// NewGashubKeeper returns a new gashub keeper
-func NewGashubKeeper(
+// NewKeeper returns a new gashub keeper
+func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramstore paramtypes.Subspace,
 ) Keeper {
 	// set KeyTable if it has not already been set
@@ -35,9 +35,9 @@ func NewGashubKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (fhk Keeper) Logger(ctx sdk.Context) log.Logger {
+func (ghk Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // GetCodec return codec.Codec object used by the keeper
-func (fhk Keeper) GetCodec() codec.BinaryCodec { return fhk.cdc }
+func (ghk Keeper) GetCodec() codec.BinaryCodec { return ghk.cdc }

@@ -37,4 +37,10 @@ message Params {
   uint64 msg_undelegate_gas = 25 [(gogoproto.customname) = "MsgUndelegateGas"];
   uint64 msg_begin_redelegate_gas = 26 [(gogoproto.customname) = "MsgBeginRedelegateGas"];
   uint64 msg_cancel_unbonding_delegation_gas = 27 [(gogoproto.customname) = "MsgCancelUnbondingDelegationGas"];
+  uint64 msg_create_validator_gas = 28 [(gogoproto.customname) = "MsgCreateValidatorGas"];
+  uint64 msg_claim_gas = 29 [(gogoproto.customname) = "MsgClaimGas"];
+  uint64 msg_transfer_out_gas = 30 [(gogoproto.customname) = "MsgTransferOutGas"];
+  uint64 msg_create_storage_provider_gas = 31 [(gogoproto.customname) = "MsgCreateStorageProviderGas"];
+  uint64 msg_edit_storage_provider_gas = 32 [(gogoproto.customname) = "MsgEditStorageProviderGas"];
+  uint64 msg_sp_deposit_gas = 33 [(gogoproto.customname) = "MsgSpDepositGas"];
 }

@@ -37,6 +37,12 @@ const (
 	DefaultMsgUndelegateGas                  uint64 = 1e5
 	DefaultMsgBeginRedelegateGas             uint64 = 1e5
 	DefaultMsgCancelUnbondingDelegationGas   uint64 = 1e5
+	DefaultMsgCreateValidatorGas             uint64 = 1e5
+	DefaultMsgClaimGas                       uint64 = 1e5
+	DefaultMsgTransferOutGas                 uint64 = 1e5
+	DefaultMsgCreateStorageProviderGas       uint64 = 1e5
+	DefaultMsgEditStorageProviderGas         uint64 = 1e5
+	DefaultMsgSpDepositGas                   uint64 = 1e5
 )
 
 // Parameter keys
@@ -68,6 +74,12 @@ var (
 	KeyMsgUndelegateGas                  = []byte("MsgUndelegateGas")
 	KeyMsgBeginRedelegateGas             = []byte("MsgBeginRedelegateGas")
 	KeyMsgCancelUnbondingDelegationGas   = []byte("MsgCancelUnbondingDelegationGas")
+	KeyMsgCreateValidatorGas             = []byte("MsgCreateValidatorGas")
+	KeyMsgClaimGas                       = []byte("MsgClaimGas")
+	KeyMsgTransferOutGas                 = []byte("MsgTransferOutGas")
+	KeyMsgCreateStorageProviderGas       = []byte("MsgCreateStorageProviderGas")
+	KeyMsgEditStorageProviderGas         = []byte("MsgEditStorageProviderGas")
+	KeyMsgSpDepositGas                   = []byte("MsgSpDepositGas")
 )
 
 var _ paramtypes.ParamSet = &Params{}
@@ -78,7 +90,8 @@ func NewParams(
 	msgMultiSendPerItemGas, msgWithdrawDelegatorRewardGas, msgWithdrawValidatorCommissionGas, msgSetWithdrawAddressGas,
 	msgFundCommunityPoolGas, msgGrantAllowanceFixedGas, msgGrantAllowancePerItemGas, msgRevokeAllowanceGas, msgSubmitProposalGas,
 	msgVoteGas, msgVoteWeightedGas, msgDepositGas, msgUnjailGas, msgImpeachGas, msgEditValidatorGas, msgDelegateGas,
-	msgUndelegateGas, msgBeginRedelegateGas, msgCancelUnbondingDelegationGas uint64,
+	msgUndelegateGas, msgBeginRedelegateGas, msgCancelUnbondingDelegationGas, msgCreateValidatorGas, msgClaimGas,
+	msgTransferOutGas, msgCreateStorageProviderGas, msgEditStorageProviderGas, msgSpDepositGas uint64,
 ) Params {
 	return Params{
 		MaxTxSize:                         maxTxSize,
@@ -108,6 +121,12 @@ func NewParams(
 		MsgUndelegateGas:                  msgUndelegateGas,
 		MsgBeginRedelegateGas:             msgBeginRedelegateGas,
 		MsgCancelUnbondingDelegationGas:   msgCancelUnbondingDelegationGas,
+		MsgCreateValidatorGas:             msgCreateValidatorGas,
+		MsgClaimGas:                       msgClaimGas,
+		MsgTransferOutGas:                 msgTransferOutGas,
+		MsgCreateStorageProviderGas:       msgCreateStorageProviderGas,
+		MsgEditStorageProviderGas:         msgEditStorageProviderGas,
+		MsgSpDepositGas:                   msgSpDepositGas,
 	}
 }
 
@@ -147,6 +166,12 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMsgUndelegateGas, &p.MsgUndelegateGas, validateMsgGas),
 		paramtypes.NewParamSetPair(KeyMsgBeginRedelegateGas, &p.MsgBeginRedelegateGas, validateMsgGas),
 		paramtypes.NewParamSetPair(KeyMsgCancelUnbondingDelegationGas, &p.MsgCancelUnbondingDelegationGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgCreateValidatorGas, &p.MsgCreateValidatorGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgClaimGas, &p.MsgClaimGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgTransferOutGas, &p.MsgTransferOutGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgCreateStorageProviderGas, &p.MsgCreateStorageProviderGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgEditStorageProviderGas, &p.MsgEditStorageProviderGas, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgSpDepositGas, &p.MsgSpDepositGas, validateMsgGas),
 	}
 }
 
@@ -180,6 +205,12 @@ func DefaultParams() Params {
 		MsgUndelegateGas:                  DefaultMsgUndelegateGas,
 		MsgBeginRedelegateGas:             DefaultMsgBeginRedelegateGas,
 		MsgCancelUnbondingDelegationGas:   DefaultMsgCancelUnbondingDelegationGas,
+		MsgCreateValidatorGas:             DefaultMsgCreateValidatorGas,
+		MsgClaimGas:                       DefaultMsgClaimGas,
+		MsgTransferOutGas:                 DefaultMsgTransferOutGas,
+		MsgCreateStorageProviderGas:       DefaultMsgCreateStorageProviderGas,
+		MsgEditStorageProviderGas:         DefaultMsgEditStorageProviderGas,
+		MsgSpDepositGas:                   DefaultMsgSpDepositGas,
 	}
 }
 
@@ -278,13 +309,55 @@ func (p Params) Validate() error {
 	if err := validateMsgGas(p.MsgRevokeAllowanceGas); err != nil {
 		return err
 	}
-	if err := validateMsgGas(p.MsgGrantPerItemGas); err != nil {
+	if err := validateMsgGas(p.MsgSubmitProposalGas); err != nil {
 		return err
 	}
-	if err := validateMsgGas(p.MsgMultiSendPerItemGas); err != nil {
+	if err := validateMsgGas(p.MsgVoteGas); err != nil {
 		return err
 	}
-	if err := validateMsgGas(p.MsgGrantAllowancePerItemGas); err != nil {
+	if err := validateMsgGas(p.MsgVoteWeightedGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgDepositGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgUnjailGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgImpeachGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgEditValidatorGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgDelegateGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgUndelegateGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgBeginRedelegateGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgCancelUnbondingDelegationGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgCreateValidatorGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgClaimGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgTransferOutGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgCreateStorageProviderGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgEditStorageProviderGas); err != nil {
+		return err
+	}
+	if err := validateMsgGas(p.MsgSpDepositGas); err != nil {
 		return err
 	}
 

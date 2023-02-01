@@ -13,12 +13,12 @@ import (
 var _ types.QueryServer = Keeper{}
 
 // Params returns parameters of auth module
-func (fhk Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (ghk Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	params := fhk.GetParams(ctx)
+	params := ghk.GetParams(ctx)
 
 	return &types.QueryParamsResponse{Params: params}, nil
 }
