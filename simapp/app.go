@@ -346,7 +346,7 @@ func NewSimApp(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	app.GashubKeeper = gashubkeeper.NewGashubKeeper(appCodec, keys[gashubtypes.StoreKey], app.GetSubspace(gashubtypes.ModuleName))
+	app.GashubKeeper = gashubkeeper.NewKeeper(appCodec, keys[gashubtypes.StoreKey], app.GetSubspace(gashubtypes.ModuleName))
 
 	// Register the upgrade keeper
 	upgradeHandler := map[string]upgradetypes.UpgradeHandler{
