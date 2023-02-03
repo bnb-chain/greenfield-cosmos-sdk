@@ -30,7 +30,14 @@ func RegisterCalculatorGen(msgType string, feeCalcGen GasCalculatorGenerator) {
 }
 
 func GetGasCalculatorGen(msgType string) GasCalculatorGenerator {
-	return calculatorsGen[msgType]
+	res, ok := calculatorsGen[msgType]
+	// todo: this is a temporary default fee, remove this after all msg types are registered
+	if !ok {
+		res = func(params Params) GasCalculator {
+			return FixedGasCalculator(1e5)
+		}
+	}
+	return res
 }
 
 func FixedGasCalculator(amount uint64) GasCalculator {
