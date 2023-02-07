@@ -24,8 +24,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params holds parameters for the oracle module.
 type Params struct {
-	RelayerTimeout     uint64 `protobuf:"varint,1,opt,name=relayer_timeout,json=relayerTimeout,proto3" json:"relayer_timeout,omitempty"`
+	// Timeout for the in turn relayer
+	RelayerTimeout uint64 `protobuf:"varint,1,opt,name=relayer_timeout,json=relayerTimeout,proto3" json:"relayer_timeout,omitempty"`
+	// Backoff time for the other relayers
 	RelayerBackoffTime uint64 `protobuf:"varint,2,opt,name=relayer_backoff_time,json=relayerBackoffTime,proto3" json:"relayer_backoff_time,omitempty"`
+	// Reward share for the relayer sends the claim message,
+	// the other relayers signed the bls message will share the reward evenly.
 	RelayerRewardShare uint32 `protobuf:"varint,3,opt,name=relayer_reward_share,json=relayerRewardShare,proto3" json:"relayer_reward_share,omitempty"`
 }
 
