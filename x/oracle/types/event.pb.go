@@ -24,16 +24,26 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // EventPackageClaim is emitted when a cross chain package is processed
 type EventPackageClaim struct {
-	SrcChainId      uint32 `protobuf:"varint,1,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
-	DestChainId     uint32 `protobuf:"varint,2,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
-	ChannelId       uint32 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	PackageType     uint32 `protobuf:"varint,4,opt,name=package_type,json=packageType,proto3" json:"package_type,omitempty"`
+	// Source chain id of the package
+	SrcChainId uint32 `protobuf:"varint,1,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
+	// Destination chain id of the package
+	DestChainId uint32 `protobuf:"varint,2,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
+	// Channel id of the package
+	ChannelId uint32 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// Package type of the package, like SYN, ACK and FAIL_ACK
+	PackageType uint32 `protobuf:"varint,4,opt,name=package_type,json=packageType,proto3" json:"package_type,omitempty"`
+	// Receive sequence of the package
 	ReceiveSequence uint64 `protobuf:"varint,5,opt,name=receive_sequence,json=receiveSequence,proto3" json:"receive_sequence,omitempty"`
-	SendSequence    int64  `protobuf:"varint,6,opt,name=send_sequence,json=sendSequence,proto3" json:"send_sequence,omitempty"`
-	Crash           bool   `protobuf:"varint,7,opt,name=crash,proto3" json:"crash,omitempty"`
-	ErrorMsg        string `protobuf:"bytes,8,opt,name=error_msg,json=errorMsg,proto3" json:"error_msg,omitempty"`
-	RelayerFee      string `protobuf:"bytes,9,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
-	AckRelayerFee   string `protobuf:"bytes,10,opt,name=ack_relayer_fee,json=ackRelayerFee,proto3" json:"ack_relayer_fee,omitempty"`
+	// Send sequence of the corresponding ACK package or FAIL_ACK package
+	SendSequence int64 `protobuf:"varint,6,opt,name=send_sequence,json=sendSequence,proto3" json:"send_sequence,omitempty"`
+	// Crash status for the handle of this package
+	Crash bool `protobuf:"varint,7,opt,name=crash,proto3" json:"crash,omitempty"`
+	// Error message for the handle of this package
+	ErrorMsg string `protobuf:"bytes,8,opt,name=error_msg,json=errorMsg,proto3" json:"error_msg,omitempty"`
+	// Relayer fee paid for this package
+	RelayerFee string `protobuf:"bytes,9,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
+	// Relayer fee paid for the ACK or FAIL_ACK package
+	AckRelayerFee string `protobuf:"bytes,10,opt,name=ack_relayer_fee,json=ackRelayerFee,proto3" json:"ack_relayer_fee,omitempty"`
 }
 
 func (m *EventPackageClaim) Reset()         { *m = EventPackageClaim{} }
