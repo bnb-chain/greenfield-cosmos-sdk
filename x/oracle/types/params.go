@@ -33,9 +33,9 @@ func ParamKeyTable() paramtypes.KeyTable {
 // ParamSetPairs implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyParamRelayerTimeout, p.RelayerTimeout, validateRelayerTimeout),
-		paramtypes.NewParamSetPair(KeyParamRelayerBackoffTime, p.RelayerBackoffTime, validateRelayerBackoffTime),
-		paramtypes.NewParamSetPair(KeyParamRelayerRewardShare, p.RelayerRewardShare, validateRelayerRewardShare),
+		paramtypes.NewParamSetPair(KeyParamRelayerTimeout, &p.RelayerTimeout, validateRelayerTimeout),
+		paramtypes.NewParamSetPair(KeyParamRelayerBackoffTime, &p.RelayerBackoffTime, validateRelayerBackoffTime),
+		paramtypes.NewParamSetPair(KeyParamRelayerRewardShare, &p.RelayerRewardShare, validateRelayerRewardShare),
 	}
 }
 
