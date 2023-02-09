@@ -279,5 +279,4 @@ func init() {
 		fixedGas := params.GetMsgStorageUpdateGroupMember()
 		return FixedGasCalculator(fixedGas)
 	})
-
 }
