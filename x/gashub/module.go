@@ -81,14 +81,14 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 type AppModule struct {
 	AppModuleBasic
 
-	gashubKeeper keeper.Keeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(cdc codec.Codec, gashubKeeper keeper.Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
-		gashubKeeper:   gashubKeeper,
+		keeper:         gashubKeeper,
 	}
 }
 
@@ -112,26 +112,28 @@ func (AppModule) QuerierRoute() string {
 
 // LegacyQuerierHandler returns the gashub module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return keeper.NewQuerier(am.gashubKeeper, legacyQuerierCdc)
+	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
 }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {}
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+}
 
 // InitGenesis performs genesis initialization for the gashub module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.gashubKeeper.InitGenesis(ctx, genesisState)
+	am.keeper.InitGenesis(ctx, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the gashub
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := am.gashubKeeper.ExportGenesis(ctx)
+	gs := am.keeper.ExportGenesis(ctx)
 	return cdc.MustMarshalJSON(gs)
 }
 
