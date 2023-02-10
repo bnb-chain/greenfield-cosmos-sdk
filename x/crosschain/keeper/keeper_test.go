@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
@@ -16,8 +17,9 @@ import (
 type TestSuite struct {
 	suite.Suite
 
-	app *simapp.SimApp
-	ctx sdk.Context
+	app         *simapp.SimApp
+	ctx         sdk.Context
+	queryClient types.QueryClient
 }
 
 func (s *TestSuite) SetupTest() {
@@ -27,8 +29,13 @@ func (s *TestSuite) SetupTest() {
 
 	app.CrossChainKeeper.SetParams(ctx, types.DefaultParams())
 
+	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, app.CrossChainKeeper)
+	queryClient := types.NewQueryClient(queryHelper)
+
 	s.app = app
 	s.ctx = ctx
+	s.queryClient = queryClient
 }
 
 func TestTestSuite(t *testing.T) {

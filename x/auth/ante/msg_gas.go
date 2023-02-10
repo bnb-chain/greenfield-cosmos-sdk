@@ -20,13 +20,13 @@ import (
 // in or empty.
 type ValidateTxSizeDecorator struct {
 	ak  AccountKeeper
-	fhk GashubKeeper
+	ghk GashubKeeper
 }
 
-func NewValidateTxSizeDecorator(ak AccountKeeper, fhk GashubKeeper) ValidateTxSizeDecorator {
+func NewValidateTxSizeDecorator(ak AccountKeeper, ghk GashubKeeper) ValidateTxSizeDecorator {
 	return ValidateTxSizeDecorator{
 		ak:  ak,
-		fhk: fhk,
+		ghk: ghk,
 	}
 }
 
@@ -77,7 +77,7 @@ func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		newCtx = ctx.WithTxSize(txSize)
 	}
 
-	params := vtsd.fhk.GetParams(ctx)
+	params := vtsd.ghk.GetParams(ctx)
 	if txSize > params.GetMaxTxSize() {
 		return ctx, errors.Wrapf(sdkerrors.ErrTxTooLarge, "tx length: %d, limit: %d", txSize, params.GetMaxTxSize())
 	}
@@ -89,13 +89,13 @@ func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 // the size of tx and msg type before calling next AnteHandler.
 type ConsumeMsgGasDecorator struct {
 	ak  AccountKeeper
-	fhk GashubKeeper
+	ghk GashubKeeper
 }
 
-func NewConsumeMsgGasDecorator(ak AccountKeeper, fhk GashubKeeper) ConsumeMsgGasDecorator {
+func NewConsumeMsgGasDecorator(ak AccountKeeper, ghk GashubKeeper) ConsumeMsgGasDecorator {
 	return ConsumeMsgGasDecorator{
 		ak:  ak,
-		fhk: fhk,
+		ghk: ghk,
 	}
 }
 
@@ -105,7 +105,7 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		return ctx, errors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
 	}
 
-	params := cmfg.fhk.GetParams(ctx)
+	params := cmfg.ghk.GetParams(ctx)
 	gasByTxSize := cmfg.getTxSizeGas(params, ctx)
 	gasByMsgType, err := cmfg.getMsgGas(params, sigTx)
 	if err != nil {

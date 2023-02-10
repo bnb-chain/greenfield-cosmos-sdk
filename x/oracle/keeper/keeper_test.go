@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/prysmaticlabs/prysm/crypto/bls/blst"
 	"github.com/stretchr/testify/require"
@@ -35,7 +36,8 @@ type TestSuite struct {
 	app *simapp.SimApp
 	ctx sdk.Context
 
-	msgServer types.MsgServer
+	msgServer   types.MsgServer
+	queryClient types.QueryClient
 }
 
 func (s *TestSuite) SetupTest() {
@@ -51,13 +53,20 @@ func (s *TestSuite) SetupTest() {
 	s.app.CrossChainKeeper.SetSrcChainID(sdk.ChainID(1))
 	s.app.CrossChainKeeper.SetDestChainID(sdk.ChainID(56))
 
+	s.app.OracleKeeper.SetParams(s.ctx, types.DefaultParams())
+
 	coins := sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100000)))
 	err := s.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
 	s.NoError(err)
 	err = app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, crosschaintypes.ModuleName, coins)
 	s.NoError(err)
 
+	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, app.OracleKeeper)
+	queryClient := types.NewQueryClient(queryHelper)
+
 	s.msgServer = keeper.NewMsgServerImpl(s.app.OracleKeeper)
+	s.queryClient = queryClient
 }
 
 func TestTestSuite(t *testing.T) {

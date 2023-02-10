@@ -54,7 +54,8 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	params := types.NewParams(maxTxSize, minGasPerByte, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas,
 		msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas,
-		msgGas, msgGas, msgGas)
+		msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas, msgGas,
+		msgGas, msgGas, msgGas, msgGas, msgGas, msgGas)
 
 	gashubGenesis := types.NewGenesisState(params)
 

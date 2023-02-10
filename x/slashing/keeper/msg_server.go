@@ -2,8 +2,6 @@ package keeper
 
 import (
 	"context"
-	"math"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -81,7 +79,7 @@ func (k msgServer) Impeach(goCtx context.Context, msg *types.MsgImpeach) (*types
 	}
 
 	// Jail forever.
-	k.JailUntil(ctx, consAddr, time.Unix(math.MaxInt64, 0))
+	k.JailForever(ctx, consAddr)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(

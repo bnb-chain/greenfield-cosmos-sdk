@@ -24,14 +24,23 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // EventCrossChain is emitted when there is a cross chain package created
 type EventCrossChain struct {
-	SrcChainId    uint32 `protobuf:"varint,1,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
-	DestChainId   uint32 `protobuf:"varint,2,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
-	ChannelId     uint32 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Sequence      uint64 `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty"`
-	PackageType   uint32 `protobuf:"varint,5,opt,name=package_type,json=packageType,proto3" json:"package_type,omitempty"`
-	Timestamp     uint64 `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	PackageLoad   string `protobuf:"bytes,7,opt,name=package_load,json=packageLoad,proto3" json:"package_load,omitempty"`
-	RelayerFee    string `protobuf:"bytes,8,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
+	// Source chain id of the cross chain package
+	SrcChainId uint32 `protobuf:"varint,1,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
+	// Destination chain id of the cross chainpackage
+	DestChainId uint32 `protobuf:"varint,2,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
+	// Channel id of the cross chain package
+	ChannelId uint32 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// Sequence of the cross chain package
+	Sequence uint64 `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// Package type of the cross chain package, like SYN, ACK and FAIL_ACK
+	PackageType uint32 `protobuf:"varint,5,opt,name=package_type,json=packageType,proto3" json:"package_type,omitempty"`
+	// Timestamp of the cross chain package
+	Timestamp uint64 `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// Payload of the cross chain package
+	PackageLoad string `protobuf:"bytes,7,opt,name=package_load,json=packageLoad,proto3" json:"package_load,omitempty"`
+	// Relayer fee for the cross chain package
+	RelayerFee string `protobuf:"bytes,8,opt,name=relayer_fee,json=relayerFee,proto3" json:"relayer_fee,omitempty"`
+	// Relayer fee for the ACK or FAIL_ACK package of this cross chain package
 	AckRelayerFee string `protobuf:"bytes,9,opt,name=ack_relayer_fee,json=ackRelayerFee,proto3" json:"ack_relayer_fee,omitempty"`
 }
 

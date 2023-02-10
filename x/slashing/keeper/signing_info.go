@@ -113,6 +113,29 @@ func (k Keeper) JailUntil(ctx sdk.Context, consAddr sdk.ConsAddress, jailTime ti
 	k.SetValidatorSigningInfo(ctx, consAddr, signInfo)
 }
 
+// JailForever attempts to set the validator's JailedUntil attribute in its signing
+// info to a very big value. When no signing info found, it will create a new signing
+// info for the validator.
+func (k Keeper) JailForever(ctx sdk.Context, consAddr sdk.ConsAddress) {
+	signingInfo, found := k.GetValidatorSigningInfo(ctx, consAddr)
+	if !found {
+		// Allow jail forever a no signing info validator.
+		signingInfo = types.NewValidatorSigningInfo(
+			consAddr,
+			ctx.BlockHeight(),
+			0,
+			time.Unix(0, 0),
+			false,
+			0,
+		)
+	}
+
+	// Jail to 10000-1-1 08:00:00.
+	signingInfo.JailedUntil = time.Unix(253402300800, 0)
+
+	k.SetValidatorSigningInfo(ctx, consAddr, signingInfo)
+}
+
 // Tombstone attempts to tombstone a validator. It will panic if signing info for
 // the given validator does not exist.
 func (k Keeper) Tombstone(ctx sdk.Context, consAddr sdk.ConsAddress) {

@@ -11,6 +11,7 @@ import (
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -29,7 +30,14 @@ func RegisterCalculatorGen(msgType string, feeCalcGen GasCalculatorGenerator) {
 }
 
 func GetGasCalculatorGen(msgType string) GasCalculatorGenerator {
-	return calculatorsGen[msgType]
+	res, ok := calculatorsGen[msgType]
+	// todo: this is a temporary default fee, remove this after all msg types are registered
+	if !ok {
+		res = func(params Params) GasCalculator {
+			return FixedGasCalculator(1e5)
+		}
+	}
+	return res
 }
 
 func FixedGasCalculator(amount uint64) GasCalculator {
@@ -199,6 +207,83 @@ func init() {
 	})
 	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), func(params Params) GasCalculator {
 		fixedGas := params.GetMsgCancelUnbondingDelegationGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCreateValidator{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgCreateValidatorGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen(types.MsgTypeURL(&oracletypes.MsgClaim{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgClaimGas()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	// these msgs are from greenfield, so the msg types need to be hard coded.
+	RegisterCalculatorGen("/bnbchain.greenfield.bridge.MsgTransferOut", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgTransferOutGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgCreateStorageProvider", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgCreateStorageProviderGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgEditStorageProvider", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgEditStorageProviderGas()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgDeposit", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSpDepositGas()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateBucket", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageCreateBucket()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteBucket", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageDeleteBucket()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateObject", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageCreateObject()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteObject", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageDeleteObject()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgSealObject", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageSealObject()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCopyObject", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageCopyObject()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgRejectSealObject", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageRejectSealObject()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateGroup", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageCreateGroup()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteGroup", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageDeleteGroup()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgLeaveGroup", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageLeaveGroup()
+		return FixedGasCalculator(fixedGas)
+	})
+	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgUpdateGroupMember", func(params Params) GasCalculator {
+		fixedGas := params.GetMsgStorageUpdateGroupMember()
 		return FixedGasCalculator(fixedGas)
 	})
 }
