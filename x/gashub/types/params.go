@@ -10,8 +10,8 @@ import (
 
 // Default parameter values
 const (
-	DefaultMaxTxSize                   uint64 = 1024
-	DefaultMinGasPerByte               uint64 = 5
+	DefaultMaxTxSize     uint64 = 1024
+	DefaultMinGasPerByte uint64 = 5
 )
 
 var DefaultMsgGasParamsSet = []*MsgGasParams{
@@ -183,10 +183,10 @@ var (
 var _ paramtypes.ParamSet = &Params{}
 
 // NewMsgGasParams creates a new MsgGasParams object
-func NewMsgGasParams(msgTypeUrl string, Params ...uint64, ) *MsgGasParams {
+func NewMsgGasParams(msgTypeUrl string, params ...uint64) *MsgGasParams {
 	return &MsgGasParams{
 		Msg_type_url: msgTypeUrl,
-		Params:       Params,
+		Params:       params,
 	}
 }
 
