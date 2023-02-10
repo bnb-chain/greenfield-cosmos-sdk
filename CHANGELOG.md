@@ -1,8 +1,21 @@
 # Changelog
 
+## v0.0.6
+This release is a maintenance release.
+
+* [\#102](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/102) feat: Add gas calculator for all the messages of storage module
+* [\#101](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/101) fix: add missing registration for gashub query server
+* [\#100](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/100) fix: fix impeach validator
+* [\#99](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/99) fix: fix the params query for oracle and crosschain module
+* [\#98](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/98) feat: add comments for the events of oracle and crosschain modules
+* [\#97](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/97)  fix: changed validator jail timestamp to grpc compliant unit
+* [\#96](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/96)  feat: add a default gas calculator
+* [\#95](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/95)  fix: update balance query eth jsonrpc method
+* [\#94](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/94)  fix: add gas calculator for msg create validator
+* [\#90](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/90)  feat: add support for EVM jsonrpc
+
 ## v0.0.5
 This release is for rebranding from inscription to greenfield, renaming is applied to all packages, files.
-
 * [\#91](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/91) feat: rebrand from inscription to greenfield
 
 ## v0.0.4
