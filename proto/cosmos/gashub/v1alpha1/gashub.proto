@@ -10,48 +10,17 @@ message Params {
   option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
-  uint64 max_tx_size                           = 1 [(gogoproto.customname) = "MaxTxSize"];
-  uint64 min_gas_per_byte                      = 2 [(gogoproto.customname) = "MinGasPerByte"];
-  uint64 msg_grant_fixed_gas                   = 3 [(gogoproto.customname) = "MsgGrantFixedGas"];
-  uint64 msg_grant_per_item_gas                = 4 [(gogoproto.customname) = "MsgGrantPerItemGas"];
-  uint64 msg_revoke_gas                        = 5 [(gogoproto.customname) = "MsgRevokeGas"];
-  uint64 msg_exec_gas                          = 6 [(gogoproto.customname) = "MsgExecGas"];
-  uint64 msg_send_gas                          = 7 [(gogoproto.customname) = "MsgSendGas"];
-  uint64 msg_multi_send_fixed_gas              = 8 [(gogoproto.customname) = "MsgMultiSendFixedGas"];
-  uint64 msg_multi_send_per_item_gas           = 9 [(gogoproto.customname) = "MsgMultiSendPerItemGas"];
-  uint64 msg_withdraw_delegator_reward_gas     = 10 [(gogoproto.customname) = "MsgWithdrawDelegatorRewardGas"];
-  uint64 msg_withdraw_validator_commission_gas = 11 [(gogoproto.customname) = "MsgWithdrawValidatorCommissionGas"];
-  uint64 msg_set_withdraw_address_gas          = 12 [(gogoproto.customname) = "MsgSetWithdrawAddressGas"];
-  uint64 msg_fund_community_pool_gas           = 13 [(gogoproto.customname) = "MsgFundCommunityPoolGas"];
-  uint64 msg_grant_allowance_fixed_gas         = 14 [(gogoproto.customname) = "MsgGrantAllowanceFixedGas"];
-  uint64 msg_grant_allowance_per_item_gas      = 15 [(gogoproto.customname) = "MsgGrantAllowancePerItemGas"];
-  uint64 msg_revoke_allowance_gas              = 16 [(gogoproto.customname) = "MsgRevokeAllowanceGas"];
-  uint64 msg_submit_proposal_gas               = 17 [(gogoproto.customname) = "MsgSubmitProposalGas"];
-  uint64 msg_vote_gas                          = 18 [(gogoproto.customname) = "MsgVoteGas"];
-  uint64 msg_vote_weighted_gas                 = 19 [(gogoproto.customname) = "MsgVoteWeightedGas"];
-  uint64 msg_deposit_gas                       = 20 [(gogoproto.customname) = "MsgDepositGas"];
-  uint64 msg_unjail_gas                        = 21 [(gogoproto.customname) = "MsgUnjailGas"];
-  uint64 msg_impeach_gas                       = 22 [(gogoproto.customname) = "MsgImpeachGas"];
-  uint64 msg_edit_validator_gas                = 23 [(gogoproto.customname) = "MsgEditValidatorGas"];
-  uint64 msg_delegate_gas                      = 24 [(gogoproto.customname) = "MsgDelegateGas"];
-  uint64 msg_undelegate_gas                    = 25 [(gogoproto.customname) = "MsgUndelegateGas"];
-  uint64 msg_begin_redelegate_gas              = 26 [(gogoproto.customname) = "MsgBeginRedelegateGas"];
-  uint64 msg_cancel_unbonding_delegation_gas   = 27 [(gogoproto.customname) = "MsgCancelUnbondingDelegationGas"];
-  uint64 msg_create_validator_gas              = 28 [(gogoproto.customname) = "MsgCreateValidatorGas"];
-  uint64 msg_claim_gas                         = 29 [(gogoproto.customname) = "MsgClaimGas"];
-  uint64 msg_transfer_out_gas                  = 30 [(gogoproto.customname) = "MsgTransferOutGas"];
-  uint64 msg_create_storage_provider_gas       = 31 [(gogoproto.customname) = "MsgCreateStorageProviderGas"];
-  uint64 msg_edit_storage_provider_gas         = 32 [(gogoproto.customname) = "MsgEditStorageProviderGas"];
-  uint64 msg_sp_deposit_gas                    = 33 [(gogoproto.customname) = "MsgSpDepositGas"];
-  uint64 msg_storage_create_bucket_gas         = 34 [(gogoproto.customname) = "MsgStorageCreateBucket"];
-  uint64 msg_storage_delete_bucket_gas         = 35 [(gogoproto.customname) = "MsgStorageDeleteBucket"];
-  uint64 msg_storage_create_object_gas         = 36 [(gogoproto.customname) = "MsgStorageCreateObject"];
-  uint64 msg_storage_delete_object_gas         = 37 [(gogoproto.customname) = "MsgStorageDeleteObject"];
-  uint64 msg_storage_seal_object_gas           = 38 [(gogoproto.customname) = "MsgStorageSealObject"];
-  uint64 msg_storage_copy_object_gas           = 39 [(gogoproto.customname) = "MsgStorageCopyObject"];
-  uint64 msg_storage_reject_seal_object_gas    = 40 [(gogoproto.customname) = "MsgStorageRejectSealObject"];
-  uint64 msg_storage_create_group_gas          = 41 [(gogoproto.customname) = "MsgStorageCreateGroup"];
-  uint64 msg_storage_delete_group_gas          = 42 [(gogoproto.customname) = "MsgStorageDeleteGroup"];
-  uint64 msg_storage_leave_group_gas           = 43 [(gogoproto.customname) = "MsgStorageLeaveGroup"];
-  uint64 msg_storage_update_group_member_gas   = 44 [(gogoproto.customname) = "MsgStorageUpdateGroupMember"];
+  uint64 max_tx_size      = 1 [(gogoproto.customname) = "MaxTxSize"];
+  uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
+
+  repeated MsgGasParams msg_gas_params_set = 3 [(gogoproto.customname) = "MsgGasParamsSet"];
+}
+
+// MsgGasParams is a
+message MsgGasParams {
+  option (gogoproto.equal)            = true;
+
+  string msg_type_url = 1 [(gogoproto.customname) = "Msg_type_url"];
+
+  repeated uint64 params = 2 [(gogoproto.customname) = "Params"];;
 }
