@@ -20,6 +20,7 @@ import (
 // Abnormal scenarios are not tested here.
 func TestRandomizedGenState(t *testing.T) {
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	types.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -41,5 +42,7 @@ func TestRandomizedGenState(t *testing.T) {
 
 	require.Equal(t, uint64(2540), gashubGenesis.Params.MaxTxSize)
 	require.Equal(t, uint64(2956), gashubGenesis.Params.MinGasPerByte)
-	require.Equal(t, uint64(4978511), gashubGenesis.Params.MsgGasParamsSet[0].Params[0])
+
+	gas := gashubGenesis.Params.MsgGasParamsSet[0].GasParams.(*types.MsgGasParams_FixedType)
+	require.Equal(t, uint64(4978511), gas.FixedType.FixedGas)
 }

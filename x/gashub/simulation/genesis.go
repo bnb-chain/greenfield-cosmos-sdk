@@ -1,13 +1,13 @@
 package simulation
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
+	"github.com/gogo/protobuf/jsonpb"
 )
 
 // Simulation parameter constants
@@ -31,7 +31,7 @@ func GenMinGasPerByte(r *rand.Rand) uint64 {
 func GenMsgGasParams(r *rand.Rand) *types.MsgGasParams {
 	msgTypeUrl := simulation.RandStringOfLength(r, 12)
 	gas := uint64(simulation.RandIntBetween(r, 1e5, 1e7))
-	return types.NewMsgGasParams(msgTypeUrl, gas)
+	return types.NewMsgGasParamsWithFixedGas(msgTypeUrl, gas)
 }
 
 // RandomizedGenState generates a random GenesisState for auth
@@ -58,7 +58,8 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	gashubGenesis := types.NewGenesisState(params)
 
-	bz, err := json.MarshalIndent(&gashubGenesis.Params, "", " ")
+	cdc := jsonpb.Marshaler{Indent: " "}
+	bz, err := cdc.MarshalToString(&gashubGenesis.Params)
 	if err != nil {
 		panic(err)
 	}

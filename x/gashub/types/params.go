@@ -5,6 +5,7 @@ import (
 
 	"sigs.k8s.io/yaml"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -13,165 +14,6 @@ const (
 	DefaultMaxTxSize     uint64 = 1024
 	DefaultMinGasPerByte uint64 = 5
 )
-
-var DefaultMsgGasParamsSet = []*MsgGasParams{
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgCreateValidator",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgRejectSealObject",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgDeleteGroup",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.authz.v1beta1.MsgRevoke",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.distribution.v1beta1.MsgFundCommunityPool",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.slashing.v1beta1.MsgImpeach",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgEditValidator",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.bridge.MsgTransferOut",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgCreateObject",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.bank.v1beta1.MsgSend",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.gov.v1.MsgVote",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.gov.v1.MsgVoteWeighted",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgSealObject",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgDeleteBucket",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.slashing.v1beta1.MsgUnjail",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.sp.MsgCreateStorageProvider",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.sp.MsgDeposit",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgUpdateGroupMember",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.feegrant.v1beta1.MsgRevokeAllowance",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.gov.v1.MsgDeposit",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.sp.MsgEditStorageProvider",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgCreateBucket",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgLeaveGroup",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.oracle.v1.MsgClaim",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgCopyObject",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.gov.v1.MsgSubmitProposal",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgUndelegate",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.staking.v1beta1.MsgDelegate",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgDeleteObject",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/bnbchain.greenfield.storage.MsgCreateGroup",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.authz.v1beta1.MsgExec",
-		Params:       []uint64{1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.feegrant.v1beta1.MsgGrantAllowance",
-		Params:       []uint64{1e5, 1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.authz.v1beta1.MsgGrant",
-		Params:       []uint64{1e5, 1e5},
-	},
-	{
-		Msg_type_url: "/cosmos.bank.v1beta1.MsgMultiSend",
-		Params:       []uint64{1e5, 1e5},
-	},
-}
 
 // Parameter keys
 var (
@@ -182,11 +24,24 @@ var (
 
 var _ paramtypes.ParamSet = &Params{}
 
-// NewMsgGasParams creates a new MsgGasParams object
-func NewMsgGasParams(msgTypeUrl string, params ...uint64) *MsgGasParams {
+// NewMsgGasParamsWithFixedGas creates a new MsgGasParams object with fixed gas
+func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 	return &MsgGasParams{
-		Msg_type_url: msgTypeUrl,
-		Params:       params,
+		MsgTypeUrl: msgTypeUrl,
+		GasType:    GasType_FIXED,
+		GasParams:  &MsgGasParams_FixedType{FixedType: &MsgGasParams_FixedGasParams{FixedGas: gas}},
+	}
+}
+
+// NewMsgGasParamsWithDynamicGas creates a new MsgGasParams object with dynamic gas
+func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint64) *MsgGasParams {
+	return &MsgGasParams{
+		MsgTypeUrl: msgTypeUrl,
+		GasType:    GasType_DYNAMIC,
+		GasParams: &MsgGasParams_DynamicType{DynamicType: &MsgGasParams_DynamicGasParams{
+			FixedGas:   gasFixed,
+			GasPerItem: gasPerItem,
+		}},
 	}
 }
 
@@ -218,10 +73,50 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
+	var defaultMsgGasParamsSet = []*MsgGasParams{
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgExec", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgRevoke", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.bank.v1beta1.MsgSend", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgFundCommunityPool", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.feegrant.v1beta1.MsgRevokeAllowance", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgSubmitProposal", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVote", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVoteWeighted", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.oracle.v1.MsgClaim", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgImpeach", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgUnjail", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgBeginRedelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCreateValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgDelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgEditValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgUndelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.bridge.MsgTransferOut", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgCreateStorageProvider", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgEditStorageProvider", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCopyObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgLeaveGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.authz.v1beta1.MsgGrant", 1e5, 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.bank.v1beta1.MsgMultiSend", 1e5, 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.feegrant.v1beta1.MsgGrantAllowance", 1e5, 1e5),
+	}
 	return Params{
 		MaxTxSize:       DefaultMaxTxSize,
 		MinGasPerByte:   DefaultMinGasPerByte,
-		MsgGasParamsSet: DefaultMsgGasParamsSet,
+		MsgGasParamsSet: defaultMsgGasParamsSet,
 	}
 }
 
@@ -263,14 +158,20 @@ func validateMsgGasParams(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
+	anyUnpacker := codectypes.NewInterfaceRegistry()
+	RegisterInterfaces(anyUnpacker)
 	for _, msgGasParams := range v {
-		if len(msgGasParams.Params) == 0 {
-			return fmt.Errorf("params cannot be empty")
-		}
-		for _, param := range msgGasParams.Params {
-			if param == 0 {
-				return fmt.Errorf("invalid msg gas param: %d", param)
+		switch p := msgGasParams.GasParams.(type) {
+		case *MsgGasParams_FixedType:
+			if p.FixedType.FixedGas == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
 			}
+		case *MsgGasParams_DynamicType:
+			if p.DynamicType.FixedGas == 0 || p.DynamicType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		default:
+			return fmt.Errorf("unknown or unspecified gas type")
 		}
 	}
 

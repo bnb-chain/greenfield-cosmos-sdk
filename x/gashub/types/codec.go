@@ -8,25 +8,23 @@ import (
 	authzcodec "github.com/cosmos/cosmos-sdk/x/authz/codec"
 )
 
-// RegisterLegacyAminoCodec registers the account interfaces and concrete types on the
-// provided LegacyAmino codec. These types are used for Amino JSON serialization
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterInterface((*isMsgGasParams_GasParams)(nil), nil)
+	cdc.RegisterConcrete(&MsgGasParams_FixedType{}, "cosmos-sdk/MsgGasParams/FixedType", nil)
+	cdc.RegisterConcrete(&MsgGasParams_DynamicType{}, "cosmos-sdk/MsgGasParams/DynamicType", nil)
 }
 
-// RegisterInterfaces associates protoName with AccountI interface
-// and creates a registry of it's concrete implementations
-func RegisterInterfaces(registry types.InterfaceRegistry) {
-}
+func RegisterInterfaces(registry types.InterfaceRegistry) {}
 
 var (
-	amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(amino)
+	Amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewAminoCodec(Amino)
 )
 
 func init() {
-	RegisterLegacyAminoCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
-	sdk.RegisterLegacyAminoCodec(amino)
+	RegisterLegacyAminoCodec(Amino)
+	cryptocodec.RegisterCrypto(Amino)
+	sdk.RegisterLegacyAminoCodec(Amino)
 
 	// Register all Amino interfaces and concrete types on the authz Amino codec so that this can later be
 	// used to properly serialize MsgGrant and MsgExec instances

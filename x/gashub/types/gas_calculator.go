@@ -103,14 +103,12 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 var msgGrantGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsg_type_url() == "/cosmos.authz.v1beta1.MsgGrant" {
-			p := gasParams.GetParams()
-			if len(p) != 2 {
-				panic("wrong params for /cosmos.authz.v1beta1.MsgGrant")
+		if gasParams.GetMsgTypeUrl() == "/cosmos.authz.v1beta1.MsgGrant" {
+			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
+			if !ok {
+				panic("type conversion failed for /cosmos.authz.v1beta1.MsgGrant")
 			}
-			fixedGas := p[0]
-			gasPerItem := p[1]
-			return GrantCalculator(fixedGas, gasPerItem)
+			return GrantCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.authz.v1beta1.MsgGrant")
@@ -119,14 +117,12 @@ var msgGrantGasCalculatorGen = func(params Params) GasCalculator {
 var msgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsg_type_url() == "/cosmos.bank.v1beta1.MsgMultiSend" {
-			p := gasParams.GetParams()
-			if len(p) != 2 {
-				panic("wrong params for /cosmos.bank.v1beta1.MsgMultiSend")
+		if gasParams.GetMsgTypeUrl() == "/cosmos.bank.v1beta1.MsgMultiSend" {
+			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
+			if !ok {
+				panic("type conversion failed for /cosmos.bank.v1beta1.MsgMultiSend")
 			}
-			fixedGas := p[0]
-			gasPerItem := p[1]
-			return MultiSendCalculator(fixedGas, gasPerItem)
+			return MultiSendCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.bank.v1beta1.MsgMultiSend")
@@ -135,36 +131,73 @@ var msgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
 var msgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsg_type_url() == "/cosmos.feegrant.v1beta1.MsgGrantAllowance" {
-			p := gasParams.GetParams()
-			if len(p) != 2 {
-				panic("wrong params for /cosmos.feegrant.v1beta1.MsgGrantAllowance")
+		if gasParams.GetMsgTypeUrl() == "/cosmos.feegrant.v1beta1.MsgGrantAllowance" {
+			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
+			if !ok {
+				panic("type conversion failed for /cosmos.feegrant.v1beta1.MsgGrantAllowance")
 			}
-			fixedGas := p[0]
-			gasPerItem := p[1]
-			return GrantAllowanceCalculator(fixedGas, gasPerItem)
+			return MultiSendCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.feegrant.v1beta1.MsgGrantAllowance")
 }
 
 func init() {
+	var defaultMsgGasParamsSet = []*MsgGasParams{
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgExec", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgRevoke", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.bank.v1beta1.MsgSend", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgFundCommunityPool", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.feegrant.v1beta1.MsgRevokeAllowance", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgSubmitProposal", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVote", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVoteWeighted", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.oracle.v1.MsgClaim", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgImpeach", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgUnjail", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgBeginRedelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCreateValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgDelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgEditValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgUndelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.bridge.MsgTransferOut", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgCreateStorageProvider", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgEditStorageProvider", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCopyObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgLeaveGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.authz.v1beta1.MsgGrant", 1e5, 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.bank.v1beta1.MsgMultiSend", 1e5, 1e5),
+		NewMsgGasParamsWithDynamicGas("/cosmos.feegrant.v1beta1.MsgGrantAllowance", 1e5, 1e5),
+	}
 	// for fixed gas msgs
-	for _, gasParams := range DefaultMsgGasParamsSet {
-		if len(gasParams.GetParams()) != 1 {
+	for _, gasParams := range defaultMsgGasParamsSet {
+		if gasParams.GetGasType() != GasType_FIXED {
 			continue
 		}
-		msgType := gasParams.GetMsg_type_url()
+		msgType := gasParams.GetMsgTypeUrl()
 		RegisterCalculatorGen(msgType, func(params Params) GasCalculator {
 			msgGasParamsSet := params.GetMsgGasParamsSet()
 			for _, gasParams := range msgGasParamsSet {
-				if gasParams.GetMsg_type_url() == msgType {
-					p := gasParams.GetParams()
-					if len(p) != 1 {
-						panic(fmt.Sprintf("wrong params for %s", msgType))
+				if gasParams.GetMsgTypeUrl() == msgType {
+					p, ok := gasParams.GasParams.(*MsgGasParams_FixedType)
+					if !ok {
+						panic(fmt.Errorf("unpack failed for %s", msgType))
 					}
-					fixedGas := p[0]
-					return FixedGasCalculator(fixedGas)
+					return FixedGasCalculator(p.FixedType.FixedGas)
 				}
 			}
 			panic(fmt.Sprintf("no params for %s", msgType))

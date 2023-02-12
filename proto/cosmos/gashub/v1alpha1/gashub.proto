@@ -2,6 +2,7 @@ syntax = "proto3";
 package cosmos.gashub.v1alpha1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
 
@@ -16,11 +17,37 @@ message Params {
   repeated MsgGasParams msg_gas_params_set = 3 [(gogoproto.customname) = "MsgGasParamsSet"];
 }
 
-// MsgGasParams is a
+// MsgGasParams defines gas for a msg type
 message MsgGasParams {
   option (gogoproto.equal)            = true;
 
-  string msg_type_url = 1 [(gogoproto.customname) = "Msg_type_url"];
+  string              msg_type_url = 1 [(gogoproto.customname) = "MsgTypeUrl"];
+  GasType             gas_type     = 2 [(gogoproto.customname) = "GasType"];
+  // gas_params is the oneof that represents either fixed_gas_params or dynamic_gas_params
+  oneof gas_params {
+    // fixed_type specifies fixed type gas params.
+    FixedGasParams fixed_type = 3;
+    // dynamic_type specifies dynamic type gas params.
+    DynamicGasParams dynamic_type = 4;
+  }
+  // FixedGasParams defines the parameters for fixed gas type.
+  message FixedGasParams {
+    option (gogoproto.equal)            = true;
 
-  repeated uint64 params = 2 [(gogoproto.customname) = "Params"];;
+    uint64 fixed_gas = 1 [(gogoproto.customname) = "FixedGas"];
+  }
+
+  // DynamicGasParams defines the parameters for dynamic gas type.
+  message DynamicGasParams {
+    option (gogoproto.equal)            = true;
+
+    uint64 fixed_gas    = 1 [(gogoproto.customname) = "FixedGas"];
+    uint64 gas_per_item = 2 [(gogoproto.customname) = "GasPerItem"];
+  }
+}
+
+enum GasType {
+  UNSPECIFIED = 0;
+  FIXED       = 1;
+  DYNAMIC     = 2;
 }
