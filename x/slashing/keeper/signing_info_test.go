@@ -94,3 +94,15 @@ func TestJailUntil(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, time.Unix(253402300799, 0).UTC(), info.JailedUntil)
 }
+
+func TestJailForever(t *testing.T) {
+	app := simapp.Setup(t, false, true)
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+	addrDels := simapp.AddTestAddrsIncremental(app, ctx, 1, app.StakingKeeper.TokensFromConsensusPower(ctx, 200))
+
+	app.SlashingKeeper.JailForever(ctx, sdk.ConsAddress(addrDels[0]))
+
+	info, ok := app.SlashingKeeper.GetValidatorSigningInfo(ctx, sdk.ConsAddress(addrDels[0]))
+	require.True(t, ok)
+	require.Equal(t, time.Unix(253402300799, 0).UTC(), info.JailedUntil)
+}
