@@ -73,7 +73,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
-	var defaultMsgGasParamsSet = []*MsgGasParams{
+	defaultMsgGasParamsSet := []*MsgGasParams{
 		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgExec", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgRevoke", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.bank.v1beta1.MsgSend", 1e5),
@@ -87,7 +87,6 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVote", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVoteWeighted", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.oracle.v1.MsgClaim", 1e5),
-		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgImpeach", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgUnjail", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgBeginRedelegate", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation", 1e5),
@@ -96,7 +95,6 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgEditValidator", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgUndelegate", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.bridge.MsgTransferOut", 1e5),
-		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgCreateStorageProvider", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgDeposit", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgEditStorageProvider", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCopyObject", 1e5),

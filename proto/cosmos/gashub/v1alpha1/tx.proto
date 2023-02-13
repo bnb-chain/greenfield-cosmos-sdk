@@ -1,0 +1,32 @@
+syntax = "proto3";
+package cosmos.gashub.v1alpha1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/gashub/v1alpha1/gashub.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// Msg defines the gashub Msg service.
+service Msg {
+  // UpdateMsgGasParams defines a method for updating msg gas params.
+  rpc UpdateMsgGasParams(MsgUpdateMsgGasParams) returns (MsgUpdateMsgGasParamsResponse);
+}
+
+// MsgUpdateMsgGasParams represents a message to update msg gas params.
+message MsgUpdateMsgGasParams {
+  // NOTE: The params should be updated by the gov module account after the proposal passes.
+  option (cosmos.msg.v1.signer) = "sender";
+
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string from = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // the params is for a new msg type or existed msg type
+  bool         is_new     = 2;
+  MsgGasParams new_params = 3;
+}
+
+// MsgUpdateMsgGasParamsResponse defines the Msg/UpdateMsgGasParams response type.
+message MsgUpdateMsgGasParamsResponse {}

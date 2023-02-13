@@ -143,7 +143,7 @@ var msgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
 }
 
 func init() {
-	var defaultMsgGasParamsSet = []*MsgGasParams{
+	defaultMsgGasParamsSet := []*MsgGasParams{
 		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgExec", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgRevoke", 1e5),
 		NewMsgGasParamsWithFixedGas("/cosmos.bank.v1beta1.MsgSend", 1e5),

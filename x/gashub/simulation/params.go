@@ -3,12 +3,12 @@ package simulation
 // DONTCOVER
 
 import (
+	"encoding/json"
 	"math/rand"
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
-	"encoding/json"
 )
 
 // ParamChanges defines the parameters that can be modified by param change proposals
