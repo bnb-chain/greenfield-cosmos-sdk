@@ -185,7 +185,7 @@ func init() {
 	}
 	// for fixed gas msgs
 	for _, gasParams := range defaultMsgGasParamsSet {
-		if gasParams.GetGasType() != GasType_FIXED {
+		if gasParams.GetGasType() != GasType_GAS_TYPE_FIXED {
 			continue
 		}
 		msgType := gasParams.GetMsgTypeUrl()

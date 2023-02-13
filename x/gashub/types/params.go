@@ -28,7 +28,7 @@ var _ paramtypes.ParamSet = &Params{}
 func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 	return &MsgGasParams{
 		MsgTypeUrl: msgTypeUrl,
-		GasType:    GasType_FIXED,
+		GasType:    GasType_GAS_TYPE_FIXED,
 		GasParams:  &MsgGasParams_FixedType{FixedType: &MsgGasParams_FixedGasParams{FixedGas: gas}},
 	}
 }
@@ -37,7 +37,7 @@ func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint64) *MsgGasParams {
 	return &MsgGasParams{
 		MsgTypeUrl: msgTypeUrl,
-		GasType:    GasType_DYNAMIC,
+		GasType:    GasType_GAS_TYPE_DYNAMIC,
 		GasParams: &MsgGasParams_DynamicType{DynamicType: &MsgGasParams_DynamicGasParams{
 			FixedGas:   gasFixed,
 			GasPerItem: gasPerItem,

@@ -2,7 +2,6 @@ syntax = "proto3";
 package cosmos.gashub.v1alpha1;
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/any.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
 
@@ -46,8 +45,12 @@ message MsgGasParams {
   }
 }
 
+// GasType defines the msg's gas type
 enum GasType {
-  UNSPECIFIED = 0;
-  FIXED       = 1;
-  DYNAMIC     = 2;
+  // GAS_TYPE_UNSPECIFIED defines the unspecified type gas which is not allowed
+  GAS_TYPE_UNSPECIFIED = 0;
+  // GAS_TYPE_FIXED defines the fixed type gas
+  GAS_TYPE_FIXED       = 1;
+  // GAS_TYPE_DYNAMIC defines the dynamic type gas
+  GAS_TYPE_DYNAMIC     = 2;
 }

@@ -19,7 +19,7 @@ func TestParamChanges(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"gashub/MsgGasParamsSet", "MsgGasParamsSet", "{\"msg_type_url\":\"FpXzpLGIehps\",\"gas_type\":1,\"GasParams\":{\"fixed_type\":{\"fixed_gas\":1631847}}}", "gashub"},
+		{"gashub/MaxTxSize", "MaxTxSize", "3081", "gashub"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)
