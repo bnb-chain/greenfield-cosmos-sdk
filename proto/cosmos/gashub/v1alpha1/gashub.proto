@@ -12,9 +12,8 @@ message Params {
 
   uint64 max_tx_size      = 1 [(gogoproto.customname) = "MaxTxSize"];
   uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
-  string min_gas_price    = 3 [(gogoproto.customname) = "MinGasPrice"];
 
-  repeated MsgGasParams msg_gas_params_set = 4 [(gogoproto.customname) = "MsgGasParamsSet"];
+  repeated MsgGasParams msg_gas_params_set = 3 [(gogoproto.customname) = "MsgGasParamsSet"];
 }
 
 // MsgGasParams defines gas for a msg type

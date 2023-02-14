@@ -6,7 +6,6 @@ import (
 	"sigs.k8s.io/yaml"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -14,14 +13,12 @@ import (
 const (
 	DefaultMaxTxSize     uint64 = 1024
 	DefaultMinGasPerByte uint64 = 5
-	DefaultMinGasPrice   string = "1gweibnb"
 )
 
 // Parameter keys
 var (
 	KeyMaxTxSize       = []byte("MaxTxSize")
 	KeyMinGasPerByte   = []byte("MinGasPerByte")
-	KeyMinGasPrice     = []byte("MinGasPrice")
 	KeyMsgGasParamsSet = []byte("MsgGasParamsSet")
 )
 
@@ -48,12 +45,11 @@ func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint6
 
 // NewParams creates a new Params object
 func NewParams(
-	maxTxSize, minGasPerByte uint64, minGasPrice string, msgGasParamsSet []*MsgGasParams,
+	maxTxSize, minGasPerByte uint64, msgGasParamsSet []*MsgGasParams,
 ) Params {
 	return Params{
 		MaxTxSize:       maxTxSize,
 		MinGasPerByte:   minGasPerByte,
-		MinGasPrice:     minGasPrice,
 		MsgGasParamsSet: msgGasParamsSet,
 	}
 }
@@ -69,7 +65,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMaxTxSize, &p.MaxTxSize, validateMaxTxSize),
 		paramtypes.NewParamSetPair(KeyMinGasPerByte, &p.MinGasPerByte, validateMinGasPerByte),
-		paramtypes.NewParamSetPair(KeyMinGasPrice, &p.MinGasPrice, validateMinGasPrice),
 		paramtypes.NewParamSetPair(KeyMsgGasParamsSet, &p.MsgGasParamsSet, validateMsgGasParams),
 	}
 }
@@ -121,7 +116,6 @@ func DefaultParams() Params {
 	return Params{
 		MaxTxSize:       DefaultMaxTxSize,
 		MinGasPerByte:   DefaultMinGasPerByte,
-		MinGasPrice:     DefaultMinGasPrice,
 		MsgGasParamsSet: defaultMsgGasParamsSet,
 	}
 }
@@ -153,20 +147,6 @@ func validateMinGasPerByte(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("invalid min gas per byte: %d", v)
-	}
-
-	return nil
-}
-
-func validateMinGasPrice(i interface{}) error {
-	v, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	gp, err := sdk.ParseCoinNormalized(v)
-	if err != nil || gp.Amount.IsZero() || gp.Amount.IsNil() {
-		return fmt.Errorf("invalid gas price")
 	}
 
 	return nil
@@ -204,9 +184,6 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateMinGasPerByte(p.MinGasPerByte); err != nil {
-		return err
-	}
-	if err := validateMinGasPrice(p.MinGasPrice); err != nil {
 		return err
 	}
 	if err := validateMsgGasParams(p.MsgGasParamsSet); err != nil {

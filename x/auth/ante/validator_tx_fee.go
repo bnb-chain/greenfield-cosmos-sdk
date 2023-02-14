@@ -9,7 +9,7 @@ import (
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
 // unit of gas is fixed and set by each validator, can the tx priority is computed from the gas price.
-func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, ghk GashubKeeper, tx sdk.Tx) (sdk.Coins, int64, error) {
+func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return nil, 0, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
@@ -40,15 +40,15 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, ghk GashubKeeper, tx s
 		}
 	}
 
-	priority := GetTxPriority(feeCoins, int64(gas))
+	priority := getTxPriority(feeCoins, int64(gas))
 	return feeCoins, priority, nil
 }
 
-// GetTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
+// getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
 // provided in a transaction.
 // NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
 // where txs with multiple coins could not be prioritize as expected.
-func GetTxPriority(fee sdk.Coins, gas int64) int64 {
+func getTxPriority(fee sdk.Coins, gas int64) int64 {
 	var priority int64
 	for _, c := range fee {
 		p := int64(math.MaxInt64)
