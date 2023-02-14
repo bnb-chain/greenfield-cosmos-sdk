@@ -11,7 +11,7 @@ import (
 	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 )
 
-var CommonArgs = []string{
+var commonArgs = []string{
 	fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 	fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
@@ -28,7 +28,7 @@ func MsgRedelegateExec(clientCtx client.Context, from, src, dst sdk.AccAddress, 
 	}
 	args = append(args, extraArgs...)
 
-	args = append(args, CommonArgs...)
+	args = append(args, commonArgs...)
 	return clitestutil.ExecTestCLICmd(clientCtx, stakingcli.NewRedelegateCmd(), args)
 }
 
@@ -42,7 +42,7 @@ func MsgUnbondExec(clientCtx client.Context, from, valAddress sdk.AccAddress,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from.String()),
 	}
 
-	args = append(args, CommonArgs...)
+	args = append(args, commonArgs...)
 	args = append(args, extraArgs...)
 	return clitestutil.ExecTestCLICmd(clientCtx, stakingcli.NewUnbondCmd(), args)
 }

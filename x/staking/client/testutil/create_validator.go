@@ -2,11 +2,14 @@ package testutil
 
 import (
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"os"
-	"strings"
 	"time"
+
+	authztestutil "github.com/cosmos/cosmos-sdk/x/authz/client/testutil"
+
+	"github.com/stretchr/testify/suite"
+	tmcli "github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -16,7 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authztestutil "github.com/cosmos/cosmos-sdk/x/authz/client/testutil"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -24,10 +26,59 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethHd "github.com/evmos/ethermint/crypto/hd"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-	"github.com/stretchr/testify/suite"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
 )
+
+type testParams struct {
+	discription    string
+	proposalID     string
+	enableGrant    bool
+	from           string
+	relayerAddress string
+	relayerBlsKey  string
+}
+
+var testcases = []testParams{
+	{
+		discription:    "crate success",
+		proposalID:     "1",
+		enableGrant:    true,
+		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress: "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerBlsKey:  "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+	},
+	{
+		discription:    "no grant delegate authorization to gov module account",
+		proposalID:     "2",
+		enableGrant:    false,
+		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress: "0x36B810C7E246b1c042335bAF1933Da71C5B5AeC5",
+		relayerBlsKey:  "a4c392f233e140b124c35a509d8880c52bd9bc3d13042fec3d84c1d55cc4d5be30fe3003d096bc33bc924af563a8de9f",
+	},
+	{
+		discription:    "duplicated relayer address",
+		proposalID:     "3",
+		enableGrant:    true,
+		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress: "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerBlsKey:  "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
+	},
+	{
+		discription:    "duplicated relayer bls pub key",
+		proposalID:     "4",
+		enableGrant:    true,
+		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress: "0x9E6de7BF11C459E8dA3a5f36c1A87A6FfaDCbA9d",
+		relayerBlsKey:  "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+	},
+	{
+		discription:    "invalid from",
+		proposalID:     "5",
+		enableGrant:    true,
+		from:           "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerAddress: "0x73Fd0b049bBF30b3A165e5b2eAf9895B015A2515",
+		relayerBlsKey:  "b700697ccca38c0d56cde325571dc5412de99a0fa2c28eeb1078cb4eeaa31c238720bee9cce47422e986a7af4f3b19c8",
+	},
+}
 
 type CreateValidatorTestSuite struct {
 	suite.Suite
@@ -52,45 +103,12 @@ func (s *CreateValidatorTestSuite) SetupSuite() {
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
 
-	// Valid case
-	blsSecretKey, _ := bls.RandKey()
-	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
-
-	newVal := s.getCoin()
-	s.grantDelegator(newVal)
-	s.submitProposal(newVal, gov.ModuleName, blsPubKey, true)
-	s.validators = append(s.validators, newVal)
-	proposalID := fmt.Sprintf("%d", 1)
-	s.proposalIDs = append(s.proposalIDs, proposalID)
-	s.voteProposal(proposalID)
-
-	// Invalid case (No grant)
-	blsSecretKey2, _ := bls.RandKey()
-	blsPubKey2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
-
-	newVal2 := s.getCoin()
-	s.submitProposal(newVal2, gov.ModuleName, blsPubKey2, false)
-
-	// Invalid case (--from account not gov)
-	blsSecretKey3, _ := bls.RandKey()
-	blsPubKey3 := hex.EncodeToString(blsSecretKey3.PublicKey().Marshal())
-
-	newVal3 := s.getCoin()
-	s.grantDelegator(newVal3)
-	s.submitProposal(newVal3, newVal3.String(), blsPubKey3, false)
-
-	// Invalid case (Repeated relayer address)
-	blsSecretKey4, _ := bls.RandKey()
-	blsPubKey4 := hex.EncodeToString(blsSecretKey4.PublicKey().Marshal())
-
-	newVal4 := s.getCoin()
-	s.grantDelegator(newVal4)
-	s.submitProposal(newVal, gov.ModuleName, blsPubKey4, false)
-
-	// Invalid case (Repeated relayer key)
-	newVal5 := s.getCoin()
-	s.grantDelegator(newVal5)
-	s.submitProposal(newVal5, gov.ModuleName, blsPubKey, false)
+	for _, testcase := range testcases {
+		newVal := s.submitProposal(testcase)
+		s.voteProposal(testcase.proposalID)
+		s.validators = append(s.validators, newVal)
+		s.proposalIDs = append(s.proposalIDs, testcase.proposalID)
+	}
 }
 
 func (s *CreateValidatorTestSuite) SetupNewSuite() {
@@ -104,98 +122,13 @@ func (s *CreateValidatorTestSuite) SetupNewSuite() {
 	s.Require().NoError(err)
 }
 
-func (s *CreateValidatorTestSuite) getCoin() sdk.AccAddress {
-	val := s.network.Validators[0]
-
-	// Get coin from current validator
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
-	s.Require().NoError(err)
-
-	pub, err := k.GetPubKey()
-	s.Require().NoError(err)
-
-	newVal := sdk.AccAddress(pub.Address())
-	_, err = banktestutil.MsgSendExec(
-		val.ClientCtx,
-		val.Address,
-		newVal,
-		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(200000000))),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-	)
-	s.Require().NoError(err)
-	return newVal
-}
-
-func (s *CreateValidatorTestSuite) grantDelegator(newVal sdk.AccAddress) {
-	val := s.network.Validators[0]
-	_, err := val.ClientCtx.Keyring.KeyByAddress(newVal)
-
-	// Grant delegate authorization
-	_, err = authztestutil.CreateGrant(val, []string{
-		authtypes.NewModuleAddress(gov.ModuleName).String(),
-		"delegate",
-		fmt.Sprintf("--spend-limit=100000000%s", s.cfg.BondDenom),
-		fmt.Sprintf("--allowed-validators=%s", newVal.String()),
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
-		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
-	})
-	s.Require().NoError(err)
-}
-
-func (s *CreateValidatorTestSuite) submitProposal(newVal sdk.AccAddress, from string, blsPubKey string, isValidTestCase bool) {
-	val := s.network.Validators[0]
-	clientCtx := val.ClientCtx
-
-	args := append([]string{
-		s.createValidatorProposal(newVal, blsPubKey, from).Name(),
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
-		fmt.Sprintf("--gas=%s", fmt.Sprintf("%d", flags.DefaultGasLimit+100000)),
-	}, CommonArgs...)
-
-	response, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdSubmitProposal(), args)
-
-	// For testcases with errors found in the response instead (Invalid --from account testcase)
-	if err == nil {
-		splits := strings.Split(response.String(), ",")
-		splits = strings.Split(splits[2], ":")
-		codespace := strings.Trim(splits[1], "\"")
-		if string(codespace) != "" {
-			err = gov.ErrInvalidProposalMsg
-		}
-	}
-
-	if isValidTestCase {
-		s.Require().NoError(err)
-	} else {
-		s.Require().Error(err)
-	}
-}
-
-func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
-	val := s.network.Validators[0]
-	clientCtx := val.ClientCtx
-
-	args := append([]string{
-		proposalID,
-		"yes",
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-	}, CommonArgs...)
-	_, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdVote(), args)
-	s.Require().NoError(err)
-}
-
 func (s *CreateValidatorTestSuite) TearDownSuite() {
 	s.T().Log("tearing down test suite")
 	s.network.Cleanup()
 }
 
 func (s *CreateValidatorTestSuite) TestQuerySuccessfulCreatedValidator() {
-	val := s.network.Validators[0]
-	clientCtx := val.ClientCtx
+	clientCtx := s.network.Validators[0].ClientCtx
 	proposalID := s.proposalIDs[0]
 	newVal := s.validators[0]
 
@@ -213,18 +146,132 @@ func (s *CreateValidatorTestSuite) TestQuerySuccessfulCreatedValidator() {
 	// query validator
 	queryCmd := cli.GetCmdQueryValidator()
 	res, err := clitestutil.ExecTestCLICmd(
-		val.ClientCtx, queryCmd,
+		clientCtx, queryCmd,
 		[]string{newVal.String(), fmt.Sprintf("--%s=json", tmcli.OutputFlag)},
 	)
 	s.Require().NoError(err)
 	var result types.Validator
-	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(res.Bytes(), &result))
+	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(res.Bytes(), &result))
 	s.Require().Equal(result.GetStatus(), types.Bonded, fmt.Sprintf("validator %s not in bonded status", newVal.String()))
 }
 
-func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress, blsPubKey string, from string) *os.File {
-	pubKey := base64.StdEncoding.EncodeToString(ed25519.GenPrivKey().PubKey().Bytes())
+func (s *CreateValidatorTestSuite) TestQueryNoGrantAuthorization() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	proposalID := s.proposalIDs[1]
 
+	// query proposal
+	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+	out, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.GetCmdQueryProposal(), args)
+	s.Require().NoError(err)
+	var proposal v1.Proposal
+	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &proposal), out.String())
+	s.Require().Equal(v1.ProposalStatus_PROPOSAL_STATUS_FAILED, proposal.Status, out.String())
+}
+
+func (s *CreateValidatorTestSuite) TestQueryDuplicatedRelayerAddress() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	proposalID := s.proposalIDs[2]
+
+	// query proposal
+	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+	out, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.GetCmdQueryProposal(), args)
+	s.Require().NoError(err)
+	var proposal v1.Proposal
+	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &proposal), out.String())
+	s.Require().Equal(v1.ProposalStatus_PROPOSAL_STATUS_FAILED, proposal.Status, out.String())
+}
+
+func (s *CreateValidatorTestSuite) TestQueryDuplicatedRelayerBlsKey() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	proposalID := s.proposalIDs[3]
+
+	// query proposal
+	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+	out, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.GetCmdQueryProposal(), args)
+	s.Require().NoError(err)
+	var proposal v1.Proposal
+	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &proposal), out.String())
+	s.Require().Equal(v1.ProposalStatus_PROPOSAL_STATUS_FAILED, proposal.Status, out.String())
+}
+
+func (s *CreateValidatorTestSuite) TestQueryInvalidFromAddress() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	proposalID := s.proposalIDs[4]
+
+	// query proposal, should not be found because of invalid from the proposal will be rejected.
+	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+	_, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.GetCmdQueryProposal(), args)
+	s.Require().Error(err)
+}
+
+func (s *CreateValidatorTestSuite) submitProposal(params testParams) sdk.AccAddress {
+	val := s.network.Validators[0]
+	clientCtx := val.ClientCtx
+
+	// Get coin from current validator
+	k, _, err := clientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	s.Require().NoError(err)
+
+	pub, err := k.GetPubKey()
+	s.Require().NoError(err)
+
+	newVal := sdk.AccAddress(pub.Address())
+	_, err = banktestutil.MsgSendExec(
+		clientCtx,
+		val.Address,
+		newVal,
+		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(20000000))),
+		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+	)
+	s.Require().NoError(err)
+
+	_, err = s.network.WaitForHeight(1)
+	s.Require().NoError(err)
+
+	// Grant delegate authorization
+	if params.enableGrant {
+		_, err = authztestutil.CreateGrant(val, []string{
+			authtypes.NewModuleAddress(gov.ModuleName).String(),
+			"delegate",
+			fmt.Sprintf("--spend-limit=100000000%s", s.cfg.BondDenom),
+			fmt.Sprintf("--allowed-validators=%s", newVal.String()),
+			fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
+			fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+			fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+			fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
+		})
+		s.Require().NoError(err)
+	}
+
+	args := append([]string{
+		s.createValidatorProposal(newVal, params.from, params.relayerAddress, params.relayerBlsKey).Name(),
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
+		fmt.Sprintf("--gas=%s", fmt.Sprintf("%d", flags.DefaultGasLimit+100000)),
+	}, commonArgs...)
+
+	_, err = clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdSubmitProposal(), args)
+	s.Require().NoError(err)
+
+	return newVal
+}
+
+func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
+	val := s.network.Validators[0]
+	clientCtx := val.ClientCtx
+
+	args := append([]string{
+		proposalID,
+		"yes",
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+	}, commonArgs...)
+	_, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdVote(), args)
+	s.Require().NoError(err)
+}
+
+func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress, from string, relayerAddress string, relayerBlsKey string) *os.File {
+	pubKey := base64.StdEncoding.EncodeToString(ed25519.GenPrivKey().PubKey().Bytes())
 	propMetadata := []byte{42}
 	proposal := fmt.Sprintf(`
 {
@@ -265,9 +312,9 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 		valAddr.String(),
 		valAddr.String(),
 		pubKey,
-		authtypes.NewModuleAddress(from),
-		valAddr.String(),
-		blsPubKey,
+		from,
+		relayerAddress,
+		relayerBlsKey,
 		base64.StdEncoding.EncodeToString(propMetadata),
 		sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens),
 	)
