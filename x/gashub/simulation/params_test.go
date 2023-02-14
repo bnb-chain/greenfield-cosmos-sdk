@@ -19,7 +19,7 @@ func TestParamChanges(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"gashub/MaxTxSize", "MaxTxSize", "3081", "gashub"},
+		{"gashub/MaxTxSize", "MaxTxSize", "\"3081\"", "gashub"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)

@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -31,33 +30,30 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 		return nil, slashingtypes.ErrSignerNotGovModule
 	}
 
-	isNew := msg.IsNew
 	params := k.GetParams(ctx)
 	newMsgGasParams := msg.NewParams
 
-	if isNew {
-		params.MsgGasParamsSet = append(params.MsgGasParamsSet, newMsgGasParams)
-	} else {
-		msgGasParamsSet := params.MsgGasParamsSet
-		typeUrl := msg.NewParams.MsgTypeUrl
+	msgGasParamsSet := params.MsgGasParamsSet
+	typeUrl := msg.NewParams.MsgTypeUrl
 
-		var find bool
-		for idx, msgGasParams := range msgGasParamsSet {
-			if msgGasParams.MsgTypeUrl == typeUrl {
-				msgGasParamsSet[idx] = newMsgGasParams
-				find = true
-				break
-			}
-		}
-		if !find {
-			return nil, fmt.Errorf("msg type not find: %s", typeUrl)
+	isNew := true
+	for idx, msgGasParams := range msgGasParamsSet {
+		if msgGasParams.MsgTypeUrl == typeUrl {
+			msgGasParamsSet[idx] = newMsgGasParams
+			isNew = false
+			break
 		}
 	}
+	if isNew {
+		params.MsgGasParamsSet = append(params.MsgGasParamsSet, newMsgGasParams)
+	}
+
+	k.SetParams(ctx, params)
 
 	ctx.EventManager().EmitTypedEvent(
 		&types.EventUpdateMsgGasParams{
 			MsgTypeUrl: msg.NewParams.MsgTypeUrl,
-			GasType:    uint64(msg.NewParams.GasType),
+			IsNew:      isNew,
 		},
 	)
 

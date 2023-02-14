@@ -41,8 +41,9 @@ func TestRandomizedGenState(t *testing.T) {
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &gashubGenesis)
 
 	require.Equal(t, uint64(2540), gashubGenesis.Params.MaxTxSize)
-	require.Equal(t, uint64(2956), gashubGenesis.Params.MinGasPerByte)
+	require.Equal(t, uint64(36), gashubGenesis.Params.MinGasPerByte)
+	require.Equal(t, "7gweibnb", gashubGenesis.Params.MinGasPrice)
 
 	gas := gashubGenesis.Params.MsgGasParamsSet[0].GasParams.(*types.MsgGasParams_FixedType)
-	require.Equal(t, uint64(4978511), gas.FixedType.FixedGas)
+	require.Equal(t, uint64(4828162), gas.FixedType.FixedGas)
 }

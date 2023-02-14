@@ -17,7 +17,7 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
 		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMaxTxSize),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("%d", GenMaxTxSize(r))
+				return fmt.Sprintf("\"%d\"", GenMaxTxSize(r))
 			},
 		),
 	}

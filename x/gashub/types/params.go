@@ -6,6 +6,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -13,12 +14,14 @@ import (
 const (
 	DefaultMaxTxSize     uint64 = 1024
 	DefaultMinGasPerByte uint64 = 5
+	DefaultMinGasPrice   string = "1gweibnb"
 )
 
 // Parameter keys
 var (
 	KeyMaxTxSize       = []byte("MaxTxSize")
 	KeyMinGasPerByte   = []byte("MinGasPerByte")
+	KeyMinGasPrice     = []byte("MinGasPrice")
 	KeyMsgGasParamsSet = []byte("MsgGasParamsSet")
 )
 
@@ -28,7 +31,6 @@ var _ paramtypes.ParamSet = &Params{}
 func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 	return &MsgGasParams{
 		MsgTypeUrl: msgTypeUrl,
-		GasType:    GasType_GAS_TYPE_FIXED,
 		GasParams:  &MsgGasParams_FixedType{FixedType: &MsgGasParams_FixedGasParams{FixedGas: gas}},
 	}
 }
@@ -37,7 +39,6 @@ func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint64) *MsgGasParams {
 	return &MsgGasParams{
 		MsgTypeUrl: msgTypeUrl,
-		GasType:    GasType_GAS_TYPE_DYNAMIC,
 		GasParams: &MsgGasParams_DynamicType{DynamicType: &MsgGasParams_DynamicGasParams{
 			FixedGas:   gasFixed,
 			GasPerItem: gasPerItem,
@@ -47,11 +48,12 @@ func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint6
 
 // NewParams creates a new Params object
 func NewParams(
-	maxTxSize, minGasPerByte uint64, msgGasParamsSet []*MsgGasParams,
+	maxTxSize, minGasPerByte uint64, minGasPrice string, msgGasParamsSet []*MsgGasParams,
 ) Params {
 	return Params{
 		MaxTxSize:       maxTxSize,
 		MinGasPerByte:   minGasPerByte,
+		MinGasPrice:     minGasPrice,
 		MsgGasParamsSet: msgGasParamsSet,
 	}
 }
@@ -67,6 +69,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMaxTxSize, &p.MaxTxSize, validateMaxTxSize),
 		paramtypes.NewParamSetPair(KeyMinGasPerByte, &p.MinGasPerByte, validateMinGasPerByte),
+		paramtypes.NewParamSetPair(KeyMinGasPrice, &p.MinGasPrice, validateMinGasPrice),
 		paramtypes.NewParamSetPair(KeyMsgGasParamsSet, &p.MsgGasParamsSet, validateMsgGasParams),
 	}
 }
@@ -107,6 +110,10 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreatePaymentAccount", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 1e5),
 		NewMsgGasParamsWithDynamicGas("/cosmos.authz.v1beta1.MsgGrant", 1e5, 1e5),
 		NewMsgGasParamsWithDynamicGas("/cosmos.bank.v1beta1.MsgMultiSend", 1e5, 1e5),
 		NewMsgGasParamsWithDynamicGas("/cosmos.feegrant.v1beta1.MsgGrantAllowance", 1e5, 1e5),
@@ -114,6 +121,7 @@ func DefaultParams() Params {
 	return Params{
 		MaxTxSize:       DefaultMaxTxSize,
 		MinGasPerByte:   DefaultMinGasPerByte,
+		MinGasPrice:     DefaultMinGasPrice,
 		MsgGasParamsSet: defaultMsgGasParamsSet,
 	}
 }
@@ -145,6 +153,20 @@ func validateMinGasPerByte(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("invalid min gas per byte: %d", v)
+	}
+
+	return nil
+}
+
+func validateMinGasPrice(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	gp, err := sdk.ParseCoinNormalized(v)
+	if err != nil || gp.Amount.IsZero() || gp.Amount.IsNil() {
+		return fmt.Errorf("invalid gas price")
 	}
 
 	return nil
@@ -182,6 +204,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateMinGasPerByte(p.MinGasPerByte); err != nil {
+		return err
+	}
+	if err := validateMinGasPrice(p.MinGasPrice); err != nil {
 		return err
 	}
 	if err := validateMsgGasParams(p.MsgGasParamsSet); err != nil {
