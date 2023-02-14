@@ -15,6 +15,14 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/cosmos/authz/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "AuthzParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
@@ -27,6 +35,14 @@
       "operationIds": {
         "rename": {
           "Params": "BaseParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/crosschain/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "CrosschainParams"
         }
       }
     },
@@ -47,6 +63,14 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/cosmos/feegrant/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "FeegrantParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmos/gov/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
@@ -59,6 +83,14 @@
       "operationIds": {
         "rename": {
           "Params": "MintParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/oracle/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "OracleParams"
         }
       }
     },
@@ -98,22 +130,6 @@
       "operationIds": {
         "rename": {
           "Params": "UpgradeParams"
-        }
-      }
-    },
-    {
-      "url": "./tmp-swagger-gen/cosmos/authz/v1beta1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "AuthzParams"
-        }
-      }
-    },
-    {
-      "url": "./tmp-swagger-gen/cosmos/feegrant/v1beta1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "FeegrantParams"
         }
       }
     }
