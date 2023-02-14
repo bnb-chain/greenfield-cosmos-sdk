@@ -103,12 +103,8 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 var MsgGrantGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsgTypeUrl() == "/cosmos.authz.v1beta1.MsgGrant" {
-			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
-			if !ok {
-				panic("type conversion failed for /cosmos.authz.v1beta1.MsgGrant")
-			}
-			return GrantCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
+		if p := gasParams.GetGrantType(); p != nil {
+			return GrantCalculator(p.FixedGas, p.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.authz.v1beta1.MsgGrant")
@@ -117,12 +113,8 @@ var MsgGrantGasCalculatorGen = func(params Params) GasCalculator {
 var MsgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsgTypeUrl() == "/cosmos.bank.v1beta1.MsgMultiSend" {
-			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
-			if !ok {
-				panic("type conversion failed for /cosmos.bank.v1beta1.MsgMultiSend")
-			}
-			return MultiSendCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
+		if p := gasParams.GetMultiSendType(); p != nil {
+			return MultiSendCalculator(p.FixedGas, p.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.bank.v1beta1.MsgMultiSend")
@@ -131,12 +123,8 @@ var MsgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
 var MsgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		if gasParams.GetMsgTypeUrl() == "/cosmos.feegrant.v1beta1.MsgGrantAllowance" {
-			p, ok := gasParams.GasParams.(*MsgGasParams_DynamicType)
-			if !ok {
-				panic("type conversion failed for /cosmos.feegrant.v1beta1.MsgGrantAllowance")
-			}
-			return GrantAllowanceCalculator(p.DynamicType.FixedGas, p.DynamicType.GasPerItem)
+		if p := gasParams.GetGrantAllowanceType(); p != nil {
+			return GrantAllowanceCalculator(p.FixedGas, p.GasPerItem)
 		}
 	}
 	panic("no params for /cosmos.feegrant.v1beta1.MsgGrantAllowance")

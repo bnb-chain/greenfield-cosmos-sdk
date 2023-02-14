@@ -15,7 +15,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterInterface((*isMsgGasParams_GasParams)(nil), nil)
 	cdc.RegisterConcrete(&MsgGasParams_FixedType{}, "cosmos-sdk/MsgGasParams/FixedType", nil)
-	cdc.RegisterConcrete(&MsgGasParams_DynamicType{}, "cosmos-sdk/MsgGasParams/DynamicType", nil)
+	cdc.RegisterConcrete(&MsgGasParams_GrantType{}, "cosmos-sdk/MsgGasParams/GrantType", nil)
+	cdc.RegisterConcrete(&MsgGasParams_MultiSendType{}, "cosmos-sdk/MsgGasParams/MultiSendType", nil)
+	cdc.RegisterConcrete(&MsgGasParams_GrantAllowanceType{}, "cosmos-sdk/MsgGasParams/GrantAllowanceType", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

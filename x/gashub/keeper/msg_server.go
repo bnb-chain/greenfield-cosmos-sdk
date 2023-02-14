@@ -44,8 +44,14 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 			break
 		}
 	}
+
+	// for new msg gas type, add it to params and register gas calculator
 	if fromValue == "" {
 		params.MsgGasParamsSet = append(params.MsgGasParamsSet, newMsgGasParams)
+		err := registerGasCalculator(newMsgGasParams)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	k.SetParams(ctx, params)

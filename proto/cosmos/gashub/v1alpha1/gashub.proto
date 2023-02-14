@@ -25,8 +25,12 @@ message MsgGasParams {
   oneof gas_params {
     // fixed_type specifies fixed type gas params.
     FixedGasParams fixed_type = 2;
-    // dynamic_type specifies dynamic type gas params.
-    DynamicGasParams dynamic_type = 3;
+    // grant_type specifies dynamic type gas params for msg/grant.
+    DynamicGasParams grant_type = 3;
+    // grant_type specifies dynamic type gas params for msg/multiSend.
+    DynamicGasParams multi_send_type = 4;
+    // grant_type specifies dynamic type gas params for msg/grantAllowance.
+    DynamicGasParams grant_allowance_type = 5;
   }
   // FixedGasParams defines the parameters for fixed gas type.
   message FixedGasParams {

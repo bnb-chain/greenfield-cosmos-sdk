@@ -33,13 +33,10 @@ func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
 }
 
 // NewMsgGasParamsWithDynamicGas creates a new MsgGasParams object with dynamic gas
-func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, gasFixed, gasPerItem uint64) *MsgGasParams {
+func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, msgGasParams isMsgGasParams_GasParams) *MsgGasParams {
 	return &MsgGasParams{
 		MsgTypeUrl: msgTypeUrl,
-		GasParams: &MsgGasParams_DynamicType{DynamicType: &MsgGasParams_DynamicGasParams{
-			FixedGas:   gasFixed,
-			GasPerItem: gasPerItem,
-		}},
+		GasParams:  msgGasParams,
 	}
 }
 
@@ -109,9 +106,33 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeposit", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 1e5),
-		NewMsgGasParamsWithDynamicGas("/cosmos.authz.v1beta1.MsgGrant", 1e5, 1e5),
-		NewMsgGasParamsWithDynamicGas("/cosmos.bank.v1beta1.MsgMultiSend", 1e5, 1e5),
-		NewMsgGasParamsWithDynamicGas("/cosmos.feegrant.v1beta1.MsgGrantAllowance", 1e5, 1e5),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.authz.v1beta1.MsgGrant",
+			&MsgGasParams_GrantType{
+				GrantType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.bank.v1beta1.MsgMultiSend",
+			&MsgGasParams_MultiSendType{
+				MultiSendType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.feegrant.v1beta1.MsgGrantAllowance",
+			&MsgGasParams_GrantAllowanceType{
+				GrantAllowanceType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
 	}
 	return Params{
 		MaxTxSize:       DefaultMaxTxSize,
@@ -166,8 +187,16 @@ func validateMsgGasParams(i interface{}) error {
 			if p.FixedType.FixedGas == 0 {
 				return fmt.Errorf("invalid gas. cannot be zero")
 			}
-		case *MsgGasParams_DynamicType:
-			if p.DynamicType.FixedGas == 0 || p.DynamicType.GasPerItem == 0 {
+		case *MsgGasParams_GrantType:
+			if p.GrantType.FixedGas == 0 || p.GrantType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		case *MsgGasParams_MultiSendType:
+			if p.MultiSendType.FixedGas == 0 || p.MultiSendType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		case *MsgGasParams_GrantAllowanceType:
+			if p.GrantAllowanceType.FixedGas == 0 || p.GrantAllowanceType.GasPerItem == 0 {
 				return fmt.Errorf("invalid gas. cannot be zero")
 			}
 		default:
