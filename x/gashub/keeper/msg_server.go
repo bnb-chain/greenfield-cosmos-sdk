@@ -36,15 +36,15 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 	msgGasParamsSet := params.MsgGasParamsSet
 	typeUrl := msg.NewParams.MsgTypeUrl
 
-	isNew := true
+	fromValue := ""
 	for idx, msgGasParams := range msgGasParamsSet {
 		if msgGasParams.MsgTypeUrl == typeUrl {
+			fromValue = msgGasParams.String()
 			msgGasParamsSet[idx] = newMsgGasParams
-			isNew = false
 			break
 		}
 	}
-	if isNew {
+	if fromValue == "" {
 		params.MsgGasParamsSet = append(params.MsgGasParamsSet, newMsgGasParams)
 	}
 
@@ -53,7 +53,8 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 	ctx.EventManager().EmitTypedEvent(
 		&types.EventUpdateMsgGasParams{
 			MsgTypeUrl: msg.NewParams.MsgTypeUrl,
-			IsNew:      isNew,
+			FromValue:  fromValue,
+			ToValue:    newMsgGasParams.String(),
 		},
 	)
 

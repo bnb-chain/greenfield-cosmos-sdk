@@ -645,7 +645,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
-	gInfo.MinGasPrices = app.minGasPrices.String()
+	gInfo.MinGasPrices = ctx.MinGasPrices().String()
 
 	// only run the tx if there is block gas remaining
 	if mode == runTxModeDeliver && ctx.BlockGasMeter().IsOutOfGas() {

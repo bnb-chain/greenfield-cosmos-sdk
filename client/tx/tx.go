@@ -81,13 +81,14 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 		if err != nil {
 			return err
 		}
-		fees := make(sdk.Coins, len(parsedGasPrices))
 
+		// we only accept one type coin
+		gasPrice := parsedGasPrices[0]
+		fees := make(sdk.Coins, 1)
 		gasLimit := sdk.NewInt(int64(adjusted))
-		for i, gasPrice := range parsedGasPrices {
-			fee := gasPrice.Amount.Mul(gasLimit)
-			fees[i] = sdk.NewCoin(gasPrice.Denom, fee)
-		}
+		fee := gasPrice.Amount.Mul(gasLimit)
+		fees[0] = sdk.NewCoin(gasPrice.Denom, fee)
+
 		txf = txf.WithFees(fees.String())
 	}
 

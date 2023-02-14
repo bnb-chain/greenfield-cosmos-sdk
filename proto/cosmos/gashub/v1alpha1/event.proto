@@ -7,5 +7,6 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
 // EventUpdateMsgGasParams is emitted when update a msg's gas params
 message EventUpdateMsgGasParams {
   string msg_type_url = 1;
-  bool   is_new       = 2;
+  string from_value   = 2;
+  string to_value     = 3;
 }
