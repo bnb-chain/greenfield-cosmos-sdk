@@ -489,22 +489,6 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 				"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse",
 			},
 		},
-		{
-			"valid transaction (with commission)",
-			val.Address,
-			[]string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=true", cli.FlagCommission),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, 0, &sdk.TxResponse{},
-			[]string{
-				"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse",
-				"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse",
-			},
-		},
 	}
 
 	for _, tc := range testCases {
@@ -540,6 +524,67 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 						s.Require().NoError(err)
 						s.Require().True(resp.Amount.IsAllGT(sdk.NewCoins(sdk.NewCoin("stake", sdk.OneInt()))),
 							fmt.Sprintf("expected a positive coin value, got %v", resp.Amount))
+					}
+				}
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestNewWithdrawCommissionCmd() {
+	val := s.network.Validators[0]
+
+	testCases := []struct {
+		name                 string
+		valAddr              fmt.Stringer
+		args                 []string
+		expectErr            bool
+		expectedCode         uint32
+		respType             proto.Message
+		expectedResponseType []string
+	}{
+		{
+			"valid transaction",
+			val.Address,
+			[]string{
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, 0, &sdk.TxResponse{},
+			[]string{
+				"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			clientCtx := val.ClientCtx
+
+			_, _ = s.network.WaitForHeightWithTimeout(10, time.Minute)
+			bz, err := MsgWithdrawCommissionExec(clientCtx, tc.valAddr, tc.args...)
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err)
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(bz, tc.respType), string(bz))
+
+				txResp := tc.respType.(*sdk.TxResponse)
+				s.Require().Equal(tc.expectedCode, txResp.Code)
+
+				data, err := hex.DecodeString(txResp.Data)
+				s.Require().NoError(err)
+
+				txMsgData := sdk.TxMsgData{}
+				err = s.cfg.Codec.Unmarshal(data, &txMsgData)
+				s.Require().NoError(err)
+				for responseIdx, msgResponse := range txMsgData.MsgResponses {
+					s.Require().Equal(tc.expectedResponseType[responseIdx], msgResponse.TypeUrl)
+					switch msgResponse.TypeUrl {
 					case "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse":
 						var resp distrtypes.MsgWithdrawValidatorCommissionResponse
 						// can't use unpackAny as response types are not registered.
