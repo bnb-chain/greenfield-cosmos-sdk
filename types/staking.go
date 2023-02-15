@@ -19,7 +19,7 @@ const (
 )
 
 // DefaultPowerReduction is the default amount of staking tokens required for 1 unit of consensus-engine power
-var DefaultPowerReduction = NewIntFromUint64(1000000)
+var DefaultPowerReduction = NewIntFromUint64(1e18)
 
 // TokensToConsensusPower - convert input tokens to potential consensus-engine power
 func TokensToConsensusPower(tokens Int, powerReduction Int) int64 {
