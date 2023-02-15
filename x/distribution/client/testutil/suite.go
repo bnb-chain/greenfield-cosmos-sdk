@@ -516,8 +516,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawRewardsCmd() {
 				s.Require().NoError(err)
 				for responseIdx, msgResponse := range txMsgData.MsgResponses {
 					s.Require().Equal(tc.expectedResponseType[responseIdx], msgResponse.TypeUrl)
-					switch msgResponse.TypeUrl {
-					case "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse":
+					if msgResponse.TypeUrl == "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorRewardResponse" {
 						var resp distrtypes.MsgWithdrawDelegatorRewardResponse
 						// can't use unpackAny as response types are not registered.
 						err = s.cfg.Codec.Unmarshal(msgResponse.Value, &resp)
@@ -584,8 +583,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawCommissionCmd() {
 				s.Require().NoError(err)
 				for responseIdx, msgResponse := range txMsgData.MsgResponses {
 					s.Require().Equal(tc.expectedResponseType[responseIdx], msgResponse.TypeUrl)
-					switch msgResponse.TypeUrl {
-					case "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse":
+					if msgResponse.TypeUrl == "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommissionResponse" {
 						var resp distrtypes.MsgWithdrawValidatorCommissionResponse
 						// can't use unpackAny as response types are not registered.
 						err = s.cfg.Codec.Unmarshal(msgResponse.Value, &resp)
