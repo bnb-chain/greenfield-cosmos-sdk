@@ -17,10 +17,10 @@ var _ sdk.Msg = &MsgUpdateMsgGasParams{}
 // MsgUpdateMsgGasParams - construct a msg to update msg gas params.
 //
 //nolint:interfacer
-func NewMsgUpdateMsgGasParams(from sdk.AccAddress, msgGasParams *MsgGasParams) *MsgUpdateMsgGasParams {
+func NewMsgUpdateMsgGasParams(from sdk.AccAddress, msgGasParamsSet []*MsgGasParams) *MsgUpdateMsgGasParams {
 	return &MsgUpdateMsgGasParams{
-		From:      from.String(),
-		NewParams: msgGasParams,
+		From:         from.String(),
+		NewParamsSet: msgGasParamsSet,
 	}
 }
 
@@ -36,7 +36,7 @@ func (msg MsgUpdateMsgGasParams) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
-	if err := ValidateMsgGasParams(msg.NewParams); err != nil {
+	if err := ValidateMsgGasParams(msg.NewParamsSet); err != nil {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid msg gas params: %s", err)
 	}
 
