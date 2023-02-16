@@ -44,5 +44,5 @@ func (ghk Keeper) GetCodec() codec.BinaryCodec { return ghk.cdc }
 
 func (ghk Keeper) RegisterGasCalculators(ctx sdk.Context) {
 	params := ghk.GetParams(ctx)
-	registerGasCalculators(params)
+	registerAllGasCalculators(params)
 }

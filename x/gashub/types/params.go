@@ -62,7 +62,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMaxTxSize, &p.MaxTxSize, validateMaxTxSize),
 		paramtypes.NewParamSetPair(KeyMinGasPerByte, &p.MinGasPerByte, validateMinGasPerByte),
-		paramtypes.NewParamSetPair(KeyMsgGasParamsSet, &p.MsgGasParamsSet, validateMsgGasParams),
+		paramtypes.NewParamSetPair(KeyMsgGasParamsSet, &p.MsgGasParamsSet, ValidateMsgGasParams),
 	}
 }
 
@@ -173,7 +173,7 @@ func validateMinGasPerByte(i interface{}) error {
 	return nil
 }
 
-func validateMsgGasParams(i interface{}) error {
+func ValidateMsgGasParams(i interface{}) error {
 	v, ok := i.([]*MsgGasParams)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -215,7 +215,7 @@ func (p Params) Validate() error {
 	if err := validateMinGasPerByte(p.MinGasPerByte); err != nil {
 		return err
 	}
-	if err := validateMsgGasParams(p.MsgGasParamsSet); err != nil {
+	if err := ValidateMsgGasParams(p.MsgGasParamsSet); err != nil {
 		return err
 	}
 

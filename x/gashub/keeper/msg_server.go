@@ -31,38 +31,42 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 	}
 
 	params := k.GetParams(ctx)
-	newMsgGasParams := msg.NewParams
-
 	msgGasParamsSet := params.MsgGasParamsSet
-	typeUrl := msg.NewParams.MsgTypeUrl
-
-	fromValue := ""
-	for idx, msgGasParams := range msgGasParamsSet {
-		if msgGasParams.MsgTypeUrl == typeUrl {
-			fromValue = msgGasParams.String()
-			msgGasParamsSet[idx] = newMsgGasParams
-			break
-		}
-	}
-
-	// for new msg gas type, add it to params and register gas calculator
-	if fromValue == "" {
-		params.MsgGasParamsSet = append(params.MsgGasParamsSet, newMsgGasParams)
-		err := registerGasCalculator(newMsgGasParams)
-		if err != nil {
+	newMsgGasParamsSet := msg.NewParamsSet
+	for _, newParams := range newMsgGasParamsSet {
+		if err := types.ValidateMsgGasParams(newParams); err != nil {
 			return nil, err
 		}
+
+		typeUrl := newParams.MsgTypeUrl
+
+		fromValue := ""
+		for idx, msgGasParams := range msgGasParamsSet {
+			if msgGasParams.MsgTypeUrl == typeUrl {
+				fromValue = msgGasParams.String()
+				msgGasParamsSet[idx] = newParams
+				break
+			}
+		}
+		if fromValue == "" {
+			params.MsgGasParamsSet = append(params.MsgGasParamsSet, newParams)
+		}
+
+		// register gas calculator
+		if err := registerSingleGasCalculator(newParams); err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitTypedEvent(
+			&types.EventUpdateMsgGasParams{
+				MsgTypeUrl: newParams.MsgTypeUrl,
+				FromValue:  fromValue,
+				ToValue:    newParams.String(),
+			},
+		)
 	}
 
 	k.SetParams(ctx, params)
-
-	ctx.EventManager().EmitTypedEvent(
-		&types.EventUpdateMsgGasParams{
-			MsgTypeUrl: msg.NewParams.MsgTypeUrl,
-			FromValue:  fromValue,
-			ToValue:    newMsgGasParams.String(),
-		},
-	)
 
 	return &types.MsgUpdateMsgGasParamsResponse{}, nil
 }

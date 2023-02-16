@@ -12,7 +12,7 @@ func (ghk Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	ghk.SetParams(ctx, data.Params)
 
 	// init gas calculators from genesis data
-	registerGasCalculators(data.Params)
+	registerAllGasCalculators(data.Params)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper
@@ -22,40 +22,28 @@ func (ghk Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return types.NewGenesisState(params)
 }
 
-func registerGasCalculators(params types.Params) {
+func registerAllGasCalculators(params types.Params) {
 	msgGasParamsSet := params.GetMsgGasParamsSet()
 	for _, gasParams := range msgGasParamsSet {
-		err := registerGasCalculator(gasParams)
+		err := registerSingleGasCalculator(gasParams)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func registerGasCalculator(gasParams *types.MsgGasParams) error {
-	msgType := gasParams.GetMsgTypeUrl()
+func registerSingleGasCalculator(gasParams *types.MsgGasParams) error {
+	msgTypeUrl := gasParams.GetMsgTypeUrl()
 
 	switch gasParams.GasParams.(type) {
 	case *types.MsgGasParams_FixedType:
-		types.RegisterCalculatorGen(msgType, func(params types.Params) types.GasCalculator {
-			msgGasParamsSet := params.GetMsgGasParamsSet()
-			for _, gasParams := range msgGasParamsSet {
-				if gasParams.GetMsgTypeUrl() == msgType {
-					p := gasParams.GetFixedType()
-					if p == nil {
-						panic(fmt.Errorf("get msg gas params failed for %s", msgType))
-					}
-					return types.FixedGasCalculator(p.FixedGas)
-				}
-			}
-			panic(fmt.Sprintf("no params for %s", msgType))
-		})
+		types.RegisterCalculatorGen(msgTypeUrl, types.FixedGasCalculatorGen(msgTypeUrl))
 	case *types.MsgGasParams_GrantType:
-		types.RegisterCalculatorGen(msgType, types.MsgGrantGasCalculatorGen)
+		types.RegisterCalculatorGen(msgTypeUrl, types.MsgGrantGasCalculatorGen)
 	case *types.MsgGasParams_MultiSendType:
-		types.RegisterCalculatorGen(msgType, types.MsgMultiSendGasCalculatorGen)
+		types.RegisterCalculatorGen(msgTypeUrl, types.MsgMultiSendGasCalculatorGen)
 	case *types.MsgGasParams_GrantAllowanceType:
-		types.RegisterCalculatorGen(msgType, types.MsgGrantAllowanceGasCalculatorGen)
+		types.RegisterCalculatorGen(msgTypeUrl, types.MsgGrantAllowanceGasCalculatorGen)
 	default:
 		return fmt.Errorf("unknown gas params type")
 	}

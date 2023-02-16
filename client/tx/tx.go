@@ -81,6 +81,9 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 		if err != nil {
 			return err
 		}
+		if parsedGasPrices == nil {
+			return fmt.Errorf("empty gas prices")
+		}
 
 		// we only accept one type coin
 		gasPrice := parsedGasPrices[0]

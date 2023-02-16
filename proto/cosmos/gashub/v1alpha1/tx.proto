@@ -23,7 +23,7 @@ message MsgUpdateMsgGasParams {
   option (gogoproto.goproto_getters) = false;
 
   string from = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  MsgGasParams new_params = 2;
+  repeated MsgGasParams new_params_set = 2;
 }
 
 // MsgUpdateMsgGasParamsResponse defines the Msg/UpdateMsgGasParams response type.

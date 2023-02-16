@@ -36,7 +36,7 @@ func (msg MsgUpdateMsgGasParams) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
-	if err := validateMsgGasParams(msg.NewParams); err != nil {
+	if err := ValidateMsgGasParams(msg.NewParams); err != nil {
 		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid msg gas params: %s", err)
 	}
 

@@ -5,12 +5,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
 )
 
-// SetParams sets the auth module's parameters.
+// SetParams sets the gashub module's parameters.
 func (ghk Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	ghk.paramSubspace.SetParamSet(ctx, &params)
 }
 
-// GetParams gets the auth module's parameters.
+// GetParams gets the gashub module's parameters.
 func (ghk Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	ghk.paramSubspace.GetParamSet(ctx, &params)
 	return

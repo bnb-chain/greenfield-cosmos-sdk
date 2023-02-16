@@ -25,6 +25,10 @@ func RegisterCalculatorGen(msgType string, feeCalcGen GasCalculatorGenerator) {
 	calculatorsGen[msgType] = feeCalcGen
 }
 
+func EmptyCalculatorsGen() {
+
+}
+
 func GetGasCalculatorGen(msgType string) GasCalculatorGenerator {
 	return calculatorsGen[msgType]
 }
@@ -35,6 +39,22 @@ func FixedGasCalculator(amount uint64) GasCalculator {
 			return 0, errors.Wrapf(ErrInvalidMsgGas, "msg type: %s", types.MsgTypeURL(msg))
 		}
 		return amount, nil
+	}
+}
+
+func FixedGasCalculatorGen(msgTypeUrl string) GasCalculatorGenerator {
+	return func(params Params) GasCalculator {
+		msgGasParamsSet := params.GetMsgGasParamsSet()
+		for _, gasParams := range msgGasParamsSet {
+			if gasParams.GetMsgTypeUrl() == msgTypeUrl {
+				p := gasParams.GetFixedType()
+				if p == nil {
+					panic(fmt.Errorf("get msg gas params failed for %s", msgTypeUrl))
+				}
+				return FixedGasCalculator(p.FixedGas)
+			}
+		}
+		panic(fmt.Sprintf("no params for %s", msgTypeUrl))
 	}
 }
 
