@@ -33,11 +33,10 @@ func (k msgServer) UpdateMsgGasParams(goCtx context.Context, msg *types.MsgUpdat
 	params := k.GetParams(ctx)
 	msgGasParamsSet := params.MsgGasParamsSet
 	newMsgGasParamsSet := msg.NewParamsSet
+	if err := types.ValidateMsgGasParams(newMsgGasParamsSet); err != nil {
+		return nil, err
+	}
 	for _, newParams := range newMsgGasParamsSet {
-		if err := types.ValidateMsgGasParams(newParams); err != nil {
-			return nil, err
-		}
-
 		typeUrl := newParams.MsgTypeUrl
 
 		fromValue := ""
