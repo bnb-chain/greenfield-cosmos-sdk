@@ -22,7 +22,11 @@ func init() {
 }
 
 func NewParameterChangeProposal(title, description string, changes []ParamChange) *ParameterChangeProposal {
-	return &ParameterChangeProposal{title, description, changes}
+	return &ParameterChangeProposal{Title: title, Description: description, Changes: changes}
+}
+
+func NewCrossChainParameterChangeProposal(title, description string, changes []ParamChange, addresses []string) *ParameterChangeProposal {
+	return &ParameterChangeProposal{Title: title, Description: description, Changes: changes, CrossChain: true, Addresses: addresses}
 }
 
 // GetTitle returns the title of a parameter change proposal.

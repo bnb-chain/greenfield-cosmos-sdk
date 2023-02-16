@@ -82,6 +82,7 @@ message Proposal {
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   google.protobuf.Timestamp voting_start_time = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
   google.protobuf.Timestamp voting_end_time   = 9 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  bool               cross_chain  = 10;   // flag for cross chain proposal
 }
 
 // ProposalStatus enumerates the valid statuses of a proposal.

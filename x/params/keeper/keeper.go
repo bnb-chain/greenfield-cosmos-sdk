@@ -11,11 +11,12 @@ import (
 
 // Keeper of the global paramstore
 type Keeper struct {
-	cdc         codec.BinaryCodec
-	legacyAmino *codec.LegacyAmino
-	key         storetypes.StoreKey
-	tkey        storetypes.StoreKey
-	spaces      map[string]*types.Subspace
+	cdc              codec.BinaryCodec
+	legacyAmino      *codec.LegacyAmino
+	key              storetypes.StoreKey
+	tkey             storetypes.StoreKey
+	spaces           map[string]*types.Subspace
+	CrossChainKeeper *types.CrossChainKeeper
 }
 
 // NewKeeper constructs a params keeper
@@ -27,6 +28,11 @@ func NewKeeper(cdc codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey 
 		tkey:        tkey,
 		spaces:      make(map[string]*types.Subspace),
 	}
+}
+
+// SetCrossChainKeeper sets the crosschainkeeper after its initialization
+func (k *Keeper) SetCrossChainKeeper(crossChainKeeper types.CrossChainKeeper) {
+	k.CrossChainKeeper = &crossChainKeeper
 }
 
 // Logger returns a module-specific logger.

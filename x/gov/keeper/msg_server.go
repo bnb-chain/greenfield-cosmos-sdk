@@ -35,7 +35,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 		return nil, err
 	}
 
-	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata)
+	proposal, err := k.Keeper.SubmitProposal(ctx, proposalMsgs, msg.Metadata, msg.CrossChain)
 	if err != nil {
 		return nil, err
 	}
@@ -232,6 +232,9 @@ func (k legacyMsgServer) SubmitProposal(goCtx context.Context, msg *v1beta1.MsgS
 	)
 	if err != nil {
 		return nil, err
+	}
+	if msg.CrossChain {
+		proposal.CrossChain = true
 	}
 
 	resp, err := k.server.SubmitProposal(goCtx, proposal)

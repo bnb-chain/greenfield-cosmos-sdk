@@ -11,7 +11,7 @@ import (
 )
 
 // SubmitProposal creates a new proposal given an array of messages
-func (keeper Keeper) SubmitProposal(ctx sdk.Context, messages []sdk.Msg, metadata string) (v1.Proposal, error) {
+func (keeper Keeper) SubmitProposal(ctx sdk.Context, messages []sdk.Msg, metadata string, crossChain bool) (v1.Proposal, error) {
 	err := keeper.assertMetadataLength(metadata)
 	if err != nil {
 		return v1.Proposal{}, err
@@ -69,6 +69,17 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, messages []sdk.Msg, metadat
 	depositPeriod := keeper.GetDepositParams(ctx).MaxDepositPeriod
 
 	proposal, err := v1.NewProposal(messages, proposalID, metadata, submitTime, submitTime.Add(*depositPeriod))
+	proposal.CrossChain = crossChain
+
+	fmt.Println("---------------------crosschian is: ", crossChain)
+	fmt.Println("---------------------proposal.CrossChain is: ", proposal.CrossChain)
+	keeper.Logger(ctx).Info(
+		fmt.Sprintf("---------------------crosschian is:  %t", crossChain),
+	)
+	keeper.Logger(ctx).Info(
+		fmt.Sprintf("---------------------proposal.CrossChain is: %t", proposal.CrossChain),
+	)
+
 	if err != nil {
 		return v1.Proposal{}, err
 	}
@@ -88,6 +99,9 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, messages []sdk.Msg, metadat
 		),
 	)
 
+	keeper.Logger(ctx).Info(
+		fmt.Sprintf("---------------------proposal.CrossChain is: %t", proposal.CrossChain),
+	)
 	return proposal, nil
 }
 

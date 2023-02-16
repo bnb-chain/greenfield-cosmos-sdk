@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"cosmossdk.io/errors"
 
@@ -215,6 +216,11 @@ func init() {
 	})
 	RegisterCalculatorGen(types.MsgTypeURL(&oracletypes.MsgClaim{}), func(params Params) GasCalculator {
 		fixedGas := params.GetMsgClaimGas()
+		return FixedGasCalculator(fixedGas)
+	})
+
+	RegisterCalculatorGen(types.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}), func(params Params) GasCalculator {
+		fixedGas := params.GetMsgSubmitProposalGas()
 		return FixedGasCalculator(fixedGas)
 	})
 

@@ -1,0 +1,14 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"math/big"
+)
+
+type CrossChainKeeper interface {
+	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+		packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
+	) (uint64, error)
+
+	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
+}
