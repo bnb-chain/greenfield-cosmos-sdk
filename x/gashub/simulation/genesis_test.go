@@ -17,9 +17,10 @@ import (
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.
-// Abonormal scenarios are not tested here.
+// Abnormal scenarios are not tested here.
 func TestRandomizedGenState(t *testing.T) {
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	types.RegisterInterfaces(interfaceRegistry)
 	cdc := codec.NewProtoCodec(interfaceRegistry)
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -40,6 +41,8 @@ func TestRandomizedGenState(t *testing.T) {
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &gashubGenesis)
 
 	require.Equal(t, uint64(2540), gashubGenesis.Params.MaxTxSize)
-	require.Equal(t, uint64(2956), gashubGenesis.Params.MinGasPerByte)
-	require.Equal(t, uint64(2803300), gashubGenesis.Params.MsgSendGas)
+	require.Equal(t, uint64(36), gashubGenesis.Params.MinGasPerByte)
+
+	gas := gashubGenesis.Params.MsgGasParamsSet[0].GasParams.(*types.MsgGasParams_FixedType)
+	require.Equal(t, uint64(4978511), gas.FixedType.FixedGas)
 }
