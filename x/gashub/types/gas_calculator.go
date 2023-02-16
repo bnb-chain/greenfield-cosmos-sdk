@@ -25,10 +25,6 @@ func RegisterCalculatorGen(msgType string, feeCalcGen GasCalculatorGenerator) {
 	calculatorsGen[msgType] = feeCalcGen
 }
 
-func EmptyCalculatorsGen() {
-
-}
-
 func GetGasCalculatorGen(msgType string) GasCalculatorGenerator {
 	return calculatorsGen[msgType]
 }
