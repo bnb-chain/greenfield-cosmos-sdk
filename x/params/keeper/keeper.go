@@ -16,7 +16,7 @@ type Keeper struct {
 	key              storetypes.StoreKey
 	tkey             storetypes.StoreKey
 	spaces           map[string]*types.Subspace
-	CrossChainKeeper *types.CrossChainKeeper
+	crossChainKeeper *types.CrossChainKeeper
 }
 
 // NewKeeper constructs a params keeper
@@ -32,7 +32,7 @@ func NewKeeper(cdc codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey 
 
 // SetCrossChainKeeper sets the crosschainkeeper after its initialization
 func (k *Keeper) SetCrossChainKeeper(crossChainKeeper types.CrossChainKeeper) {
-	k.CrossChainKeeper = &crossChainKeeper
+	k.crossChainKeeper = &crossChainKeeper
 }
 
 // Logger returns a module-specific logger.

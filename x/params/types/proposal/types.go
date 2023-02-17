@@ -10,9 +10,7 @@ const (
 	KeyUpgrade = "ungrade"
 )
 
-var (
-	KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
-)
+var KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
 
 // SyncParamsPackage is the payload be relayed to BSC
 type SyncParamsPackage struct {

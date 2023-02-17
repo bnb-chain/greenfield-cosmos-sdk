@@ -16,5 +16,4 @@ var (
 	ErrAddressNotValid         = sdkerrors.Register(ModuleName, 9, "address format is not valid")
 	ErrExceedParamsChangeLimit = sdkerrors.Register(ModuleName, 10, "exceed params change limit")
 	ErrInvalidPackage          = sdkerrors.Register(ModuleName, 11, "invalid sync params package")
-	ErrInvalidRelayerFee       = sdkerrors.Register(ModuleName, 12, "invalid sync params relayer fee")
 )
