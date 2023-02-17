@@ -6,6 +6,8 @@ const (
 	SyncParamsChannel                 = "syncParametersChange"
 	SyncParamsChannelID sdk.ChannelID = 3
 	BridgeSubspace                    = "bridge"
+
+	KeyUpgrade = "ungrade"
 )
 
 var (
