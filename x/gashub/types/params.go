@@ -5,163 +5,49 @@ import (
 
 	"sigs.k8s.io/yaml"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Default parameter values
 const (
-	DefaultMaxTxSize                         uint64 = 1024
-	DefaultMinGasPerByte                     uint64 = 5
-	DefaultMsgGrantFixedGas                  uint64 = 1e5
-	DefaultMsgGrantPerItemGas                uint64 = 1e5
-	DefaultMsgRevokeGas                      uint64 = 1e5
-	DefaultMsgExecGas                        uint64 = 1e5
-	DefaultMsgSendGas                        uint64 = 1e5
-	DefaultMsgMultiSendFixedGas              uint64 = 1e5
-	DefaultMsgMultiSendPerItemGas            uint64 = 1e5
-	DefaultMsgWithdrawDelegatorRewardGas     uint64 = 1e5
-	DefaultMsgWithdrawValidatorCommissionGas uint64 = 1e5
-	DefaultMsgSetWithdrawAddressGas          uint64 = 1e5
-	DefaultMsgFundCommunityPoolGas           uint64 = 1e5
-	DefaultMsgGrantAllowanceFixedGas         uint64 = 1e5
-	DefaultMsgGrantAllowancePerItemGas       uint64 = 1e5
-	DefaultMsgRevokeAllowanceGas             uint64 = 1e5
-	DefaultMsgSubmitProposalGas              uint64 = 1e5
-	DefaultMsgVoteGas                        uint64 = 1e5
-	DefaultMsgVoteWeightedGas                uint64 = 1e5
-	DefaultMsgDepositGas                     uint64 = 1e5
-	DefaultMsgUnjailGas                      uint64 = 1e5
-	DefaultMsgImpeachGas                     uint64 = 1e5
-	DefaultMsgEditValidatorGas               uint64 = 1e5
-	DefaultMsgDelegateGas                    uint64 = 1e5
-	DefaultMsgUndelegateGas                  uint64 = 1e5
-	DefaultMsgBeginRedelegateGas             uint64 = 1e5
-	DefaultMsgCancelUnbondingDelegationGas   uint64 = 1e5
-	DefaultMsgCreateValidatorGas             uint64 = 1e5
-	DefaultMsgClaimGas                       uint64 = 1e5
-	DefaultMsgTransferOutGas                 uint64 = 1e5
-	DefaultMsgCreateStorageProviderGas       uint64 = 1e5
-	DefaultMsgEditStorageProviderGas         uint64 = 1e5
-	DefaultMsgSpDepositGas                   uint64 = 1e5
-	DefaultMsgStorageCreateBucket            uint64 = 1e5
-	DefaultMsgStorageDeleteBucket            uint64 = 1e5
-	DefaultMsgStorageCreateObject            uint64 = 1e5
-	DefaultMsgStorageDeleteObject            uint64 = 1e5
-	DefaultMsgStorageSealObject              uint64 = 1e5
-	DefaultMsgStorageCopyObject              uint64 = 1e5
-	DefaultMsgStorageRejectSealObject        uint64 = 1e5
-	DefaultMsgStorageCreateGroup             uint64 = 1e5
-	DefaultMsgStorageDeleteGroup             uint64 = 1e5
-	DefaultMsgStorageLeaveGroup              uint64 = 1e5
-	DefaultMsgStorageUpdateGroupMember       uint64 = 1e5
+	DefaultMaxTxSize     uint64 = 1024
+	DefaultMinGasPerByte uint64 = 5
 )
 
 // Parameter keys
 var (
-	KeyMaxTxSize                         = []byte("MaxTxSize")
-	KeyMinGasPerByte                     = []byte("MinGasPerByte")
-	KeyMsgGrantFixedGas                  = []byte("MsgGrantFixedGas")
-	KeyMsgGrantPerItemGas                = []byte("MsgGrantPerItemGas")
-	KeyMsgRevokeGas                      = []byte("MsgRevokeGas")
-	KeyMsgExecGas                        = []byte("MsgExecGas")
-	KeyMsgSendGas                        = []byte("MsgSendGas")
-	KeyMsgMultiSendFixedGas              = []byte("MsgMultiSendFixedGas")
-	KeyMsgMultiSendPerItemGas            = []byte("MsgMultiSendPerItemGas")
-	KeyMsgWithdrawDelegatorRewardGas     = []byte("MsgWithdrawDelegatorRewardGas")
-	KeyMsgWithdrawValidatorCommissionGas = []byte("MsgWithdrawValidatorCommissionGas")
-	KeyMsgSetWithdrawAddressGas          = []byte("MsgSetWithdrawAddressGas")
-	KeyMsgFundCommunityPoolGas           = []byte("MsgFundCommunityPoolGas")
-	KeyMsgGrantAllowanceFixedGas         = []byte("MsgGrantAllowanceFixedGas")
-	KeyMsgGrantAllowancePerItemGas       = []byte("MsgGrantAllowancePerItemGas")
-	KeyMsgRevokeAllowanceGas             = []byte("MsgRevokeAllowanceGas")
-	KeyMsgSubmitProposalGas              = []byte("MsgSubmitProposalGas")
-	KeyMsgVoteGas                        = []byte("MsgVoteGas")
-	KeyMsgVoteWeightedGas                = []byte("MsgVoteWeightedGas")
-	KeyMsgDepositGas                     = []byte("MsgDepositGas")
-	KeyMsgUnjailGas                      = []byte("MsgUnjailGas")
-	KeyMsgImpeachGas                     = []byte("MsgImpeachGas")
-	KeyMsgEditValidatorGas               = []byte("MsgEditValidatorGas")
-	KeyMsgDelegateGas                    = []byte("MsgDelegateGas")
-	KeyMsgUndelegateGas                  = []byte("MsgUndelegateGas")
-	KeyMsgBeginRedelegateGas             = []byte("MsgBeginRedelegateGas")
-	KeyMsgCancelUnbondingDelegationGas   = []byte("MsgCancelUnbondingDelegationGas")
-	KeyMsgCreateValidatorGas             = []byte("MsgCreateValidatorGas")
-	KeyMsgClaimGas                       = []byte("MsgClaimGas")
-	KeyMsgTransferOutGas                 = []byte("MsgTransferOutGas")
-	KeyMsgCreateStorageProviderGas       = []byte("MsgCreateStorageProviderGas")
-	KeyMsgEditStorageProviderGas         = []byte("MsgEditStorageProviderGas")
-	KeyMsgSpDepositGas                   = []byte("MsgSpDepositGas")
-	KeyMsgStorageCreateBucket            = []byte("MsgStorageCreateBucket")
-	KeyMsgStorageDeleteBucket            = []byte("MsgStorageDeleteBucket")
-	KeyMsgStorageCreateObject            = []byte("MsgStorageCreateObject")
-	KeyMsgStorageDeleteObject            = []byte("MsgStorageDeleteObject")
-	KeyMsgStorageSealObject              = []byte("MsgStorageSealObject")
-	KeyMsgStorageCopyObject              = []byte("MsgStorageCopyObject")
-	KeyMsgStorageRejectSealObject        = []byte("MsgStorageRejectSealObject")
-	KeyMsgStorageCreateGroup             = []byte("MsgStorageCreateGroup")
-	KeyMsgStorageDeleteGroup             = []byte("MsgStorageDeleteGroup")
-	KeyMsgStorageLeaveGroup              = []byte("MsgStorageLeaveGroup")
-	KeyMsgStorageUpdateGroupMember       = []byte("MsgStorageUpdateGroupMember")
+	KeyMaxTxSize       = []byte("MaxTxSize")
+	KeyMinGasPerByte   = []byte("MinGasPerByte")
+	KeyMsgGasParamsSet = []byte("MsgGasParamsSet")
 )
 
 var _ paramtypes.ParamSet = &Params{}
 
+// NewMsgGasParamsWithFixedGas creates a new MsgGasParams object with fixed gas
+func NewMsgGasParamsWithFixedGas(msgTypeUrl string, gas uint64) *MsgGasParams {
+	return &MsgGasParams{
+		MsgTypeUrl: msgTypeUrl,
+		GasParams:  &MsgGasParams_FixedType{FixedType: &MsgGasParams_FixedGasParams{FixedGas: gas}},
+	}
+}
+
+// NewMsgGasParamsWithDynamicGas creates a new MsgGasParams object with dynamic gas
+func NewMsgGasParamsWithDynamicGas(msgTypeUrl string, msgGasParams isMsgGasParams_GasParams) *MsgGasParams {
+	return &MsgGasParams{
+		MsgTypeUrl: msgTypeUrl,
+		GasParams:  msgGasParams,
+	}
+}
+
 // NewParams creates a new Params object
 func NewParams(
-	maxTxSize, minGasPerByte, msgGrantFixedGas, msgGrantPerItemGas, msgRevokeGas, msgExecGas, msgSendGas, msgMultiSendFixedGas,
-	msgMultiSendPerItemGas, msgWithdrawDelegatorRewardGas, msgWithdrawValidatorCommissionGas, msgSetWithdrawAddressGas,
-	msgFundCommunityPoolGas, msgGrantAllowanceFixedGas, msgGrantAllowancePerItemGas, msgRevokeAllowanceGas, msgSubmitProposalGas,
-	msgVoteGas, msgVoteWeightedGas, msgDepositGas, msgUnjailGas, msgImpeachGas, msgEditValidatorGas, msgDelegateGas,
-	msgUndelegateGas, msgBeginRedelegateGas, msgCancelUnbondingDelegationGas, msgCreateValidatorGas, msgClaimGas,
-	msgTransferOutGas, msgCreateStorageProviderGas, msgEditStorageProviderGas, msgSpDepositGas, msgStorageCreateBucket,
-	msgStorageDeleteBucket, msgStorageCreateObject, msgStorageDeleteObject, msgStorageSealObject, msgStorageCopyObject,
-	msgStorageRejectSealObject, msgStorageCreateGroup, msgStorageDeleteGroup, msgStorageLeaveGroup, msgStorageUpdateGroupMember uint64,
+	maxTxSize, minGasPerByte uint64, msgGasParamsSet []*MsgGasParams,
 ) Params {
 	return Params{
-		MaxTxSize:                         maxTxSize,
-		MinGasPerByte:                     minGasPerByte,
-		MsgGrantFixedGas:                  msgGrantFixedGas,
-		MsgGrantPerItemGas:                msgGrantPerItemGas,
-		MsgRevokeGas:                      msgRevokeGas,
-		MsgExecGas:                        msgExecGas,
-		MsgSendGas:                        msgSendGas,
-		MsgMultiSendFixedGas:              msgMultiSendFixedGas,
-		MsgMultiSendPerItemGas:            msgMultiSendPerItemGas,
-		MsgWithdrawDelegatorRewardGas:     msgWithdrawDelegatorRewardGas,
-		MsgWithdrawValidatorCommissionGas: msgWithdrawValidatorCommissionGas,
-		MsgSetWithdrawAddressGas:          msgSetWithdrawAddressGas,
-		MsgFundCommunityPoolGas:           msgFundCommunityPoolGas,
-		MsgGrantAllowanceFixedGas:         msgGrantAllowanceFixedGas,
-		MsgGrantAllowancePerItemGas:       msgGrantAllowancePerItemGas,
-		MsgRevokeAllowanceGas:             msgRevokeAllowanceGas,
-		MsgSubmitProposalGas:              msgSubmitProposalGas,
-		MsgVoteGas:                        msgVoteGas,
-		MsgVoteWeightedGas:                msgVoteWeightedGas,
-		MsgDepositGas:                     msgDepositGas,
-		MsgUnjailGas:                      msgUnjailGas,
-		MsgImpeachGas:                     msgImpeachGas,
-		MsgEditValidatorGas:               msgEditValidatorGas,
-		MsgDelegateGas:                    msgDelegateGas,
-		MsgUndelegateGas:                  msgUndelegateGas,
-		MsgBeginRedelegateGas:             msgBeginRedelegateGas,
-		MsgCancelUnbondingDelegationGas:   msgCancelUnbondingDelegationGas,
-		MsgCreateValidatorGas:             msgCreateValidatorGas,
-		MsgClaimGas:                       msgClaimGas,
-		MsgTransferOutGas:                 msgTransferOutGas,
-		MsgCreateStorageProviderGas:       msgCreateStorageProviderGas,
-		MsgEditStorageProviderGas:         msgEditStorageProviderGas,
-		MsgSpDepositGas:                   msgSpDepositGas,
-		MsgStorageCreateBucket:            msgStorageCreateBucket,
-		MsgStorageDeleteBucket:            msgStorageDeleteBucket,
-		MsgStorageCreateObject:            msgStorageCreateObject,
-		MsgStorageDeleteObject:            msgStorageDeleteObject,
-		MsgStorageSealObject:              msgStorageSealObject,
-		MsgStorageCopyObject:              msgStorageCopyObject,
-		MsgStorageRejectSealObject:        msgStorageRejectSealObject,
-		MsgStorageCreateGroup:             msgStorageCreateGroup,
-		MsgStorageDeleteGroup:             msgStorageDeleteGroup,
-		MsgStorageLeaveGroup:              msgStorageLeaveGroup,
-		MsgStorageUpdateGroupMember:       msgStorageUpdateGroupMember,
+		MaxTxSize:       maxTxSize,
+		MinGasPerByte:   minGasPerByte,
+		MsgGasParamsSet: msgGasParamsSet,
 	}
 }
 
@@ -176,98 +62,82 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMaxTxSize, &p.MaxTxSize, validateMaxTxSize),
 		paramtypes.NewParamSetPair(KeyMinGasPerByte, &p.MinGasPerByte, validateMinGasPerByte),
-		paramtypes.NewParamSetPair(KeyMsgGrantFixedGas, &p.MsgGrantFixedGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgGrantPerItemGas, &p.MsgGrantPerItemGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgRevokeGas, &p.MsgRevokeGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgExecGas, &p.MsgExecGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgSendGas, &p.MsgSendGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgMultiSendFixedGas, &p.MsgMultiSendFixedGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgMultiSendPerItemGas, &p.MsgMultiSendPerItemGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgWithdrawDelegatorRewardGas, &p.MsgWithdrawDelegatorRewardGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgWithdrawValidatorCommissionGas, &p.MsgWithdrawValidatorCommissionGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgSetWithdrawAddressGas, &p.MsgSetWithdrawAddressGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgFundCommunityPoolGas, &p.MsgFundCommunityPoolGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgGrantAllowanceFixedGas, &p.MsgGrantAllowanceFixedGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgGrantAllowancePerItemGas, &p.MsgGrantAllowancePerItemGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgRevokeAllowanceGas, &p.MsgRevokeAllowanceGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgSubmitProposalGas, &p.MsgSubmitProposalGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgVoteGas, &p.MsgVoteGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgVoteWeightedGas, &p.MsgVoteWeightedGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgDepositGas, &p.MsgDepositGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgUnjailGas, &p.MsgUnjailGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgImpeachGas, &p.MsgImpeachGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgEditValidatorGas, &p.MsgEditValidatorGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgDelegateGas, &p.MsgDelegateGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgUndelegateGas, &p.MsgUndelegateGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgBeginRedelegateGas, &p.MsgBeginRedelegateGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgCancelUnbondingDelegationGas, &p.MsgCancelUnbondingDelegationGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgCreateValidatorGas, &p.MsgCreateValidatorGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgClaimGas, &p.MsgClaimGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgTransferOutGas, &p.MsgTransferOutGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgCreateStorageProviderGas, &p.MsgCreateStorageProviderGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgEditStorageProviderGas, &p.MsgEditStorageProviderGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgSpDepositGas, &p.MsgSpDepositGas, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageCreateBucket, &p.MsgStorageCreateBucket, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageDeleteBucket, &p.MsgStorageDeleteBucket, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageCreateObject, &p.MsgStorageCreateObject, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageDeleteObject, &p.MsgStorageDeleteObject, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageSealObject, &p.MsgStorageSealObject, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageCopyObject, &p.MsgStorageCopyObject, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageRejectSealObject, &p.MsgStorageRejectSealObject, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageCreateGroup, &p.MsgStorageCreateGroup, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageDeleteGroup, &p.MsgStorageDeleteGroup, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageLeaveGroup, &p.MsgStorageLeaveGroup, validateMsgGas),
-		paramtypes.NewParamSetPair(KeyMsgStorageUpdateGroupMember, &p.MsgStorageUpdateGroupMember, validateMsgGas),
+		paramtypes.NewParamSetPair(KeyMsgGasParamsSet, &p.MsgGasParamsSet, ValidateMsgGasParams),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
+	defaultMsgGasParamsSet := []*MsgGasParams{
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgExec", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.authz.v1beta1.MsgRevoke", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.bank.v1beta1.MsgSend", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgFundCommunityPool", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.feegrant.v1beta1.MsgRevokeAllowance", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgSubmitProposal", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVote", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgVoteWeighted", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.oracle.v1.MsgClaim", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgUnjail", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgBeginRedelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgCreateValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgDelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgEditValidator", 1e5),
+		NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgUndelegate", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.bridge.MsgTransferOut", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.sp.MsgEditStorageProvider", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCopyObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteBucket", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgLeaveGroup", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreatePaymentAccount", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeposit", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 1e5),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 1e5),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.authz.v1beta1.MsgGrant",
+			&MsgGasParams_GrantType{
+				GrantType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.bank.v1beta1.MsgMultiSend",
+			&MsgGasParams_MultiSendType{
+				MultiSendType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
+		NewMsgGasParamsWithDynamicGas(
+			"/cosmos.feegrant.v1beta1.MsgGrantAllowance",
+			&MsgGasParams_GrantAllowanceType{
+				GrantAllowanceType: &MsgGasParams_DynamicGasParams{
+					FixedGas:   1e5,
+					GasPerItem: 1e5,
+				},
+			},
+		),
+	}
 	return Params{
-		MaxTxSize:                         DefaultMaxTxSize,
-		MinGasPerByte:                     DefaultMinGasPerByte,
-		MsgGrantFixedGas:                  DefaultMsgGrantFixedGas,
-		MsgGrantPerItemGas:                DefaultMsgGrantPerItemGas,
-		MsgRevokeGas:                      DefaultMsgRevokeGas,
-		MsgExecGas:                        DefaultMsgExecGas,
-		MsgSendGas:                        DefaultMsgSendGas,
-		MsgMultiSendFixedGas:              DefaultMsgMultiSendFixedGas,
-		MsgMultiSendPerItemGas:            DefaultMsgMultiSendPerItemGas,
-		MsgWithdrawDelegatorRewardGas:     DefaultMsgWithdrawDelegatorRewardGas,
-		MsgWithdrawValidatorCommissionGas: DefaultMsgWithdrawValidatorCommissionGas,
-		MsgSetWithdrawAddressGas:          DefaultMsgSetWithdrawAddressGas,
-		MsgFundCommunityPoolGas:           DefaultMsgFundCommunityPoolGas,
-		MsgGrantAllowanceFixedGas:         DefaultMsgGrantAllowanceFixedGas,
-		MsgGrantAllowancePerItemGas:       DefaultMsgGrantAllowancePerItemGas,
-		MsgRevokeAllowanceGas:             DefaultMsgRevokeAllowanceGas,
-		MsgSubmitProposalGas:              DefaultMsgSubmitProposalGas,
-		MsgVoteGas:                        DefaultMsgVoteGas,
-		MsgVoteWeightedGas:                DefaultMsgVoteWeightedGas,
-		MsgDepositGas:                     DefaultMsgDepositGas,
-		MsgUnjailGas:                      DefaultMsgUnjailGas,
-		MsgImpeachGas:                     DefaultMsgImpeachGas,
-		MsgEditValidatorGas:               DefaultMsgEditValidatorGas,
-		MsgDelegateGas:                    DefaultMsgDelegateGas,
-		MsgUndelegateGas:                  DefaultMsgUndelegateGas,
-		MsgBeginRedelegateGas:             DefaultMsgBeginRedelegateGas,
-		MsgCancelUnbondingDelegationGas:   DefaultMsgCancelUnbondingDelegationGas,
-		MsgCreateValidatorGas:             DefaultMsgCreateValidatorGas,
-		MsgClaimGas:                       DefaultMsgClaimGas,
-		MsgTransferOutGas:                 DefaultMsgTransferOutGas,
-		MsgCreateStorageProviderGas:       DefaultMsgCreateStorageProviderGas,
-		MsgEditStorageProviderGas:         DefaultMsgEditStorageProviderGas,
-		MsgSpDepositGas:                   DefaultMsgSpDepositGas,
-		MsgStorageCreateBucket:            DefaultMsgStorageCreateBucket,
-		MsgStorageDeleteBucket:            DefaultMsgStorageDeleteBucket,
-		MsgStorageCreateObject:            DefaultMsgStorageCreateObject,
-		MsgStorageDeleteObject:            DefaultMsgStorageDeleteObject,
-		MsgStorageSealObject:              DefaultMsgStorageSealObject,
-		MsgStorageCopyObject:              DefaultMsgStorageCopyObject,
-		MsgStorageRejectSealObject:        DefaultMsgStorageRejectSealObject,
-		MsgStorageCreateGroup:             DefaultMsgStorageCreateGroup,
-		MsgStorageDeleteGroup:             DefaultMsgStorageDeleteGroup,
-		MsgStorageLeaveGroup:              DefaultMsgStorageLeaveGroup,
-		MsgStorageUpdateGroupMember:       DefaultMsgStorageUpdateGroupMember,
+		MaxTxSize:       DefaultMaxTxSize,
+		MinGasPerByte:   DefaultMinGasPerByte,
+		MsgGasParamsSet: defaultMsgGasParamsSet,
 	}
 }
 
@@ -303,14 +173,35 @@ func validateMinGasPerByte(i interface{}) error {
 	return nil
 }
 
-func validateMsgGas(i interface{}) error {
-	v, ok := i.(uint64)
+func ValidateMsgGasParams(i interface{}) error {
+	v, ok := i.([]*MsgGasParams)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
-		return fmt.Errorf("invalid msg gas: %d", v)
+	anyUnpacker := codectypes.NewInterfaceRegistry()
+	RegisterInterfaces(anyUnpacker)
+	for _, msgGasParams := range v {
+		switch p := msgGasParams.GasParams.(type) {
+		case *MsgGasParams_FixedType:
+			if p.FixedType.FixedGas == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		case *MsgGasParams_GrantType:
+			if p.GrantType.FixedGas == 0 || p.GrantType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		case *MsgGasParams_MultiSendType:
+			if p.MultiSendType.FixedGas == 0 || p.MultiSendType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		case *MsgGasParams_GrantAllowanceType:
+			if p.GrantAllowanceType.FixedGas == 0 || p.GrantAllowanceType.GasPerItem == 0 {
+				return fmt.Errorf("invalid gas. cannot be zero")
+			}
+		default:
+			return fmt.Errorf("unknown or unspecified gas type")
+		}
 	}
 
 	return nil
@@ -324,130 +215,7 @@ func (p Params) Validate() error {
 	if err := validateMinGasPerByte(p.MinGasPerByte); err != nil {
 		return err
 	}
-	if err := validateMsgGas(p.MsgGrantFixedGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgGrantPerItemGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgRevokeGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgExecGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgSendGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgMultiSendFixedGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgMultiSendPerItemGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgWithdrawDelegatorRewardGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgWithdrawValidatorCommissionGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgSetWithdrawAddressGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgFundCommunityPoolGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgGrantAllowanceFixedGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgGrantAllowancePerItemGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgRevokeAllowanceGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgSubmitProposalGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgVoteGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgVoteWeightedGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgDepositGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgUnjailGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgImpeachGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgEditValidatorGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgDelegateGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgUndelegateGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgBeginRedelegateGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgCancelUnbondingDelegationGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgCreateValidatorGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgClaimGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgTransferOutGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgCreateStorageProviderGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgEditStorageProviderGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgSpDepositGas); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageCreateBucket); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageDeleteBucket); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageCreateObject); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageDeleteObject); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageSealObject); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageCopyObject); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageRejectSealObject); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageCreateGroup); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageDeleteGroup); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageLeaveGroup); err != nil {
-		return err
-	}
-	if err := validateMsgGas(p.MsgStorageUpdateGroupMember); err != nil {
+	if err := ValidateMsgGasParams(p.MsgGasParamsSet); err != nil {
 		return err
 	}
 

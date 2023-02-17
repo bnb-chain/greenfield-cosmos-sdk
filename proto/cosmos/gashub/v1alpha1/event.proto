@@ -1,0 +1,12 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.gashub.v1alpha1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// EventUpdateMsgGasParams is emitted when update a msg's gas params
+message EventUpdateMsgGasParams {
+  string msg_type_url = 1;
+  string from_value   = 2;
+  string to_value     = 3;
+}

@@ -69,13 +69,30 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 	}
 
 	if txf.SimulateAndExecute() || clientCtx.Simulate {
-		_, adjusted, err := CalculateGas(clientCtx, txf, msgs...)
+		gInfo, adjusted, err := CalculateGas(clientCtx, txf, msgs...)
 		if err != nil {
 			return err
 		}
 
 		txf = txf.WithGas(adjusted)
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n", GasEstimateResponse{GasEstimate: txf.Gas()})
+
+		parsedGasPrices, err := sdk.ParseCoinsNormalized(gInfo.GasInfo.MinGasPrices)
+		if err != nil {
+			return err
+		}
+		if parsedGasPrices == nil {
+			return fmt.Errorf("empty gas prices")
+		}
+
+		// we only accept one type coin
+		gasPrice := parsedGasPrices[0]
+		fees := make(sdk.Coins, 1)
+		gasLimit := sdk.NewInt(int64(adjusted))
+		fee := gasPrice.Amount.Mul(gasLimit)
+		fees[0] = sdk.NewCoin(gasPrice.Denom, fee)
+
+		txf = txf.WithFees(fees.String())
 	}
 
 	if clientCtx.Simulate {

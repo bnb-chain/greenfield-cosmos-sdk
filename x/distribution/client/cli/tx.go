@@ -18,7 +18,6 @@ import (
 
 // Transaction flags for the x/distribution module
 var (
-	FlagCommission       = "commission"
 	FlagMaxMessagesPerTx = "max-msgs"
 )
 
@@ -38,6 +37,7 @@ func NewTxCmd() *cobra.Command {
 
 	distTxCmd.AddCommand(
 		NewWithdrawRewardsCmd(),
+		NewWithdrawCommission(),
 		NewWithdrawAllRewardsCmd(),
 		NewSetWithdrawAddrCmd(),
 		NewFundCommunityPoolCmd(),
@@ -76,20 +76,16 @@ func newSplitAndApply(
 
 // NewWithdrawRewardsCmd returns a CLI command handler for creating a MsgWithdrawDelegatorReward transaction.
 func NewWithdrawRewardsCmd() *cobra.Command {
-	// bech32PrefixValAddr := sdk.GetConfig().GetBech32ValidatorAddrPrefix()
-
 	cmd := &cobra.Command{
 		Use:   "withdraw-rewards [validator-addr]",
-		Short: "Withdraw rewards from a given delegation address, and optionally withdraw validator commission if the delegation address given is a validator operator",
+		Short: "Withdraw rewards from a given delegation address",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Withdraw rewards from a given delegation address,
-and optionally withdraw validator commission if the delegation address given is a validator operator.
+			fmt.Sprintf(`Withdraw rewards from a given delegation address.
 
 Example:
 $ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey
-$ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey --commission
 `,
-				version.AppName, version.AppName,
+				version.AppName,
 			),
 		),
 		Args: cobra.ExactArgs(1),
@@ -106,15 +102,46 @@ $ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey --commission
 
 			msgs := []sdk.Msg{types.NewMsgWithdrawDelegatorReward(delAddr, valAddr)}
 
-			if commission, _ := cmd.Flags().GetBool(FlagCommission); commission {
-				msgs = append(msgs, types.NewMsgWithdrawValidatorCommission(valAddr))
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// NewWithdrawCommission returns a CLI command handler for creating a MsgWithdrawValidatorCommission transaction.
+func NewWithdrawCommission() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw-commission [validator-addr]",
+		Short: "Withdraw validator commission",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Withdraw validator commission if the delegation address given is a validator operator.
+
+Example:
+$ %s tx distribution withdraw-commission 0x91D7d.. --from mykey
+`,
+				version.AppName,
+			),
+		),
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
 			}
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
+			if err != nil {
+				return err
+			}
+
+			msgs := []sdk.Msg{types.NewMsgWithdrawValidatorCommission(valAddr)}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
 
-	cmd.Flags().Bool(FlagCommission, false, "Withdraw the validator's commission in addition to the rewards")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

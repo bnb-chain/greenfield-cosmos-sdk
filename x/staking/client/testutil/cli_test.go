@@ -7,11 +7,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 )
 
 func TestIntegrationTestSuite(t *testing.T) {
@@ -27,5 +28,6 @@ func TestIntegrationTestSuite(t *testing.T) {
 	bz, err := cfg.Codec.MarshalJSON(genesisState)
 	require.NoError(t, err)
 	cfg.GenesisState["gov"] = bz
+	cfg.NumValidators = 2
 	suite.Run(t, NewCreateValidatorTestSuite(cfg))
 }
