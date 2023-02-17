@@ -3,20 +3,20 @@ package proposal
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
 const (
-	SyncParamsChangeChannel                  = "syncParametersChange"
-	SyncParamsChangeChannellID sdk.ChannelID = 3
-	BridgeSubspace                           = "bridge"
+	SyncParamsChannel                 = "syncParametersChange"
+	SyncParamsChannelID sdk.ChannelID = 3
+	BridgeSubspace                    = "bridge"
 )
 
 var (
-	KeySyncParamsChangeRelayerFee = []byte("SyncParamsChangeRelayerFee")
+	KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
 )
 
-// rlp (SyncParamsChangePackage)
-type SyncParamsChangePackage struct {
+// SyncParamsPackage is the payload be relayed to BSC
+type SyncParamsPackage struct {
 	Key string //
 	// new parameter or new smart contract address(es) if is ungraded proposal
-	Values []byte // string   // address to bytes
+	Value []byte // string   // address to bytes
 	// smart contract address(es)
-	Targets []byte // string
+	Target []byte // string
 }

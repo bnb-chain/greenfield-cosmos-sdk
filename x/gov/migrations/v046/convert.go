@@ -19,7 +19,6 @@ func ConvertToLegacyProposal(proposal v1.Proposal) (v1beta1.Proposal, error) {
 		ProposalId:   proposal.Id,
 		Status:       v1beta1.ProposalStatus(proposal.Status),
 		TotalDeposit: types.NewCoins(proposal.TotalDeposit...),
-		CrossChain:   proposal.CrossChain,
 	}
 
 	legacyProposal.FinalTallyResult, err = ConvertToLegacyTallyResult(proposal.FinalTallyResult)

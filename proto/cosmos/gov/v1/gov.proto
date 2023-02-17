@@ -56,7 +56,6 @@ message Proposal {
 
   // metadata is any arbitrary metadata attached to the proposal.
   string metadata = 10;
-  bool  cross_chain  = 11;   // flag for cross chain proposal
 }
 
 // ProposalStatus enumerates the valid statuses of a proposal.

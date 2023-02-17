@@ -38,7 +38,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		addresses = append(addresses, adr.Bytes()...)
 	}
 
-	relayerFeeAmount, err := k.GetSyncParamsChangeRelayerFee(ctx)
+	relayerFeeAmount, err := k.GetSyncParamsRelayerFee(ctx)
 	if err != nil {
 		return err
 	}
@@ -47,10 +47,10 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		fmt.Sprintf("SyncParams realyerFeeAmount %d", relayerFeeAmount),
 	)
 
-	pack := types.SyncParamsChangePackage{
-		Key:     key,
-		Values:  values,
-		Targets: addresses,
+	pack := types.SyncParamsPackage{
+		Key:    key,
+		Value:  values,
+		Target: addresses,
 	}
 
 	encodedPackage, err := rlp.EncodeToBytes(pack)
@@ -64,7 +64,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	)
 	seq, err := kp.CreateRawIBCPackageWithFee(
 		ctx,
-		types.SyncParamsChangeChannellID,
+		types.SyncParamsChannelID,
 		sdk.SynCrossChainPackageType,
 		encodedPackage,
 		relayerFeeAmount,
@@ -82,7 +82,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		fmt.Sprintf("SyncParams CreatedRawIBCPackageWithFee"),
 	)
 
-	crossParamsEvent := types.EventCrossParamsChange{
+	crossParamsEvent := types.EventSyncParams{
 		Key:    key,
 		Value:  string(values),
 		Target: string(addresses),
@@ -94,14 +94,14 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	return nil
 }
 
-// GetSyncParamsChangeRelayerFee gets the sync params change relayer fee params
-func (k Keeper) GetSyncParamsChangeRelayerFee(ctx sdk.Context) (*big.Int, error) {
+// GetSyncParamsRelayerFee gets the sync params change relayer fee params
+func (k Keeper) GetSyncParamsRelayerFee(ctx sdk.Context) (*big.Int, error) {
 	var syncParamsRelayerFeeParam string
 	ss, ok := k.GetSubspace(types.BridgeSubspace)
 	if !ok {
 		return nil, sdkerrors.Wrap(types.ErrUnknownSubspace, types.BridgeSubspace)
 	}
-	ss.Get(ctx, types.KeySyncParamsChangeRelayerFee, &syncParamsRelayerFeeParam)
+	ss.Get(ctx, types.KeySyncParamsRelayerFee, &syncParamsRelayerFeeParam)
 	relayerFee, valid := big.NewInt(0).SetString(syncParamsRelayerFeeParam, 10)
 	if !valid {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidRelayerFee, "invalid relayer fee: %s", syncParamsRelayerFeeParam)

@@ -24,8 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// EventCrossTransferIn is emitted when a cross chain transfer in tx happened
-type EventCrossParamsChange struct {
+type EventSyncParams struct {
 	// parameter key or UPGRADE_KEY_HASH
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// new parameter or new smart contract address(es) if is ungraded proposal
@@ -34,18 +33,18 @@ type EventCrossParamsChange struct {
 	Target string `protobuf:"bytes,3,opt,name=target,proto3" json:"target,omitempty"`
 }
 
-func (m *EventCrossParamsChange) Reset()         { *m = EventCrossParamsChange{} }
-func (m *EventCrossParamsChange) String() string { return proto.CompactTextString(m) }
-func (*EventCrossParamsChange) ProtoMessage()    {}
-func (*EventCrossParamsChange) Descriptor() ([]byte, []int) {
+func (m *EventSyncParams) Reset()         { *m = EventSyncParams{} }
+func (m *EventSyncParams) String() string { return proto.CompactTextString(m) }
+func (*EventSyncParams) ProtoMessage()    {}
+func (*EventSyncParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_32eebb0d5c141235, []int{0}
 }
-func (m *EventCrossParamsChange) XXX_Unmarshal(b []byte) error {
+func (m *EventSyncParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventCrossParamsChange) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventSyncParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventCrossParamsChange.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventSyncParams.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -55,33 +54,33 @@ func (m *EventCrossParamsChange) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *EventCrossParamsChange) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventCrossParamsChange.Merge(m, src)
+func (m *EventSyncParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventSyncParams.Merge(m, src)
 }
-func (m *EventCrossParamsChange) XXX_Size() int {
+func (m *EventSyncParams) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventCrossParamsChange) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventCrossParamsChange.DiscardUnknown(m)
+func (m *EventSyncParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventSyncParams.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventCrossParamsChange proto.InternalMessageInfo
+var xxx_messageInfo_EventSyncParams proto.InternalMessageInfo
 
-func (m *EventCrossParamsChange) GetKey() string {
+func (m *EventSyncParams) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *EventCrossParamsChange) GetValue() string {
+func (m *EventSyncParams) GetValue() string {
 	if m != nil {
 		return m.Value
 	}
 	return ""
 }
 
-func (m *EventCrossParamsChange) GetTarget() string {
+func (m *EventSyncParams) GetTarget() string {
 	if m != nil {
 		return m.Target
 	}
@@ -89,38 +88,38 @@ func (m *EventCrossParamsChange) GetTarget() string {
 }
 
 func init() {
-	proto.RegisterType((*EventCrossParamsChange)(nil), "cosmos.params.v1beta1.EventCrossParamsChange")
+	proto.RegisterType((*EventSyncParams)(nil), "cosmos.params.v1beta1.EventSyncParams")
 }
 
 func init() { proto.RegisterFile("cosmos/params/v1beta1/event.proto", fileDescriptor_32eebb0d5c141235) }
 
 var fileDescriptor_32eebb0d5c141235 = []byte{
-	// 235 bytes of a gzipped FileDescriptorProto
+	// 228 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x4c, 0xce, 0x2f, 0xce,
 	0xcd, 0x2f, 0xd6, 0x2f, 0x48, 0x2c, 0x4a, 0xcc, 0x2d, 0xd6, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49,
 	0x34, 0xd4, 0x4f, 0x2d, 0x4b, 0xcd, 0x2b, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x85,
 	0x28, 0xd1, 0x83, 0x28, 0xd1, 0x83, 0x2a, 0x91, 0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0xab, 0xd0,
 	0x07, 0xb1, 0x20, 0x8a, 0xa5, 0x24, 0x21, 0x8a, 0xe3, 0x21, 0x12, 0x30, 0x9d, 0x20, 0x8e, 0x52,
-	0x04, 0x97, 0x98, 0x2b, 0xc8, 0x58, 0xe7, 0xa2, 0xfc, 0xe2, 0xe2, 0x00, 0xb0, 0x61, 0xce, 0x19,
-	0x89, 0x79, 0xe9, 0xa9, 0x42, 0x02, 0x5c, 0xcc, 0xd9, 0xa9, 0x95, 0x12, 0x8c, 0x0a, 0x8c, 0x1a,
-	0x9c, 0x41, 0x20, 0xa6, 0x90, 0x08, 0x17, 0x6b, 0x59, 0x62, 0x4e, 0x69, 0xaa, 0x04, 0x13, 0x58,
-	0x0c, 0xc2, 0x11, 0x12, 0xe3, 0x62, 0x2b, 0x49, 0x2c, 0x4a, 0x4f, 0x2d, 0x91, 0x60, 0x06, 0x0b,
-	0x43, 0x79, 0x4e, 0x41, 0x2b, 0x1e, 0xc9, 0x31, 0x9e, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c,
-	0xe3, 0x83, 0x47, 0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1,
-	0x1c, 0x43, 0x94, 0x49, 0x7a, 0x66, 0x49, 0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0x2e, 0xd4, 0x41,
-	0x50, 0x4a, 0xb7, 0x38, 0x25, 0x5b, 0xbf, 0x02, 0xe6, 0xf5, 0x92, 0xca, 0x82, 0xd4, 0x62, 0xfd,
-	0x82, 0xa2, 0xfc, 0x82, 0xfc, 0xe2, 0xc4, 0x9c, 0x24, 0x36, 0xb0, 0xa3, 0x8d, 0x01, 0x01, 0x00,
-	0x00, 0xff, 0xff, 0xe3, 0x39, 0xca, 0xb6, 0x21, 0x01, 0x00, 0x00,
+	0x20, 0x17, 0xbf, 0x2b, 0xc8, 0xd8, 0xe0, 0xca, 0xbc, 0xe4, 0x00, 0xb0, 0x59, 0x42, 0x02, 0x5c,
+	0xcc, 0xd9, 0xa9, 0x95, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x20, 0xa6, 0x90, 0x08, 0x17,
+	0x6b, 0x59, 0x62, 0x4e, 0x69, 0xaa, 0x04, 0x13, 0x58, 0x0c, 0xc2, 0x11, 0x12, 0xe3, 0x62, 0x2b,
+	0x49, 0x2c, 0x4a, 0x4f, 0x2d, 0x91, 0x60, 0x06, 0x0b, 0x43, 0x79, 0x4e, 0x41, 0x2b, 0x1e, 0xc9,
+	0x31, 0x9e, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x13, 0x1e,
+	0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x49, 0x7a, 0x66, 0x49,
+	0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0x2e, 0xd4, 0x25, 0x50, 0x4a, 0xb7, 0x38, 0x25, 0x5b, 0xbf,
+	0x02, 0xe6, 0xe7, 0x92, 0xca, 0x82, 0xd4, 0x62, 0xfd, 0x82, 0xa2, 0xfc, 0x82, 0xfc, 0xe2, 0xc4,
+	0x9c, 0x24, 0x36, 0xb0, 0x6b, 0x8d, 0x01, 0x01, 0x00, 0x00, 0xff, 0xff, 0x46, 0xba, 0x23, 0xc7,
+	0x1a, 0x01, 0x00, 0x00,
 }
 
-func (this *EventCrossParamsChange) Equal(that interface{}) bool {
+func (this *EventSyncParams) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*EventCrossParamsChange)
+	that1, ok := that.(*EventSyncParams)
 	if !ok {
-		that2, ok := that.(EventCrossParamsChange)
+		that2, ok := that.(EventSyncParams)
 		if ok {
 			that1 = &that2
 		} else {
@@ -143,7 +142,7 @@ func (this *EventCrossParamsChange) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (m *EventCrossParamsChange) Marshal() (dAtA []byte, err error) {
+func (m *EventSyncParams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -153,12 +152,12 @@ func (m *EventCrossParamsChange) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventCrossParamsChange) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventSyncParams) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventCrossParamsChange) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventSyncParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -198,7 +197,7 @@ func encodeVarintEvent(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *EventCrossParamsChange) Size() (n int) {
+func (m *EventSyncParams) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -225,7 +224,7 @@ func sovEvent(x uint64) (n int) {
 func sozEvent(x uint64) (n int) {
 	return sovEvent(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *EventCrossParamsChange) Unmarshal(dAtA []byte) error {
+func (m *EventSyncParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -248,10 +247,10 @@ func (m *EventCrossParamsChange) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventCrossParamsChange: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventSyncParams: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventCrossParamsChange: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventSyncParams: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

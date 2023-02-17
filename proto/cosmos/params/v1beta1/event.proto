@@ -7,8 +7,7 @@ option (gogoproto.equal_all) = true;
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-// EventCrossTransferIn is emitted when a cross chain transfer in tx happened
-message EventCrossParamsChange {
+message EventSyncParams {
 
   // parameter key or UPGRADE_KEY_HASH
   string key = 1;
