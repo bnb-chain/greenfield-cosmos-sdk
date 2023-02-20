@@ -5,9 +5,7 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 const (
 	SyncParamsChannel                 = "syncParametersChange"
 	SyncParamsChannelID sdk.ChannelID = 3
-	BridgeSubspace                    = "bridge"
-
-	KeyUpgrade = "ungrade"
+	KeyUpgrade                        = "upgrade"
 )
 
 var KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")

@@ -27,10 +27,7 @@ func handleParameterChangeProposal(ctx sdk.Context, k keeper.Keeper, p *proposal
 	// for govv1.MsgExecLegacyContent, validation is applied by writing to cache Subspace store, since gnfd does not hold
 	// the subspace for crosschain parameters. the validation is skipped.
 	if p.CrossChain {
-		if err := k.SyncParams(ctx, p); err != nil {
-			return err
-		}
-		return nil
+		return k.SyncParams(ctx, p)
 	}
 
 	for _, c := range p.Changes {

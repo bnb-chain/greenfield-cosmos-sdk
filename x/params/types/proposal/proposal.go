@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"sigs.k8s.io/yaml"
-
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -47,8 +46,10 @@ func (pcp *ParameterChangeProposal) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
-
-	return ValidateChanges(pcp.Changes)
+	if pcp.CrossChain && len(pcp.Changes) != len(pcp.Addresses) {
+		return ErrAddressSizeNotMatch
+	}
+	return ValidateChanges(pcp.Changes, pcp.CrossChain)
 }
 
 // String implements the Stringer interface.
@@ -84,12 +85,17 @@ func (pc ParamChange) String() string {
 
 // ValidateChanges performs basic validation checks over a set of ParamChange. It
 // returns an error if any ParamChange is invalid.
-func ValidateChanges(changes []ParamChange) error {
+func ValidateChanges(changes []ParamChange, crossChain bool) error {
 	if len(changes) == 0 {
 		return ErrEmptyChanges
 	}
-
-	for _, pc := range changes {
+	fistKey := changes[0].Key
+	for i, pc := range changes {
+		if crossChain {
+			if err := validateCrossChainChange(pc, fistKey, i); err != nil {
+				return err
+			}
+		}
 		if len(pc.Subspace) == 0 {
 			return ErrEmptySubspace
 		}
@@ -100,6 +106,14 @@ func ValidateChanges(changes []ParamChange) error {
 			return ErrEmptyValue
 		}
 	}
+	return nil
+}
 
+func validateCrossChainChange(change ParamChange, firstKey string, i int) error {
+	if firstKey == KeyUpgrade && change.Key != firstKey {
+		return ErrInvalidUpgradeProposal
+	} else if firstKey != KeyUpgrade && i > 0 {
+		return ErrExceedParamsChangeLimit
+	}
 	return nil
 }

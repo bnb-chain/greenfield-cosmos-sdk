@@ -15,5 +15,5 @@ var (
 	ErrAddressSizeNotMatch     = sdkerrors.Register(ModuleName, 8, "number of old address not equal to new addresses")
 	ErrAddressNotValid         = sdkerrors.Register(ModuleName, 9, "address format is not valid")
 	ErrExceedParamsChangeLimit = sdkerrors.Register(ModuleName, 10, "exceed params change limit")
-	ErrInvalidPackage          = sdkerrors.Register(ModuleName, 11, "invalid sync params package")
+	ErrInvalidUpgradeProposal  = sdkerrors.Register(ModuleName, 11, "invalid sync params package")
 )

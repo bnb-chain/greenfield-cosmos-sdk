@@ -15,22 +15,11 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
-	if len(p.Changes) != len(p.Addresses) {
-		return sdkerrors.Wrap(types.ErrAddressSizeNotMatch, "number of addresses not match")
-	}
 
-	key := p.Changes[0].Key
 	values := make([]byte, 0)
 	addresses := make([]byte, 0)
 
-	if key != types.KeyUpgrade && len(p.Changes) > 1 {
-		return sdkerrors.Wrap(types.ErrExceedParamsChangeLimit, "only single parameter change allowed")
-	}
-
 	for i, c := range p.Changes {
-		if c.Key != key {
-			return sdkerrors.Wrap(types.ErrInvalidPackage, "all changes key should be 'ungrade'")
-		}
 		values = append(values, []byte(c.Value)...)
 		adr, err := sdk.AccAddressFromHexUnsafe(p.Addresses[i])
 		if err != nil {
@@ -40,14 +29,14 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	}
 
 	pack := types.SyncParamsPackage{
-		Key:    key,
+		Key:    p.Changes[0].Key,
 		Value:  values,
 		Target: addresses,
 	}
 
 	encodedPackage, err := rlp.EncodeToBytes(pack)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrInvalidPackage, "encode sync params package error")
+		return sdkerrors.Wrapf(types.ErrInvalidUpgradeProposal, "encode sync params package error")
 	}
 	_, err = (*k.crossChainKeeper).CreateRawIBCPackageWithFee(
 		ctx,
