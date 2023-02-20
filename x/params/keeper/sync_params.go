@@ -21,11 +21,11 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 
 	for i, c := range p.Changes {
 		values = append(values, []byte(c.Value)...)
-		adr, err := sdk.AccAddressFromHexUnsafe(p.Addresses[i])
+		addr, err := sdk.AccAddressFromHexUnsafe(p.Addresses[i])
 		if err != nil {
 			return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", p.Addresses[i])
 		}
-		addresses = append(addresses, adr.Bytes()...)
+		addresses = append(addresses, addr.Bytes()...)
 	}
 
 	pack := types.SyncParamsPackage{
