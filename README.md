@@ -1,81 +1,56 @@
-<!--
-parent:
-  order: false
--->
+# Greenfield Cosmos-SDK
 
-<div align="center">
-  <h1> Cosmos SDK </h1>
-</div>
+This repo is forked from [cosmos-sdk](https://github.com/cosmos/cosmos-sdk).
 
-![banner](docs/cosmos-sdk-image.jpg)
+The Greenfield Block Chain leverages cosmos-sdk to fast build a dApp running with tendermint. Due to the many 
+requirements of Greenfield blockchain that cannot be fully satisfied by cosmos-sdk at present, we have decided to fork 
+the cosmos-sdk repo and add modules and features based on it.
 
-<div align="center">
-  <a href="https://github.com/cosmos/cosmos-sdk/blob/main/LICENSE">
-    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/cosmos/cosmos-sdk.svg" />
-  </a>
-  <a href="https://pkg.go.dev/github.com/cosmos/cosmos-sdk?tab=doc">
-    <img alt="GoDoc" src="https://pkg.go.dev/github.com/cosmos/cosmos-sdk?status.svg" />
-  </a>
-  <a href="https://goreportcard.com/report/github.com/cosmos/cosmos-sdk">
-    <img alt="Go report card" src="https://goreportcard.com/badge/github.com/cosmos/cosmos-sdk" />
-  </a>
-  <a href="https://codecov.io/gh/cosmos/cosmos-sdk">
-    <img alt="Code Coverage" src="https://codecov.io/gh/cosmos/cosmos-sdk/branch/main/graph/badge.svg" />
-  </a>
-</div>
-<div align="center">
-  <a href="https://github.com/cosmos/cosmos-sdk">
-    <img alt="Lines Of Code" src="https://tokei.rs/b1/github/cosmos/cosmos-sdk" />
-  </a>
-  <a href="https://discord.gg/AzefAFd">
-    <img alt="Discord" src="https://img.shields.io/discord/669268347736686612.svg" />
-  </a>
-  <a href="https://sourcegraph.com/github.com/cosmos/cosmos-sdk?badge">
-    <img alt="Imported by" src="https://sourcegraph.com/github.com/cosmos/cosmos-sdk/-/badge.svg" />
-  </a>
-    <img alt="Sims" src="https://github.com/cosmos/cosmos-sdk/workflows/Sims/badge.svg" />
-    <img alt="Lint Satus" src="https://github.com/cosmos/cosmos-sdk/workflows/Lint/badge.svg" />
-</div>
+## Key Features
 
-The Cosmos SDK is a framework for building blockchain applications. [Tendermint Core (BFT Consensus)](https://github.com/tendermint/tendermint) and the Cosmos SDK are written in the Golang programming language. Cosmos SDK is used to build [Gaia](https://github.com/cosmos/gaia), the first implementation of the Cosmos Hub.
-
-**WARNING**: The Cosmos SDK has mostly stabilized, but we are still making some
-breaking changes.
-
-**Note**: Requires [Go 1.18+](https://go.dev/dl)
+1. **auth**. The address format of the Greenfield blockchain is fully compatible with BSC (and Ethereum). It accepts EIP712 transaction signing and verification. These enable the existing wallet infrastructure to interact with Greenfield at the beginning naturally.
+2. **crosschain**. Cross-chain communication is the key foundation to allow the community to take advantage of the Greenfield and BNB Smart Chain dual chain structure..
+3. **gashub**. As an application specific chain, Greenfield defines the gas fee of each transaction type instead of calculating gas according to the CPU and storage consumption.
+4. **gov**. There are many system parameters to control the behavior of the Greenfield and its smart contract on BSC, e.g. gas price, cross-chain transfer fees. All these parameters will be determined by Greenfield Validator Set together through a proposal-vote process based on their staking. Such the process will be carried on cosmos sdk.
+5. **oracle**. The bottom layer of cross-chain mechanism, which focuses on primitive communication package handling and verification.
+6. **upgrade**. Seamless upgrade on Greenfield enable a client to sync blocks from genesis to the latest state.
 
 ## Quick Start
+*Note*: Requires [Go 1.18+](https://go.dev/dl/)
 
-To learn how the Cosmos SDK works from a high-level perspective, see the Cosmos SDK [High-Level Intro](./docs/intro/overview.md).
+```shell
+## proto-all
+make proto-all
 
-If you want to get started quickly and learn how to build on top of Cosmos SDK, visit [Cosmos SDK Tutorials](https://tutorials.cosmos.network). You can also fork the tutorial's repository to get started building your own Cosmos SDK application.
+## build from source
+make build
 
-For more information, see the [Cosmos SDK Documentation](./docs/).
+## test
+make test
 
-## Contributing
+## lint check 
+make lint
+```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for details how to contribute and participate in our [dev calls](./CONTRIBUTING.md#teams-dev-calls).
-If you want to follow the updates or learn more about the latest design then join our [Discord](https://discord.com/invite/cosmosnetwork).
+See the [Cosmos Docs](https://cosmos.network/docs/) and [Getting started with the SDK](https://tutorials.cosmos.network/academy/1-what-is-cosmos/).
 
-## Tools and Frameworks
+## Related Projects
+- [Greenfield](https://github.com/bnb-chain/greenfield): the official greenfield blockchain client.
+- [Greenfield-Tendermint](https://github.com/bnb-chain/greenfield-tendermint): the consensus layer of Greenfield blockchain.
+- [Greenfield-Storage-Provider](https://github.com/bnb-chain/greenfield-storage-provider): the storage service infrastructures provided by either organizations or individuals.
+- [Greenfield-Relayer](https://github.com/bnb-chain/greenfield-relayer): the service that relay cross chain package to both chains.
+- [Greenfield-Cmd](https://github.com/bnb-chain/greenfield-cmd): the most powerful command line to interact with Greenfield system.
+- [Awesome Cosmos](https://github.com/cosmos/awesome-cosmos): Collection of Cosmos related resources which also fits Greenfield.
 
-The Cosmos ecosystem is vast. We will only make a few notable mentions here.
 
-+ [Tools](https://v1.cosmos.network/tools): notable frameworks and modules.
-+ [CosmJS](https://github.com/cosmos/cosmjs): the Swiss Army knife to power JavaScript based client solutions.
+## Contribution
+Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, 
+and are grateful for even the smallest of fixes!
 
-### Cosmos Hub Mainnet
+If you'd like to contribute to Greenfield, please fork, fix, commit and send a pull request for the maintainers to 
+review and merge into the main code base. If you wish to submit more complex changes though, please check up with 
+the core devs first through github issue(going to have a discord channel soon) to ensure those changes are in line 
+with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter 
+as well as our review and merge procedures quick and simple.
 
-The Cosmos Hub application, `gaia`, has moved to its own [cosmos/gaia repository](https://github.com/cosmos/gaia). Go there to join the Cosmos Hub mainnet and more.
-
-### Inter-Blockchain Communication (IBC)
-
-The IBC module for the Cosmos SDK has moved to its own [cosmos/ibc-go repository](https://github.com/cosmos/ibc-go). Go there to build and integrate with the IBC module.
-
-### Ignite CLI
-
-Ignite CLI is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. If you are building a new app or a new module, use [Ignite CLI](https://github.com/ignite-hq/cli) to get started and speed up development.
-
-## Disambiguation
-
-This Cosmos SDK project is not related to the [React-Cosmos](https://github.com/react-cosmos/react-cosmos) project (yet). Many thanks to Evan Coury and Ovidiu (@skidding) for this Github organization name. As per our agreement, this disambiguation notice will stay here.
+## Licence (pending)
