@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -13,7 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 )
 
 // Transaction flags for the x/distribution module
@@ -341,12 +344,15 @@ Where proposal.json contains:
 				return err
 			}
 			content := types.NewCommunityPoolSpendProposal(proposal.Title, proposal.Description, recpAddr, amount)
-
-			msg, err := govtypes.NewMsgSubmitProposal(content, deposit, from)
+			govAcctAddress := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+			contentMsg, err := govv1.NewLegacyContent(content, govAcctAddress)
 			if err != nil {
 				return err
 			}
-
+			msg, err := govv1.NewMsgSubmitProposal([]sdk.Msg{contentMsg}, deposit, from.String(), "")
+			if err != nil {
+				return err
+			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
