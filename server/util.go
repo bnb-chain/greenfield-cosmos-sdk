@@ -195,8 +195,6 @@ func SetCmdServerContext(cmd *cobra.Command, serverCtx *Context) error {
 func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}, tmConfig *tmcfg.Config) (*tmcfg.Config, error) {
 	rootDir := rootViper.GetString(flags.FlagHome)
 
-	println("root dir: ", rootDir)
-
 	configPath := filepath.Join(rootDir, "config")
 	tmCfgFile := filepath.Join(configPath, "config.toml")
 
