@@ -20,7 +20,20 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	addresses := make([]byte, 0)
 
 	for i, c := range p.Changes {
-		values = append(values, []byte(c.Value)...)
+		var value []byte
+		var err error
+		if c.Key == types.KeyUpgrade {
+			value, err = sdk.AccAddressFromHexUnsafe(c.Value)
+			if err != nil {
+				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", p.Addresses[i])
+			}
+		} else {
+			value, err = hex.DecodeString(c.Value)
+			if err != nil {
+				return sdkerrors.Wrapf(types.ErrInvalidValue, "value is not valid %s", c.Value)
+			}
+		}
+		values = append(values, value...)
 		addr, err := sdk.AccAddressFromHexUnsafe(p.Addresses[i])
 		if err != nil {
 			return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", p.Addresses[i])

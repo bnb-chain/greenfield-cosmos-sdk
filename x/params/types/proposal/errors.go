@@ -16,4 +16,5 @@ var (
 	ErrAddressNotValid         = sdkerrors.Register(ModuleName, 9, "address format is not valid")
 	ErrExceedParamsChangeLimit = sdkerrors.Register(ModuleName, 10, "exceed params change limit")
 	ErrInvalidUpgradeProposal  = sdkerrors.Register(ModuleName, 11, "invalid sync params package")
+	ErrInvalidValue            = sdkerrors.Register(ModuleName, 12, "decode hex value failed")
 )

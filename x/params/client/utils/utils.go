@@ -12,6 +12,7 @@ type (
 	// ParamChangesJSON defines a slice of ParamChangeJSON objects which can be
 	// converted to a slice of ParamChange objects.
 	ParamChangesJSON []ParamChangeJSON
+	Addresses        []string
 
 	// ParamChangeJSON defines a parameter change used in JSON input. This
 	// allows values to be specified in raw JSON instead of being string encoded.
@@ -28,6 +29,8 @@ type (
 		Description string           `json:"description" yaml:"description"`
 		Changes     ParamChangesJSON `json:"changes" yaml:"changes"`
 		Deposit     string           `json:"deposit" yaml:"deposit"`
+		CrossChain  bool             `json:"cross_chain" yaml:"cross_chain"`
+		Addresses   Addresses        `json:"addresses" yaml:"addresses"`
 	}
 )
 
