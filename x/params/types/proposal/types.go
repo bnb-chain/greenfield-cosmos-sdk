@@ -12,9 +12,9 @@ var KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
 
 // SyncParamsPackage is the payload be relayed to BSC
 type SyncParamsPackage struct {
-	Key string //
+	Key string
 	// new parameter or new smart contract address(es) if is ungraded proposal
-	Value []byte // string   // address to bytes
+	Value []byte
 	// smart contract address(es)
-	Target []byte // string
+	Target []byte
 }

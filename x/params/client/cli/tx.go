@@ -2,10 +2,11 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -83,6 +84,9 @@ Where proposal.json contains:
 				return err
 			}
 			msg, err := govv1.NewMsgSubmitProposal([]sdk.Msg{contentMsg}, deposit, from.String(), "")
+			if err != nil {
+				return err
+			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

@@ -10,6 +10,10 @@ import (
 	types "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 )
 
+func (k Keeper) RegisterCrossChainSyncParamsApp() error {
+	return (*k.crossChainKeeper).RegisterChannel(types.SyncParamsChannel, types.SyncParamsChannelID, k)
+}
+
 func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) error {
 	// this validates content and size of changes is not empty
 	if err := p.ValidateBasic(); err != nil {
@@ -25,7 +29,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		if c.Key == types.KeyUpgrade {
 			value, err = sdk.AccAddressFromHexUnsafe(c.Value)
 			if err != nil {
-				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", p.Addresses[i])
+				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", c.Value)
 			}
 		} else {
 			value, err = hex.DecodeString(c.Value)
@@ -59,11 +63,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		big.NewInt(0),
 		big.NewInt(0),
 	)
-
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // Need these in order to register paramsKeeper to be a CrosschainApp so that it can register channel(3)
