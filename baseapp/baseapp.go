@@ -645,16 +645,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
-
-	// we only adopt the first gas price in the list
-	gasPrices, err := sdk.ParseCoinsNormalized(app.minGasPrices.String())
-	if err != nil {
-		return sdk.GasInfo{}, nil, nil, 0, err
-	}
-
-	if !gasPrices.Empty() {
-		gInfo.MinGasPrice = gasPrices[0].String()
-	}
+	gInfo.MinGasPrice = app.minGasPrices.String()
 
 	// only run the tx if there is block gas remaining
 	if mode == runTxModeDeliver && ctx.BlockGasMeter().IsOutOfGas() {

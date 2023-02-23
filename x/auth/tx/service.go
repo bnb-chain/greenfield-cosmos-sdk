@@ -133,6 +133,16 @@ func (s txServer) Simulate(ctx context.Context, req *txtypes.SimulateRequest) (*
 		return nil, status.Errorf(codes.Unknown, "%v With gas wanted: '%d' and gas used: '%d' ", err, gasInfo.GasWanted, gasInfo.GasUsed)
 	}
 
+	// we only adopt the first gas price in the list
+	gasPrices, err := sdk.ParseCoinsNormalized(gasInfo.MinGasPrice)
+	if err != nil {
+		return nil, status.Errorf(codes.Unknown, "%v With min gas price: '%s' ", err, gasInfo.MinGasPrice)
+	}
+
+	if !gasPrices.Empty() {
+		gasInfo.MinGasPrice = gasPrices[0].String()
+	}
+
 	return &txtypes.SimulateResponse{
 		GasInfo: &gasInfo,
 		Result:  result,
