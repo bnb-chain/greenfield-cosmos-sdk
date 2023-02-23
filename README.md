@@ -44,13 +44,13 @@ See the [Cosmos Docs](https://cosmos.network/docs/) and [Getting started with th
 
 
 ## Contribution
-Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, 
-and are grateful for even the smallest of fixes!
+Thank you for considering helping with the source code! We appreciate contributions from anyone on the internet, no 
+matter how small the fix may be.
 
-If you'd like to contribute to Greenfield, please fork, fix, commit and send a pull request for the maintainers to 
-review and merge into the main code base. If you wish to submit more complex changes though, please check up with 
-the core devs first through github issue(going to have a discord channel soon) to ensure those changes are in line 
-with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter 
-as well as our review and merge procedures quick and simple.
+If you would like to contribute to Greenfield, please follow these steps: fork the project, make your changes, commit them, 
+and send a pull request to the maintainers for review and merge into the main codebase. However, if you plan on submitting 
+more complex changes, we recommend checking with the core developers first via GitHub issues (we will soon have a Discord channel)
+to ensure that your changes align with the project's general philosophy. This can also help reduce the workload of both 
+parties and streamline the review and merge process.
 
 ## Licence (pending)
