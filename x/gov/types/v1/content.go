@@ -17,7 +17,6 @@ func NewLegacyContent(content v1beta1.Content, authority string) (*MsgExecLegacy
 	if !ok {
 		return nil, fmt.Errorf("%T does not implement proto.Message", content)
 	}
-
 	any, err := codectypes.NewAnyWithValue(msg)
 	if err != nil {
 		return nil, err

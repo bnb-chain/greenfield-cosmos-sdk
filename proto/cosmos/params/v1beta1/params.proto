@@ -16,6 +16,8 @@ message ParameterChangeProposal {
   string               title       = 1;
   string               description = 2;
   repeated ParamChange changes     = 3 [(gogoproto.nullable) = false];
+  bool                 cross_chain  = 4;   // flag for cross chain proposal
+  repeated string      addresses    = 5;   // used with cross_chain field to specify destination smart contract address(es)
 }
 
 // ParamChange defines an individual parameter change, for use in
