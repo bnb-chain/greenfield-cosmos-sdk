@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.0.7
+This release add the support of cross chain governance.
+
+* [\#110](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/110) feat: use proposal for cross chain parameter governance
+* [\#114](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/114) feat: update min gas price in GasInfo
+* [\#111](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/111) docs: add the readme of gnfd-cosmso-sdk
+* [\#112](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/112) dep: update tendermint version
+* [\#113](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/113) fix: remove the std print
+* [\#105](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/105) feat: refactor gashub module
+* [\#108](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/108) feat: split commands for withdrawal of rewards and commission
+* [\#86](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/86) test: integration tests for creating and impeaching validator
+* [\#106](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/106) fix: implemented fix for proto-gen-swagger error
+* [\#107](https://github.com/bnb-chain/gnfd-cosmos-sdk/pull/107) fix: jail until a proper time
+
 ## v0.0.6
 This release is a maintenance release.
 

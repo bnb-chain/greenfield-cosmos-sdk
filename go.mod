@@ -185,7 +185,7 @@ replace (
 
 	github.com/jhump/protoreflect => github.com/jhump/protoreflect v1.9.0
 
-	github.com/tendermint/tendermint => github.com/bnb-chain/gnfd-tendermint v0.0.0-20230221140735-f71f0ca687ba
+	github.com/tendermint/tendermint => github.com/bnb-chain/gnfd-tendermint v0.0.2
 )
 
 retract v0.46.2
