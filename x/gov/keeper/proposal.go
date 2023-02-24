@@ -87,7 +87,6 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, messages []sdk.Msg, metadat
 			sdk.NewAttribute(types.AttributeKeyProposalMessages, msgsStr),
 		),
 	)
-
 	return proposal, nil
 }
 

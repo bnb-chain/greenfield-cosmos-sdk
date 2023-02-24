@@ -8,11 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
-	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -46,6 +42,22 @@ func FixedGasCalculator(amount uint64) GasCalculator {
 			return 0, errors.Wrapf(ErrInvalidMsgGas, "msg type: %s", types.MsgTypeURL(msg))
 		}
 		return amount, nil
+	}
+}
+
+func FixedGasCalculatorGen(msgTypeUrl string) GasCalculatorGenerator {
+	return func(params Params) GasCalculator {
+		msgGasParamsSet := params.GetMsgGasParamsSet()
+		for _, gasParams := range msgGasParamsSet {
+			if gasParams.GetMsgTypeUrl() == msgTypeUrl {
+				p := gasParams.GetFixedType()
+				if p == nil {
+					panic(fmt.Errorf("get msg gas params failed for %s", msgTypeUrl))
+				}
+				return FixedGasCalculator(p.FixedGas)
+			}
+		}
+		panic(fmt.Sprintf("no params for %s", msgTypeUrl))
 	}
 }
 
@@ -111,179 +123,32 @@ func GrantAllowanceCalculator(fixedGas, gasPerItem uint64) GasCalculator {
 	}
 }
 
-var msgGrantGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetMsgGrantFixedGas()
-	gasPerItem := params.GetMsgGrantPerItemGas()
-	return GrantCalculator(fixedGas, gasPerItem)
+var MsgGrantGasCalculatorGen = func(params Params) GasCalculator {
+	msgGasParamsSet := params.GetMsgGasParamsSet()
+	for _, gasParams := range msgGasParamsSet {
+		if p := gasParams.GetGrantType(); p != nil {
+			return GrantCalculator(p.FixedGas, p.GasPerItem)
+		}
+	}
+	panic("no params for /cosmos.authz.v1beta1.MsgGrant")
 }
 
-var msgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetMsgMultiSendFixedGas()
-	gasPerItem := params.GetMsgMultiSendPerItemGas()
-	return MultiSendCalculator(fixedGas, gasPerItem)
+var MsgMultiSendGasCalculatorGen = func(params Params) GasCalculator {
+	msgGasParamsSet := params.GetMsgGasParamsSet()
+	for _, gasParams := range msgGasParamsSet {
+		if p := gasParams.GetMultiSendType(); p != nil {
+			return MultiSendCalculator(p.FixedGas, p.GasPerItem)
+		}
+	}
+	panic("no params for /cosmos.bank.v1beta1.MsgMultiSend")
 }
 
-var msgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
-	fixedGas := params.GetMsgGrantAllowanceFixedGas()
-	gasPerItem := params.GetMsgGrantAllowancePerItemGas()
-	return GrantAllowanceCalculator(fixedGas, gasPerItem)
-}
-
-func init() {
-	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgGrant{}), msgGrantGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgRevoke{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgRevokeGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&authz.MsgExec{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgExecGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgSend{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgSendGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&bank.MsgMultiSend{}), msgMultiSendGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawDelegatorReward{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgWithdrawDelegatorRewardGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgWithdrawValidatorCommission{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgWithdrawValidatorCommissionGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgSetWithdrawAddress{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgSetWithdrawAddressGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&distribution.MsgFundCommunityPool{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgFundCommunityPoolGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgGrantAllowance{}), msgGrantAllowanceGasCalculatorGen)
-	RegisterCalculatorGen(types.MsgTypeURL(&feegrant.MsgRevokeAllowance{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgRevokeAllowanceGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgSubmitProposal{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgSubmitProposalGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVote{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgVoteGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgVoteWeighted{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgVoteWeightedGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&gov.MsgDeposit{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgDepositGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgUnjail{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgUnjailGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&slashing.MsgImpeach{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgImpeachGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgEditValidator{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgEditValidatorGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgDelegate{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgDelegateGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgUndelegate{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgUndelegateGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgBeginRedelegate{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgBeginRedelegateGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCancelUnbondingDelegation{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgCancelUnbondingDelegationGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&staking.MsgCreateValidator{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgCreateValidatorGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen(types.MsgTypeURL(&oracletypes.MsgClaim{}), func(params Params) GasCalculator {
-		fixedGas := params.GetMsgClaimGas()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	// these msgs are from greenfield, so the msg types need to be hard coded.
-	RegisterCalculatorGen("/bnbchain.greenfield.bridge.MsgTransferOut", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgTransferOutGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgCreateStorageProvider", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgCreateStorageProviderGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgEditStorageProvider", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgEditStorageProviderGas()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.sp.MsgDeposit", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgSpDepositGas()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateBucket", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageCreateBucket()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteBucket", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageDeleteBucket()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateObject", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageCreateObject()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteObject", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageDeleteObject()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgSealObject", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageSealObject()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCopyObject", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageCopyObject()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgRejectSealObject", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageRejectSealObject()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgCreateGroup", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageCreateGroup()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgDeleteGroup", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageDeleteGroup()
-		return FixedGasCalculator(fixedGas)
-	})
-
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgLeaveGroup", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageLeaveGroup()
-		return FixedGasCalculator(fixedGas)
-	})
-	RegisterCalculatorGen("/bnbchain.greenfield.storage.MsgUpdateGroupMember", func(params Params) GasCalculator {
-		fixedGas := params.GetMsgStorageUpdateGroupMember()
-		return FixedGasCalculator(fixedGas)
-	})
+var MsgGrantAllowanceGasCalculatorGen = func(params Params) GasCalculator {
+	msgGasParamsSet := params.GetMsgGasParamsSet()
+	for _, gasParams := range msgGasParamsSet {
+		if p := gasParams.GetGrantAllowanceType(); p != nil {
+			return GrantAllowanceCalculator(p.FixedGas, p.GasPerItem)
+		}
+	}
+	panic("no params for /cosmos.feegrant.v1beta1.MsgGrantAllowance")
 }

@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -186,11 +188,15 @@ $ %s tx gov submit-legacy-proposal --title="Test Proposal" --description="My awe
 				return fmt.Errorf("failed to create proposal content: unknown proposal type %s", proposal.Type)
 			}
 
-			msg, err := v1beta1.NewMsgSubmitProposal(content, amount, clientCtx.GetFromAddress())
+			govAcctAddress := authtypes.NewModuleAddress(types.ModuleName).String()
+			contentMsg, err := v1.NewLegacyContent(content, govAcctAddress)
+			if err != nil {
+				return err
+			}
+			msg, err := v1.NewMsgSubmitProposal([]sdk.Msg{contentMsg}, amount, clientCtx.GetFromAddress().String(), "")
 			if err != nil {
 				return fmt.Errorf("invalid message: %w", err)
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

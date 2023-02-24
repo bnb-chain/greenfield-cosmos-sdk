@@ -130,8 +130,8 @@ func (k Keeper) JailForever(ctx sdk.Context, consAddr sdk.ConsAddress) {
 		)
 	}
 
-	// Jail to 10000-1-1 08:00:00.
-	signingInfo.JailedUntil = time.Unix(253402300800, 0)
+	// Jail to 10000-1-1 07:59:59.
+	signingInfo.JailedUntil = time.Unix(253402300799, 0)
 
 	k.SetValidatorSigningInfo(ctx, consAddr, signingInfo)
 }

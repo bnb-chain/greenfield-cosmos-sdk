@@ -645,6 +645,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
+	gInfo.MinGasPrice = app.minGasPrices.String()
 
 	// only run the tx if there is block gas remaining
 	if mode == runTxModeDeliver && ctx.BlockGasMeter().IsOutOfGas() {
@@ -657,12 +658,12 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			err, result = processRecovery(r, recoveryMW), nil
 		}
 
-		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed()}
+		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed(), MinGasPrice: gInfo.MinGasPrice}
 	}()
 
 	blockGasConsumed := false
 	// consumeBlockGas makes sure block gas is consumed at most once. It must happen after
-	// tx processing, and must be execute even if tx processing fails. Hence we use trick with `defer`
+	// tx processing, and must be executed even if tx processing fails. Hence we use trick with `defer`
 	consumeBlockGas := func() {
 		if !blockGasConsumed {
 			blockGasConsumed = true
