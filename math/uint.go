@@ -199,6 +199,18 @@ func (u *Uint) Unmarshal(data []byte) error {
 	return UintOverflow(u.i)
 }
 
+// Bytes returns the value of x as a big-endian byte slice.
+func (u Uint) Bytes() []byte {
+	return u.i.Bytes()
+}
+
+// SetBytes interprets buf as the bytes of a big-endian unsigned
+// integer, sets z to that value, and returns z.
+func (u Uint) SetBytes(buf []byte) Uint {
+	u.i = u.i.SetBytes(buf)
+	return u
+}
+
 // Size implements the gogo proto custom type interface.
 func (u *Uint) Size() int {
 	bz, _ := u.Marshal()
