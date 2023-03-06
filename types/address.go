@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/hashicorp/golang-lru/simplelru"
 	"github.com/tendermint/crypto/sha3"
 	"sigs.k8s.io/yaml"
@@ -166,11 +167,8 @@ func AccAddressFromHexUnsafe(address string) (AccAddress, error) {
 		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
 	}
 
-	bz, err := hex.DecodeString(addr)
-	if err != nil {
-		return AccAddress{}, err
-	}
-	return AccAddress(bz), nil
+	// Convert to ethereum compatible address format.
+	return common.HexToAddress(addr).Bytes(), nil
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
@@ -354,7 +352,10 @@ func (va ValAddress) Equals(va2 Address) bool {
 
 // Returns boolean for whether an AccAddress is empty
 func (va ValAddress) Empty() bool {
-	return len(va) == 0
+	addrValue := big.NewInt(0)
+	addrValue.SetBytes(va[:])
+
+	return addrValue.Cmp(big.NewInt(0)) == 0
 }
 
 // Marshal returns the raw address bytes. It is needed for protobuf
@@ -493,7 +494,10 @@ func (ca ConsAddress) Equals(ca2 Address) bool {
 
 // Returns boolean for whether an ConsAddress is empty
 func (ca ConsAddress) Empty() bool {
-	return len(ca) == 0
+	addrValue := big.NewInt(0)
+	addrValue.SetBytes(ca[:])
+
+	return addrValue.Cmp(big.NewInt(0)) == 0
 }
 
 // Marshal returns the raw address bytes. It is needed for protobuf
