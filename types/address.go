@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/hashicorp/golang-lru/simplelru"
 	"github.com/tendermint/crypto/sha3"
 	"sigs.k8s.io/yaml"
@@ -156,18 +155,21 @@ func MustAccAddressFromHex(address string) AccAddress {
 // otherwise invalid input, such as a transaction hash.
 func AccAddressFromHexUnsafe(address string) (AccAddress, error) {
 	addr := strings.ToLower(address)
-	if len(addr) >= 2 && addr[:2] == "0x" {
+	if len(addr) >= 2 && addr[0] == '0' && (addr[1] == 'x' || addr[1] == 'X') {
 		addr = addr[2:]
 	}
 	if len(strings.TrimSpace(addr)) == 0 {
 		return AccAddress{}, ErrEmptyHexAddress
 	}
-	if length := len(addr); length != 2*EthAddressLength {
-		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", length, 2*EthAddressLength)
+	if len(addr) != 2*EthAddressLength {
+		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", len(addr), 2*EthAddressLength)
 	}
 
-	// Convert to ethereum compatible address format.
-	return common.HexToAddress(addr).Bytes(), nil
+	bz, err := hex.DecodeString(addr)
+	if err != nil {
+		return AccAddress{}, err
+	}
+	return AccAddress(bz), nil
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
