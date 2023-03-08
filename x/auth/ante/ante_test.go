@@ -1,7 +1,6 @@
 package ante_test
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -1101,7 +1100,7 @@ func (suite *AnteTestSuite) TestAnteHandlerReCheck() {
 
 	tx, err = suite.CreateTestTx(privs, accNums, accSeqs, suite.ctx.ChainID())
 	suite.Require().NoError(err)
-	txBytes, err := json.Marshal(tx)
+	txBytes, err := suite.clientCtx.TxConfig.TxEncoder()(tx)
 	suite.Require().Nil(err, "Error marshalling tx: %v", err)
 	suite.ctx = suite.ctx.WithTxBytes(txBytes)
 
