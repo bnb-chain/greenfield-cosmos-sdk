@@ -13,6 +13,11 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/cosmos/oracle/v1/params";
   }
+
+  // Params returns the total set of cross chain parameters.
+  rpc InturnRelayer(QueryInturnRelayerRequest) returns (QueryInturnRelayerResponse) {
+    option (google.api.http).get = "/cosmos/oracle/v1/in-turn-relayer";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -22,4 +27,12 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryInturnRelayerRequest is the request type for the Query In-turn relayer RPC method.
+message QueryInturnRelayerRequest {}
+
+message QueryInturnRelayerResponse{
+  string bls_pub_key = 1;
+  RelayInterval relay_interval = 2;
 }
