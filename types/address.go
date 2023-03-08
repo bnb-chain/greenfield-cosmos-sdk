@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/hashicorp/golang-lru/simplelru"
@@ -154,22 +153,22 @@ func MustAccAddressFromHex(address string) AccAddress {
 // Note, this function is considered unsafe as it may produce an AccAddress from
 // otherwise invalid input, such as a transaction hash.
 func AccAddressFromHexUnsafe(address string) (AccAddress, error) {
-	addr := strings.ToLower(address)
-	if len(addr) >= 2 && addr[0] == '0' && (addr[1] == 'x' || addr[1] == 'X') {
-		addr = addr[2:]
-	}
-	if len(strings.TrimSpace(addr)) == 0 {
+	if len(address) == 0 {
 		return AccAddress{}, ErrEmptyHexAddress
 	}
-	if len(addr) != 2*EthAddressLength {
-		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", len(addr), 2*EthAddressLength)
+
+	if len(address) >= 2 && address[0] == '0' && (address[1] == 'x' || address[1] == 'X') {
+		address = address[2:]
+	}
+	if len(address) != 2*EthAddressLength {
+		return AccAddress{}, fmt.Errorf("invalid address hex length: %v != %v", len(address), 2*EthAddressLength)
 	}
 
-	bz, err := hex.DecodeString(addr)
+	bz, err := hex.DecodeString(address)
 	if err != nil {
 		return AccAddress{}, err
 	}
-	return AccAddress(bz), nil
+	return bz, nil
 }
 
 // VerifyAddressFormat verifies that the provided bytes form a valid address
