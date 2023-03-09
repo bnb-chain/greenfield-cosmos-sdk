@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"strings"
 	"time"
 
@@ -16,10 +17,8 @@ import (
 
 // Staking params default values
 const (
-	// DefaultUnbondingTime reflects three weeks in seconds as the default
-	// unbonding time.
-	// TODO: Justify our choice of default here.
-	DefaultUnbondingTime time.Duration = time.Hour * 24 * 7 * 3
+	// DefaultUnbondingTime reflects 7 days in seconds as the default, keep the same with BSC.
+	DefaultUnbondingTime time.Duration = time.Hour * 24 * 7
 
 	// Default maximum number of bonded validators
 	DefaultMaxValidators uint32 = 100
@@ -37,7 +36,7 @@ const (
 var DefaultMinCommissionRate = sdk.ZeroDec()
 
 // DefaultMinSelfDelegation defines the minimum self delegation for all validators
-var DefaultMinSelfDelegation = sdk.OneInt()
+var DefaultMinSelfDelegation = sdk.NewIntFromBigInt(new(big.Int).Mul(big.NewInt(1000), big.NewInt(1e18)))
 
 var (
 	KeyUnbondingTime     = []byte("UnbondingTime")
