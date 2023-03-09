@@ -107,7 +107,7 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 1e5),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.challenge.MsgSubmit", 12e3),
-		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.challenge.MsgAttest", 12e3),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.challenge.MsgAttest", 1e2),
 		NewMsgGasParamsWithDynamicGas(
 			"/cosmos.authz.v1beta1.MsgGrant",
 			&MsgGasParams_GrantType{
