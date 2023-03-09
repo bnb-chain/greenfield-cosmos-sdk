@@ -59,5 +59,4 @@ func TestCrossChainUpgradeProposal(t *testing.T) {
 
 	pcp = NewCrossChainParameterChangeProposal("test title", "test description", []ParamChange{pc2, pc3}, []string{"0x80C7Fa8FC825C5e622cdbcAEa0A22d188634BDd3", "0xA4A2957E858529FFABBBb483D1D704378a9fca6b"})
 	require.Equal(t, pcp.ValidateBasic(), ErrInvalidUpgradeProposal)
-
 }

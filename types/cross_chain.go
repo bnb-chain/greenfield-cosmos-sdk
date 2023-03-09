@@ -59,11 +59,12 @@ func (c ExecuteResult) ErrMsg() string {
 }
 
 const (
-	CrossChainFeeLength = 32
-	PackageTypeLength   = 1
-	TimestampLength     = 8
+	CrossChainFeeLength    = 32
+	CallbackGasPriceLength = 32
+	PackageTypeLength      = 1
+	TimestampLength        = 8
 
-	SynPackageHeaderLength = 2*CrossChainFeeLength + TimestampLength + PackageTypeLength
+	SynPackageHeaderLength = 2*CrossChainFeeLength + CallbackGasPriceLength + TimestampLength + PackageTypeLength
 	AckPackageHeaderLength = CrossChainFeeLength + TimestampLength + PackageTypeLength
 )
 
@@ -80,10 +81,14 @@ type PackageHeader struct {
 	RelayerFee  *big.Int // relayer fee is the relayer fee paid to relayer src source chain to dest chain
 	// ack relayer fee is the relayer fee paid to relayer for the ack or fail ack package if there is any
 	// Ack and FailAck packages don't have ack relayer fee, since there is no corresponding ack or fail ack packages
-	AckRelayerFee *big.Int
+	AckRelayerFee    *big.Int
+	CallbackGasPrice *big.Int
 }
 
-var NilAckRelayerFee = big.NewInt(0) // For ack packages, the ack relayer fee should be nil, and it would not be encoded into package header
+var (
+	NilAckRelayerFee    = big.NewInt(0) // For ack packages, the ack relayer fee should be nil, and it would not be encoded into package header
+	NilCallbackGasPrice = big.NewInt(0) // For ack packages, the callback gas price should be nil, and it would not be encoded into package header
+)
 
 func EncodePackageHeader(header PackageHeader) []byte {
 	packageHeader := make([]byte, GetPackageHeaderLength(header.PackageType))
@@ -99,7 +104,10 @@ func EncodePackageHeader(header PackageHeader) []byte {
 	// add ack relayer fee to header for syn package
 	if header.PackageType == SynCrossChainPackageType {
 		ackRelayerFeeLength := len(header.AckRelayerFee.Bytes())
-		copy(packageHeader[SynPackageHeaderLength-ackRelayerFeeLength:SynPackageHeaderLength], header.AckRelayerFee.Bytes())
+		copy(packageHeader[AckPackageHeaderLength:AckPackageHeaderLength+ackRelayerFeeLength], header.AckRelayerFee.Bytes())
+
+		callbackGasPriceLength := len(header.CallbackGasPrice.Bytes())
+		copy(packageHeader[SynPackageHeaderLength-callbackGasPriceLength:SynPackageHeaderLength], header.CallbackGasPrice.Bytes())
 	}
 
 	return packageHeader
@@ -126,14 +134,16 @@ func DecodePackageHeader(packageHeader []byte) (PackageHeader, error) {
 	relayerFee := big.NewInt(0).SetBytes(packageHeader[PackageTypeLength+TimestampLength : AckPackageHeaderLength])
 
 	header := PackageHeader{
-		PackageType:   packageType,
-		Timestamp:     timestamp,
-		RelayerFee:    relayerFee,
-		AckRelayerFee: big.NewInt(0),
+		PackageType:      packageType,
+		Timestamp:        timestamp,
+		RelayerFee:       relayerFee,
+		AckRelayerFee:    big.NewInt(0),
+		CallbackGasPrice: big.NewInt(0),
 	}
 
 	if packageType == SynCrossChainPackageType {
-		header.AckRelayerFee = big.NewInt(0).SetBytes(packageHeader[AckPackageHeaderLength:SynPackageHeaderLength])
+		header.AckRelayerFee = big.NewInt(0).SetBytes(packageHeader[AckPackageHeaderLength : AckPackageHeaderLength+CrossChainFeeLength])
+		header.CallbackGasPrice = big.NewInt(0).SetBytes(packageHeader[SynPackageHeaderLength-CallbackGasPriceLength : SynPackageHeaderLength])
 	}
 
 	return header, nil
