@@ -16,6 +16,7 @@ type StakingKeeper interface {
 type CrossChainKeeper interface {
 	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
 		packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
+		callbackGasPrice *big.Int,
 	) (uint64, error)
 	GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication
 	GetSrcChainID() sdk.ChainID
