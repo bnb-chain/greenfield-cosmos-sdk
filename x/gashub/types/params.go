@@ -101,7 +101,7 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 12e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 12e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 12e3),
-		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreatePaymentAccount", 12e3),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreatePaymentAccount", 2e6),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeposit", 12e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 12e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 12e3),
