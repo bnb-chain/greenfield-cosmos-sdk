@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"math/big"
 	"strings"
 	"time"
 
@@ -24,7 +23,7 @@ const (
 	DefaultMaxValidators uint32 = 100
 
 	// Default maximum entries in a UBD/RED pair
-	DefaultMaxEntries uint32 = 7
+	DefaultMaxEntries uint32 = 1
 
 	// DefaultHistorical entries is 10000. Apps that don't use IBC can ignore this
 	// value by not adding the staking module to the application module manager's
@@ -36,7 +35,7 @@ const (
 var DefaultMinCommissionRate = sdk.ZeroDec()
 
 // DefaultMinSelfDelegation defines the minimum self delegation for all validators
-var DefaultMinSelfDelegation = sdk.NewIntFromBigInt(new(big.Int).Mul(big.NewInt(1000), big.NewInt(1e18)))
+var DefaultMinSelfDelegation = sdk.OneInt()
 
 var (
 	KeyUnbondingTime     = []byte("UnbondingTime")
