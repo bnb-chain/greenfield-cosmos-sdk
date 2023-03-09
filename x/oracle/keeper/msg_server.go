@@ -204,7 +204,7 @@ func handlePackage(
 			if len(pack.Payload) >= sdk.SynPackageHeaderLength {
 				sendSeq, ibcErr = oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
 					sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee,
-					sdk.NilCallbackGasPrice)
+					packageHeader.CallbackGasPrice)
 			} else {
 				logger.Error("found payload without header",
 					"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
@@ -218,7 +218,7 @@ func handlePackage(
 			sendSequence = int64(sendSeq)
 		} else if len(result.Payload) != 0 {
 			sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
-				sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee, sdk.NilCallbackGasPrice)
+				sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee, packageHeader.CallbackGasPrice)
 			if err != nil {
 				logger.Error("failed to write AckCrossChainPackage", "err", err)
 				return nil, nil, err
