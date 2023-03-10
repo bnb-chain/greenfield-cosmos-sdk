@@ -71,10 +71,10 @@ func TestMsgUrl(t *testing.T) {
 		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgRejectSealObject", 12e3),
 		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgSealObject", 12e3),
 		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateGroupMember", 12e3),
-		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreatePaymentAccount", 12e3),
-		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeposit", 12e3),
-		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgWithdraw", 12e3),
-		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDisableRefund", 12e3),
+		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.payment.MsgCreatePaymentAccount", 2e6),
+		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.payment.MsgDeposit", 12e3),
+		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.payment.MsgWithdraw", 12e3),
+		types.NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.payment.MsgDisableRefund", 12e3),
 		types.NewMsgGasParamsWithDynamicGas(
 			"/cosmos.authz.v1beta1.MsgGrant",
 			&types.MsgGasParams_GrantType{
