@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.0.9
+This release fix the v0.0.8 dependencies.
+
+* [\#126](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/126) feat: register new storage message to gashub
+
+## v0.0.8
+This release updates some default module params.
+
+* [\#117](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/117) feat: add Bytes/SetBytes for Uint
+* [\#120](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/120) feat: update the initial balance for the crosschain module
+* [\#119](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/119) fix: keep address format the same with ethereum
+* [\#121](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/121) feat(cross-chain): add callbackGasPrice to cross-chain package
+* [\#124](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/124) fix: fix the crosschain keeper in params module
+* [\#123](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/123) feat: add gas config for challenge module
+* [\#118](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/118) fix: update gashub default params
+
 ## v0.0.7
 This release add the support of cross chain governance.
 
