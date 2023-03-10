@@ -361,3 +361,13 @@ func TestWeakUnmarshalOverflow(t *testing.T) {
 		t.Fatalf("out of range value not reported, got instead %q", errStr)
 	}
 }
+
+func (s *uintTestSuite) TestUintBigEndian() {
+	u1 := sdkmath.NewUint(256)
+	u1b := u1.Bytes()
+
+	u2 := sdkmath.NewUint(0)
+	u2 = u2.SetBytes(u1b)
+
+	s.Require().Equal(u1, u2)
+}
