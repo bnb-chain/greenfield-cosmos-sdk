@@ -62,7 +62,6 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		encodedPackage,
 		big.NewInt(0),
 		big.NewInt(0),
-		big.NewInt(0),
 	)
 	return err
 }
