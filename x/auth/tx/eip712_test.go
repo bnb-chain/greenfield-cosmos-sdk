@@ -3,7 +3,6 @@ package tx
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -20,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/group"
+	"time"
 )
 
 func TestEIP712Handler(t *testing.T) {

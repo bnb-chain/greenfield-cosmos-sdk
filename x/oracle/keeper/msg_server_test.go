@@ -51,11 +51,10 @@ func (s *TestSuite) TestClaim() {
 	}
 
 	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
-		PackageType:      sdk.SynCrossChainPackageType,
-		Timestamp:        1992,
-		RelayerFee:       big.NewInt(1),
-		AckRelayerFee:    big.NewInt(1),
-		CallbackGasPrice: big.NewInt(1),
+		PackageType:   sdk.SynCrossChainPackageType,
+		Timestamp:     1992,
+		RelayerFee:    big.NewInt(1),
+		AckRelayerFee: big.NewInt(1),
 	})
 
 	testPackage := types.Package{
@@ -155,11 +154,10 @@ func (s *TestSuite) TestInvalidClaim() {
 
 	// invalid timestamp
 	payloadHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
-		PackageType:      sdk.SynCrossChainPackageType,
-		Timestamp:        1993,
-		RelayerFee:       big.NewInt(1),
-		AckRelayerFee:    big.NewInt(1),
-		CallbackGasPrice: big.NewInt(1),
+		PackageType:   sdk.SynCrossChainPackageType,
+		Timestamp:     1993,
+		RelayerFee:    big.NewInt(1),
+		AckRelayerFee: big.NewInt(1),
 	})
 	testPackage := types.Package{
 		ChannelId: 1,
