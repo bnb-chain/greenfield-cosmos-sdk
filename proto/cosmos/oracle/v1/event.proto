@@ -2,6 +2,7 @@
 syntax = "proto3";
 package cosmos.oracle.v1;
 
+
 option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
 
 // EventPackageClaim is emitted when a cross chain package is processed
@@ -26,6 +27,4 @@ message EventPackageClaim {
   string relayer_fee = 9;
   // Relayer fee paid for the ACK or FAIL_ACK package
   string ack_relayer_fee = 10;
-  // Callback gas price the ACK or FAIL_ACK package
-  string callback_gas_price = 11;
 }

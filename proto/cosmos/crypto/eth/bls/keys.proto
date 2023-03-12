@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls";
 
 // PubKey defines a bls public key
-// Key is the compressed form of the pubkey.
+// Key is the compressed form of the pubkey. 
 message PubKey {
   option (gogoproto.goproto_stringer) = false;
 

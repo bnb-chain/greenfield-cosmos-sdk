@@ -42,7 +42,7 @@ message QueryParamsResponse {
 // QueryCrossChainPackageRequest is the request type for the Query/CrossChainPackage RPC method.
 message QueryCrossChainPackageRequest {
   uint32 channel_id = 1;
-  uint64 sequence   = 2;
+  uint64 sequence = 2;
 }
 
 // QueryCrossChainPackageResponse is the response type for the Query/CrossChainPackage RPC method.
