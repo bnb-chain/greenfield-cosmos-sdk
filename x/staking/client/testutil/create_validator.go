@@ -29,54 +29,69 @@ import (
 )
 
 type testParams struct {
-	discription    string
-	proposalID     string
-	enableGrant    bool
-	from           string
-	relayerAddress string
-	relayerBlsKey  string
+	description       string
+	proposalID        string
+	enableGrant       bool
+	from              string
+	relayerAddress    string
+	relayerBlsKey     string
+	challengerAddress string
 }
 
 var testcases = []testParams{
 	{
-		discription:    "crate success",
-		proposalID:     "1",
-		enableGrant:    true,
-		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
-		relayerAddress: "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
-		relayerBlsKey:  "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+		description:       "crate success",
+		proposalID:        "1",
+		enableGrant:       true,
+		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress:    "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerBlsKey:     "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+		challengerAddress: "0xD1d6bF74282782B0b3eb1413c901D6eCF02e8e28",
 	},
 	{
-		discription:    "no grant delegate authorization to gov module account",
-		proposalID:     "2",
-		enableGrant:    false,
-		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
-		relayerAddress: "0x36B810C7E246b1c042335bAF1933Da71C5B5AeC5",
-		relayerBlsKey:  "a4c392f233e140b124c35a509d8880c52bd9bc3d13042fec3d84c1d55cc4d5be30fe3003d096bc33bc924af563a8de9f",
+		description:       "no grant delegate authorization to gov module account",
+		proposalID:        "2",
+		enableGrant:       false,
+		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress:    "0x36B810C7E246b1c042335bAF1933Da71C5B5AeC5",
+		relayerBlsKey:     "a4c392f233e140b124c35a509d8880c52bd9bc3d13042fec3d84c1d55cc4d5be30fe3003d096bc33bc924af563a8de9f",
+		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
 	},
 	{
-		discription:    "duplicated relayer address",
-		proposalID:     "3",
-		enableGrant:    true,
-		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
-		relayerAddress: "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
-		relayerBlsKey:  "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
+		description:       "duplicated relayer address",
+		proposalID:        "3",
+		enableGrant:       true,
+		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress:    "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerBlsKey:     "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
+		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
 	},
 	{
-		discription:    "duplicated relayer bls pub key",
-		proposalID:     "4",
-		enableGrant:    true,
-		from:           "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
-		relayerAddress: "0x9E6de7BF11C459E8dA3a5f36c1A87A6FfaDCbA9d",
-		relayerBlsKey:  "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+		description:       "duplicated relayer bls pub key",
+		proposalID:        "4",
+		enableGrant:       true,
+		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress:    "0x9E6de7BF11C459E8dA3a5f36c1A87A6FfaDCbA9d",
+		relayerBlsKey:     "926f1853304b482634d1ca8ef9652524228202d2a3ca376f3e5ab040430c42703f9de038a41917f944cf4e653cbed45a",
+		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
 	},
 	{
-		discription:    "invalid from",
-		proposalID:     "5",
-		enableGrant:    true,
-		from:           "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
-		relayerAddress: "0x73Fd0b049bBF30b3A165e5b2eAf9895B015A2515",
-		relayerBlsKey:  "b700697ccca38c0d56cde325571dc5412de99a0fa2c28eeb1078cb4eeaa31c238720bee9cce47422e986a7af4f3b19c8",
+		description:       "invalid from",
+		proposalID:        "5",
+		enableGrant:       true,
+		from:              "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerAddress:    "0x73Fd0b049bBF30b3A165e5b2eAf9895B015A2515",
+		relayerBlsKey:     "b700697ccca38c0d56cde325571dc5412de99a0fa2c28eeb1078cb4eeaa31c238720bee9cce47422e986a7af4f3b19c8",
+		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
+	},
+	{
+		description:       "duplicated challenger address",
+		proposalID:        "6",
+		enableGrant:       true,
+		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+		relayerAddress:    "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerBlsKey:     "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
+		challengerAddress: "0xD1d6bF74282782B0b3eb1413c901D6eCF02e8e28",
 	},
 }
 
@@ -194,6 +209,19 @@ func (s *CreateValidatorTestSuite) TestQueryDuplicatedRelayerBlsKey() {
 	s.Require().Equal(v1.ProposalStatus_PROPOSAL_STATUS_FAILED, proposal.Status, out.String())
 }
 
+func (s *CreateValidatorTestSuite) TestQueryDuplicatedChallengerAddress() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	proposalID := s.proposalIDs[5]
+
+	// query proposal
+	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
+	out, err := clitestutil.ExecTestCLICmd(clientCtx, govcli.GetCmdQueryProposal(), args)
+	s.Require().NoError(err)
+	var proposal v1.Proposal
+	s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &proposal), out.String())
+	s.Require().Equal(v1.ProposalStatus_PROPOSAL_STATUS_FAILED, proposal.Status, out.String())
+}
+
 func (s *CreateValidatorTestSuite) TestQueryInvalidFromAddress() {
 	clientCtx := s.network.Validators[0].ClientCtx
 	proposalID := s.proposalIDs[4]
@@ -246,7 +274,7 @@ func (s *CreateValidatorTestSuite) submitProposal(params testParams) sdk.AccAddr
 	}
 
 	args := append([]string{
-		s.createValidatorProposal(newVal, params.from, params.relayerAddress, params.relayerBlsKey).Name(),
+		s.createValidatorProposal(newVal, params.from, params.relayerAddress, params.relayerBlsKey, params.challengerAddress).Name(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, newVal.String()),
 		fmt.Sprintf("--gas=%s", fmt.Sprintf("%d", flags.DefaultGasLimit+100000)),
 	}, commonArgs...)
@@ -270,7 +298,9 @@ func (s *CreateValidatorTestSuite) voteProposal(proposalID string) {
 	s.Require().NoError(err)
 }
 
-func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress, from string, relayerAddress string, relayerBlsKey string) *os.File {
+func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddress, from string,
+	relayerAddress string, relayerBlsKey string, challengerAddress string,
+) *os.File {
 	pubKey := base64.StdEncoding.EncodeToString(ed25519.GenPrivKey().PubKey().Bytes())
 	propMetadata := []byte{42}
 	proposal := fmt.Sprintf(`
@@ -304,6 +334,7 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 			"from":"%s",
 			"relayer_address":"%s",
 			"relayer_bls_key":"%s"
+			"challenger_address":"%s",
 		}
 	],
 	"metadata": "%s",
@@ -315,6 +346,7 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 		from,
 		relayerAddress,
 		relayerBlsKey,
+		challengerAddress,
 		base64.StdEncoding.EncodeToString(propMetadata),
 		sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens),
 	)

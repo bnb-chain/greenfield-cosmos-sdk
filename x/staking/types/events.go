@@ -17,6 +17,7 @@ const (
 	AttributeKeySelfDelAddress    = "self_del_address"
 	AttributeKeyRelayerAddress    = "relayer_address"
 	AttributeKeyRelayerBlsKey     = "relayer_bls_key"
+	AttributeKeyChallengerAddress = "challenger_address"
 	AttributeKeySrcValidator      = "source_validator"
 	AttributeKeyDstValidator      = "destination_validator"
 	AttributeKeyDelegator         = "delegator"

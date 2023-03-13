@@ -36,6 +36,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) (res []ab
 		k.SetValidatorByRelayerAddress(ctx, validator)
 		k.SetValidatorByRelayerBlsKey(ctx, validator)
 		k.SetValidatorByPowerIndex(ctx, validator)
+		k.SetValidatorByChallengerAddress(ctx, validator)
 
 		// Call the creation hook if not exported
 		if !data.Exported {

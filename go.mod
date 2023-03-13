@@ -185,7 +185,7 @@ replace (
 
 	github.com/jhump/protoreflect => github.com/jhump/protoreflect v1.9.0
 
-	github.com/tendermint/tendermint => github.com/bnb-chain/greenfield-tendermint v0.0.2
+	github.com/tendermint/tendermint => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230313062749-468c55f18729
 )
 
 retract v0.46.2

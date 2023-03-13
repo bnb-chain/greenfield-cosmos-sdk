@@ -382,7 +382,7 @@ func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sd
 			addrs[i], pubkeys[i], sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			TestDescription, TestCommissionRates, sdk.OneInt(),
 			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), blsPk,
-		)
+			sdk.AccAddress(addrs[i]))
 		require.NoError(t, err)
 		res, err := stakingMsgSvr.CreateValidator(sdk.WrapSDKContext(ctx), valCreateMsg)
 		require.NoError(t, err)

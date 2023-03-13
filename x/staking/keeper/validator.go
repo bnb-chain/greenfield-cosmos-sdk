@@ -69,6 +69,18 @@ func (k Keeper) GetValidatorByRelayerBlsKey(ctx sdk.Context, blsPk []byte) (vali
 	return k.GetValidator(ctx, opAddr)
 }
 
+// GetValidatorByChallengeAddr gets a single validator by challenger address
+func (k Keeper) GetValidatorByChallengeAddr(ctx sdk.Context, challengerAddr sdk.AccAddress) (validator types.Validator, found bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	opAddr := store.Get(types.GetValidatorByChallengerAddrKey(challengerAddr))
+	if opAddr == nil {
+		return validator, false
+	}
+
+	return k.GetValidator(ctx, opAddr)
+}
+
 func (k Keeper) mustGetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) types.Validator {
 	validator, found := k.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
@@ -87,17 +99,32 @@ func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 
 // validator index
 func (k Keeper) SetValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) error {
-	blsPk := validator.GetRelayer()
+	relayer := validator.GetRelayer()
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValidatorByRelayerAddrKey(blsPk), validator.GetOperator())
+	store.Set(types.GetValidatorByRelayerAddrKey(relayer), validator.GetOperator())
 	return nil
 }
 
 // validator index
 func (k Keeper) DeleteValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) {
-	blsPk := validator.GetRelayer()
+	relayer := validator.GetRelayer()
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetValidatorByRelayerAddrKey(blsPk))
+	store.Delete(types.GetValidatorByRelayerAddrKey(relayer))
+}
+
+// validator index
+func (k Keeper) SetValidatorByChallengerAddress(ctx sdk.Context, validator types.Validator) error {
+	challenger := validator.GetChallenger()
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByChallengerAddrKey(challenger), validator.GetOperator())
+	return nil
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByChallengerAddress(ctx sdk.Context, validator types.Validator) {
+	challenger := validator.GetChallenger()
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByChallengerAddrKey(challenger))
 }
 
 // validator index

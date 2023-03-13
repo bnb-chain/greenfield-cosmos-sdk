@@ -34,7 +34,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.AccAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
-	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string,
+	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string, challengerAddr sdk.AccAddress,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -54,6 +54,7 @@ func NewMsgCreateValidator(
 		From:              from.String(),
 		RelayerAddress:    relayerAddr.String(),
 		RelayerBlsKey:     relayerBlsKey,
+		ChallengerAddress: challengerAddr.String(),
 	}, nil
 }
 

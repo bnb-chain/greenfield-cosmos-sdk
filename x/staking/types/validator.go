@@ -68,6 +68,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
 		RelayerBlsKey:     blsPk,
+		ChallengerAddress: operator.String(),
 	}, nil
 }
 
@@ -77,7 +78,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 func NewValidator(
 	operator sdk.AccAddress, pubKey cryptotypes.PubKey,
 	description Description, selfDelegator sdk.AccAddress,
-	relayer sdk.AccAddress, relayerBlsKey []byte,
+	relayer sdk.AccAddress, relayerBlsKey []byte, challenger sdk.AccAddress,
 ) (Validator, error) {
 	val, err := NewSimpleValidator(operator, pubKey, description)
 	if err != nil {
@@ -87,6 +88,7 @@ func NewValidator(
 	val.SelfDelAddress = selfDelegator.String()
 	val.RelayerAddress = relayer.String()
 	val.RelayerBlsKey = relayerBlsKey
+	val.ChallengerAddress = challenger.String()
 	return val, nil
 }
 
@@ -308,11 +310,20 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		}
 	}
 
+	var challenger []byte
+	if len(v.ChallengerAddress) > 0 {
+		relayer, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey:         tmProtoPk,
-		Power:          v.ConsensusPower(r),
-		RelayerAddress: relayer,
-		RelayerBlsKey:  v.RelayerBlsKey,
+		PubKey:            tmProtoPk,
+		Power:             v.ConsensusPower(r),
+		RelayerAddress:    relayer,
+		RelayerBlsKey:     v.RelayerBlsKey,
+		ChallengerAddress: challenger,
 	}
 }
 
@@ -536,6 +547,17 @@ func (v Validator) GetRelayer() sdk.AccAddress {
 		return nil
 	}
 	addr, err := sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetChallenger() sdk.AccAddress {
+	if v.ChallengerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
 	if err != nil {
 		panic(err)
 	}

@@ -33,11 +33,12 @@ var (
 	LastValidatorPowerKey = []byte{0x11} // prefix for each key to a validator index, for bonded validators
 	LastTotalPowerKey     = []byte{0x12} // prefix for the total power
 
-	ValidatorsKey              = []byte{0x21} // prefix for each key to a validator
-	ValidatorsByConsAddrKey    = []byte{0x22} // prefix for each key to a validator index, by pubkey
-	ValidatorsByPowerIndexKey  = []byte{0x23} // prefix for each key to a validator index, sorted by power
-	ValidatorsByRelayerAddrKey = []byte{0x24} // prefix for each key to a validator index, by relayer address
-	ValidatorsByRelayerBlsKey  = []byte{0x25} // prefix for each key to a validator index, by relayer's bls pubkey
+	ValidatorsKey                 = []byte{0x21} // prefix for each key to a validator
+	ValidatorsByConsAddrKey       = []byte{0x22} // prefix for each key to a validator index, by pubkey
+	ValidatorsByPowerIndexKey     = []byte{0x23} // prefix for each key to a validator index, sorted by power
+	ValidatorsByRelayerAddrKey    = []byte{0x24} // prefix for each key to a validator index, by relayer address
+	ValidatorsByRelayerBlsKey     = []byte{0x25} // prefix for each key to a validator index, by relayer's bls pubkey
+	ValidatorsByChallengerAddrKey = []byte{0x26} // prefix for each key to a validator index, by challenger address
 
 	DelegationKey                    = []byte{0x31} // key for a delegation
 	UnbondingDelegationKey           = []byte{0x32} // key for an unbonding-delegation
@@ -66,7 +67,7 @@ func GetValidatorByConsAddrKey(addr sdk.ConsAddress) []byte {
 }
 
 // GetValidatorByRelayerAddrKey creates the key for the validator with relayer address
-// VALUE: validator operator address ([]byte)
+// VALUE: validator relayer address ([]byte)
 func GetValidatorByRelayerAddrKey(relayerAddr sdk.AccAddress) []byte {
 	return append(ValidatorsByRelayerAddrKey, address.MustLengthPrefix(relayerAddr)...)
 }
@@ -75,6 +76,12 @@ func GetValidatorByRelayerAddrKey(relayerAddr sdk.AccAddress) []byte {
 // VALUE: validator operator address ([]byte)
 func GetValidatorByRelayerBlsKey(blsPk []byte) []byte {
 	return append(ValidatorsByRelayerBlsKey, address.MustLengthPrefix(blsPk)...)
+}
+
+// GetValidatorByChallengerAddrKey creates the key for the validator with challenger address
+// VALUE: validator challenger address ([]byte)
+func GetValidatorByChallengerAddrKey(challengerAddr sdk.AccAddress) []byte {
+	return append(ValidatorsByChallengerAddrKey, address.MustLengthPrefix(challengerAddr)...)
 }
 
 // AddressFromValidatorsKey creates the validator operator address from ValidatorsKey

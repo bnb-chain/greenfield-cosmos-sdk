@@ -72,7 +72,7 @@ func TestStakingMsgs(t *testing.T) {
 	createValidatorMsg, err := types.NewMsgCreateValidator(
 		addr1, valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
-		addr1, addr1, addr1, blsPubKey,
+		addr1, addr1, addr1, blsPubKey, addr1,
 	)
 	require.NoError(t, err)
 

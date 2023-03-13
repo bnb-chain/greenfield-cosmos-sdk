@@ -117,6 +117,7 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(FlagSetMinSelfDelegation())
 	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
 	cmd.Flags().AddFlagSet(FlagSetRelayerBlsKey())
+	cmd.Flags().AddFlagSet(FlagSetChallengerAddress())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -362,6 +363,7 @@ type TxCreateValidatorConfig struct {
 	Validator     sdk.AccAddress
 	Delegator     sdk.AccAddress
 	Relayer       sdk.AccAddress
+	Challenger    sdk.AccAddress
 	RelayerBlsKey string
 }
 
@@ -497,8 +499,7 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 	msg, err := types.NewMsgCreateValidator(
 		config.Validator, config.PubKey,
 		amount, description, commissionRates, minSelfDelegation,
-		from, config.Delegator, config.Relayer, config.RelayerBlsKey,
-	)
+		from, config.Delegator, config.Relayer, config.RelayerBlsKey, config.Challenger)
 	if err != nil {
 		return txBldr, msg, err
 	}

@@ -97,6 +97,15 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, types.ErrValidatorRelayerBlsKeyExists
 	}
 
+	// check to see if the challenger address has been registered before
+	challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+	if err != nil {
+		return nil, err
+	}
+	if _, found := k.GetValidatorByChallengeAddr(ctx, challengerAddr); found {
+		return nil, types.ErrValidatorChallengerAddressExists
+	}
+
 	bondDenom := k.BondDenom(ctx)
 	if msg.Value.Denom != bondDenom {
 		return nil, sdkerrors.Wrapf(
@@ -126,7 +135,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, blsPk)
+	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, blsPk, challengerAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -186,6 +195,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
 			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfDelAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
@@ -280,6 +290,23 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
+	// replace relayer address
+	if len(msg.ChallengerAddress) != 0 {
+		challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+		if err != nil {
+			return nil, err
+		}
+		if tmpValidator, found := k.GetValidatorByChallengeAddr(ctx, challengerAddr); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorChallengerAddressExists
+			}
+		} else {
+			k.DeleteValidatorByRelayerAddress(ctx, validator)
+			validator.ChallengerAddress = challengerAddr.String()
+			k.SetValidatorByChallengerAddress(ctx, validator)
+		}
+	}
+
 	k.SetValidator(ctx, validator)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -288,6 +315,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			sdk.NewAttribute(types.AttributeKeyCommissionRate, validator.Commission.String()),
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
 		),
 		sdk.NewEvent(

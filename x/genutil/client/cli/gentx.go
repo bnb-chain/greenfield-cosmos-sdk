@@ -34,7 +34,7 @@ func GenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalI
 	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
-		Use:   "gentx [key_name] [amount] [validator] [relayer] [relayer_blskey]",
+		Use:   "gentx [key_name] [amount] [validator] [relayer] [relayer_blskey] [challenger]",
 		Short: "Generate a genesis tx carrying a self delegation",
 		Args:  cobra.ExactArgs(5),
 		Long: fmt.Sprintf(`Generate a genesis transaction that creates a validator with a self-delegation,
@@ -166,11 +166,16 @@ $ %s gentx my-key-name 1000000stake \
 			if len(blsPk) != 2*sdk.BLSPubKeyLength {
 				return errors.New("invalid relayer bls pubkey")
 			}
+			challenger, err := sdk.AccAddressFromHexUnsafe(args[5])
+			if err != nil {
+				return err
+			}
 
 			createValCfg.Validator = validator
 			createValCfg.Delegator = addr
 			createValCfg.Relayer = relayer
 			createValCfg.RelayerBlsKey = blsPk
+			createValCfg.Challenger = challenger
 
 			// create a 'create-validator' message
 			txBldr, msg, err := cli.BuildCreateValidatorMsg(clientCtx, createValCfg, txFactory, true)

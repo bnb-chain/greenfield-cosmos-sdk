@@ -1,6 +1,7 @@
 package simulation_test
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/gashub/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
-	"fmt"
 )
 
 func TestParamChanges(t *testing.T) {

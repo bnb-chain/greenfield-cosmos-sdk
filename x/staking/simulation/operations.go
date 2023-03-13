@@ -155,7 +155,7 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k k
 		msg, err := types.NewMsgCreateValidator(
 			address, simAccount.ConsKey.PubKey(),
 			selfDelegation, description, commission, sdk.OneInt(),
-			address, address, address, blsPk,
+			address, address, address, blsPk, address,
 		)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err

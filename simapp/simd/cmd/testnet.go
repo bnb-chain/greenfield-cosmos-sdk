@@ -299,7 +299,7 @@ func initTestnetFiles(
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
-			addr, addr, addr, blsPk,
+			addr, addr, addr, blsPk, addr,
 		)
 		if err != nil {
 			return err
