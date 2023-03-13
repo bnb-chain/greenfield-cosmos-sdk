@@ -76,22 +76,22 @@ var testcases = []testParams{
 		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
 	},
 	{
-		description:       "invalid from",
-		proposalID:        "5",
-		enableGrant:       true,
-		from:              "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
-		relayerAddress:    "0x73Fd0b049bBF30b3A165e5b2eAf9895B015A2515",
-		relayerBlsKey:     "b700697ccca38c0d56cde325571dc5412de99a0fa2c28eeb1078cb4eeaa31c238720bee9cce47422e986a7af4f3b19c8",
-		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
-	},
-	{
 		description:       "duplicated challenger address",
-		proposalID:        "6",
+		proposalID:        "5",
 		enableGrant:       true,
 		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
 		relayerAddress:    "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
 		relayerBlsKey:     "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
 		challengerAddress: "0xD1d6bF74282782B0b3eb1413c901D6eCF02e8e28",
+	},
+	{
+		description:       "invalid from",
+		proposalID:        "6",
+		enableGrant:       true,
+		from:              "0x8b70dC9B691fCeB4e1c69dF8cbF8c077AD4b5853",
+		relayerAddress:    "0x73Fd0b049bBF30b3A165e5b2eAf9895B015A2515",
+		relayerBlsKey:     "b700697ccca38c0d56cde325571dc5412de99a0fa2c28eeb1078cb4eeaa31c238720bee9cce47422e986a7af4f3b19c8",
+		challengerAddress: "0x95CD3fB2037847780fA454DA719e6a01F43D4E2f",
 	},
 }
 
@@ -211,7 +211,7 @@ func (s *CreateValidatorTestSuite) TestQueryDuplicatedRelayerBlsKey() {
 
 func (s *CreateValidatorTestSuite) TestQueryDuplicatedChallengerAddress() {
 	clientCtx := s.network.Validators[0].ClientCtx
-	proposalID := s.proposalIDs[5]
+	proposalID := s.proposalIDs[4]
 
 	// query proposal
 	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
@@ -224,7 +224,7 @@ func (s *CreateValidatorTestSuite) TestQueryDuplicatedChallengerAddress() {
 
 func (s *CreateValidatorTestSuite) TestQueryInvalidFromAddress() {
 	clientCtx := s.network.Validators[0].ClientCtx
-	proposalID := s.proposalIDs[4]
+	proposalID := s.proposalIDs[5]
 
 	// query proposal, should not be found because of invalid from the proposal will be rejected.
 	args := []string{proposalID, fmt.Sprintf("--%s=json", tmcli.OutputFlag)}
@@ -333,8 +333,8 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 			},
 			"from":"%s",
 			"relayer_address":"%s",
-			"relayer_bls_key":"%s"
-			"challenger_address":"%s",
+			"relayer_bls_key":"%s",
+			"challenger_address":"%s"
 		}
 	],
 	"metadata": "%s",

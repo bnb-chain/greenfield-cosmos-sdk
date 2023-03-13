@@ -312,7 +312,7 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 
 	var challenger []byte
 	if len(v.ChallengerAddress) > 0 {
-		relayer, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
+		challenger, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
 		if err != nil {
 			panic(err)
 		}
