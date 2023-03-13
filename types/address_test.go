@@ -484,3 +484,13 @@ func (s *addressTestSuite) TestGetFromBech32() {
 	s.Require().Error(err)
 	s.Require().Equal("invalid Bech32 prefix; expected x, got cosmos", err.Error())
 }
+
+func (s *addressTestSuite) TestAddressCases() {
+	addrStr1 := "0x17d749d3e2ac204a07e19d8096d9a05c423ea3af"
+	addr1, _ := types.AccAddressFromHexUnsafe(addrStr1)
+	s.Require().False(addr1.Empty())
+
+	addrStr2 := "0x17D749D3E2ac204a07e19D8096d9a05c423ea3af"
+	addr2, _ := types.AccAddressFromHexUnsafe(addrStr2)
+	s.Require().True(addr1.Equals(addr2))
+}

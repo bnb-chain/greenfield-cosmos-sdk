@@ -76,7 +76,6 @@ func TestTestSuite(t *testing.T) {
 func (s *TestSuite) TestProcessClaim() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
-		RelayerBackoffTime: 3,
 		RelayerRewardShare: 50,
 	})
 
@@ -117,7 +116,7 @@ func (s *TestSuite) TestProcessClaim() {
 	msgClaim.AggSignature = blsSig
 
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
-	_, err := s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
+	_, _, err := s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().Nil(err, "error should be nil")
 
 	// wrong validator set
@@ -127,7 +126,7 @@ func (s *TestSuite) TestProcessClaim() {
 	}
 	msgClaim.VoteAddressSet = wrongValBitSet.Bytes()
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
-	_, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
+	_, _, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().NotNil(err, "error should not be nil")
 	s.Require().Contains(err.Error(), "number of validator set is larger than validators")
 
@@ -137,7 +136,7 @@ func (s *TestSuite) TestProcessClaim() {
 	wrongValBitSet.Set(uint(validatorMap[newValidators[1].RelayerAddress]))
 	msgClaim.VoteAddressSet = wrongValBitSet.Bytes()
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
-	_, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
+	_, _, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().NotNil(err, "error should not be nil")
 	s.Require().Contains(err.Error(), "not enough validators voted")
 
@@ -146,7 +145,7 @@ func (s *TestSuite) TestProcessClaim() {
 	msgClaim.AggSignature = bytes.Repeat([]byte{2}, 96)
 
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
-	_, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
+	_, _, err = s.app.OracleKeeper.CheckClaim(s.ctx, &msgClaim)
 	s.Require().NotNil(err, "error should not be nil")
 	s.Require().Contains(err.Error(), "BLS signature converts failed")
 }
@@ -154,7 +153,6 @@ func (s *TestSuite) TestProcessClaim() {
 func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
-		RelayerBackoffTime: 3,
 		RelayerRewardShare: 50,
 	})
 
@@ -257,7 +255,8 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 
 	for idx, test := range tests {
 		s.ctx = s.ctx.WithBlockTime(time.Unix(test.blockTime, 0))
-		isValid, err := s.app.OracleKeeper.IsRelayerValid(s.ctx, vals, &test.claimMsg)
+		relayer := sdk.MustAccAddressFromHex(test.claimMsg.FromAddress)
+		isValid, err := s.app.OracleKeeper.IsRelayerValid(s.ctx, relayer, vals, test.claimMsg.Timestamp)
 
 		if test.expectedPass {
 			s.Require().Nil(err)
