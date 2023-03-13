@@ -68,14 +68,12 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 }
 
 // GetRelayerParam returns the relayer timeout,  backoff time and relayer interval for oracle claim
-func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64, uint64) {
+func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
 	var relayerTimeoutParam uint64
-	var relayerBackoffTimeParam uint64
 	var relayerIntervalParam uint64
 	k.paramSpace.Get(ctx, types.KeyParamRelayerTimeout, &relayerTimeoutParam)
-	k.paramSpace.Get(ctx, types.KeyParamRelayerBackoffTime, &relayerBackoffTimeParam)
 	k.paramSpace.Get(ctx, types.KeyParamRelayerInterval, &relayerIntervalParam)
-	return relayerTimeoutParam, relayerBackoffTimeParam, relayerIntervalParam
+	return relayerTimeoutParam, relayerIntervalParam
 }
 
 // GetRelayerRewardShare returns the relayer reward share
@@ -106,7 +104,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, validators []stakingtypes.Valida
 		return false, sdkerrors.Wrapf(types.ErrNotRelayer, fmt.Sprintf("sender(%s) is not a relayer", fromAddress.String()))
 	}
 
-	relayerTimeout, _, relayerInterval := k.GetRelayerParam(ctx)
+	inturnRelayerTimeout, relayerInterval := k.GetRelayerParam(ctx)
 
 	// check if msgClaim's relyer is inTurn
 	inturnRelayer, err := k.GetInturnRelayer(ctx, relayerInterval)
@@ -118,10 +116,10 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, validators []stakingtypes.Valida
 		return true, nil
 	}
 
-	// there is a case where claim comes from non-inturn relayer because the inturn relayer is not working, all other
-	// relayers can relay within the current inturn relayer's interval
+	// It is possible that claim comes from non-inturn relayers when exceeding the inturnRelayerTimeout, all other
+	// relayers can relay within the inturn relayer's interval
 	curTime := ctx.BlockTime().Unix()
-	return uint64(curTime)-claim.Timestamp >= relayerTimeout, nil
+	return uint64(curTime)-claim.Timestamp >= inturnRelayerTimeout, nil
 }
 
 // CheckClaim checks the bls signature
@@ -195,13 +193,13 @@ func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*type
 
 	validatorsSize := len(validators)
 
-	// TotalIntervals is sum of intervals from all relayers
-	TotalIntervals := relayerInterval * uint64(validatorsSize)
+	// totalIntervals is sum of intervals from all relayers
+	totalIntervals := relayerInterval * uint64(validatorsSize)
 
 	curTimeStamp := uint64(time.Now().Unix())
 
 	// remainder is used to locate inturn relayer.
-	remainder := curTimeStamp % TotalIntervals
+	remainder := curTimeStamp % totalIntervals
 	inTurnRelayerIndex := remainder / relayerInterval
 
 	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)

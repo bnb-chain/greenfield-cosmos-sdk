@@ -8,7 +8,6 @@ import (
 
 const (
 	DefaultRelayerTimeout     uint64 = 40  // in s
-	DefaultRelayerBackoffTime uint64 = 5   // in s
 	DefaultRelayerRewardShare uint32 = 50  // in s
 	DefaultRealyerInterval    uint64 = 600 // in s
 )
@@ -23,7 +22,6 @@ var (
 func DefaultParams() Params {
 	return Params{
 		RelayerTimeout:     DefaultRelayerTimeout,
-		RelayerBackoffTime: DefaultRelayerBackoffTime,
 		RelayerRewardShare: DefaultRelayerRewardShare,
 		RelayerInterval:    DefaultRealyerInterval,
 	}
@@ -37,7 +35,6 @@ func ParamKeyTable() paramtypes.KeyTable {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyParamRelayerTimeout, &p.RelayerTimeout, validateRelayerTimeout),
-		paramtypes.NewParamSetPair(KeyParamRelayerBackoffTime, &p.RelayerBackoffTime, validateRelayerBackoffTime),
 		paramtypes.NewParamSetPair(KeyParamRelayerRewardShare, &p.RelayerRewardShare, validateRelayerRewardShare),
 		paramtypes.NewParamSetPair(KeyParamRelayerInterval, &p.RelayerInterval, validateRelayerInterval),
 	}

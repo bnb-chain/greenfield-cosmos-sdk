@@ -26,10 +26,6 @@ func ValidateGenesis(data GenesisState) error {
 		return fmt.Errorf("relayer timeout should be positive, is %d", data.Params.RelayerTimeout)
 	}
 
-	if data.Params.RelayerBackoffTime <= 0 {
-		return fmt.Errorf("the relayer backoff time must be positive, is %d", data.Params.RelayerBackoffTime)
-	}
-
 	if data.Params.RelayerRewardShare <= 0 {
 		return fmt.Errorf("the relayer reward share must be positive, is %d", data.Params.RelayerRewardShare)
 	}
