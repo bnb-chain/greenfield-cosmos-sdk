@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.10
+This release reverts the unneeded changes.
+
+* [\#128](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/128) revert: revert the changes of the callbackGasPrice
+
 ## v0.0.9
 This release fix the v0.0.8 dependencies.
 

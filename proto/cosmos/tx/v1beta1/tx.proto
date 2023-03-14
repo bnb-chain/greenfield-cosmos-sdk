@@ -102,30 +102,30 @@ message SignDocEip712 {
   // chain_id is the identifier of the chain this transaction targets.
   // It prevents signed transactions from being used on another chain by an
   // attacker.
-  uint64 chain_id = 1 [(gogoproto.jsontag) = "chain_id"];
+  uint64 chain_id = 1[(gogoproto.jsontag) = "chain_id"];
 
   // account_number is the account number of the account in state.
-  uint64 account_number = 2 [(gogoproto.jsontag) = "account_number"];
+  uint64 account_number = 2[(gogoproto.jsontag) = "account_number"];
 
   // sequence is the sequence number of the signing account.
-  uint64 sequence = 3 [(gogoproto.jsontag) = "sequence"];
+  uint64 sequence = 3[(gogoproto.jsontag) = "sequence"];
 
   // Fee is the fee and gas limit for the transaction. The first signer is the
   // primary signer and the one which pays the fee. The fee can be calculated
   // based on the cost of evaluating the body and doing signature verification
   // of the signers. This can be estimated via simulation.
-  Fee fee = 4 [(gogoproto.nullable) = false];
+  Fee fee = 4[(gogoproto.nullable) = false];
 
   // msg is the msg in the EIP712 transaction.
   google.protobuf.Any msg = 5;
 
   // timeout_height is the transaction's timeout height (if set).
-  uint64 timeout_height = 6 [(gogoproto.jsontag) = "timeout_height"];
+  uint64 timeout_height = 6[(gogoproto.jsontag) = "timeout_height"];
 
   // memo is any arbitrary note/comment to be added to the transaction.
   // WARNING: in clients, any publicly exposed text should not be called memo,
   // but should be called `note` instead (see https://github.com/cosmos/cosmos-sdk/issues/9122).
-  string memo = 7 [(gogoproto.jsontag) = "memo"];
+  string memo = 7[(gogoproto.jsontag) = "memo"];
 
   // Tip is the optional tip used for transactions fees paid in another denom.
   // It should be left empty if the signer is not the tipper for this

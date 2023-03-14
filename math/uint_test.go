@@ -370,4 +370,5 @@ func (s *uintTestSuite) TestUintBigEndian() {
 	u2 = u2.SetBytes(u1b)
 
 	s.Require().Equal(u1, u2)
+
 }

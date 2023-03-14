@@ -21,14 +21,14 @@ message MsgClaim {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string           from_address     = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  uint32           src_chain_id     = 2;
-  uint32           dest_chain_id    = 3;
-  uint64           sequence         = 4;
-  uint64           timestamp        = 5;
-  bytes            payload          = 6;
-  repeated fixed64 vote_address_set = 7;
-  bytes            agg_signature    = 8;
+  string from_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint32 src_chain_id = 2;
+  uint32 dest_chain_id = 3;
+  uint64 sequence = 4;
+  uint64 timestamp = 5;
+  bytes payload = 6;
+  repeated fixed64 vote_address_set  = 7;
+  bytes agg_signature  = 8;
 }
 
 // MsgClaimResponse defines the Msg/Claim response type

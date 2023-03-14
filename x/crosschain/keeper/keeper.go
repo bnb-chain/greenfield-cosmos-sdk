@@ -81,7 +81,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
-	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int, callbackGasPrice *big.Int,
+	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
 ) (uint64, error) {
 	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, k.GetDestChainID(), channelID) != sdk.ChannelAllow {
 		return 0, fmt.Errorf("channel %d is not allowed to write syn package", channelID)
@@ -96,11 +96,10 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 
 	// Assemble the package header
 	packageHeader := sdk.EncodePackageHeader(sdk.PackageHeader{
-		PackageType:      packageType,
-		Timestamp:        uint64(ctx.BlockTime().Unix()),
-		RelayerFee:       relayerFee,
-		AckRelayerFee:    ackRelayerFee,
-		CallbackGasPrice: callbackGasPrice,
+		PackageType:   packageType,
+		Timestamp:     uint64(ctx.BlockTime().Unix()),
+		RelayerFee:    relayerFee,
+		AckRelayerFee: ackRelayerFee,
 	})
 
 	kvStore.Set(key, append(packageHeader, packageLoad...))
@@ -108,16 +107,15 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 	k.IncrSendSequence(ctx, channelID)
 
 	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChain{
-		SrcChainId:       uint32(k.GetSrcChainID()),
-		DestChainId:      uint32(k.GetDestChainID()),
-		ChannelId:        uint32(channelID),
-		Sequence:         sequence,
-		PackageType:      uint32(packageType),
-		Timestamp:        uint64(ctx.BlockTime().Unix()),
-		PackageLoad:      hex.EncodeToString(packageLoad),
-		RelayerFee:       relayerFee.String(),
-		AckRelayerFee:    ackRelayerFee.String(),
-		CallbackGasPrice: callbackGasPrice.String(),
+		SrcChainId:    uint32(k.GetSrcChainID()),
+		DestChainId:   uint32(k.GetDestChainID()),
+		ChannelId:     uint32(channelID),
+		Sequence:      sequence,
+		PackageType:   uint32(packageType),
+		Timestamp:     uint64(ctx.BlockTime().Unix()),
+		PackageLoad:   hex.EncodeToString(packageLoad),
+		RelayerFee:    relayerFee.String(),
+		AckRelayerFee: ackRelayerFee.String(),
 	})
 	if err != nil {
 		return 0, err
