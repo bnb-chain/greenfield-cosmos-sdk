@@ -2,7 +2,6 @@
 syntax = "proto3";
 package cosmos.oracle.v1;
 
-
 option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
 
 // EventPackageClaim is emitted when a cross chain package is processed

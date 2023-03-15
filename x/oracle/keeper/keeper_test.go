@@ -77,6 +77,7 @@ func (s *TestSuite) TestProcessClaim() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
 		RelayerRewardShare: 50,
+		RelayerInterval:    600,
 	})
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
@@ -154,6 +155,7 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
 		RelayerRewardShare: 50,
+		RelayerInterval:    600,
 	})
 
 	vals := make([]stakingtypes.Validator, 5)

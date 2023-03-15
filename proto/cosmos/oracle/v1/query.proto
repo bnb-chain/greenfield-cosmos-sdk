@@ -32,7 +32,8 @@ message QueryParamsResponse {
 // QueryInturnRelayerRequest is the request type for the Query In-turn relayer RPC method.
 message QueryInturnRelayerRequest {}
 
-message QueryInturnRelayerResponse{
-  string bls_pub_key = 1;
+// QueryInturnRelayerResponse is the response type for the Query In-turn relayer RPC method.
+message QueryInturnRelayerResponse {
+  string        bls_pub_key    = 1;
   RelayInterval relay_interval = 2;
 }

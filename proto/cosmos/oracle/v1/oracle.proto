@@ -7,15 +7,15 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
 message Params {
   // Timeout for the in turn relayer
   uint64 relayer_timeout = 1; // in s
+  // RelayInterval is for in-turn relayer
+  uint64 relayer_interval = 2; // in s
   // Reward share for the relayer sends the claim message,
   // the other relayers signed the bls message will share the reward evenly.
-  uint32 relayer_reward_share = 2; // in percentage
-  // RelayInterval is for in-turn relayer
-  uint64 relayer_interval = 3; // in s
+  uint32 relayer_reward_share = 3; // in percentage
 }
 
 // RelayInterval holds start and end tiem of in-turn relayer
 message RelayInterval {
   uint64 start = 1;
-  uint64 end = 2;
+  uint64 end   = 2;
 }

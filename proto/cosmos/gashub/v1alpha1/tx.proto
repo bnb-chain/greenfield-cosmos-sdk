@@ -22,7 +22,7 @@ message MsgUpdateMsgGasParams {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string from = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string                from           = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   repeated MsgGasParams new_params_set = 2;
 }
 

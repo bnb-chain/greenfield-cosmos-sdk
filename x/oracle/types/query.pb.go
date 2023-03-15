@@ -149,6 +149,7 @@ func (m *QueryInturnRelayerRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInturnRelayerRequest proto.InternalMessageInfo
 
+// QueryInturnRelayerResponse is the response type for the Query In-turn relayer RPC method.
 type QueryInturnRelayerResponse struct {
 	BlsPubKey     string         `protobuf:"bytes,1,opt,name=bls_pub_key,json=blsPubKey,proto3" json:"bls_pub_key,omitempty"`
 	RelayInterval *RelayInterval `protobuf:"bytes,2,opt,name=relay_interval,json=relayInterval,proto3" json:"relay_interval,omitempty"`

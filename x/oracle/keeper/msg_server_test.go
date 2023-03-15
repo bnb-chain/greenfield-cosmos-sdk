@@ -32,8 +32,8 @@ func (s *TestSuite) TestClaim() {
 
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
-		RelayerBackoffTime: 3,
 		RelayerRewardShare: 50,
+		RelayerInterval:    600,
 	})
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
@@ -98,8 +98,8 @@ func (s *TestSuite) TestInvalidClaim() {
 
 	s.app.OracleKeeper.SetParams(s.ctx, types.Params{
 		RelayerTimeout:     5,
-		RelayerBackoffTime: 3,
 		RelayerRewardShare: 50,
+		RelayerInterval:    600,
 	})
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
