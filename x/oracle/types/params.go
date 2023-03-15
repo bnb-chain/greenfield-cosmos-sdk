@@ -53,19 +53,6 @@ func validateRelayerTimeout(i interface{}) error {
 	return nil
 }
 
-func validateRelayerBackoffTime(i interface{}) error {
-	v, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v <= 0 {
-		return fmt.Errorf("the relayer backoff time must be positive: %d", v)
-	}
-
-	return nil
-}
-
 func validateRelayerRewardShare(i interface{}) error {
 	v, ok := i.(uint32)
 	if !ok {

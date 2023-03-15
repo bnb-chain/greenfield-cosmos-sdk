@@ -14,9 +14,9 @@ service Query {
     option (google.api.http).get = "/cosmos/oracle/v1/params";
   }
 
-  // Params returns the total set of cross chain parameters.
+  // InturnRelayer returns the inturn relayer bls pub key and its relay interval
   rpc InturnRelayer(QueryInturnRelayerRequest) returns (QueryInturnRelayerResponse) {
-    option (google.api.http).get = "/cosmos/oracle/v1/in-turn-relayer";
+    option (google.api.http).get = "/cosmos/oracle/v1/inturn_relayer";
   }
 }
 
