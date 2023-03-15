@@ -29,7 +29,8 @@ type Params struct {
 	// Reward share for the relayer sends the claim message,
 	// the other relayers signed the bls message will share the reward evenly.
 	RelayerRewardShare uint32 `protobuf:"varint,2,opt,name=relayer_reward_share,json=relayerRewardShare,proto3" json:"relayer_reward_share,omitempty"`
-	RelayerInterval    uint64 `protobuf:"varint,3,opt,name=relayer_interval,json=relayerInterval,proto3" json:"relayer_interval,omitempty"`
+	// RelayInterval is for in-turn relayer
+	RelayerInterval uint64 `protobuf:"varint,3,opt,name=relayer_interval,json=relayerInterval,proto3" json:"relayer_interval,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -86,6 +87,7 @@ func (m *Params) GetRelayerInterval() uint64 {
 	return 0
 }
 
+// RelayInterval holds start and end tiem of in-turn relayer
 type RelayInterval struct {
 	Start uint64 `protobuf:"varint,1,opt,name=start,proto3" json:"start,omitempty"`
 	End   uint64 `protobuf:"varint,2,opt,name=end,proto3" json:"end,omitempty"`

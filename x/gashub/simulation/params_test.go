@@ -1,12 +1,12 @@
 package simulation_test
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/gashub/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
 )

@@ -10,10 +10,11 @@ message Params {
   // Reward share for the relayer sends the claim message,
   // the other relayers signed the bls message will share the reward evenly.
   uint32 relayer_reward_share = 2; // in percentage
-
+  // RelayInterval is for in-turn relayer
   uint64 relayer_interval = 3; // in s
 }
 
+// RelayInterval holds start and end tiem of in-turn relayer
 message RelayInterval {
   uint64 start = 1;
   uint64 end = 2;
