@@ -180,7 +180,11 @@ func WrapTxToTypedData(
 	// filling nil value
 	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
 
-	domainTemp := domain
+	var domainTemp apitypes.TypedDataDomain
+	domainTemp.Name = domain.Name
+	domainTemp.Version = domain.Version
+	domainTemp.VerifyingContract = domain.VerifyingContract
+	domainTemp.Salt = domain.Salt
 	domainTemp.ChainId = math.NewHexOrDecimal256(int64(chainID))
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
