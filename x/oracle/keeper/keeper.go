@@ -1,9 +1,11 @@
 package keeper
 
 import (
-	sdkerrors "cosmossdk.io/errors"
 	"encoding/hex"
 	"fmt"
+
+	sdkerrors "cosmossdk.io/errors"
+
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/willf/bitset"
@@ -197,7 +199,7 @@ func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*type
 	curTimeStamp := uint64(ctx.BlockTime().Unix())
 
 	// remainder is used to locate inturn relayer.
-	remainder := curTimeStamp % totalIntervals //3.6028797e+16
+	remainder := curTimeStamp % totalIntervals
 	inTurnRelayerIndex := remainder / relayerInterval
 
 	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)
