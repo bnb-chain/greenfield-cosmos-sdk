@@ -290,7 +290,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
-	// replace relayer address
+	// replace challenger address
 	if len(msg.ChallengerAddress) != 0 {
 		challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
 		if err != nil {
@@ -301,7 +301,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 				return nil, types.ErrValidatorChallengerAddressExists
 			}
 		} else {
-			k.DeleteValidatorByRelayerAddress(ctx, validator)
+			k.DeleteValidatorByChallengerAddress(ctx, validator)
 			validator.ChallengerAddress = challengerAddr.String()
 			k.SetValidatorByChallengerAddress(ctx, validator)
 		}

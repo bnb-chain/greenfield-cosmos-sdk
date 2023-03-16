@@ -92,6 +92,9 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 	}
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid challenger address: %s", err)
+	}
 
 	if msg.Pubkey == nil {
 		return ErrEmptyValidatorPubKey
