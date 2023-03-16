@@ -33,5 +33,9 @@ func ValidateGenesis(data GenesisState) error {
 	if data.Params.RelayerRewardShare > 100 {
 		return fmt.Errorf("the relayer reward share should not be larger than 100, is %d", data.Params.RelayerRewardShare)
 	}
+
+	if data.Params.RelayerInterval <= 0 {
+		return fmt.Errorf("the relayer interval should be positive, is %d", data.Params.RelayerInterval)
+	}
 	return nil
 }

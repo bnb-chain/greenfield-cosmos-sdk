@@ -82,20 +82,18 @@ func (s *TestSuite) TestProcessClaim() {
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
-	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
-
 	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
 		Header: s.ctx.BlockHeader(),
-		Valset: validators,
+		Valset: newValidators,
 	})
 
 	validatorMap := make(map[string]int, 0)
-	for idx, validator := range validators {
+	for idx, validator := range newValidators {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
 	msgClaim := types.MsgClaim{
-		FromAddress:    validators[0].RelayerAddress,
+		FromAddress:    newValidators[0].RelayerAddress,
 		SrcChainId:     1,
 		DestChainId:    2,
 		Sequence:       1,
@@ -162,37 +160,31 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	for i := range vals {
 		pk := ed25519.GenPrivKey().PubKey()
 
-		vals[i] = newValidator(s.T(), sdk.AccAddress(pk.Address()), pk)
+		val := newValidator(s.T(), sdk.AccAddress(pk.Address()), pk)
+		privKey, _ := blst.RandKey()
+		val.RelayerBlsKey = privKey.PublicKey().Marshal()
+		vals[i] = val
 	}
+
+	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
+		Header: s.ctx.BlockHeader(),
+		Valset: vals,
+	})
 
 	val0Addr := vals[0].RelayerAddress
 	val1Addr := vals[1].RelayerAddress
+	val3Addr := vals[3].RelayerAddress
 
+	// in-turn relayer is relayer 3 and interval is [1800, 2400)
 	tests := []struct {
 		claimMsg     types.MsgClaim
 		blockTime    int64
 		expectedPass bool
 		errorMsg     string
 	}{
-		{
+		{ // out-turn relayer within the in-turn relayer interval, and not exceeding the timeout, so is not eligible to relay
 			types.MsgClaim{
 				FromAddress:    val0Addr,
-				SrcChainId:     1,
-				DestChainId:    2,
-				Sequence:       1,
-				Timestamp:      1990,
-				Payload:        []byte("test payload"),
-				VoteAddressSet: []uint64{0, 1},
-				AggSignature:   []byte("test sig"),
-			},
-			1992,
-			true,
-			"",
-		},
-		// wrong validator in timeout
-		{
-			types.MsgClaim{
-				FromAddress:    val1Addr,
 				SrcChainId:     1,
 				DestChainId:    2,
 				Sequence:       1,
@@ -205,14 +197,13 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 			false,
 			"",
 		},
-		// right validator in backoff time
-		{
+		{ // out-turn relayer within the in-turn relayer interval, but exceeding the timeout, so is eligible to relay
 			types.MsgClaim{
 				FromAddress:    val1Addr,
 				SrcChainId:     1,
 				DestChainId:    2,
 				Sequence:       1,
-				Timestamp:      1985,
+				Timestamp:      1800,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
@@ -221,10 +212,10 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 			true,
 			"",
 		},
-		// wrong validator in backoff time
+		// in-turn relayer, even exceeding timeout
 		{
 			types.MsgClaim{
-				FromAddress:    val0Addr,
+				FromAddress:    val3Addr,
 				SrcChainId:     1,
 				DestChainId:    2,
 				Sequence:       1,
@@ -237,19 +228,19 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 			true,
 			"",
 		},
-		// right validator in backoff time
+		// in-turn relayer, within the timeout
 		{
 			types.MsgClaim{
-				FromAddress:    val0Addr,
+				FromAddress:    val3Addr,
 				SrcChainId:     1,
 				DestChainId:    2,
 				Sequence:       1,
-				Timestamp:      1970,
+				Timestamp:      1990,
 				Payload:        []byte("test payload"),
 				VoteAddressSet: []uint64{0, 1},
 				AggSignature:   []byte("test sig"),
 			},
-			1989,
+			1992,
 			true,
 			"",
 		},

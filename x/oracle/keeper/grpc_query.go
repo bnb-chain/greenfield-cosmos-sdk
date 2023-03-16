@@ -17,6 +17,6 @@ func (k Keeper) InturnRelayer(c context.Context, req *types.QueryInturnRelayerRe
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	_, relayerInterval := k.GetRelayerParam(ctx)
+	_, relayerInterval := k.GetRelayerParams(ctx)
 	return k.GetInturnRelayer(ctx, relayerInterval)
 }

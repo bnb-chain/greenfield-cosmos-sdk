@@ -38,15 +38,13 @@ func (s *TestSuite) TestClaim() {
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
-	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
-
 	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
 		Header: s.ctx.BlockHeader(),
-		Valset: validators,
+		Valset: newValidators,
 	})
 
 	validatorMap := make(map[string]int, 0)
-	for idx, validator := range validators {
+	for idx, validator := range newValidators {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
@@ -67,7 +65,7 @@ func (s *TestSuite) TestClaim() {
 	s.Require().Nil(err, "encode package error")
 
 	msgClaim := types.MsgClaim{
-		FromAddress:    validators[0].RelayerAddress,
+		FromAddress:    newValidators[0].RelayerAddress,
 		SrcChainId:     56,
 		DestChainId:    1,
 		Sequence:       0,
@@ -104,20 +102,18 @@ func (s *TestSuite) TestInvalidClaim() {
 
 	_, _, newValidators, blsKeys := createValidators(s.T(), s.ctx, s.app, []int64{9, 8, 7})
 
-	validators := s.app.StakingKeeper.GetLastValidators(s.ctx)
-
 	s.app.StakingKeeper.SetHistoricalInfo(s.ctx, s.ctx.BlockHeight(), &stakingtypes.HistoricalInfo{
 		Header: s.ctx.BlockHeader(),
-		Valset: validators,
+		Valset: newValidators,
 	})
 
 	validatorMap := make(map[string]int, 0)
-	for idx, validator := range validators {
+	for idx, validator := range newValidators {
 		validatorMap[validator.RelayerAddress] = idx
 	}
 
 	msgClaim := types.MsgClaim{
-		FromAddress:    validators[0].RelayerAddress,
+		FromAddress:    newValidators[0].RelayerAddress,
 		SrcChainId:     65,
 		DestChainId:    1,
 		Sequence:       0,

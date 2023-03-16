@@ -14,7 +14,7 @@ message Params {
   uint32 relayer_reward_share = 3; // in percentage
 }
 
-// RelayInterval holds start and end tiem of in-turn relayer
+// RelayInterval holds start and end(exclusive) time of in-turn relayer, [start, end)
 message RelayInterval {
   uint64 start = 1;
   uint64 end   = 2;
