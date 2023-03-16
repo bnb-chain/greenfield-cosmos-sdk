@@ -31,7 +31,7 @@ import (
 	"github.com/gogo/protobuf/jsonpb"
 )
 
-var domain = apitypes.TypedDataDomain{
+var domain = &apitypes.TypedDataDomain{
 	Name:              "Greenfield Tx",
 	Version:           "1.0.0",
 	VerifyingContract: "greenfield",
@@ -180,11 +180,7 @@ func WrapTxToTypedData(
 	// filling nil value
 	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
 
-	var domainTemp apitypes.TypedDataDomain
-	domainTemp.Name = domain.Name
-	domainTemp.Version = domain.Version
-	domainTemp.VerifyingContract = domain.VerifyingContract
-	domainTemp.Salt = domain.Salt
+	domainTemp := *domain
 	domainTemp.ChainId = math.NewHexOrDecimal256(int64(chainID))
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
