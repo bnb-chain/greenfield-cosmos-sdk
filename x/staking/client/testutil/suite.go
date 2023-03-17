@@ -23,7 +23,7 @@ import (
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 )
 
 type IntegrationTestSuite struct {
@@ -929,7 +929,7 @@ func (s *IntegrationTestSuite) TestNewEditValidatorCmd() {
 func (s *IntegrationTestSuite) TestNewDelegateCmd() {
 	val := s.network.Validators[0]
 
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pub, err := k.GetPubKey()
@@ -1291,7 +1291,7 @@ func (s *IntegrationTestSuite) TestBlockResults() {
 	val := s.network.Validators[0]
 
 	// Create new account in the keyring.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewDelegator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewDelegator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	require.NoError(err)
 	pub, err := k.GetPubKey()
 	require.NoError(err)

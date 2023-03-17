@@ -3,9 +3,10 @@ package bls
 import (
 	"bytes"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
+
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
 // Address returns the address of the BLS public key.

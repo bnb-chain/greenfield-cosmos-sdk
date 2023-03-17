@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func Test_runRenameCmd(t *testing.T) {
@@ -34,7 +33,7 @@ func Test_runRenameCmd(t *testing.T) {
 	path := sdk.GetConfig().GetFullBIP44Path()
 
 	cdc := simapp.MakeTestEncodingConfig().Codec
-	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, ethHd.EthSecp256k1Option())
+	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, keyring.ETHAlgoOption())
 	require.NoError(t, err)
 
 	// put fakeKeyName1 in keyring

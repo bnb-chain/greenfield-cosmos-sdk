@@ -22,7 +22,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 )
 
 type IntegrationTestSuite struct {
@@ -110,7 +110,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 func (s *IntegrationTestSuite) createAccount(uid string) sdk.AccAddress {
 	val := s.network.Validators[0]
 	// Create new account in the keyring.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	addr, err := k.GetAddress()

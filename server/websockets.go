@@ -11,13 +11,13 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/ethermint/rpc/ethereum/pubsub"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/server/jsonrpc"
 )
 
 type WebsocketsServer interface {
@@ -137,7 +137,7 @@ func (w *wsConn) ReadMessage() (messageType int, p []byte, err error) {
 
 func (s *websocketsServer) readLoop(wsConn *wsConn) {
 	// subscriptions of current connection
-	subscriptions := make(map[rpc.ID]pubsub.UnsubscribeFunc)
+	subscriptions := make(map[rpc.ID]jsonrpc.UnsubscribeFunc)
 	defer func() {
 		// cancel all subscriptions when connection closed
 		for _, unsubFn := range subscriptions {

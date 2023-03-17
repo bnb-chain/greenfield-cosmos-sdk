@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func Test_runDeleteCmd(t *testing.T) {
@@ -38,7 +37,7 @@ func Test_runDeleteCmd(t *testing.T) {
 	cdc := simapp.MakeTestEncodingConfig().Codec
 
 	cmd.SetArgs([]string{"blah", fmt.Sprintf("--%s=%s", flags.FlagHome, kbHome)})
-	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, ethHd.EthSecp256k1Option())
+	kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, kbHome, mockIn, cdc, keyring.ETHAlgoOption())
 	require.NoError(t, err)
 
 	_, err = kb.NewAccount(fakeKeyName1, testdata.TestMnemonic, "", path, hd.Secp256k1)

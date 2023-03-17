@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
 )
 
 const (
@@ -77,7 +76,7 @@ Example:
 	f.Uint32(flagCoinType, sdk.GetConfig().GetCoinType(), "coin type number for HD derivation")
 	f.Uint32(flagAccount, 0, "Account number for HD derivation (less than equal 2147483647)")
 	f.Uint32(flagIndex, 0, "Address index number for HD derivation (less than equal 2147483647)")
-	f.String(flags.FlagKeyAlgorithm, string(ethHd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
+	f.String(flags.FlagKeyAlgorithm, string(hd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
 
 	return cmd
 }
@@ -121,7 +120,7 @@ func runAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 
 	if dryRun, _ := cmd.Flags().GetBool(flags.FlagDryRun); dryRun {
 		// use in memory keybase
-		kb = keyring.NewInMemory(ctx.Codec, ethHd.EthSecp256k1Option())
+		kb = keyring.NewInMemory(ctx.Codec, keyring.ETHAlgoOption())
 	} else {
 		_, err = kb.Key(name)
 		if err == nil {

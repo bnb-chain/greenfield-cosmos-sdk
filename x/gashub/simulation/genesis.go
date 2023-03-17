@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/gogo/protobuf/jsonpb"
+
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
-	"github.com/gogo/protobuf/jsonpb"
 )
 
 // Simulation parameter constants

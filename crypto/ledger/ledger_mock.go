@@ -7,9 +7,8 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/pkg/errors"
-
 	"github.com/cosmos/go-bip39"
+	"github.com/pkg/errors"
 	secp256k1 "github.com/tendermint/btcd/btcec"
 	"github.com/tendermint/tendermint/crypto"
 

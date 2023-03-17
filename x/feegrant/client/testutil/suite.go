@@ -22,7 +22,7 @@ import (
 	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/client/testutil"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 )
 
 const (
@@ -718,7 +718,7 @@ func (s *IntegrationTestSuite) TestTxWithFeeGrant() {
 	granter := val.Address
 
 	// creating an account manually (This account won't be existed in state)
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 	pub, err := k.GetPubKey()
 	s.Require().NoError(err)
@@ -805,7 +805,7 @@ func (s *IntegrationTestSuite) TestFilteredFeeAllowance() {
 	val := s.network.Validators[0]
 
 	granter := val.Address
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("grantee1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 	pub, err := k.GetPubKey()
 	s.Require().NoError(err)

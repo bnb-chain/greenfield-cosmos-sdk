@@ -1,11 +1,11 @@
 package testdata
 
 import (
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 )
 
 // KeyEthSecp256k1TestPubAddr generates a new eth_secp256k1 keypair.

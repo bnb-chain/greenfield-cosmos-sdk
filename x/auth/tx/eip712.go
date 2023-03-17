@@ -15,20 +15,19 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	ethermint "github.com/evmos/ethermint/types"
+	"github.com/gogo/protobuf/jsonpb"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	types "github.com/cosmos/cosmos-sdk/types/tx"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/gogo/protobuf/jsonpb"
 )
 
 var domain = &apitypes.TypedDataDomain{
@@ -64,7 +63,7 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
 	}
 
-	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
+	typedChainID, err := sdk.ParseChainID(signerData.ChainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}

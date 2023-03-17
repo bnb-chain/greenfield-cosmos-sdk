@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -12,8 +14,7 @@ import (
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	"github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	stakingcli "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
-	"github.com/stretchr/testify/suite"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 )
 
 type WithdrawAllTestSuite struct {
@@ -51,7 +52,7 @@ func (s *WithdrawAllTestSuite) TestNewWithdrawAllRewardsGenerateOnly() {
 	val1 := s.network.Validators[1]
 	clientCtx := val.ClientCtx
 
-	info, _, err := val.ClientCtx.Keyring.NewMnemonic("newAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	info, _, err := val.ClientCtx.Keyring.NewMnemonic("newAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	require.NoError(err)
 
 	pubkey, err := info.GetPubKey()

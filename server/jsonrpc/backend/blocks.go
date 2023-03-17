@@ -8,14 +8,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/trie"
-	rpctypes "github.com/evmos/ethermint/rpc/types"
 	"github.com/pkg/errors"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
+	rpctypes "github.com/cosmos/cosmos-sdk/server/jsonrpc/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -138,34 +137,6 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 		[]interface{}{}, ethtypes.Bloom{}, common.Address{}, nil,
 	)
 	return formattedBlock, nil
-}
-
-// EthBlockByNumber returns the Ethereum Block identified by number.
-func (b *Backend) EthBlockByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Block, error) {
-	resBlock, err := b.TendermintBlockByNumber(blockNum)
-	if err != nil {
-		return nil, err
-	}
-	if resBlock == nil {
-		// block not found
-		return nil, fmt.Errorf("block not found for height %d", blockNum)
-	}
-
-	return b.EthBlockFromTendermintBlock(resBlock, nil)
-}
-
-// EthBlockFromTendermintBlock returns an Ethereum Block type from Tendermint block
-// EthBlockFromTendermintBlock
-func (b *Backend) EthBlockFromTendermintBlock(
-	resBlock *tmrpctypes.ResultBlock,
-	blockRes *tmrpctypes.ResultBlockResults,
-) (*ethtypes.Block, error) {
-	block := resBlock.Block
-
-	ethHeader := EthHeaderFromTendermint(block.Header)
-
-	ethBlock := ethtypes.NewBlock(ethHeader, nil, nil, nil, trie.NewStackTrie(nil))
-	return ethBlock, nil
 }
 
 func EthHeaderFromTendermint(header tmtypes.Header) *ethtypes.Header {

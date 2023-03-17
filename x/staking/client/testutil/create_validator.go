@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	authztestutil "github.com/cosmos/cosmos-sdk/x/authz/client/testutil"
-
 	"github.com/stretchr/testify/suite"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 
@@ -19,13 +17,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authztestutil "github.com/cosmos/cosmos-sdk/x/authz/client/testutil"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/client/testutil"
 	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	ethHd "github.com/evmos/ethermint/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 )
 
 type testParams struct {
@@ -209,7 +208,7 @@ func (s *CreateValidatorTestSuite) submitProposal(params testParams) sdk.AccAddr
 	clientCtx := val.ClientCtx
 
 	// Get coin from current validator
-	k, _, err := clientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, ethHd.EthSecp256k1)
+	k, _, err := clientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pub, err := k.GetPubKey()
