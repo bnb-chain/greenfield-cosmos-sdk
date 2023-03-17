@@ -32,7 +32,7 @@ func TestEIP712Handler(t *testing.T) {
 	txConfig := NewTxConfig(marshaler, []signingtypes.SignMode{signingtypes.SignMode_SIGN_MODE_EIP_712})
 	txBuilder := txConfig.NewTxBuilder()
 
-	chainID := "ethermint_9000"
+	chainID := "greenfield_9000"
 	testMemo := "some test memo"
 	msg := banktypes.NewMsgSend(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))))
 	accNum, accSeq := uint64(1), uint64(2) // Arbitrary account number/sequence
@@ -123,12 +123,15 @@ func TestEIP712ModeHandler_nonDIRECT_MODE(t *testing.T) {
 
 func TestEIP712ModeHandler_nonProtoTx(t *testing.T) {
 	var dh signModeEip712Handler
-	var signingData signing.SignerData
+	signingData := signing.SignerData{
+		ChainID: "greenfield_9000-1", // set chainID to prevent error
+	}
 	tx := new(nonProtoTx)
+
 	_, err := dh.GetSignBytes(signingtypes.SignMode_SIGN_MODE_EIP_712, signingData, tx)
 	require.Error(t, err)
-	wantErr := fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
-	require.Equal(t, err, wantErr)
+	wantErr := fmt.Sprintf("can only handle a protobuf Tx, got %T", tx)
+	require.Contains(t, err.Error(), wantErr)
 }
 
 func TestMoreMsgs(t *testing.T) {
