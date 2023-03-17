@@ -33,14 +33,22 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgClaim defines the Msg/Claim request type
 type MsgClaim struct {
-	FromAddress    string   `protobuf:"bytes,1,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
-	SrcChainId     uint32   `protobuf:"varint,2,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
-	DestChainId    uint32   `protobuf:"varint,3,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
-	Sequence       uint64   `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty"`
-	Timestamp      uint64   `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Payload        []byte   `protobuf:"bytes,6,opt,name=payload,proto3" json:"payload,omitempty"`
+	// sender address of the msg
+	FromAddress string `protobuf:"bytes,1,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
+	// source chain id
+	SrcChainId uint32 `protobuf:"varint,2,opt,name=src_chain_id,json=srcChainId,proto3" json:"src_chain_id,omitempty"`
+	// destination chain id
+	DestChainId uint32 `protobuf:"varint,3,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
+	// sequence of the oracle channel
+	Sequence uint64 `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// timestamp of the claim
+	Timestamp uint64 `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// payload of the claim
+	Payload []byte `protobuf:"bytes,6,opt,name=payload,proto3" json:"payload,omitempty"`
+	// bit map of the voted validators
 	VoteAddressSet []uint64 `protobuf:"fixed64,7,rep,packed,name=vote_address_set,json=voteAddressSet,proto3" json:"vote_address_set,omitempty"`
-	AggSignature   []byte   `protobuf:"bytes,8,opt,name=agg_signature,json=aggSignature,proto3" json:"agg_signature,omitempty"`
+	// bls signature of the claim
+	AggSignature []byte `protobuf:"bytes,8,opt,name=agg_signature,json=aggSignature,proto3" json:"agg_signature,omitempty"`
 }
 
 func (m *MsgClaim) Reset()         { *m = MsgClaim{} }

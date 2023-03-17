@@ -1,4 +1,12 @@
 # Changelog
+## v0.0.11
+This is a maintenance release.
+
+* [\#135](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/135) fix: data race issue
+* [\#134](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/134) feat: add gas params for new messages in storage module
+* [\#133](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/133) feat: a relayer can relay cross chain tx in batch
+* [\#136](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/136) fix: refine the code of crosschain and oracle module
+
 
 ## v0.0.10
 This release reverts the unneeded changes.

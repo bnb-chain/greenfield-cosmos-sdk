@@ -6,9 +6,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 )
 
-func (suite *TestSuite) TestQueryParams() {
-	res, err := suite.queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
-	suite.Require().NoError(err)
-	suite.Require().NotNil(res)
-	suite.Require().Equal(suite.app.OracleKeeper.GetParams(suite.ctx), res.GetParams())
+func (s *TestSuite) TestQueryParams() {
+	res, err := s.queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
+	s.Require().NoError(err)
+	s.Require().NotNil(res)
+	s.Require().Equal(s.app.OracleKeeper.GetParams(s.ctx), res.GetParams())
 }

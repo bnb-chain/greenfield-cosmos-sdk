@@ -24,6 +24,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params holds parameters for the cross chain module.
 type Params struct {
+	// initial balance to mint for crosschain module when the chain starts
 	InitModuleBalance string `protobuf:"bytes,1,opt,name=init_module_balance,json=initModuleBalance,proto3" json:"init_module_balance,omitempty"`
 }
 

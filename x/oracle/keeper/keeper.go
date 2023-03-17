@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	sdkerrors "cosmossdk.io/errors"
+
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/willf/bitset"
@@ -65,13 +67,13 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
 
-// GetRelayerParam returns the relayer timeout and backoff time for oracle claim
-func (k Keeper) GetRelayerParam(ctx sdk.Context) (uint64, uint64) {
+// GetRelayerParams returns the relayer timeout, relayer interval for oracle claim
+func (k Keeper) GetRelayerParams(ctx sdk.Context) (uint64, uint64) {
 	var relayerTimeoutParam uint64
-	var relayerBackoffTimeParam uint64
+	var relayerIntervalParam uint64
 	k.paramSpace.Get(ctx, types.KeyParamRelayerTimeout, &relayerTimeoutParam)
-	k.paramSpace.Get(ctx, types.KeyParamRelayerBackoffTime, &relayerBackoffTimeParam)
-	return relayerTimeoutParam, relayerBackoffTimeParam
+	k.paramSpace.Get(ctx, types.KeyParamRelayerInterval, &relayerIntervalParam)
+	return relayerTimeoutParam, relayerIntervalParam
 }
 
 // GetRelayerRewardShare returns the relayer reward share
@@ -84,9 +86,11 @@ func (k Keeper) GetRelayerRewardShare(ctx sdk.Context) uint32 {
 // IsRelayerValid returns true if the relayer is valid and allowed to send the claim message
 func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validators []stakingtypes.Validator, claimTimestamp uint64) (bool, error) {
 	var validatorIndex int64 = -1
+	var vldr stakingtypes.Validator
 	for index, validator := range validators {
 		if validator.RelayerAddress == relayer.String() {
 			validatorIndex = int64(index)
+			vldr = validator
 			break
 		}
 	}
@@ -95,23 +99,22 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 		return false, sdkerrors.Wrapf(types.ErrNotRelayer, fmt.Sprintf("sender(%s) is not a relayer", relayer.String()))
 	}
 
-	// check inturn validator index
-	inturnValidatorIndex := claimTimestamp % uint64(len(validators))
+	inturnRelayerTimeout, relayerInterval := k.GetRelayerParams(ctx)
 
-	curTime := ctx.BlockTime().Unix()
-	relayerTimeout, relayerBackoffTime := k.GetRelayerParam(ctx)
+	// check whether submitter of msgClaim is an in-turn relayer
+	inturnRelayer, err := k.GetInturnRelayer(ctx, relayerInterval)
+	if err != nil {
+		return false, err
+	}
 
-	// inturn validator can always relay package
-	if uint64(validatorIndex) == inturnValidatorIndex {
+	if inturnRelayer.BlsPubKey == hex.EncodeToString(vldr.RelayerBlsKey) {
 		return true, nil
 	}
 
-	// not inturn validators can not relay in the timeout duration
-	if uint64(curTime)-claimTimestamp <= relayerTimeout {
-		return false, nil
-	}
-	validatorDistance := (validatorIndex - int64(inturnValidatorIndex) + int64(len(validators))) % int64(len(validators))
-	return curTime > int64(claimTimestamp+relayerTimeout)+(validatorDistance-1)*int64(relayerBackoffTime), nil
+	// It is possible that claim comes from out-turn relayers when exceeding the inturnRelayerTimeout, all other
+	// relayers can relay within the in-turn relayer's current interval
+	curTime := ctx.BlockTime().Unix()
+	return uint64(curTime)-claimTimestamp >= inturnRelayerTimeout, nil
 }
 
 // CheckClaim checks the bls signature
@@ -131,6 +134,7 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 	if err != nil {
 		return sdk.AccAddress{}, nil, err
 	}
+
 	if !isValid {
 		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrRelayerNotInTurn, fmt.Sprintf("relayer(%s) is not in turn", claim.FromAddress))
 	}
@@ -178,4 +182,37 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
 	return params
+}
+
+func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*types.QueryInturnRelayerResponse, error) {
+	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
+	if !ok {
+		return nil, sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
+	}
+	validators := historicalInfo.Valset
+
+	validatorsSize := len(validators)
+
+	// totalIntervals is sum of intervals from all relayers
+	totalIntervals := relayerInterval * uint64(validatorsSize)
+
+	curTimeStamp := uint64(ctx.BlockTime().Unix())
+
+	// remainder is used to locate inturn relayer.
+	remainder := curTimeStamp % totalIntervals
+	inTurnRelayerIndex := remainder / relayerInterval
+
+	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)
+	end := start + relayerInterval
+
+	inturnRelayer := validators[inTurnRelayerIndex]
+
+	res := &types.QueryInturnRelayerResponse{
+		BlsPubKey: hex.EncodeToString(inturnRelayer.RelayerBlsKey),
+		RelayInterval: &types.RelayInterval{
+			Start: start,
+			End:   end,
+		},
+	}
+	return res, nil
 }

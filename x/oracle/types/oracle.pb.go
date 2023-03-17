@@ -26,8 +26,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Params struct {
 	// Timeout for the in turn relayer
 	RelayerTimeout uint64 `protobuf:"varint,1,opt,name=relayer_timeout,json=relayerTimeout,proto3" json:"relayer_timeout,omitempty"`
-	// Backoff time for the other relayers
-	RelayerBackoffTime uint64 `protobuf:"varint,2,opt,name=relayer_backoff_time,json=relayerBackoffTime,proto3" json:"relayer_backoff_time,omitempty"`
+	// RelayInterval is for in-turn relayer
+	RelayerInterval uint64 `protobuf:"varint,2,opt,name=relayer_interval,json=relayerInterval,proto3" json:"relayer_interval,omitempty"`
 	// Reward share for the relayer sends the claim message,
 	// the other relayers signed the bls message will share the reward evenly.
 	RelayerRewardShare uint32 `protobuf:"varint,3,opt,name=relayer_reward_share,json=relayerRewardShare,proto3" json:"relayer_reward_share,omitempty"`
@@ -73,9 +73,9 @@ func (m *Params) GetRelayerTimeout() uint64 {
 	return 0
 }
 
-func (m *Params) GetRelayerBackoffTime() uint64 {
+func (m *Params) GetRelayerInterval() uint64 {
 	if m != nil {
-		return m.RelayerBackoffTime
+		return m.RelayerInterval
 	}
 	return 0
 }
@@ -87,28 +87,84 @@ func (m *Params) GetRelayerRewardShare() uint32 {
 	return 0
 }
 
+// RelayInterval holds start and end(exclusive) time of in-turn relayer, [start, end)
+type RelayInterval struct {
+	Start uint64 `protobuf:"varint,1,opt,name=start,proto3" json:"start,omitempty"`
+	End   uint64 `protobuf:"varint,2,opt,name=end,proto3" json:"end,omitempty"`
+}
+
+func (m *RelayInterval) Reset()         { *m = RelayInterval{} }
+func (m *RelayInterval) String() string { return proto.CompactTextString(m) }
+func (*RelayInterval) ProtoMessage()    {}
+func (*RelayInterval) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3dec273964b5043c, []int{1}
+}
+func (m *RelayInterval) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RelayInterval) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RelayInterval.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RelayInterval) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RelayInterval.Merge(m, src)
+}
+func (m *RelayInterval) XXX_Size() int {
+	return m.Size()
+}
+func (m *RelayInterval) XXX_DiscardUnknown() {
+	xxx_messageInfo_RelayInterval.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RelayInterval proto.InternalMessageInfo
+
+func (m *RelayInterval) GetStart() uint64 {
+	if m != nil {
+		return m.Start
+	}
+	return 0
+}
+
+func (m *RelayInterval) GetEnd() uint64 {
+	if m != nil {
+		return m.End
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "cosmos.oracle.v1.Params")
+	proto.RegisterType((*RelayInterval)(nil), "cosmos.oracle.v1.RelayInterval")
 }
 
 func init() { proto.RegisterFile("cosmos/oracle/v1/oracle.proto", fileDescriptor_3dec273964b5043c) }
 
 var fileDescriptor_3dec273964b5043c = []byte{
-	// 219 bytes of a gzipped FileDescriptorProto
+	// 252 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0xce, 0x2f, 0xce,
 	0xcd, 0x2f, 0xd6, 0xcf, 0x2f, 0x4a, 0x4c, 0xce, 0x49, 0xd5, 0x2f, 0x33, 0x84, 0xb2, 0xf4, 0x0a,
-	0x8a, 0xf2, 0x4b, 0xf2, 0x85, 0x04, 0x20, 0xd2, 0x7a, 0x50, 0xc1, 0x32, 0x43, 0xa5, 0xa9, 0x8c,
-	0x5c, 0x6c, 0x01, 0x89, 0x45, 0x89, 0xb9, 0xc5, 0x42, 0xea, 0x5c, 0xfc, 0x45, 0xa9, 0x39, 0x89,
-	0x95, 0xa9, 0x45, 0xf1, 0x25, 0x99, 0xb9, 0xa9, 0xf9, 0xa5, 0x25, 0x12, 0x8c, 0x0a, 0x8c, 0x1a,
-	0x2c, 0x41, 0x7c, 0x50, 0xe1, 0x10, 0x88, 0xa8, 0x90, 0x01, 0x97, 0x08, 0x4c, 0x61, 0x52, 0x62,
-	0x72, 0x76, 0x7e, 0x5a, 0x1a, 0x58, 0x83, 0x04, 0x13, 0x58, 0xb5, 0x10, 0x54, 0xce, 0x09, 0x22,
-	0x05, 0xd2, 0x84, 0xac, 0xa3, 0x28, 0xb5, 0x3c, 0xb1, 0x28, 0x25, 0xbe, 0x38, 0x23, 0xb1, 0x28,
-	0x55, 0x82, 0x59, 0x81, 0x51, 0x83, 0x17, 0xae, 0x23, 0x08, 0x2c, 0x15, 0x0c, 0x92, 0x71, 0x72,
-	0x3d, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96,
-	0x63, 0xb8, 0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0xed, 0xf4, 0xcc, 0x92, 0x8c,
-	0xd2, 0x24, 0xbd, 0xe4, 0xfc, 0x5c, 0x7d, 0xa8, 0x6f, 0x21, 0x94, 0x6e, 0x71, 0x4a, 0xb6, 0x7e,
-	0x05, 0xcc, 0xeb, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0x60, 0x7f, 0x1b, 0x03, 0x02, 0x00,
-	0x00, 0xff, 0xff, 0xcc, 0x35, 0x86, 0x1a, 0x18, 0x01, 0x00, 0x00,
+	0x8a, 0xf2, 0x4b, 0xf2, 0x85, 0x04, 0x20, 0xd2, 0x7a, 0x50, 0xc1, 0x32, 0x43, 0xa5, 0x3e, 0x46,
+	0x2e, 0xb6, 0x80, 0xc4, 0xa2, 0xc4, 0xdc, 0x62, 0x21, 0x75, 0x2e, 0xfe, 0xa2, 0xd4, 0x9c, 0xc4,
+	0xca, 0xd4, 0xa2, 0xf8, 0x92, 0xcc, 0xdc, 0xd4, 0xfc, 0xd2, 0x12, 0x09, 0x46, 0x05, 0x46, 0x0d,
+	0x96, 0x20, 0x3e, 0xa8, 0x70, 0x08, 0x44, 0x54, 0x48, 0x93, 0x4b, 0x00, 0xa6, 0x30, 0x33, 0xaf,
+	0x24, 0xb5, 0xa8, 0x2c, 0x31, 0x47, 0x82, 0x09, 0xac, 0x12, 0x66, 0x80, 0x27, 0x54, 0x58, 0xc8,
+	0x80, 0x4b, 0x04, 0xa6, 0xb4, 0x28, 0xb5, 0x3c, 0xb1, 0x28, 0x25, 0xbe, 0x38, 0x23, 0xb1, 0x28,
+	0x55, 0x82, 0x59, 0x81, 0x51, 0x83, 0x37, 0x48, 0x08, 0x2a, 0x17, 0x04, 0x96, 0x0a, 0x06, 0xc9,
+	0x28, 0x99, 0x73, 0xf1, 0x06, 0x81, 0x44, 0xe1, 0x46, 0x88, 0x70, 0xb1, 0x16, 0x97, 0x24, 0x16,
+	0xc1, 0x1c, 0x03, 0xe1, 0x08, 0x09, 0x70, 0x31, 0xa7, 0xe6, 0xa5, 0x40, 0xad, 0x05, 0x31, 0x9d,
+	0x5c, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09, 0x8f,
+	0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0x4a, 0x3b, 0x3d, 0xb3, 0x24,
+	0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x57, 0x1f, 0x1a, 0x3e, 0x10, 0x4a, 0xb7, 0x38, 0x25, 0x5b,
+	0xbf, 0x02, 0x16, 0x58, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0xe0, 0x90, 0x32, 0x06, 0x04,
+	0x00, 0x00, 0xff, 0xff, 0x59, 0x7c, 0xef, 0x48, 0x4a, 0x01, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -136,13 +192,46 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x18
 	}
-	if m.RelayerBackoffTime != 0 {
-		i = encodeVarintOracle(dAtA, i, uint64(m.RelayerBackoffTime))
+	if m.RelayerInterval != 0 {
+		i = encodeVarintOracle(dAtA, i, uint64(m.RelayerInterval))
 		i--
 		dAtA[i] = 0x10
 	}
 	if m.RelayerTimeout != 0 {
 		i = encodeVarintOracle(dAtA, i, uint64(m.RelayerTimeout))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RelayInterval) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RelayInterval) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RelayInterval) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.End != 0 {
+		i = encodeVarintOracle(dAtA, i, uint64(m.End))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.Start != 0 {
+		i = encodeVarintOracle(dAtA, i, uint64(m.Start))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -169,11 +258,26 @@ func (m *Params) Size() (n int) {
 	if m.RelayerTimeout != 0 {
 		n += 1 + sovOracle(uint64(m.RelayerTimeout))
 	}
-	if m.RelayerBackoffTime != 0 {
-		n += 1 + sovOracle(uint64(m.RelayerBackoffTime))
+	if m.RelayerInterval != 0 {
+		n += 1 + sovOracle(uint64(m.RelayerInterval))
 	}
 	if m.RelayerRewardShare != 0 {
 		n += 1 + sovOracle(uint64(m.RelayerRewardShare))
+	}
+	return n
+}
+
+func (m *RelayInterval) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Start != 0 {
+		n += 1 + sovOracle(uint64(m.Start))
+	}
+	if m.End != 0 {
+		n += 1 + sovOracle(uint64(m.End))
 	}
 	return n
 }
@@ -234,9 +338,9 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RelayerBackoffTime", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RelayerInterval", wireType)
 			}
-			m.RelayerBackoffTime = 0
+			m.RelayerInterval = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowOracle
@@ -246,7 +350,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RelayerBackoffTime |= uint64(b&0x7F) << shift
+				m.RelayerInterval |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -266,6 +370,94 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.RelayerRewardShare |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipOracle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthOracle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RelayInterval) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowOracle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RelayInterval: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RelayInterval: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Start", wireType)
+			}
+			m.Start = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOracle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Start |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field End", wireType)
+			}
+			m.End = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOracle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.End |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
