@@ -11,8 +11,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server/config"
-	rpctypes "github.com/evmos/ethermint/rpc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	rpctypes "github.com/evmos/ethermint/rpc/types"
 )
 
 // EVMBackend implements the functionality shared within ethereum namespaces
