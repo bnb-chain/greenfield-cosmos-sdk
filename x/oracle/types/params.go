@@ -14,7 +14,6 @@ const (
 
 var (
 	KeyParamRelayerTimeout     = []byte("RelayerTimeout")
-	KeyParamRelayerBackoffTime = []byte("RelayerBackoffTime")
 	KeyParamRelayerRewardShare = []byte("RelayerRewardShare")
 	KeyParamRelayerInterval    = []byte("RelayerInterval")
 )

@@ -87,7 +87,7 @@ func (m *Params) GetRelayerRewardShare() uint32 {
 	return 0
 }
 
-// RelayInterval holds start and end tiem of in-turn relayer
+// RelayInterval holds start and end(exclusive) time of in-turn relayer, [start, end)
 type RelayInterval struct {
 	Start uint64 `protobuf:"varint,1,opt,name=start,proto3" json:"start,omitempty"`
 	End   uint64 `protobuf:"varint,2,opt,name=end,proto3" json:"end,omitempty"`

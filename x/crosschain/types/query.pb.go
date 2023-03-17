@@ -114,8 +114,10 @@ func (m *QueryParamsResponse) GetParams() Params {
 
 // QueryCrossChainPackageRequest is the request type for the Query/CrossChainPackage RPC method.
 type QueryCrossChainPackageRequest struct {
+	// channel id of the cross chain package
 	ChannelId uint32 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Sequence  uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// sequence of the cross chain package
+	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
 }
 
 func (m *QueryCrossChainPackageRequest) Reset()         { *m = QueryCrossChainPackageRequest{} }
@@ -167,6 +169,7 @@ func (m *QueryCrossChainPackageRequest) GetSequence() uint64 {
 
 // QueryCrossChainPackageResponse is the response type for the Query/CrossChainPackage RPC method.
 type QueryCrossChainPackageResponse struct {
+	// content of the cross chain package
 	Package []byte `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
 }
 
@@ -212,6 +215,7 @@ func (m *QueryCrossChainPackageResponse) GetPackage() []byte {
 
 // QuerySendSequenceRequest is the request type for the Query/SendSequence RPC method.
 type QuerySendSequenceRequest struct {
+	// channel id of the cross chain package
 	ChannelId uint32 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 }
 
@@ -257,6 +261,7 @@ func (m *QuerySendSequenceRequest) GetChannelId() uint32 {
 
 // QuerySendSequenceResponse is the response type for the Query/SendSequence RPC method.
 type QuerySendSequenceResponse struct {
+	// sequence of the cross chain package
 	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
 }
 
@@ -302,6 +307,7 @@ func (m *QuerySendSequenceResponse) GetSequence() uint64 {
 
 // QuerySendSequenceRequest is the request type for the Query/ReceiveSequence RPC method.
 type QueryReceiveSequenceRequest struct {
+	// channel id of the cross chain package
 	ChannelId uint32 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 }
 
@@ -347,6 +353,7 @@ func (m *QueryReceiveSequenceRequest) GetChannelId() uint32 {
 
 // QuerySendSequenceResponse is the response type for the Query/ReceiveSequence RPC method.
 type QueryReceiveSequenceResponse struct {
+	// sequence of the cross chain package
 	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
 }
 
