@@ -19,8 +19,8 @@ import (
 )
 
 // StartJSONRPC starts the JSON-RPC server
-// this server is only meant to be used for wallets connection, so the wallets can sign EIP712 typed msg
-// it doesn't include other unnecessary EVM rpc apis like eth_call
+// // This server is exclusively designed for wallet connections to sign EIP712 typed messages. 
+// It does not offer any other unnecessary EVM RPC APIs, such as eth_call.
 func StartJSONRPC(ctx *Context,
 	clientCtx client.Context,
 	tmRPCAddr,

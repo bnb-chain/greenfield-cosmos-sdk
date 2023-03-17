@@ -4,12 +4,12 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	rpctypes "github.com/evmos/ethermint/rpc/types"
-	ethermint "github.com/evmos/ethermint/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // ChainID is the chain id for the current chain config.
 func (b *Backend) ChainID() (*hexutil.Big, error) {
-	chainID, err := ethermint.ParseChainID(b.clientCtx.ChainID)
+	chainID, err := sdk.ParseChainID(b.clientCtx.ChainID)
 	if err != nil {
 		panic(err)
 	}

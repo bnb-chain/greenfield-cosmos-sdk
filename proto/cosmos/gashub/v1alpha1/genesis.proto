@@ -8,6 +8,6 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
 
 // GenesisState defines the gashub module's genesis state.
 message GenesisState {
-  // params defines all the paramaters of the module.
+  // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
