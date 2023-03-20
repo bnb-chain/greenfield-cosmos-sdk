@@ -162,7 +162,7 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 
 		val := newValidator(s.T(), sdk.AccAddress(pk.Address()), pk)
 		privKey, _ := blst.RandKey()
-		val.RelayerBlsKey = privKey.PublicKey().Marshal()
+		val.BlsKey = privKey.PublicKey().Marshal()
 		vals[i] = val
 	}
 
@@ -279,13 +279,13 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers 
 	blsKeys := []bls.SecretKey{privKey1, privKey2, privKey3}
 
 	val1 := teststaking.NewValidator(t, valAddrs[0], pks[0])
-	val1.RelayerBlsKey = privKey1.PublicKey().Marshal()
+	val1.BlsKey = privKey1.PublicKey().Marshal()
 
 	val2 := teststaking.NewValidator(t, valAddrs[1], pks[1])
-	val2.RelayerBlsKey = privKey2.PublicKey().Marshal()
+	val2.BlsKey = privKey2.PublicKey().Marshal()
 
 	val3 := teststaking.NewValidator(t, valAddrs[2], pks[2])
-	val3.RelayerBlsKey = privKey3.PublicKey().Marshal()
+	val3.BlsKey = privKey3.PublicKey().Marshal()
 
 	vals := []stakingtypes.Validator{val1, val2, val3}
 

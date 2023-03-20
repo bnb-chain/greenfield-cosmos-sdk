@@ -32,8 +32,9 @@ const (
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"
 
-	FlagAddressRelayer = "addr-relayer"
-	FlagBlsKeyRelayer  = "bls-key-relayer"
+	FlagAddressRelayer    = "addr-relayer"
+	FlagAddressChallenger = "addr-challenger"
+	FlagBlsKey            = "bls-key"
 )
 
 // common flagsets to add to various functions
@@ -90,10 +91,17 @@ func FlagSetRelayerAddress() *flag.FlagSet {
 	return fs
 }
 
-// FlagSetRelayerBlsKey Returns the flagset for relayer bls pubkey related operations.
-func FlagSetRelayerBlsKey() *flag.FlagSet {
+// FlagSetBlsKey Returns the flagset for bls pubkey related operations.
+func FlagSetBlsKey() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
-	fs.String(FlagBlsKeyRelayer, "", "The relayer bls pubkey of the validator")
+	fs.String(FlagBlsKey, "", "The bls pubkey of the validator")
+	return fs
+}
+
+// FlagSetChallengerAddress Returns the flagset for challenger address related operations.
+func FlagSetChallengerAddress() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagAddressChallenger, "", "The challenger address of the validator")
 	return fs
 }
 

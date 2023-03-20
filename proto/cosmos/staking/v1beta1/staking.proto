@@ -127,10 +127,12 @@ message Validator {
 
   // self_del_address defines the address of the validator for self delegation.
   string self_del_address = 12 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // relayer_address defines the address of the validator's authorized relayer/operator;.
+  // relayer_address defines the address of the validator's authorized relayer;.
   string relayer_address = 13 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // relayer_bls_key defines the bls pubkey of the validator's authorized relayer/operator;
-  bytes relayer_bls_key = 14;
+  // challenger_address defines the address of the validator's authorized challenger;.
+  string challenger_address = 14 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // bls_key defines the bls pubkey of the validator's authorized relayer/challenger/operator;
+  bytes bls_key = 15;
 }
 
 // BondStatus is the status of a validator.

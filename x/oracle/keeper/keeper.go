@@ -107,7 +107,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 		return false, err
 	}
 
-	if inturnRelayer.BlsPubKey == hex.EncodeToString(vldr.RelayerBlsKey) {
+	if inturnRelayer.BlsPubKey == hex.EncodeToString(vldr.BlsKey) {
 		return true, nil
 	}
 
@@ -153,7 +153,7 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 
 		signedRelayers = append(signedRelayers, val.RelayerAddress)
 
-		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
+		votePubKey, err := bls.PublicKeyFromBytes(val.BlsKey)
 		if err != nil {
 			return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
 		}
@@ -208,7 +208,7 @@ func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*type
 	inturnRelayer := validators[inTurnRelayerIndex]
 
 	res := &types.QueryInturnRelayerResponse{
-		BlsPubKey: hex.EncodeToString(inturnRelayer.RelayerBlsKey),
+		BlsPubKey: hex.EncodeToString(inturnRelayer.BlsKey),
 		RelayInterval: &types.RelayInterval{
 			Start: start,
 			End:   end,
