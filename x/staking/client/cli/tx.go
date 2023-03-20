@@ -126,8 +126,8 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetCommissionUpdate())
 	cmd.Flags().AddFlagSet(FlagSetMinSelfDelegation())
 	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
-	cmd.Flags().AddFlagSet(FlagSetBlsKey())
 	cmd.Flags().AddFlagSet(FlagSetChallengerAddress())
+	cmd.Flags().AddFlagSet(FlagSetBlsKey())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

@@ -34,7 +34,7 @@ func GenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalI
 	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
-		Use:   "gentx [key_name] [amount] [validator] [relayer] [challenger] [relayer_blskey]",
+		Use:   "gentx [key_name] [amount] [validator] [relayer] [challenger] [blskey]",
 		Short: "Generate a genesis tx carrying a self delegation",
 		Args:  cobra.ExactArgs(6),
 		Long: fmt.Sprintf(`Generate a genesis transaction that creates a validator with a self-delegation,

@@ -93,7 +93,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	if err != nil {
 		return nil, err
 	}
-	if _, found := k.GetValidatorByChallengeAddr(ctx, challengerAddr); found {
+	if _, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
 		return nil, types.ErrValidatorChallengerAddressExists
 	}
 
@@ -280,7 +280,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		if err != nil {
 			return nil, err
 		}
-		if tmpValidator, found := k.GetValidatorByChallengeAddr(ctx, challengerAddr); found {
+		if tmpValidator, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
 				return nil, types.ErrValidatorChallengerAddressExists
 			}

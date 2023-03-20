@@ -69,8 +69,8 @@ func (k Keeper) GetValidatorByBlsKey(ctx sdk.Context, blsPk []byte) (validator t
 	return k.GetValidator(ctx, opAddr)
 }
 
-// GetValidatorByChallengeAddr gets a single validator by challenger address
-func (k Keeper) GetValidatorByChallengeAddr(ctx sdk.Context, challengerAddr sdk.AccAddress) (validator types.Validator, found bool) {
+// GetValidatorByChallengerAddr gets a single validator by challenger address
+func (k Keeper) GetValidatorByChallengerAddr(ctx sdk.Context, challengerAddr sdk.AccAddress) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
 
 	opAddr := store.Get(types.GetValidatorByChallengerAddrKey(challengerAddr))
@@ -261,6 +261,7 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, address sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorKey(address))
 	store.Delete(types.GetValidatorByRelayerAddrKey(validator.GetRelayer()))
+	store.Delete(types.GetValidatorByChallengerAddrKey(validator.GetChallenger()))
 	store.Delete(types.GetValidatorByBlsKey(validator.BlsKey))
 	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)))
