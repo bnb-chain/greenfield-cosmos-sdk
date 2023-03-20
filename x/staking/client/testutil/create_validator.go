@@ -345,8 +345,8 @@ func (s *CreateValidatorTestSuite) createValidatorProposal(valAddr sdk.AccAddres
 		pubKey,
 		from,
 		relayerAddress,
-		blsKey,
 		challengerAddress,
+		blsKey,
 		base64.StdEncoding.EncodeToString(propMetadata),
 		sdk.NewCoin(s.cfg.BondDenom, v1.DefaultMinDepositTokens),
 	)

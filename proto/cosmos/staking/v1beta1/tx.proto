@@ -60,17 +60,10 @@ message MsgCreateValidator {
   google.protobuf.Any      pubkey            = 6 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
   cosmos.base.v1beta1.Coin value             = 7 [(gogoproto.nullable) = false];
 
-<<<<<<< HEAD
   string from               = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string relayer_address    = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string challenger_address = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string bls_key            = 11;
-
-=======
-  string from            = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string relayer_address = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string relayer_bls_key = 10;
->>>>>>> develop
 }
 
 // MsgCreateValidatorResponse defines the Msg/CreateValidator response type.
