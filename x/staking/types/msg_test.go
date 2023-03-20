@@ -44,7 +44,7 @@ func TestMsgDecode(t *testing.T) {
 		valAddr1, pk1,
 		coinPos, types.Description{}, commission1, sdk.OneInt(),
 		sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1),
-		sdk.AccAddress(valAddr1), blsPk, sdk.AccAddress(valAddr1),
+		sdk.AccAddress(valAddr1), sdk.AccAddress(valAddr1), blsPk,
 	)
 	require.NoError(t, err)
 	msgSerialized, err := cdc.MarshalInterface(msg)
@@ -93,7 +93,7 @@ func TestMsgCreateValidator(t *testing.T) {
 			tc.validatorAddr, tc.pubkey,
 			tc.bond, description, tc.CommissionRates, tc.minSelfDelegation,
 			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr),
-			sdk.AccAddress(tc.validatorAddr), blsPk, sdk.AccAddress(tc.validatorAddr),
+			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), blsPk,
 		)
 		require.NoError(t, err)
 		if tc.expectPass {
@@ -127,7 +127,7 @@ func TestMsgEditValidator(t *testing.T) {
 
 		msg := types.NewMsgEditValidator(
 			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,
-			sdk.AccAddress(tc.validatorAddr), blsPk)
+			sdk.AccAddress(tc.validatorAddr), sdk.AccAddress(tc.validatorAddr), blsPk)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

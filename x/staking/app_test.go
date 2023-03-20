@@ -72,7 +72,7 @@ func TestStakingMsgs(t *testing.T) {
 	createValidatorMsg, err := types.NewMsgCreateValidator(
 		addr1, valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
-		addr1, addr1, addr1, blsPubKey, addr1,
+		addr1, addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 
@@ -97,7 +97,7 @@ func TestStakingMsgs(t *testing.T) {
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
 		addr1, description, nil, nil,
-		sdk.AccAddress(""), "",
+		sdk.AccAddress(""), sdk.AccAddress(""), "",
 	)
 
 	header = tmproto.Header{ChainID: simapp.DefaultChainId, Height: app.LastBlockHeight() + 1}
