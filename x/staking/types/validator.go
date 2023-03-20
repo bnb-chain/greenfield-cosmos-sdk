@@ -67,7 +67,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 		MinSelfDelegation: sdk.OneInt(),
 		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		RelayerBlsKey:     blsPk,
+		BlsKey:            blsPk,
 		ChallengerAddress: operator.String(),
 	}, nil
 }
@@ -78,7 +78,7 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 func NewValidator(
 	operator sdk.AccAddress, pubKey cryptotypes.PubKey,
 	description Description, selfDelegator sdk.AccAddress,
-	relayer sdk.AccAddress, relayerBlsKey []byte, challenger sdk.AccAddress,
+	relayer sdk.AccAddress, challenger sdk.AccAddress, blsKey []byte,
 ) (Validator, error) {
 	val, err := NewSimpleValidator(operator, pubKey, description)
 	if err != nil {
@@ -87,7 +87,7 @@ func NewValidator(
 
 	val.SelfDelAddress = selfDelegator.String()
 	val.RelayerAddress = relayer.String()
-	val.RelayerBlsKey = relayerBlsKey
+	val.BlsKey = blsKey
 	val.ChallengerAddress = challenger.String()
 	return val, nil
 }
@@ -322,8 +322,8 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		PubKey:            tmProtoPk,
 		Power:             v.ConsensusPower(r),
 		RelayerAddress:    relayer,
-		RelayerBlsKey:     v.RelayerBlsKey,
 		ChallengerAddress: challenger,
+		BlsKey:            v.BlsKey,
 	}
 }
 
@@ -506,7 +506,7 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
 		v.SelfDelAddress == other.SelfDelAddress &&
 		v.RelayerAddress == other.RelayerAddress &&
-		bytes.Equal(v.RelayerBlsKey, other.RelayerBlsKey)
+		bytes.Equal(v.BlsKey, other.BlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -516,10 +516,10 @@ func (v *Validator) Equal(v2 *Validator) bool {
 		v.UnbondingTime.Equal(v2.UnbondingTime)
 }
 
-func (v Validator) IsJailed() bool           { return v.Jailed }
-func (v Validator) GetMoniker() string       { return v.Description.Moniker }
-func (v Validator) GetStatus() BondStatus    { return v.Status }
-func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
+func (v Validator) IsJailed() bool        { return v.Jailed }
+func (v Validator) GetMoniker() string    { return v.Description.Moniker }
+func (v Validator) GetStatus() BondStatus { return v.Status }
+func (v Validator) GetBlsKey() []byte     { return v.BlsKey }
 func (v Validator) GetOperator() sdk.AccAddress {
 	if v.OperatorAddress == "" {
 		return nil

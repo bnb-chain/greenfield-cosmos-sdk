@@ -149,7 +149,7 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 
 		signedRelayers = append(signedRelayers, val.RelayerAddress)
 
-		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
+		votePubKey, err := bls.PublicKeyFromBytes(val.BlsKey)
 		if err != nil {
 			return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsPubKey, fmt.Sprintf("BLS public key converts failed: %v", err))
 		}

@@ -57,11 +57,11 @@ func (k Keeper) GetValidatorByRelayerAddr(ctx sdk.Context, relayerAddr sdk.AccAd
 	return k.GetValidator(ctx, opAddr)
 }
 
-// get a single validator by relayer bls pubkey
-func (k Keeper) GetValidatorByRelayerBlsKey(ctx sdk.Context, blsPk []byte) (validator types.Validator, found bool) {
+// get a single validator by bls pubkey
+func (k Keeper) GetValidatorByBlsKey(ctx sdk.Context, blsPk []byte) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	opAddr := store.Get(types.GetValidatorByRelayerBlsKey(blsPk))
+	opAddr := store.Get(types.GetValidatorByBlsKey(blsPk))
 	if opAddr == nil {
 		return validator, false
 	}
@@ -128,18 +128,18 @@ func (k Keeper) DeleteValidatorByChallengerAddress(ctx sdk.Context, validator ty
 }
 
 // validator index
-func (k Keeper) SetValidatorByRelayerBlsKey(ctx sdk.Context, validator types.Validator) error {
-	blsPk := validator.GetRelayerBlsKey()
+func (k Keeper) SetValidatorByBlsKey(ctx sdk.Context, validator types.Validator) error {
+	blsPk := validator.GetBlsKey()
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValidatorByRelayerBlsKey(blsPk), validator.GetOperator())
+	store.Set(types.GetValidatorByBlsKey(blsPk), validator.GetOperator())
 	return nil
 }
 
 // validator index
-func (k Keeper) DeleteValidatorByRelayerBlsKey(ctx sdk.Context, validator types.Validator) {
-	blsPk := validator.GetRelayerBlsKey()
+func (k Keeper) DeleteValidatorByBlsKey(ctx sdk.Context, validator types.Validator) {
+	blsPk := validator.GetBlsKey()
 	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetValidatorByRelayerBlsKey(blsPk))
+	store.Delete(types.GetValidatorByBlsKey(blsPk))
 }
 
 // validator index
@@ -261,7 +261,7 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, address sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorKey(address))
 	store.Delete(types.GetValidatorByRelayerAddrKey(validator.GetRelayer()))
-	store.Delete(types.GetValidatorByRelayerBlsKey(validator.RelayerBlsKey))
+	store.Delete(types.GetValidatorByBlsKey(validator.BlsKey))
 	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)))
 

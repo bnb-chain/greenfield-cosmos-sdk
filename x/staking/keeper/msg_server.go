@@ -88,15 +88,6 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, types.ErrValidatorRelayerAddressExists
 	}
 
-	// check to see if the relayer bls pubkey has been registered before
-	blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
-	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
-		return nil, types.ErrValidatorRelayerInvalidBlsKey
-	}
-	if _, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
-		return nil, types.ErrValidatorRelayerBlsKeyExists
-	}
-
 	// check to see if the challenger address has been registered before
 	challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
 	if err != nil {
@@ -104,6 +95,15 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 	if _, found := k.GetValidatorByChallengeAddr(ctx, challengerAddr); found {
 		return nil, types.ErrValidatorChallengerAddressExists
+	}
+
+	// check to see if the bls pubkey has been registered before
+	blsPk, err := hex.DecodeString(msg.BlsKey)
+	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+		return nil, types.ErrValidatorInvalidBlsKey
+	}
+	if _, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+		return nil, types.ErrValidatorBlsKeyExists
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -135,7 +135,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, blsPk, challengerAddr)
+	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, challengerAddr, blsPk)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,8 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByRelayerAddress(ctx, validator)
-	k.SetValidatorByRelayerBlsKey(ctx, validator)
+	k.SetValidatorByChallengerAddress(ctx, validator)
+	k.SetValidatorByBlsKey(ctx, validator)
 	k.SetValidatorByConsAddr(ctx, validator)
 	k.SetNewValidatorByPowerIndex(ctx, validator)
 
@@ -196,7 +197,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfDelAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
 			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
 		sdk.NewEvent(
@@ -273,23 +274,6 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
-	// replace relayer bls pubkey
-	if len(msg.RelayerBlsKey) != 0 {
-		blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
-		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
-			return nil, types.ErrValidatorRelayerInvalidBlsKey
-		}
-		if tmpValidator, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
-			if tmpValidator.OperatorAddress != validator.OperatorAddress {
-				return nil, types.ErrValidatorRelayerBlsKeyExists
-			}
-		} else {
-			k.DeleteValidatorByRelayerBlsKey(ctx, validator)
-			validator.RelayerBlsKey = blsPk
-			k.SetValidatorByRelayerBlsKey(ctx, validator)
-		}
-	}
-
 	// replace challenger address
 	if len(msg.ChallengerAddress) != 0 {
 		challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
@@ -307,6 +291,23 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
+	// replace relayer bls pubkey
+	if len(msg.BlsKey) != 0 {
+		blsPk, err := hex.DecodeString(msg.BlsKey)
+		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+			return nil, types.ErrValidatorInvalidBlsKey
+		}
+		if tmpValidator, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorBlsKeyExists
+			}
+		} else {
+			k.DeleteValidatorByBlsKey(ctx, validator)
+			validator.BlsKey = blsPk
+			k.SetValidatorByBlsKey(ctx, validator)
+		}
+	}
+
 	k.SetValidator(ctx, validator)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -316,7 +317,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
 			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
