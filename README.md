@@ -6,6 +6,11 @@ The Greenfield Block Chain leverages cosmos-sdk to fast build a dApp running wit
 requirements of Greenfield blockchain that cannot be fully satisfied by cosmos-sdk at present, we have decided to fork 
 the cosmos-sdk repo and add modules and features based on it.
 
+## Disclaimer
+**The software and related documentation are under active development, all subject to potential future change without
+notification and not ready for production use. The code and security audit have not been fully completed and not ready
+for any bug bounty. We advise you to be careful and experiment on the network at your own risk. Stay safe out there.**
+
 ## Key Features
 
 1. **auth**. The address format of the Greenfield blockchain is fully compatible with BSC (and Ethereum). It accepts EIP712 transaction signing and verification. These enable the existing wallet infrastructure to interact with Greenfield at the beginning naturally.
@@ -53,4 +58,12 @@ more complex changes, we recommend checking with the core developers first via G
 to ensure that your changes align with the project's general philosophy. This can also help reduce the workload of both 
 parties and streamline the review and merge process.
 
-## Licence (pending)
+## Licence
+
+The greenfield library (i.e. all code outside the `cmd` directory) is licensed under the
+[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
+also included in our repository in the `COPYING.LESSER` file.
+
+The greenfield binaries (i.e. all code inside the `cmd` directory) is licensed under the
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also
+included in our repository in the `COPYING` file.
