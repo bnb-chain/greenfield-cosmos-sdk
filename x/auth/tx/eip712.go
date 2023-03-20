@@ -31,12 +31,7 @@ import (
 	"github.com/gogo/protobuf/jsonpb"
 )
 
-var MsgCodec = jsonpb.Marshaler{
-	EmitDefaults: true,
-	OrigName:     true,
-}
-
-var domain = apitypes.TypedDataDomain{
+var domain = &apitypes.TypedDataDomain{
 	Name:              "Greenfield Tx",
 	Version:           "1.0.0",
 	VerifyingContract: "greenfield",
@@ -164,8 +159,13 @@ func WrapTxToTypedData(
 	signDoc *types.SignDocEip712,
 	msgTypes apitypes.Types,
 ) (apitypes.TypedData, error) {
+	msgCodec := jsonpb.Marshaler{
+		EmitDefaults: true,
+		OrigName:     true,
+	}
+	bz, err := msgCodec.MarshalToString(signDoc)
+
 	var txData map[string]interface{}
-	bz, err := MsgCodec.MarshalToString(signDoc)
 	if err != nil {
 		return apitypes.TypedData{}, errors.Wrap(err, "failed to JSON marshal data")
 	}
@@ -180,11 +180,12 @@ func WrapTxToTypedData(
 	// filling nil value
 	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
 
-	domain.ChainId = math.NewHexOrDecimal256(int64(chainID))
+	domainTemp := *domain
+	domainTemp.ChainId = math.NewHexOrDecimal256(int64(chainID))
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
-		Domain:      domain,
+		Domain:      domainTemp,
 		Message:     txData,
 	}
 

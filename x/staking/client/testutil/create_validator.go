@@ -67,7 +67,7 @@ var testcases = []testParams{
 		blsKey:            "819a55435aed37ff4f917d3644c74da1f6354c0d4fbc7ca425ebe6b98a0416fc4ef5eb13fceffb3a109eec4af12bba0a",
 	},
 	{
-		description:       "duplicated relayer bls pub key",
+		description:       "duplicated bls pub key",
 		proposalID:        "4",
 		enableGrant:       true,
 		from:              "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",

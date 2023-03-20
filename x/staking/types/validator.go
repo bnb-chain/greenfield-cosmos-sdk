@@ -39,7 +39,7 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address, challenger address and nil bls pubkey
 //
 //nolint:interfacerh
 func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
@@ -67,8 +67,8 @@ func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, desc
 		MinSelfDelegation: sdk.OneInt(),
 		SelfDelAddress:    operator.String(),
 		RelayerAddress:    operator.String(),
-		BlsKey:            blsPk,
 		ChallengerAddress: operator.String(),
+		BlsKey:            blsPk,
 	}, nil
 }
 

@@ -91,7 +91,7 @@ func FlagSetRelayerAddress() *flag.FlagSet {
 	return fs
 }
 
-// FlagSetBlsKey Returns the flagset for relayer bls pubkey related operations.
+// FlagSetBlsKey Returns the flagset for bls pubkey related operations.
 func FlagSetBlsKey() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(FlagBlsKey, "", "The bls pubkey of the validator")

@@ -18,9 +18,9 @@ message Params {
 
 // MsgGasParams defines gas for a msg type
 message MsgGasParams {
-  option (gogoproto.equal)            = true;
+  option (gogoproto.equal) = true;
 
-  string              msg_type_url = 1 [(gogoproto.customname) = "MsgTypeUrl"];
+  string msg_type_url = 1 [(gogoproto.customname) = "MsgTypeUrl"];
   // gas_params is the oneof that represents either fixed_gas_params or dynamic_gas_params
   oneof gas_params {
     // fixed_type specifies fixed type gas params.
@@ -34,14 +34,14 @@ message MsgGasParams {
   }
   // FixedGasParams defines the parameters for fixed gas type.
   message FixedGasParams {
-    option (gogoproto.equal)            = true;
+    option (gogoproto.equal) = true;
 
     uint64 fixed_gas = 1 [(gogoproto.customname) = "FixedGas"];
   }
 
   // DynamicGasParams defines the parameters for dynamic gas type.
   message DynamicGasParams {
-    option (gogoproto.equal)            = true;
+    option (gogoproto.equal) = true;
 
     uint64 fixed_gas    = 1 [(gogoproto.customname) = "FixedGas"];
     uint64 gas_per_item = 2 [(gogoproto.customname) = "GasPerItem"];

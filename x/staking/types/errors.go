@@ -53,8 +53,8 @@ var (
 
 	ErrValidatorRelayerAddressExists    = sdkerrors.Register(ModuleName, 41, "validator already exist for this relayer address; must use new relayer address")
 	ErrValidatorChallengerAddressExists = sdkerrors.Register(ModuleName, 42, "validator already exist for this challenger address; must use new relayer address")
-	ErrValidatorInvalidBlsKey           = sdkerrors.Register(ModuleName, 43, "validator relayer bls pubkey is invalid")
-	ErrValidatorBlsKeyExists            = sdkerrors.Register(ModuleName, 44, "validator already exist for this relayer bls pubkey; must use new bls pubkey")
+	ErrValidatorInvalidBlsKey           = sdkerrors.Register(ModuleName, 43, "validator bls pubkey is invalid")
+	ErrValidatorBlsKeyExists            = sdkerrors.Register(ModuleName, 44, "validator already exist for this bls pubkey; must use new bls pubkey")
 	ErrDelegationNotAllowed             = sdkerrors.Register(ModuleName, 45, "delegation is not allowed")
 	ErrRedelegationNotAllowed           = sdkerrors.Register(ModuleName, 46, "redelegation is not allowed")
 	ErrInvalidSigner                    = sdkerrors.Register(ModuleName, 47, "invalid signer")

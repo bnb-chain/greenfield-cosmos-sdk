@@ -291,7 +291,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
-	// replace relayer bls pubkey
+	// replace bls pubkey
 	if len(msg.BlsKey) != 0 {
 		blsPk, err := hex.DecodeString(msg.BlsKey)
 		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {

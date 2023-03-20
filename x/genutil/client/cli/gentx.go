@@ -168,7 +168,7 @@ $ %s gentx my-key-name 1000000stake \
 			}
 			blsPk := args[5]
 			if len(blsPk) != 2*sdk.BLSPubKeyLength {
-				return errors.New("invalid relayer bls pubkey")
+				return errors.New("invalid bls pubkey")
 			}
 
 			createValCfg.Validator = validator
