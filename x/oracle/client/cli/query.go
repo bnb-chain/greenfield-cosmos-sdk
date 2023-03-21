@@ -10,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 )
 
+// todo(quality): implement QueryInturnRelayer
+
 // GetQueryCmd returns the transaction commands for this module
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{

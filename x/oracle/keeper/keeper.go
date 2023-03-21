@@ -107,6 +107,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 		return false, err
 	}
 
+	// todo(quality): why `inturnRelayer.BlsPubKey` is `string` while `vldr.BlsKey` is `[]byte`?
 	if inturnRelayer.BlsPubKey == hex.EncodeToString(vldr.BlsKey) {
 		return true, nil
 	}
@@ -114,6 +115,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 	// It is possible that claim comes from out-turn relayers when exceeding the inturnRelayerTimeout, all other
 	// relayers can relay within the in-turn relayer's current interval
 	curTime := ctx.BlockTime().Unix()
+	// todo(quality): overflow check
 	return uint64(curTime)-claimTimestamp >= inturnRelayerTimeout, nil
 }
 

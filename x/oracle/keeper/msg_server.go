@@ -17,6 +17,7 @@ import (
 )
 
 type msgServer struct {
+	// todo(quality): according to the spec, msgServer should just inherit Keeper, instead of having the keeper as a field in it
 	oracleKeeper Keeper
 }
 
@@ -37,6 +38,8 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 	// check dest chain id
 	if sdk.ChainID(req.DestChainId) != k.oracleKeeper.CrossChainKeeper.GetSrcChainID() {
+		// todo(quality): `Wrapf` format inside the function, `fmt.Sprintf` is not necessary here
+		// please check the whole module for this
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDestChainId, fmt.Sprintf("dest chain id(%d) should be %d", req.DestChainId, k.oracleKeeper.CrossChainKeeper.GetSrcChainID()))
 	}
 
@@ -69,6 +72,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		relayerFee, event, err := handlePackage(ctx, k.oracleKeeper, &pack, req.SrcChainId, req.DestChainId, req.Timestamp)
 		if err != nil {
 			// only do log, but let rest package get chance to execute.
+			// todo(quality): the comment above and the logic below are not consistent
 			logger.Error("process package failed", "channel", pack.ChannelId, "sequence", pack.Sequence, "error", err.Error())
 			return nil, err
 		}
@@ -94,6 +98,9 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	return &types.MsgClaimResponse{}, nil
 }
 
+// todo(quality):
+// - recommend to implement it as a method of `Keeper`
+// - why the parameter `signedRelayers` is a `[]string` instead of `[]sdk.AccAddress`?
 // distributeReward will distribute reward to relayers
 func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddress, signedRelayers []string, relayerFee *big.Int) error {
 	if relayerFee.Cmp(big.NewInt(0)) <= 0 {
@@ -102,6 +109,7 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddre
 	}
 
 	otherRelayers := make([]sdk.AccAddress, 0, len(signedRelayers))
+	// todo(quality): `for _, signedRelayer := range signedRelayers` can iterate the value
 	for idx := range signedRelayers {
 		signedRelayerAddr, err := sdk.AccAddressFromHexUnsafe(signedRelayers[idx])
 		if err != nil {
@@ -118,6 +126,8 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddre
 
 	// calculate the reward to distribute to each other relayer
 	if len(otherRelayers) > 0 {
+		// todo(quality): recommend to use `sdk.Int` instead of `big.Int`.
+		// There are many helper functions in `sdk.Int` to do the calculation like chained calculation, `ZeroInt`, etc.
 		otherRelayerReward = otherRelayerReward.Mul(big.NewInt(100-int64(relayerRewardShare)), relayerFee)
 		otherRelayerReward = otherRelayerReward.Div(otherRelayerReward, big.NewInt(100))
 		otherRelayerReward = otherRelayerReward.Div(otherRelayerReward, big.NewInt(int64(len(otherRelayers))))
@@ -125,6 +135,7 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddre
 
 	bondDenom := oracleKeeper.StakingKeeper.BondDenom(ctx)
 	if otherRelayerReward.Cmp(big.NewInt(0)) > 0 {
+		// todo(quality): `for _, signedRelayer := range signedRelayers` can iterate the value
 		for idx := range otherRelayers {
 			err := oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 				crosschaintypes.ModuleName,
@@ -153,6 +164,7 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddre
 	return nil
 }
 
+// todo(quality): recommend to implement it as a method of `Keeper`
 func handlePackage(
 	ctx sdk.Context,
 	oracleKeeper Keeper,
