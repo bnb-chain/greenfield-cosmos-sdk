@@ -12,7 +12,9 @@ type (
 	// ParamChangesJSON defines a slice of ParamChangeJSON objects which can be
 	// converted to a slice of ParamChange objects.
 	ParamChangesJSON []ParamChangeJSON
-	Addresses        []string
+
+	// Addresses defines a slice of addresses string in hex format
+	Addresses []string
 
 	// ParamChangeJSON defines a parameter change used in JSON input. This
 	// allows values to be specified in raw JSON instead of being string encoded.

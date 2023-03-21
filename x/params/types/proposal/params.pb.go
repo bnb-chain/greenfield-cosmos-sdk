@@ -29,8 +29,10 @@ type ParameterChangeProposal struct {
 	Title       string        `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description string        `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	Changes     []ParamChange `protobuf:"bytes,3,rep,name=changes,proto3" json:"changes"`
-	CrossChain  bool          `protobuf:"varint,4,opt,name=cross_chain,json=crossChain,proto3" json:"cross_chain,omitempty"`
-	Addresses   []string      `protobuf:"bytes,5,rep,name=addresses,proto3" json:"addresses,omitempty"`
+	// cross_chain is a flag to indicate whether it is a cross-chain proposal
+	CrossChain bool `protobuf:"varint,4,opt,name=cross_chain,json=crossChain,proto3" json:"cross_chain,omitempty"`
+	// addresses is destination smart contract address(es), only used when it is a cross-chain proposal
+	Addresses []string `protobuf:"bytes,5,rep,name=addresses,proto3" json:"addresses,omitempty"`
 }
 
 func (m *ParameterChangeProposal) Reset()      { *m = ParameterChangeProposal{} }
