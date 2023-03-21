@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
+// convertUpgradeConfig converts serverconfig.UpgradeConfig to types.UpgradeConfig
 func convertUpgradeConfig(chainID string, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
 	upgradeConfig := types.NewUpgradeConfig()
 	if chainID == types.MainnetChainID {
