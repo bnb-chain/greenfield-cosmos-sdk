@@ -158,6 +158,7 @@ func (p Params) String() string {
 	return string(out)
 }
 
+// validateMaxTxSize performs basic validation of MaxTxSize.
 func validateMaxTxSize(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
@@ -171,6 +172,7 @@ func validateMaxTxSize(i interface{}) error {
 	return nil
 }
 
+// validateMinGasPerByte performs basic validation of MinGasPerByte.
 func validateMinGasPerByte(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
@@ -184,6 +186,7 @@ func validateMinGasPerByte(i interface{}) error {
 	return nil
 }
 
+// ValidateMsgGasParams performs basic validation of MsgGasParams.
 func ValidateMsgGasParams(i interface{}) error {
 	v, ok := i.([]*MsgGasParams)
 	if !ok {

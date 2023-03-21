@@ -25,8 +25,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the gashub module.
 type Params struct {
-	MaxTxSize       uint64          `protobuf:"varint,1,opt,name=max_tx_size,json=maxTxSize,proto3" json:"max_tx_size,omitempty"`
-	MinGasPerByte   uint64          `protobuf:"varint,2,opt,name=min_gas_per_byte,json=minGasPerByte,proto3" json:"min_gas_per_byte,omitempty"`
+	// max_tx_size is the maximum size of a transaction's bytes.
+	MaxTxSize uint64 `protobuf:"varint,1,opt,name=max_tx_size,json=maxTxSize,proto3" json:"max_tx_size,omitempty"`
+	// min_gas_per_byte is the minimum gas to be paid per byte of a transaction's
+	MinGasPerByte uint64 `protobuf:"varint,2,opt,name=min_gas_per_byte,json=minGasPerByte,proto3" json:"min_gas_per_byte,omitempty"`
+	// msg_gas_params is the list of gas params for each msg type
 	MsgGasParamsSet []*MsgGasParams `protobuf:"bytes,3,rep,name=msg_gas_params_set,json=msgGasParamsSet,proto3" json:"msg_gas_params_set,omitempty"`
 }
 
@@ -208,6 +211,7 @@ func (*MsgGasParams) XXX_OneofWrappers() []interface{} {
 
 // FixedGasParams defines the parameters for fixed gas type.
 type MsgGasParams_FixedGasParams struct {
+	// fixed_gas is the gas cost for a fixed type msg
 	FixedGas uint64 `protobuf:"varint,1,opt,name=fixed_gas,json=fixedGas,proto3" json:"fixed_gas,omitempty"`
 }
 
@@ -253,7 +257,9 @@ func (m *MsgGasParams_FixedGasParams) GetFixedGas() uint64 {
 
 // DynamicGasParams defines the parameters for dynamic gas type.
 type MsgGasParams_DynamicGasParams struct {
-	FixedGas   uint64 `protobuf:"varint,1,opt,name=fixed_gas,json=fixedGas,proto3" json:"fixed_gas,omitempty"`
+	// fixed_gas is the base gas cost for a dynamic type msg
+	FixedGas uint64 `protobuf:"varint,1,opt,name=fixed_gas,json=fixedGas,proto3" json:"fixed_gas,omitempty"`
+	// gas_per_item is the gas cost for a dynamic type msg per item
 	GasPerItem uint64 `protobuf:"varint,2,opt,name=gas_per_item,json=gasPerItem,proto3" json:"gas_per_item,omitempty"`
 }
 

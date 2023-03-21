@@ -15,7 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	ethermint "github.com/evmos/ethermint/types"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -59,26 +58,25 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 		return nil, fmt.Errorf("expected %s, got %s", signingtypes.SignMode_SIGN_MODE_EIP_712, mode)
 	}
 
-	_, ok := tx.(*wrapper)
-	if !ok {
-		return nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
-	}
-
-	typedChainID, err := ethermint.ParseChainID(signerData.ChainID)
+	// get the EIP155 chainID from the signerData
+	chainID, err := sdk.ParseChainID(signerData.ChainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
-	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, typedChainID)
+	// get the EIP712 types and signDoc from the tx
+	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, chainID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get msg types")
 	}
 
-	typedData, err := WrapTxToTypedData(typedChainID.Uint64(), signDoc, msgTypes)
+	// pack the tx data in EIP712 object
+	typedData, err := WrapTxToTypedData(chainID.Uint64(), signDoc, msgTypes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to pack tx data in EIP712 object")
 	}
 
+	// compute the hash
 	sigHash, err := ComputeTypedDataHash(typedData)
 	if err != nil {
 		return nil, err
@@ -93,6 +91,7 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		return nil, nil, fmt.Errorf("can only handle a protobuf Tx, got %T", tx)
 	}
 
+	// construct the signDoc
 	msgAny, _ := codectypes.NewAnyWithValue(protoTx.GetMsgs()[0])
 	signDoc := &types.SignDocEip712{
 		AccountNumber: signerData.AccountNumber,
@@ -110,13 +109,14 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		Msg:  msgAny,
 	}
 
+	// extract the msg types
 	msgTypes, err := extractMsgTypes(protoTx.GetMsgs()[0])
 	if err != nil {
 		return nil, nil, err
 	}
 
+	// patch the msg types to include `Tip` if it's not empty
 	if signDoc.Tip != nil {
-		// patching msgTypes to include Tip
 		msgTypes["Tx"] = []apitypes.Type{
 			{Name: "account_number", Type: "uint256"},
 			{Name: "chain_id", Type: "uint256"},
@@ -177,15 +177,15 @@ func WrapTxToTypedData(
 		delete(txData, "tip")
 	}
 
-	// filling nil value
+	// filling nil value and do other clean up
 	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
 
-	domainTemp := *domain
-	domainTemp.ChainId = math.NewHexOrDecimal256(int64(chainID))
+	tempDomain := *domain
+	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
-		Domain:      domainTemp,
+		Domain:      tempDomain,
 		Message:     txData,
 	}
 

@@ -120,7 +120,7 @@ func (cgts ConsumeTxSizeGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 				pubkey = acc.GetPubKey()
 			}
 
-			// use stdsignature to mock the size of a full signature
+			// use StdSignature to mock the size of a full signature
 			simSig := legacytx.StdSignature{ //nolint:staticcheck // this will be removed when proto is ready
 				Signature: simSecp256k1Sig[:],
 				PubKey:    pubkey,

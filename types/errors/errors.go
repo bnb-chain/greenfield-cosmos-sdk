@@ -6,7 +6,7 @@ import (
 
 // Type Aliases to errors module
 //
-// Deprecated: functionality of this package has been moved to it's own module:
+// Deprecated: functionality of this package has been moved to its own module:
 //
 //	cosmossdk.io/errors
 //

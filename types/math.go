@@ -4,9 +4,9 @@ import (
 	sdkmath "cosmossdk.io/math"
 )
 
-// Type aliases to the SDK's math sub-module
+// Type aliases to the SDK's math submodule
 //
-// Deprecated: Functionality of this package has been moved to it's own module:
+// Deprecated: Functionality of this package has been moved to its own module:
 // cosmossdk.io/math
 //
 // Please use the above module instead of this package.

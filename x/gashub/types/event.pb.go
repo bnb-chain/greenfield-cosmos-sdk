@@ -22,11 +22,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// EventUpdateMsgGasParams is emitted when update a msg's gas params
+// EventUpdateMsgGasParams is emitted when updating a message's gas params
 type EventUpdateMsgGasParams struct {
+	// msg_type_url is the type url of the message
 	MsgTypeUrl string `protobuf:"bytes,1,opt,name=msg_type_url,json=msgTypeUrl,proto3" json:"msg_type_url,omitempty"`
-	FromValue  string `protobuf:"bytes,2,opt,name=from_value,json=fromValue,proto3" json:"from_value,omitempty"`
-	ToValue    string `protobuf:"bytes,3,opt,name=to_value,json=toValue,proto3" json:"to_value,omitempty"`
+	// from_value is the previous gas params
+	FromValue string `protobuf:"bytes,2,opt,name=from_value,json=fromValue,proto3" json:"from_value,omitempty"`
+	// to_value is the new gas params
+	ToValue string `protobuf:"bytes,3,opt,name=to_value,json=toValue,proto3" json:"to_value,omitempty"`
 }
 
 func (m *EventUpdateMsgGasParams) Reset()         { *m = EventUpdateMsgGasParams{} }

@@ -17,12 +17,14 @@ service Msg {
 // MsgUpdateMsgGasParams represents a message to update msg gas params.
 message MsgUpdateMsgGasParams {
   // NOTE: The params should be updated by the gov module account after the proposal passes.
-  option (cosmos.msg.v1.signer) = "sender";
+  option (cosmos.msg.v1.signer) = "from";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string                from           = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // from is the message signer for MsgUpdateMsgGasParams
+  string from = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // new_params_set is the new set of msg gas params to be updated.
   repeated MsgGasParams new_params_set = 2;
 }
 
