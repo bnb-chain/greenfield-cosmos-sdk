@@ -213,6 +213,7 @@ func handlePackage(
 		if crash {
 			var ibcErr error
 			var sendSeq uint64
+			// todo(quality): what if `len(pack.Payload) == sdk.SynPackageHeaderLength`?
 			if len(pack.Payload) >= sdk.SynPackageHeaderLength {
 				sendSeq, ibcErr = oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
 					sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
@@ -221,7 +222,14 @@ func handlePackage(
 					"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
 				return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
 			}
-
+			//// todo(quality): try the code below to avoid the `else` branch and variable claim
+			//if len(pack.Payload) < sdk.SynPackageHeaderLength {
+			//	logger.Error("found payload without header",
+			//		"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
+			//	return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
+			//}
+			//sendSeq, ibcErr := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+			//	sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if ibcErr != nil {
 				logger.Error("failed to write FailAckCrossChainPackage", "err", err)
 				return nil, nil, ibcErr
