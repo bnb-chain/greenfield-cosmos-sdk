@@ -41,6 +41,7 @@ func NewKeeper(
 	}
 }
 
+// todo(quality): is it better to pass keeper by pointer? It can reduce the cost of copying the whole struct.
 // Logger inits the logger for cross chain module
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)

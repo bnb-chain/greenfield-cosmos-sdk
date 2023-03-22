@@ -21,6 +21,7 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 func (k Keeper) CrossChainPackage(c context.Context, req *types.QueryCrossChainPackageRequest) (*types.QueryCrossChainPackageResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	// todo(quality): check if req is nil
 	pack, err := k.GetCrossChainPackage(ctx, sdk.ChannelID(req.ChannelId), req.Sequence)
 	if err != nil {
 		return nil, err
@@ -33,6 +34,7 @@ func (k Keeper) CrossChainPackage(c context.Context, req *types.QueryCrossChainP
 // SendSequence returns the send sequence of the channel
 func (k Keeper) SendSequence(c context.Context, req *types.QuerySendSequenceRequest) (*types.QuerySendSequenceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+	// todo(quality): check if req is nil
 	sequence := k.GetSendSequence(ctx, sdk.ChannelID(req.ChannelId))
 
 	return &types.QuerySendSequenceResponse{
@@ -43,6 +45,7 @@ func (k Keeper) SendSequence(c context.Context, req *types.QuerySendSequenceRequ
 // ReceiveSequence returns the receive sequence of the channel
 func (k Keeper) ReceiveSequence(c context.Context, req *types.QueryReceiveSequenceRequest) (*types.QueryReceiveSequenceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+	// todo(quality): check if req is nil
 	sequence := k.GetReceiveSequence(ctx, sdk.ChannelID(req.ChannelId))
 
 	return &types.QueryReceiveSequenceResponse{
