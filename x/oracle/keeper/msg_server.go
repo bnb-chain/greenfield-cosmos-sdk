@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 	"runtime/debug"
 
 	sdkerrors "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	"github.com/gogo/protobuf/proto"
 
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
@@ -17,15 +17,14 @@ import (
 )
 
 type msgServer struct {
-	// todo(quality): according to the spec, msgServer should just inherit Keeper, instead of having the keeper as a field in it
-	oracleKeeper Keeper
+	Keeper
 }
 
 // NewMsgServerImpl returns an implementation of the oracle MsgServer interface
 // for the provided Keeper.
 func NewMsgServerImpl(k Keeper) types.MsgServer {
 	return &msgServer{
-		oracleKeeper: k,
+		k,
 	}
 }
 
@@ -34,26 +33,24 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.MsgClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	logger := k.oracleKeeper.Logger(ctx)
+	logger := k.Logger(ctx)
 
 	// check dest chain id
-	if sdk.ChainID(req.DestChainId) != k.oracleKeeper.CrossChainKeeper.GetSrcChainID() {
-		// todo(quality): `Wrapf` format inside the function, `fmt.Sprintf` is not necessary here
-		// please check the whole module for this
-		return nil, sdkerrors.Wrapf(types.ErrInvalidDestChainId, fmt.Sprintf("dest chain id(%d) should be %d", req.DestChainId, k.oracleKeeper.CrossChainKeeper.GetSrcChainID()))
+	if sdk.ChainID(req.DestChainId) != k.CrossChainKeeper.GetSrcChainID() {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidDestChainId, "dest chain id(%d) should be %d", req.DestChainId, k.CrossChainKeeper.GetSrcChainID())
 	}
 
 	// check src chain id
-	if !k.oracleKeeper.CrossChainKeeper.IsDestChainSupported(sdk.ChainID(req.SrcChainId)) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidSrcChainId, fmt.Sprintf("src chain id(%d) is not supported", req.SrcChainId))
+	if !k.CrossChainKeeper.IsDestChainSupported(sdk.ChainID(req.SrcChainId)) {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidSrcChainId, "src chain id(%d) is not supported", req.SrcChainId)
 	}
 
-	sequence := k.oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, types.RelayPackagesChannelId)
+	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, types.RelayPackagesChannelId)
 	if sequence != req.Sequence {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, fmt.Sprintf("current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence))
+		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, "current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence)
 	}
 
-	relayer, signedRelayers, err := k.oracleKeeper.CheckClaim(ctx, req)
+	relayer, signedRelayers, err := k.CheckClaim(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -65,14 +62,12 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 	}
 
 	events := make([]proto.Message, 0, len(packages))
-	totalRelayerFee := big.NewInt(0)
+	totalRelayerFee := sdkmath.ZeroInt()
 	for idx := range packages {
 		pack := packages[idx]
 
-		relayerFee, event, err := handlePackage(ctx, k.oracleKeeper, &pack, req.SrcChainId, req.DestChainId, req.Timestamp)
+		relayerFee, event, err := k.handlePackage(ctx, &pack, req.SrcChainId, req.DestChainId, req.Timestamp)
 		if err != nil {
-			// only do log, but let rest package get chance to execute.
-			// todo(quality): the comment above and the logic below are not consistent
 			logger.Error("process package failed", "channel", pack.ChannelId, "sequence", pack.Sequence, "error", err.Error())
 			return nil, err
 		}
@@ -80,81 +75,71 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 		events = append(events, event)
 
-		totalRelayerFee = totalRelayerFee.Add(totalRelayerFee, relayerFee)
+		totalRelayerFee = totalRelayerFee.Add(relayerFee)
 
 		// increase channel sequence
-		k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, pack.ChannelId)
+		k.CrossChainKeeper.IncrReceiveSequence(ctx, pack.ChannelId)
 	}
 
-	err = distributeReward(ctx, k.oracleKeeper, relayer, signedRelayers, totalRelayerFee)
+	err = k.distributeReward(ctx, relayer, signedRelayers, totalRelayerFee)
 	if err != nil {
 		return nil, err
 	}
 
-	k.oracleKeeper.CrossChainKeeper.IncrReceiveSequence(ctx, types.RelayPackagesChannelId)
+	k.CrossChainKeeper.IncrReceiveSequence(ctx, types.RelayPackagesChannelId)
 
-	ctx.EventManager().EmitTypedEvents(events...)
+	err = ctx.EventManager().EmitTypedEvents(events...)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.MsgClaimResponse{}, nil
 }
 
-// todo(quality):
-// - recommend to implement it as a method of `Keeper`
-// - why the parameter `signedRelayers` is a `[]string` instead of `[]sdk.AccAddress`?
 // distributeReward will distribute reward to relayers
-func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddress, signedRelayers []string, relayerFee *big.Int) error {
-	if relayerFee.Cmp(big.NewInt(0)) <= 0 {
-		oracleKeeper.Logger(ctx).Info("total relayer fee is zero")
+func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signedRelayers []sdk.AccAddress, relayerFee sdkmath.Int) error {
+	if relayerFee.LTE(sdkmath.ZeroInt()) {
+		k.Logger(ctx).Info("total relayer fee is zero")
 		return nil
 	}
 
 	otherRelayers := make([]sdk.AccAddress, 0, len(signedRelayers))
-	// todo(quality): `for _, signedRelayer := range signedRelayers` can iterate the value
-	for idx := range signedRelayers {
-		signedRelayerAddr, err := sdk.AccAddressFromHexUnsafe(signedRelayers[idx])
-		if err != nil {
-			return sdkerrors.Wrapf(types.ErrInvalidAddress, fmt.Sprintf("relayer address (%s) is invalid", relayer))
-		}
-		if !signedRelayerAddr.Equals(relayer) {
+	for _, signedRelayer := range signedRelayers {
+		if !signedRelayer.Equals(relayer) {
 			otherRelayers = append(otherRelayers, relayer)
 		}
 	}
 
-	totalDistributed, otherRelayerReward := big.NewInt(0), big.NewInt(0)
+	totalDistributed, otherRelayerReward := sdkmath.ZeroInt(), sdkmath.ZeroInt()
 
-	relayerRewardShare := oracleKeeper.GetRelayerRewardShare(ctx)
+	relayerRewardShare := k.GetRelayerRewardShare(ctx)
 
 	// calculate the reward to distribute to each other relayer
 	if len(otherRelayers) > 0 {
-		// todo(quality): recommend to use `sdk.Int` instead of `big.Int`.
-		// There are many helper functions in `sdk.Int` to do the calculation like chained calculation, `ZeroInt`, etc.
-		otherRelayerReward = otherRelayerReward.Mul(big.NewInt(100-int64(relayerRewardShare)), relayerFee)
-		otherRelayerReward = otherRelayerReward.Div(otherRelayerReward, big.NewInt(100))
-		otherRelayerReward = otherRelayerReward.Div(otherRelayerReward, big.NewInt(int64(len(otherRelayers))))
+		otherRelayerReward = relayerFee.Mul(sdkmath.NewInt(100 - int64(relayerRewardShare))).Mul(relayerFee).Quo(sdkmath.NewInt(100)).Quo(sdkmath.NewInt(int64(len(otherRelayers))))
 	}
 
-	bondDenom := oracleKeeper.StakingKeeper.BondDenom(ctx)
-	if otherRelayerReward.Cmp(big.NewInt(0)) > 0 {
-		// todo(quality): `for _, signedRelayer := range signedRelayers` can iterate the value
-		for idx := range otherRelayers {
-			err := oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
+	bondDenom := k.StakingKeeper.BondDenom(ctx)
+	if otherRelayerReward.GT(sdkmath.ZeroInt()) {
+		for _, signedRelayer := range otherRelayers {
+			err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 				crosschaintypes.ModuleName,
-				otherRelayers[idx],
-				sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(otherRelayerReward)}},
+				signedRelayer,
+				sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: otherRelayerReward}},
 			)
 			if err != nil {
 				return err
 			}
-			totalDistributed = totalDistributed.Add(totalDistributed, otherRelayerReward)
+			totalDistributed = totalDistributed.Add(otherRelayerReward)
 		}
 	}
 
-	remainingReward := relayerFee.Sub(relayerFee, totalDistributed)
-	if remainingReward.Cmp(big.NewInt(0)) > 0 {
-		err := oracleKeeper.BankKeeper.SendCoinsFromModuleToAccount(ctx,
+	remainingReward := relayerFee.Sub(totalDistributed)
+	if remainingReward.GT(sdkmath.ZeroInt()) {
+		err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 			crosschaintypes.ModuleName,
 			relayer,
-			sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: sdk.NewIntFromBigInt(remainingReward)}},
+			sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: remainingReward}},
 		)
 		if err != nil {
 			return err
@@ -164,41 +149,39 @@ func distributeReward(ctx sdk.Context, oracleKeeper Keeper, relayer sdk.AccAddre
 	return nil
 }
 
-// todo(quality): recommend to implement it as a method of `Keeper`
-func handlePackage(
+func (k Keeper) handlePackage(
 	ctx sdk.Context,
-	oracleKeeper Keeper,
 	pack *types.Package,
 	srcChainId uint32,
 	destChainId uint32,
 	timestamp uint64,
-) (*big.Int, *types.EventPackageClaim, error) {
-	logger := oracleKeeper.Logger(ctx)
+) (sdkmath.Int, *types.EventPackageClaim, error) {
+	logger := k.Logger(ctx)
 
-	crossChainApp := oracleKeeper.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
+	crossChainApp := k.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
 	if crossChainApp == nil {
-		return nil, nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
+		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
 	}
 
-	sequence := oracleKeeper.CrossChainKeeper.GetReceiveSequence(ctx, pack.ChannelId)
+	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, pack.ChannelId)
 	if sequence != pack.Sequence {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence,
-			fmt.Sprintf("current sequence of channel %d is %d", pack.ChannelId, sequence))
+		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence,
+			"current sequence of channel %d is %d", pack.ChannelId, sequence)
 	}
 
 	packageHeader, err := sdk.DecodePackageHeader(pack.Payload)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader, "payload header is invalid")
+		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader, "payload header is invalid")
 	}
 
 	if packageHeader.Timestamp != timestamp {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader,
+		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidPayloadHeader,
 			"timestamp(%d) is not the same in payload header(%d)", timestamp, packageHeader.Timestamp)
 	}
 
 	if !sdk.IsValidCrossChainPackageType(packageHeader.PackageType) {
-		return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackageType,
-			fmt.Sprintf("package type %d is invalid", packageHeader.PackageType))
+		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidPackageType,
+			"package type %d is invalid", packageHeader.PackageType)
 	}
 
 	cacheCtx, write := ctx.CacheContext()
@@ -211,36 +194,25 @@ func handlePackage(
 	var sendSequence int64 = -1
 	if packageHeader.PackageType == sdk.SynCrossChainPackageType {
 		if crash {
-			var ibcErr error
-			var sendSeq uint64
-			// todo(quality): what if `len(pack.Payload) == sdk.SynPackageHeaderLength`?
-			if len(pack.Payload) >= sdk.SynPackageHeaderLength {
-				sendSeq, ibcErr = oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
-					sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
-			} else {
+			if len(pack.Payload) < sdk.SynPackageHeaderLength {
 				logger.Error("found payload without header",
 					"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
-				return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
+				return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
 			}
-			//// todo(quality): try the code below to avoid the `else` branch and variable claim
-			//if len(pack.Payload) < sdk.SynPackageHeaderLength {
-			//	logger.Error("found payload without header",
-			//		"channelID", pack.ChannelId, "sequence", pack.Sequence, "payload", hex.EncodeToString(pack.Payload))
-			//	return nil, nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
-			//}
-			//sendSeq, ibcErr := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
-			//	sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
+
+			sendSeq, ibcErr := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+				sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if ibcErr != nil {
 				logger.Error("failed to write FailAckCrossChainPackage", "err", err)
-				return nil, nil, ibcErr
+				return sdkmath.ZeroInt(), nil, ibcErr
 			}
 			sendSequence = int64(sendSeq)
 		} else if len(result.Payload) != 0 {
-			sendSeq, err := oracleKeeper.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+			sendSeq, err := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
 				sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if err != nil {
 				logger.Error("failed to write AckCrossChainPackage", "err", err)
-				return nil, nil, err
+				return sdkmath.ZeroInt(), nil, err
 			}
 			sendSequence = int64(sendSeq)
 		}
@@ -259,7 +231,7 @@ func handlePackage(
 		ErrorMsg:        result.ErrMsg(),
 	}
 
-	return packageHeader.RelayerFee, claimEvent, nil
+	return sdkmath.NewIntFromBigInt(packageHeader.RelayerFee), claimEvent, nil
 }
 
 func executeClaim(
