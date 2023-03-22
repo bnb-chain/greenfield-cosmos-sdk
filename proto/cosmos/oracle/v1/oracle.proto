@@ -11,9 +11,6 @@ message Params {
   uint64 relayer_interval = 2;
   // Reward share for the relayer sends the claim message,
   // the other relayers signed the bls message will share the reward evenly.
-  // todo(quality): this field can only represent 0-100% reward share with no more decimal,
-  // Recommend to use a `cosmos.Dec` type to represent the reward share.
-  // Or make 1 means 0.01% or 0.0001% to make it more flexable.
   uint32 relayer_reward_share = 3; // in percentage
 }
 

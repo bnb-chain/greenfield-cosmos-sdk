@@ -98,7 +98,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 
 // distributeReward will distribute reward to relayers
 func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signedRelayers []sdk.AccAddress, relayerFee sdkmath.Int) error {
-	if relayerFee.LTE(sdkmath.ZeroInt()) {
+	if !relayerFee.IsPositive() {
 		k.Logger(ctx).Info("total relayer fee is zero")
 		return nil
 	}
@@ -120,7 +120,7 @@ func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signed
 	}
 
 	bondDenom := k.StakingKeeper.BondDenom(ctx)
-	if otherRelayerReward.GT(sdkmath.ZeroInt()) {
+	if otherRelayerReward.IsPositive() {
 		for _, signedRelayer := range otherRelayers {
 			err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 				crosschaintypes.ModuleName,
@@ -135,7 +135,7 @@ func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signed
 	}
 
 	remainingReward := relayerFee.Sub(totalDistributed)
-	if remainingReward.GT(sdkmath.ZeroInt()) {
+	if remainingReward.IsPositive() {
 		err := k.BankKeeper.SendCoinsFromModuleToAccount(ctx,
 			crosschaintypes.ModuleName,
 			relayer,
