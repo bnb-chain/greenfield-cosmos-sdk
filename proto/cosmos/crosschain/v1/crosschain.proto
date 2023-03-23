@@ -1,11 +1,17 @@
 syntax = "proto3";
 package cosmos.crosschain.v1;
 
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
 // Params holds parameters for the cross chain module.
 message Params {
   // initial balance to mint for crosschain module when the chain starts
-  // todo(quality): Use `sdk.Int` instead of `string` for `init_module_balance`.
-  string init_module_balance = 1;
+  string init_module_balance = 1 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
 }
