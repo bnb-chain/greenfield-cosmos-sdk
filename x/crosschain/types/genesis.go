@@ -22,7 +22,7 @@ func DefaultGenesisState() *GenesisState {
 
 // ValidateGenesis validates the cross chain genesis parameters
 func ValidateGenesis(data GenesisState) error {
-	if !data.Params.InitModuleBalance.IsPositive() {
+	if data.Params.InitModuleBalance.IsNil() || !data.Params.InitModuleBalance.IsPositive() {
 		return fmt.Errorf("init module balance should be positive, is %s", data.Params.InitModuleBalance.String())
 	}
 
