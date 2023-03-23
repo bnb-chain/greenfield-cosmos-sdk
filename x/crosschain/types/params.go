@@ -2,12 +2,20 @@ package types
 
 import (
 	"fmt"
-	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-const DefaultInitModuleBalance string = "2000000000000000000000000" // 2M
+var DefaultInitModuleBalance sdkmath.Int
+
+func init() {
+	initModuleBalance, ok := sdkmath.NewIntFromString("2000000000000000000000000") // 2M
+	if !ok {
+		panic("invalid init module balance")
+	}
+	DefaultInitModuleBalance = initModuleBalance
+}
 
 var KeyParamInitModuleBalance = []byte("InitModuleBalance")
 
@@ -29,18 +37,17 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 }
 
 func validateInitModuleBalance(i interface{}) error {
-	v, ok := i.(string)
+	v, ok := i.(sdkmath.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	balance, valid := big.NewInt(0).SetString(v, 10)
-	if !valid {
-		return fmt.Errorf("invalid module balance, is %s", v)
+	if v.IsNil() {
+		return fmt.Errorf("init module balance should not be nil")
 	}
 
-	if balance.Cmp(big.NewInt(0)) < 0 {
-		return fmt.Errorf("init module balance should be positive, is %s", v)
+	if !v.IsPositive() {
+		return fmt.Errorf("init module balance should be positive, is %s", v.String())
 	}
 
 	return nil

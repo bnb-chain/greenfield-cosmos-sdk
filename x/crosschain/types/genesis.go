@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"math/big"
 )
 
 // NewGenesisState creates a new GenesisState object
@@ -23,13 +22,8 @@ func DefaultGenesisState() *GenesisState {
 
 // ValidateGenesis validates the cross chain genesis parameters
 func ValidateGenesis(data GenesisState) error {
-	balance, valid := big.NewInt(0).SetString(data.Params.InitModuleBalance, 10)
-	if !valid {
-		return fmt.Errorf("invalid module balance, is %s", data.Params.InitModuleBalance)
-	}
-
-	if balance.Cmp(big.NewInt(0)) < 0 {
-		return fmt.Errorf("init module balance should be positive, is %s", balance.String())
+	if data.Params.InitModuleBalance.IsNil() || !data.Params.InitModuleBalance.IsPositive() {
+		return fmt.Errorf("init module balance should be positive, is %s", data.Params.InitModuleBalance.String())
 	}
 
 	return nil

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -56,7 +57,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState, bankKeep
 
 	err := bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.Coin{
 		Denom:  bondDenom,
-		Amount: sdk.NewIntFromBigInt(initModuleBalance),
+		Amount: initModuleBalance,
 	}})
 	if err != nil {
 		panic(fmt.Sprintf("mint initial cross chain module balance error, err=%s", err.Error()))
@@ -64,14 +65,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState, bankKeep
 }
 
 // GetInitModuleBalance returns the initial balance of cross chain module
-func (k Keeper) GetInitModuleBalance(ctx sdk.Context) *big.Int {
-	var initModuleBlaanceParam string
-	k.paramSpace.Get(ctx, types.KeyParamInitModuleBalance, &initModuleBlaanceParam)
-	moduleBalance, valid := big.NewInt(0).SetString(initModuleBlaanceParam, 10)
-	if !valid {
-		panic(fmt.Errorf("invalid init module balance: %s", initModuleBlaanceParam))
-	}
-	return moduleBalance
+func (k Keeper) GetInitModuleBalance(ctx sdk.Context) sdkmath.Int {
+	var initModuleBalanceParam sdkmath.Int
+	k.paramSpace.Get(ctx, types.KeyParamInitModuleBalance, &initModuleBalanceParam)
+	return initModuleBalanceParam
 }
 
 // SetParams sets the params of cross chain module
