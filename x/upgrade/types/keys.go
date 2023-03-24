@@ -28,6 +28,10 @@ const (
 
 	// KeyUpgradedConsState is the sub-key under which upgraded consensus state will be stored
 	KeyUpgradedConsState = "upgradedConsState"
+
+	// KeyUpgradedClient is the sub-key under which upgraded client state will be stored
+	// it's unused, but need to compatible to ibc-go package
+	KeyUpgradedClient = "upgradedClient"
 )
 
 // UpgradedConsStateKey is the key under which the upgraded consensus state is saved
