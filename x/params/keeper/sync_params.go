@@ -15,7 +15,7 @@ func (k Keeper) RegisterCrossChainSyncParamsApp() error {
 }
 
 func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) error {
-	// this validates content and size of changes is not empty
+	// validates if change(s) is/are present, proposal content is valid for params change or contract upgrade
 	if err := p.ValidateBasic(); err != nil {
 		return err
 	}
@@ -29,18 +29,18 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 		if c.Key == types.KeyUpgrade {
 			value, err = sdk.AccAddressFromHexUnsafe(c.Value)
 			if err != nil {
-				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", c.Value)
+				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address format is not valid, address=%s", c.Value)
 			}
 		} else {
 			value, err = hex.DecodeString(c.Value)
 			if err != nil {
-				return sdkerrors.Wrapf(types.ErrInvalidValue, "value is not valid %s", c.Value)
+				return sdkerrors.Wrapf(types.ErrInvalidValue, "ParamChange value is not valid, should be in hex format, value=%s", c.Value)
 			}
 		}
 		values = append(values, value...)
 		addr, err := sdk.AccAddressFromHexUnsafe(p.Addresses[i])
 		if err != nil {
-			return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", p.Addresses[i])
+			return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address format is not valid, address=%s", p.Addresses[i])
 		}
 		addresses = append(addresses, addr.Bytes()...)
 	}
@@ -65,8 +65,6 @@ func (k Keeper) SyncParams(ctx sdk.Context, p *types.ParameterChangeProposal) er
 	)
 	return err
 }
-
-// Need these in order to register paramsKeeper to be a CrosschainApp so that it can register channel(3)
 
 func (k Keeper) ExecuteSynPackage(ctx sdk.Context, appCtx *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	k.Logger(ctx).Error("received sync params sync package", "payload", hex.EncodeToString(payload))

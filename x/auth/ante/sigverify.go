@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"cosmossdk.io/errors"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -59,7 +60,7 @@ func NewSetPubKeyDecorator(ak AccountKeeper) SetPubKeyDecorator {
 func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
-		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
+		return ctx, errors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
 	}
 
 	pubkeys, err := sigTx.GetPubKeys()
@@ -78,7 +79,7 @@ func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 		}
 		// Only make check if simulate=false
 		if !simulate && !bytes.Equal(pk.Address(), signers[i]) {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey,
+			return ctx, errors.Wrapf(sdkerrors.ErrInvalidPubKey,
 				"pubKey does not match signer address %s with signer index: %d", signers[i], i)
 		}
 
@@ -92,7 +93,7 @@ func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 		}
 		err = acc.SetPubKey(pk)
 		if err != nil {
-			return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, err.Error())
+			return ctx, errors.Wrap(sdkerrors.ErrInvalidPubKey, err.Error())
 		}
 		spkd.ak.SetAccount(ctx, acc)
 	}
@@ -213,31 +214,10 @@ func NewSigVerificationDecorator(ak AccountKeeper, signModeHandler authsigning.S
 	}
 }
 
-// OnlyLegacyAminoSigners checks SignatureData to see if all
-// signers are using SIGN_MODE_LEGACY_AMINO_JSON. If this is the case
-// then the corresponding SignatureV2 struct will not have account sequence
-// explicitly set, and we should skip the explicit verification of sig.Sequence
-// in the SigVerificationDecorator's AnteHandler function.
-func OnlyLegacyAminoSigners(sigData signing.SignatureData) bool {
-	switch v := sigData.(type) {
-	case *signing.SingleSignatureData:
-		return v.SignMode == signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON
-	case *signing.MultiSignatureData:
-		for _, s := range v.Signatures {
-			if !OnlyLegacyAminoSigners(s) {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
-}
-
 func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
-		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid transaction type")
+		return ctx, errors.Wrap(sdkerrors.ErrTxDecode, "invalid transaction type")
 	}
 
 	// stdSigs contains the sequence number, account number, and signatures.
@@ -251,7 +231,7 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	// check that signer length and signature length are the same
 	if len(sigs) != len(signerAddrs) {
-		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "invalid number of signer;  expected: %d, got %d", len(signerAddrs), len(sigs))
+		return ctx, errors.Wrapf(sdkerrors.ErrUnauthorized, "invalid number of signer;  expected: %d, got %d", len(signerAddrs), len(sigs))
 	}
 
 	for i, sig := range sigs {
@@ -293,16 +273,8 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		if !simulate && !ctx.IsReCheckTx() {
 			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx)
 			if err != nil {
-				// var errMsg string
-				// if OnlyLegacyAminoSigners(sig.Data) {
-				// 	// If all signers are using SIGN_MODE_LEGACY_AMINO, we rely on VerifySignature to check account sequence number,
-				// 	// and therefore communicate sequence number as a potential cause of error.
-				// 	errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d), sequence (%d) and chain-id (%s)", accNum, acc.GetSequence(), chainID)
-				// } else {
-				// 	errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
-				// }
 				errMsg := fmt.Sprintf("signature verification failed; please verify account (%s) and chain-id (%s)", pubKey.Address(), chainID)
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, errMsg)
+				return ctx, errors.Wrap(sdkerrors.ErrUnauthorized, errMsg)
 
 			}
 		}

@@ -26,19 +26,9 @@ const (
 	// KeyUpgradedIBCState is the key under which upgraded ibc state is stored in the upgrade store
 	KeyUpgradedIBCState = "upgradedIBCState"
 
-	// KeyUpgradedClient is the sub-key under which upgraded client state will be stored
-	KeyUpgradedClient = "upgradedClient"
-
 	// KeyUpgradedConsState is the sub-key under which upgraded consensus state will be stored
 	KeyUpgradedConsState = "upgradedConsState"
 )
-
-// UpgradedClientKey is the key under which the upgraded client state is saved
-// Connecting IBC chains can verify against the upgraded client in this path before
-// upgrading their clients
-func UpgradedClientKey(height int64) []byte {
-	return []byte(fmt.Sprintf("%s/%d/%s", KeyUpgradedIBCState, height, KeyUpgradedClient))
-}
 
 // UpgradedConsStateKey is the key under which the upgraded consensus state is saved
 // Connecting IBC chains can verify against the upgraded consensus state in this path before

@@ -20,49 +20,38 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
 		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
+			sig := data.Signature
 			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
 			if err != nil {
 				return err
 			}
 
-			senderSig := data.Signature
-			if len(senderSig) != ethcrypto.SignatureLength {
+			// check signature length
+			if len(sig) != ethcrypto.SignatureLength {
 				return errors.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
 			}
 
-			// Remove the recovery offset if needed (ie. Metamask eip712 signature)
-			if senderSig[ethcrypto.RecoveryIDOffset] == 27 || senderSig[ethcrypto.RecoveryIDOffset] == 28 {
-				senderSig[ethcrypto.RecoveryIDOffset] -= 27
+			// remove the recovery offset if needed (ie. Metamask eip712 signature)
+			if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
+				sig[ethcrypto.RecoveryIDOffset] -= 27
 			}
 
-			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, senderSig)
+			// recover the pubkey from the signature
+			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, sig)
 			if err != nil {
-				return errors.Wrap(err, "failed to recover delegated fee payer from sig")
+				return errors.Wrap(err, "failed to recover fee payer from sig")
 			}
-
 			ecPubKey, err := ethcrypto.UnmarshalPubkey(feePayerPubkey)
 			if err != nil {
 				return errors.Wrap(err, "failed to unmarshal recovered fee payer pubkey")
 			}
 
+			// check that the recovered pubkey matches the one in the signerData data
 			pk := &ethsecp256k1.PubKey{
 				Key: ethcrypto.CompressPubkey(ecPubKey),
 			}
-
 			if !pubKey.Equals(pk) {
-				return errors.Wrapf(sdkerrors.ErrInvalidPubKey, "feePayer pubkey %s is different from transaction pubkey %s", pubKey, pk)
-			}
-
-			recoveredFeePayerAcc := sdk.AccAddress(pk.Address().Bytes())
-
-			if !recoveredFeePayerAcc.Equals(sdk.MustAccAddressFromHex(signerData.Address)) {
-				return errors.Wrapf(sdkerrors.ErrorInvalidSigner, "failed to verify delegated fee payer %s signature", recoveredFeePayerAcc)
-			}
-
-			// VerifySignature of ethsecp256k1 accepts 64 byte signature [R||S]
-			// WARNING! Under NO CIRCUMSTANCES try to use pubKey.VerifySignature there
-			if !secp256k1.VerifySignature(pubKey.Bytes(), sigHash, senderSig[:len(senderSig)-1]) {
-				return errors.Wrap(sdkerrors.ErrorInvalidSigner, "unable to verify signer signature of EIP712 typed data")
+				return errors.Wrapf(sdkerrors.ErrorInvalidSigner, "feePayer's pubkey %s is different from signature's pubkey %s", pubKey, pk)
 			}
 			return nil
 		} else {

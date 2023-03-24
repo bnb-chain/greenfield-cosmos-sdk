@@ -24,6 +24,7 @@ func NewParameterChangeProposal(title, description string, changes []ParamChange
 	return &ParameterChangeProposal{Title: title, Description: description, Changes: changes}
 }
 
+// NewCrossChainParameterChangeProposal creates a proposal for cross chain parameter change or smart contract upgrade
 func NewCrossChainParameterChangeProposal(title, description string, changes []ParamChange, addresses []string) *ParameterChangeProposal {
 	return &ParameterChangeProposal{Title: title, Description: description, Changes: changes, CrossChain: true, Addresses: addresses}
 }

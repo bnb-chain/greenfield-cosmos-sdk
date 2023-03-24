@@ -1,4 +1,17 @@
 # Changelog
+## v0.0.12
+This is a maintenance release.
+
+* [\#147](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/147) chore: refine the default gas
+* [\#146](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/146) chore: refine crosschain module
+* [\#145](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/145) chore: refine oracle module
+* [\#143](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/143) docs: add licence and disclaim
+* [\#141](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/141) refine the storage tx fee
+* [\#140](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/140) chore: refine the code of gashub module
+* [\#142](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/142) refactor: refine cross-chain governance
+* [\#144](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/144) chore: refine upgrade module for code quality
+* [\#129](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/129) feat: add challenger address to validators  
+
 ## v0.0.11
 This is a maintenance release.
 

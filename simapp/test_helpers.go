@@ -172,6 +172,7 @@ func genesisStateWithValSet(t *testing.T,
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.AccAddress(val.Address).String(),
 			RelayerAddress:    sdk.AccAddress(val.Address).String(),
+			ChallengerAddress: sdk.AccAddress(val.Address).String(),
 			ConsensusPubkey:   pkAny,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,

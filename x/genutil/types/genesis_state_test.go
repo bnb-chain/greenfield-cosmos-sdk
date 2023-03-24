@@ -44,7 +44,8 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 	msg1, err := stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk1.Address()), pk1,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	require.NoError(t, err)
 
 	blsSecretKey2, _ := bls.RandKey()
@@ -52,7 +53,8 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 	msg2, err := stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk2.Address()), pk2,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
-		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
 	require.NoError(t, err)
 
 	txGen := simapp.MakeTestEncodingConfig().TxConfig
@@ -73,7 +75,7 @@ func TestValidateGenesisBadMessage(t *testing.T) {
 
 	msg1 := stakingtypes.NewMsgEditValidator(
 		sdk.AccAddress(pk1.Address()), desc, nil, nil,
-		sdk.AccAddress(pk1.Address()), blsPk,
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk,
 	)
 
 	txGen := simapp.MakeTestEncodingConfig().TxConfig

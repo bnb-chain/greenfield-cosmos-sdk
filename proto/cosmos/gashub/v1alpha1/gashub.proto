@@ -10,9 +10,12 @@ message Params {
   option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
 
-  uint64 max_tx_size      = 1 [(gogoproto.customname) = "MaxTxSize"];
+  // max_tx_size is the maximum size of a transaction's bytes.
+  uint64 max_tx_size = 1 [(gogoproto.customname) = "MaxTxSize"];
+  // min_gas_per_byte is the minimum gas to be paid per byte of a transaction's
   uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
 
+  // msg_gas_params is the list of gas params for each msg type
   repeated MsgGasParams msg_gas_params_set = 3 [(gogoproto.customname) = "MsgGasParamsSet"];
 }
 
@@ -36,6 +39,7 @@ message MsgGasParams {
   message FixedGasParams {
     option (gogoproto.equal) = true;
 
+    // fixed_gas is the gas cost for a fixed type msg
     uint64 fixed_gas = 1 [(gogoproto.customname) = "FixedGas"];
   }
 
@@ -43,7 +47,9 @@ message MsgGasParams {
   message DynamicGasParams {
     option (gogoproto.equal) = true;
 
+    // fixed_gas is the base gas cost for a dynamic type msg
     uint64 fixed_gas    = 1 [(gogoproto.customname) = "FixedGas"];
+    // gas_per_item is the gas cost for a dynamic type msg per item
     uint64 gas_per_item = 2 [(gogoproto.customname) = "GasPerItem"];
   }
 }
