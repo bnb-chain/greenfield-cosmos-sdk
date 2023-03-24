@@ -1,4 +1,9 @@
 # Changelog
+## v0.0.13
+This is a hotfix release.
+
+* [\#150](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/150) fix: revert KeyUpgradedClient key in upgrade module
+
 ## v0.0.12
 This is a maintenance release.
 
