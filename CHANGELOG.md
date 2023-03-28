@@ -1,4 +1,9 @@
 # Changelog
+## v0.0.14
+This is a hotfix release.
+
+* [\#153](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/153) fix: fee calculation in oracle
+
 ## v0.0.13
 This is a hotfix release.
 
