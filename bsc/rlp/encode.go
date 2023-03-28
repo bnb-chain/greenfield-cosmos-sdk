@@ -330,6 +330,8 @@ func makeWriter(typ reflect.Type, ts tags) (writer, error) {
 		return makeEncoderWriter(typ), nil
 	case isUint(kind):
 		return writeUint, nil
+	case isInt(kind):
+		return writeInt, nil
 	case kind == reflect.Bool:
 		return writeBool, nil
 	case kind == reflect.String:
@@ -372,6 +374,14 @@ func writeUint(val reflect.Value, w *encbuf) error {
 		w.str = append(w.str, w.sizebuf[:s+1]...)
 	}
 	return nil
+}
+
+func writeInt(val reflect.Value, w *encbuf) error {
+	i := val.Int()
+	if i < 0 {
+		return fmt.Errorf("rlp: cannot encode negative integer %d", i)
+	}
+	return writeUint(reflect.ValueOf(uint64(i)), w)
 }
 
 func writeBool(val reflect.Value, w *encbuf) error {

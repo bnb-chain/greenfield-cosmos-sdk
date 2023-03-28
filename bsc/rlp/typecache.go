@@ -210,6 +210,10 @@ func isUint(k reflect.Kind) bool {
 	return k >= reflect.Uint && k <= reflect.Uintptr
 }
 
+func isInt(k reflect.Kind) bool {
+	return k >= reflect.Int && k < reflect.Uint
+}
+
 func isByteArray(typ reflect.Type) bool {
 	return (typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array) && isByte(typ.Elem())
 }
