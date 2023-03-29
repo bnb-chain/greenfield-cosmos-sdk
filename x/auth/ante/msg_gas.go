@@ -4,13 +4,15 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
+)
+
+const (
+	EthSecp256k1SigSize = 65
+	FeeSize             = 42
 )
 
 // ValidateTxSizeDecorator will validate tx bytes length given the parameters passed in
@@ -47,31 +49,14 @@ func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		}
 		n := len(sigs)
 
-		for i, signer := range sigTx.GetSigners() {
+		txSize += FeeSize
+		for i := range sigTx.GetSigners() {
 			// if signature is already filled in, no need to simulate gas cost
 			if i < n && !isIncompleteSignature(sigs[i].Data) {
 				continue
 			}
 
-			var pubkey cryptotypes.PubKey
-
-			acc := vtsd.ak.GetAccount(ctx, signer)
-
-			// use placeholder simSecp256k1Pubkey if sig is nil
-			if acc == nil || acc.GetPubKey() == nil {
-				pubkey = simSecp256k1Pubkey
-			} else {
-				pubkey = acc.GetPubKey()
-			}
-
-			// use stdsignature to mock the size of a full signature
-			simSig := legacytx.StdSignature{ //nolint:staticcheck // this will be removed when proto is ready
-				Signature: simSecp256k1Sig[:],
-				PubKey:    pubkey,
-			}
-
-			sigBz := legacy.Cdc.MustMarshal(simSig)
-			txSize = txSize + uint64(len(sigBz)) + 14
+			txSize += EthSecp256k1SigSize
 		}
 
 		newCtx = ctx.WithTxSize(txSize)
