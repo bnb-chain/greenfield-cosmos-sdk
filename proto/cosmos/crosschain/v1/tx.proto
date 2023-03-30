@@ -10,7 +10,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
-// Msg defines the bank Msg service.
+// Msg defines the crosschain Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
