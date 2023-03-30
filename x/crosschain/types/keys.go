@@ -12,9 +12,8 @@ var (
 )
 
 const (
-	ModuleName   = "crosschain"
-	StoreKey     = ModuleName
-	QuerierRoute = StoreKey
+	ModuleName = "crosschain"
+	StoreKey   = ModuleName
 
 	prefixLength      = 1
 	srcChainIdLength  = 2

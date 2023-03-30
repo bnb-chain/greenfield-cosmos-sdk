@@ -43,13 +43,13 @@ func (k *Keeper) GetAuthority() string {
 var _ types.QueryServer = Keeper{}
 
 // Params queries params of consensus module
-func (k Keeper) GetParams(ctx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (k Keeper) GetParams(ctx context.Context, _ *types.QueryGetParamsRequest) (*types.QueryGetParamsResponse, error) {
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryParamsResponse{Params: &params}, nil
+	return &types.QueryGetParamsResponse{Params: &params}, nil
 }
 
 // MsgServer

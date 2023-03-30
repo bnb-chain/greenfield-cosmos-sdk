@@ -55,14 +55,14 @@ func (s *KeeperTestSuite) TestGRPCQueryConsensusParams() {
 
 	testCases := []struct {
 		msg      string
-		req      types.QueryParamsRequest
+		req      types.QueryGetParamsRequest
 		malleate func()
-		response types.QueryParamsResponse
+		response types.QueryGetParamsResponse
 		expPass  bool
 	}{
 		{
 			"success",
-			types.QueryParamsRequest{},
+			types.QueryGetParamsRequest{},
 			func() {
 				input := &types.MsgUpdateParams{
 					Authority: s.consensusParamsKeeper.GetAuthority(),
@@ -72,7 +72,7 @@ func (s *KeeperTestSuite) TestGRPCQueryConsensusParams() {
 				}
 				s.consensusParamsKeeper.UpdateParams(s.ctx, input)
 			},
-			types.QueryParamsResponse{
+			types.QueryGetParamsResponse{
 				Params: &cmtproto.ConsensusParams{
 					Block:     defaultConsensusParams.Block,
 					Validator: defaultConsensusParams.Validator,

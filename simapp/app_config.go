@@ -32,7 +32,7 @@ import (
 
 	"cosmossdk.io/x/feegrant"
 
-	crosschaingmodulev1 "cosmossdk.io/api/cosmos/crosschain/module/v1"
+	crosschainmodulev1 "cosmossdk.io/api/cosmos/crosschain/module/v1"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -232,7 +232,7 @@ var (
 			},
 			{
 				Name:   crosschaintypes.ModuleName,
-				Config: appconfig.WrapAny(&crosschaingmodulev1.Module{}),
+				Config: appconfig.WrapAny(&crosschainmodulev1.Module{}),
 			},
 		},
 	})
