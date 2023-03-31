@@ -9,7 +9,7 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
 // Params holds parameters for the cross chain module.
 message Params {
-  option (amino.name)                 = "cosmos-sdk/x/mint/Params";
+  option (amino.name)                 = "cosmos-sdk/x/crosschain/Params";
 
   // initial balance to mint for crosschain module when the chain starts
   string init_module_balance = 1 [
