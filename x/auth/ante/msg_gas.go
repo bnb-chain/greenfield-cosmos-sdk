@@ -4,13 +4,17 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/gashub/types"
+)
+
+const (
+	// Length of the protobuf encoded bytes
+	EthSecp256k1PubkeySize = 79
+	EthSecp256k1SigSize    = 65
+	FeeSize                = 42
 )
 
 // ValidateTxSizeDecorator will validate tx bytes length given the parameters passed in
@@ -38,7 +42,7 @@ func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	newCtx := ctx
 	txSize := newCtx.TxSize()
-	// simulate signatures in simulate mode
+	// get right tx size in simulate mode
 	if simulate {
 		// in simulate mode, each element should be a nil signature
 		sigs, err := sigTx.GetSignaturesV2()
@@ -47,33 +51,20 @@ func (vtsd ValidateTxSizeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		}
 		n := len(sigs)
 
-		for i, signer := range sigTx.GetSigners() {
-			// if signature is already filled in, no need to simulate gas cost
-			if i < n && !isIncompleteSignature(sigs[i].Data) {
-				continue
-			}
-
-			var pubkey cryptotypes.PubKey
-
-			acc := vtsd.ak.GetAccount(ctx, signer)
-
-			// use placeholder simSecp256k1Pubkey if sig is nil
-			if acc == nil || acc.GetPubKey() == nil {
-				pubkey = simSecp256k1Pubkey
+		for i := range sigTx.GetSigners() {
+			if i < n {
+				if isIncompleteSignature(sigs[i].Data) {
+					txSize += EthSecp256k1SigSize
+				}
+				if sigs[i].PubKey == nil {
+					txSize += EthSecp256k1PubkeySize
+				}
 			} else {
-				pubkey = acc.GetPubKey()
+				txSize += EthSecp256k1SigSize + EthSecp256k1PubkeySize
 			}
-
-			// use stdsignature to mock the size of a full signature
-			simSig := legacytx.StdSignature{ //nolint:staticcheck // this will be removed when proto is ready
-				Signature: simSecp256k1Sig[:],
-				PubKey:    pubkey,
-			}
-
-			sigBz := legacy.Cdc.MustMarshal(simSig)
-			txSize = txSize + uint64(len(sigBz)) + 14
 		}
 
+		txSize += FeeSize
 		newCtx = ctx.WithTxSize(txSize)
 	}
 
@@ -113,9 +104,9 @@ func (cmfg ConsumeMsgGasDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	}
 
 	if gasByTxSize > gasByMsgType {
-		ctx.GasMeter().ConsumeGas(gasByTxSize, "tx bytes length")
+		ctx.GasMeter().ConsumeGas(gasByTxSize, "gas cost by tx bytes length")
 	} else {
-		ctx.GasMeter().ConsumeGas(gasByMsgType, "msg type")
+		ctx.GasMeter().ConsumeGas(gasByMsgType, "gas cost by msg type")
 	}
 
 	return next(ctx, tx, simulate)
@@ -140,5 +131,9 @@ func (cmfg ConsumeMsgGasDecorator) getMsgGas(params types.Params, tx sdk.Tx) (ui
 }
 
 func (cmfg ConsumeMsgGasDecorator) getTxSizeGas(params types.Params, ctx sdk.Context) uint64 {
-	return params.GetMinGasPerByte() * ctx.TxSize()
+	txSize := ctx.TxSize()
+	if txSize < params.GetMaxTxSize()/2 {
+		return 0
+	}
+	return params.GetMinGasPerByte() * txSize
 }

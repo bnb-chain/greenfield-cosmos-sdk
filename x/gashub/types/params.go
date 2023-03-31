@@ -11,7 +11,7 @@ import (
 
 // Default parameter values
 const (
-	DefaultMaxTxSize     uint64 = 32 * 1024 // 32kb
+	DefaultMaxTxSize     uint64 = 64 * 1024 // 32kb
 	DefaultMinGasPerByte uint64 = 5
 )
 
