@@ -9,7 +9,7 @@ import (
 var DefaultInitModuleBalance sdkmath.Int
 
 func init() {
-	initModuleBalance, ok := sdkmath.NewIntFromString("2000000000000000000000000") // 2M
+	initModuleBalance, ok := sdkmath.NewIntFromString("0") // 2M
 	if !ok {
 		panic("invalid init module balance")
 	}
