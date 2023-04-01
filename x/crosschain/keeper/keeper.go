@@ -51,14 +51,18 @@ func (k Keeper) InitGenesis(ctx sdk.Context, state *types.GenesisState, bankKeep
 	k.SetParams(ctx, state.Params)
 
 	params := k.GetParams(ctx)
-	bondDenom := stakingKeeper.BondDenom(ctx)
 
-	err := bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.Coin{
-		Denom:  bondDenom,
-		Amount: params.InitModuleBalance,
-	}})
-	if err != nil {
-		panic(fmt.Sprintf("mint initial cross chain module balance error, err=%s", err.Error()))
+	// for testing
+	if !params.InitModuleBalance.IsNil() && params.InitModuleBalance.GT(sdk.ZeroInt()) {
+		bondDenom := stakingKeeper.BondDenom(ctx)
+
+		err := bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.Coin{
+			Denom:  bondDenom,
+			Amount: params.InitModuleBalance,
+		}})
+		if err != nil {
+			panic(fmt.Sprintf("mint initial cross chain module balance error, err=%s", err.Error()))
+		}
 	}
 }
 
