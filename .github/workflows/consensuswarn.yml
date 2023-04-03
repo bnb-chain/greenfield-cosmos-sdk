@@ -4,7 +4,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths: ["**/*.go"]
 jobs:
-  remind:
+  main:
     runs-on: ubuntu-latest
     env:
       GOPRIVATE: github.com/bnb-chain
