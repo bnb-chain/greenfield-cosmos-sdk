@@ -1,23 +1,9 @@
 name: "Warn about consensus code changes"
 
 on:
-  pull_request_target:
-    types:
-      - opened
-      - edited
-      - synchronize
-permissions:
-  actions: write
-  checks: write
-  contents: write
-  deployments: write
-  issues: write
-  packages: write
-  pull-requests: write
-  repository-projects: write
-  security-events: write
-  statuses: write
-
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths: ["**/*.go"]
 jobs:
   main:
     runs-on: ubuntu-latest
