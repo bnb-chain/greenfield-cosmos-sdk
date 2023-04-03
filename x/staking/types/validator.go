@@ -252,6 +252,7 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
+	//TODO: update validators' other fields
 	return abci.ValidatorUpdate{
 		PubKey: tmProtoPk,
 		Power:  v.ConsensusPower(r),
@@ -266,6 +267,7 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 		panic(err)
 	}
 
+	//TODO: update validators' other fields
 	return abci.ValidatorUpdate{
 		PubKey: tmProtoPk,
 		Power:  0,
