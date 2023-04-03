@@ -6,19 +6,19 @@ import (
 	sdkmath "cosmossdk.io/math"
 )
 
-var DefaultInitModuleBalance *sdkmath.Int
+var DefaultInitModuleBalance sdkmath.Int
 
 func init() {
 	initModuleBalance, ok := sdkmath.NewIntFromString("2000000000000000000000000") // 2M
 	if !ok {
 		panic("invalid init module balance")
 	}
-	DefaultInitModuleBalance = &initModuleBalance
+	DefaultInitModuleBalance = initModuleBalance
 }
 
 func DefaultParams() Params {
 	return Params{
-		InitModuleBalance: *DefaultInitModuleBalance,
+		InitModuleBalance: DefaultInitModuleBalance,
 	}
 }
 

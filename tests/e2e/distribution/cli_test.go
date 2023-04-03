@@ -14,7 +14,7 @@ import (
 
 func TestE2ETestSuite(t *testing.T) {
 	// don't mint token for crosschain module
-	crosschaintypes.DefaultInitModuleBalance = &math.Int{}
+	crosschaintypes.DefaultInitModuleBalance = math.ZeroInt()
 
 	suite.Run(t, new(E2ETestSuite))
 }

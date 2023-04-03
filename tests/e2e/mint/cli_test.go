@@ -16,7 +16,7 @@ import (
 
 func TestE2ETestSuite(t *testing.T) {
 	// don't mint token for crosschain module
-	crosschaintypes.DefaultInitModuleBalance = &math.Int{}
+	crosschaintypes.DefaultInitModuleBalance = math.ZeroInt()
 
 	cfg := network.DefaultConfig(simapp.NewTestNetworkFixture)
 	cfg.NumValidators = 1
