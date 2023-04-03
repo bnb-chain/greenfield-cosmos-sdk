@@ -1,4 +1,4 @@
-package cosschain
+package crosschain
 
 import (
 	"strings"
