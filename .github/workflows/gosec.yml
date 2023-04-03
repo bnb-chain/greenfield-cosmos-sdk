@@ -15,9 +15,6 @@ on:
 
 jobs:
   Gosec:
-    permissions:
-      security-events: write
-
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on

@@ -9,8 +9,6 @@ on:
 
 jobs:
   main:
-    permissions:
-      pull-requests: write # For reading the PR and posting comment
     runs-on: ubuntu-latest
     env:
       GOPRIVATE: github.com/bnb-chain
