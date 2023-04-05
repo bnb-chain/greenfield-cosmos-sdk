@@ -11,6 +11,7 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/x/crosschain"
+	"github.com/cosmos/cosmos-sdk/x/oracle"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -201,6 +202,7 @@ func TestRunMigrations(t *testing.T) {
 					"crisis":       crisis.AppModule{}.ConsensusVersion(),
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
 					"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
+					"oracle":       oracle.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -251,6 +253,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"crisis":       crisis.AppModule{}.ConsensusVersion(),
 			"genutil":      genutil.AppModule{}.ConsensusVersion(),
 			"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
+			"oracle":       oracle.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)
