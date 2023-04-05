@@ -33,6 +33,7 @@ import (
 	"cosmossdk.io/x/feegrant"
 
 	crosschainmodulev1 "cosmossdk.io/api/cosmos/crosschain/module/v1"
+	oraclemodulev1 "cosmossdk.io/api/cosmos/oracle/module/v1"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -46,6 +47,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -135,6 +137,7 @@ var (
 						vestingtypes.ModuleName,
 						consensustypes.ModuleName,
 						crosschaintypes.ModuleName,
+						oracletypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -233,6 +236,10 @@ var (
 			{
 				Name:   crosschaintypes.ModuleName,
 				Config: appconfig.WrapAny(&crosschainmodulev1.Module{}),
+			},
+			{
+				Name:   oracletypes.ModuleName,
+				Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
 			},
 		},
 	})

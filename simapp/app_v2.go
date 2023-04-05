@@ -11,6 +11,7 @@ import (
 	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/x/crosschain"
+	"github.com/cosmos/cosmos-sdk/x/oracle"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
@@ -62,6 +63,7 @@ import (
 	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
+	oraclekeeper "github.com/cosmos/cosmos-sdk/x/oracle/keeper"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
@@ -103,6 +105,7 @@ var (
 		nftmodule.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		crosschain.AppModuleBasic{},
+		oracle.AppModuleBasic{},
 	)
 )
 
@@ -140,6 +143,7 @@ type SimApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	CrossChainKeeper      crosschainkeeper.Keeper
+	OracleKeeper          oraclekeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -224,6 +228,7 @@ func NewSimApp(
 		&app.NFTKeeper,
 		&app.ConsensusParamsKeeper,
 		&app.CrossChainKeeper,
+		&app.OracleKeeper,
 	); err != nil {
 		panic(err)
 	}
