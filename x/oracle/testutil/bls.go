@@ -103,6 +103,6 @@ func GenerateBlsSig(privKeys []bls.SecretKey, data []byte) []byte {
 	votes = append(votes, &vote2)
 	votes = append(votes, &vote3)
 
-	aggreatedSigature, _ := AggregatedSignature(votes)
-	return aggreatedSigature
+	aggregatedSignature, _ := AggregatedSignature(votes)
+	return aggregatedSignature
 }
