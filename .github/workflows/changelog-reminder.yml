@@ -4,12 +4,13 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths: ["**/*.go"]
-permissions:
-  pull-requests: write
 jobs:
   remind:
     name: Changelog Reminder
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/bnb-chain
+      GH_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
     # Skip draft PRs and PRs starting with: revert, test, chore, ci, docs, style, build, refactor
     if: "!github.event.pull_request.draft && !contains(github.event.pull_request.title, 'revert') && !contains(github.event.pull_request.title, 'test') && !contains(github.event.pull_request.title, 'chore') && !contains(github.event.pull_request.title, 'ci') && !contains(github.event.pull_request.title, 'docs') && !contains(github.event.pull_request.title, 'style') && !contains(github.event.pull_request.title, 'build') && !contains(github.event.pull_request.title, 'refactor')"
     steps:
