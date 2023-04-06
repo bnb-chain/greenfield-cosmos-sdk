@@ -1,0 +1,13 @@
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/oracle/v1/oracle.proto";
+
+// GenesisState defines the oracle module's genesis state.
+message GenesisState {
+  // params defines all the parameters of related to oracle module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}

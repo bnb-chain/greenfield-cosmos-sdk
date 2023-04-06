@@ -28,6 +28,8 @@ import (
 	"cosmossdk.io/core/appconfig"
 	"google.golang.org/protobuf/types/known/durationpb"
 
+	crosschainmodulev1 "cosmossdk.io/api/cosmos/crosschain/module/v1"
+	oraclemodulev1 "cosmossdk.io/api/cosmos/oracle/module/v1"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -35,6 +37,7 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -43,6 +46,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/x/nft"
+	oracletypes "github.com/cosmos/cosmos-sdk/x/oracle/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -62,7 +66,7 @@ var (
 		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,
-		vestingtypes.ModuleName, consensustypes.ModuleName,
+		vestingtypes.ModuleName, consensustypes.ModuleName, crosschaintypes.ModuleName, oracletypes.ModuleName,
 	}
 
 	// module account permissions
@@ -74,6 +78,7 @@ var (
 		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 		{Account: govtypes.ModuleName, Permissions: []string{authtypes.Burner}},
 		{Account: nft.ModuleName},
+		{Account: crosschaintypes.ModuleName, Permissions: []string{authtypes.Minter}},
 	}
 
 	// blocked account addresses
@@ -120,6 +125,8 @@ var (
 						paramstypes.ModuleName,
 						vestingtypes.ModuleName,
 						consensustypes.ModuleName,
+						crosschaintypes.ModuleName,
+						oracletypes.ModuleName,
 					},
 					EndBlockers: []string{
 						crisistypes.ModuleName,
@@ -141,6 +148,8 @@ var (
 						consensustypes.ModuleName,
 						upgradetypes.ModuleName,
 						vestingtypes.ModuleName,
+						crosschaintypes.ModuleName,
+						oracletypes.ModuleName,
 					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
@@ -248,6 +257,14 @@ var (
 			{
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
+			},
+			{
+				Name:   crosschaintypes.ModuleName,
+				Config: appconfig.WrapAny(&crosschainmodulev1.Module{}),
+			},
+			{
+				Name:   oracletypes.ModuleName,
+				Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
 			},
 		},
 	})

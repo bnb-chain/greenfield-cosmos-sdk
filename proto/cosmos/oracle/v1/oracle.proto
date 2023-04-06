@@ -1,0 +1,21 @@
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+// Params holds parameters for the oracle module.
+message Params {
+  // Timeout for the in turn relayer in seconds
+  uint64 relayer_timeout = 1;
+  // RelayInterval is for in-turn relayer in seconds
+  uint64 relayer_interval = 2;
+  // Reward share for the relayer sends the claim message,
+  // the other relayers signed the bls message will share the reward evenly.
+  uint32 relayer_reward_share = 3; // in percentage
+}
+
+// RelayInterval holds start and end(exclusive) time of in-turn relayer, [start, end)
+message RelayInterval {
+  uint64 start = 1;
+  uint64 end   = 2;
+}
