@@ -1,0 +1,29 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.oracle.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/oracle/types";
+
+// EventPackageClaim is emitted when a cross chain package is processed
+message EventPackageClaim {
+  // Source chain id of the package
+  uint32 src_chain_id = 1;
+  // Destination chain id of the package
+  uint32 dest_chain_id = 2;
+  // Channel id of the package
+  uint32 channel_id = 3;
+  // Package type of the package, like SYN, ACK and FAIL_ACK
+  uint32 package_type = 4;
+  // Receive sequence of the package
+  uint64 receive_sequence = 5;
+  // Send sequence of the corresponding ACK package or FAIL_ACK package
+  int64 send_sequence = 6;
+  // Crash status for the handle of this package
+  bool crash = 7;
+  // Error message for the handle of this package
+  string error_msg = 8;
+  // Relayer fee paid for this package
+  string relayer_fee = 9;
+  // Relayer fee paid for the ACK or FAIL_ACK package
+  string ack_relayer_fee = 10;
+}
