@@ -2,8 +2,8 @@
 ## v0.1.0
 This is a maintenance release.
 
-* [\#163](https://github.com/bnb-chain/greenfield-cosmos-sdk/commit/c76063ca2d15ed601fdd3dddb0d5f2060fc50b3a) fix: update DefaultMaxTxSize and gas simulation logic
-* [\#155](https://github.com/bnb-chain/greenfield-cosmos-sdk/commit/38a83d31df7cec60c720b8d1e2acb41aabc1e4bc) feat: add gas config for discontinue object message
+* [\#163](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/163) fix: update DefaultMaxTxSize and gas simulation logic
+* [\#155](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/155) feat: add gas config for discontinue object message
 
 ## v0.0.14
 This is a hotfix release.
