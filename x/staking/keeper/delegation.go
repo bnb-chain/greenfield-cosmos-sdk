@@ -750,11 +750,11 @@ func (k Keeper) Unbond(
 		return amount, err
 	}
 
-	isValidatorOperator := delegatorAddress.Equals(validator.GetOperator())
+	isSelfDelegator := delegatorAddress.Equals(validator.GetSelfDelegator())
 
-	// If the delegation is the operator of the validator and undelegating will decrease the validator's
+	// If the delegation is the self delegator of the validator and undelegating will decrease the validator's
 	// self-delegation below their minimum, we jail the validator.
-	if isValidatorOperator && !validator.Jailed &&
+	if isSelfDelegator && !validator.Jailed &&
 		validator.TokensFromShares(delegation.Shares).TruncateInt().LT(validator.MinSelfDelegation) {
 		k.jailValidator(ctx, validator)
 		validator = k.mustGetValidator(ctx, validator.GetOperator())
@@ -1032,4 +1032,21 @@ func (k Keeper) ValidateUnbondAmount(
 	}
 
 	return shares, nil
+}
+
+func (k Keeper) GetSelfDelegation(ctx sdk.Context, valAddr sdk.ValAddress) (amount math.Int, err error) {
+	// get validator
+	validator, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return amount, types.ErrNoValidatorFound
+	}
+
+	delAddr := validator.GetSelfDelegator()
+	// check if a delegation object exists in the store
+	delegation, found := k.GetDelegation(ctx, delAddr, valAddr)
+	if !found {
+		return amount, types.ErrNoDelegatorForAddress
+	}
+
+	return validator.TokensFromShares(delegation.Shares).TruncateInt(), nil
 }

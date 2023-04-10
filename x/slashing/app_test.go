@@ -1,14 +1,17 @@
 package slashing_test
 
 import (
+	"encoding/hex"
 	"errors"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
@@ -54,6 +57,7 @@ func TestSlashingMsgs(t *testing.T) {
 	app, err := sims.SetupWithConfiguration(configurator.NewAppConfig(
 		configurator.ParamsModule(),
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.StakingModule(),
 		configurator.SlashingModule(),
 		configurator.TxModule(),
@@ -70,9 +74,12 @@ func TestSlashingMsgs(t *testing.T) {
 
 	description := stakingtypes.NewDescription("foo_moniker", "", "", "", "")
 	commission := stakingtypes.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commission, math.OneInt(),
+		sdk.AccAddress(addr1), sdk.AccAddress(addr1), sdk.AccAddress(addr1), blsPk,
 	)
 	require.NoError(t, err)
 

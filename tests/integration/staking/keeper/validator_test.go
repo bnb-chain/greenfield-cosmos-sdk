@@ -20,7 +20,7 @@ import (
 )
 
 func newMonikerValidator(t testing.TB, operator sdk.ValAddress, pubKey cryptotypes.PubKey, moniker string) types.Validator {
-	v, err := types.NewValidator(operator, pubKey, types.Description{Moniker: moniker})
+	v, err := types.NewSimpleValidator(operator, pubKey, types.Description{Moniker: moniker})
 	assert.NilError(t, err)
 	return v
 }

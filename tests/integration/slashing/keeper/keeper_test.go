@@ -7,6 +7,8 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"gotest.tools/v3/assert"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,6 +35,7 @@ type fixture struct {
 	stakingKeeper     *stakingkeeper.Keeper
 	bankKeeper        bankkeeper.Keeper
 	accountKeeper     authkeeper.AccountKeeper
+	authzKeeper       authzkeeper.Keeper
 	interfaceRegistry codectypes.InterfaceRegistry
 	addrDels          []sdk.AccAddress
 	queryClient       slashingtypes.QueryClient
@@ -45,6 +48,7 @@ func initFixture(t assert.TestingT) *fixture {
 		testutil.AppConfig,
 		&f.bankKeeper,
 		&f.accountKeeper,
+		&f.authzKeeper,
 		&f.slashingKeeper,
 		&f.stakingKeeper,
 		&f.interfaceRegistry,

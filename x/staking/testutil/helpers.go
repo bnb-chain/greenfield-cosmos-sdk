@@ -2,10 +2,12 @@ package testutil
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -51,7 +53,13 @@ func (sh *Helper) CreateValidatorWithValPower(addr sdk.ValAddress, pk cryptotype
 // CreateValidatorMsg returns a message used to create validator in this service.
 func (sh *Helper) CreateValidatorMsg(addr sdk.ValAddress, pk cryptotypes.PubKey, stakeAmount math.Int) *stakingtypes.MsgCreateValidator {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
-	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, math.OneInt())
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	msg, err := stakingtypes.NewMsgCreateValidator(
+		addr, pk,
+		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
+	)
 	require.NoError(sh.t, err)
 	return msg
 }
@@ -62,9 +70,15 @@ func (sh *Helper) CreateValidatorWithMsg(ctx context.Context, msg *stakingtypes.
 }
 
 func (sh *Helper) createValidator(addr sdk.ValAddress, pk cryptotypes.PubKey, coin sdk.Coin, ok bool) {
-	msg, err := stakingtypes.NewMsgCreateValidator(addr, pk, coin, stakingtypes.Description{}, sh.Commission, math.OneInt())
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	msg, err := stakingtypes.NewMsgCreateValidator(
+		addr, pk,
+		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
+	)
 	require.NoError(sh.t, err)
-	res, err := sh.msgSrvr.CreateValidator(sh.Ctx, msg)
+	res, err := sh.msgSrvr.CreateValidator(sh.Ctx.WithBlockHeight(0), msg)
 	if ok {
 		require.NoError(sh.t, err)
 		require.NotNil(sh.t, res)

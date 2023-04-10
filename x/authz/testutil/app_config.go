@@ -17,6 +17,7 @@ import (
 
 var AppConfig = configurator.NewAppConfig(
 	configurator.AuthModule(),
+	configurator.AuthzModule(),
 	configurator.BankModule(),
 	configurator.StakingModule(),
 	configurator.TxModule(),

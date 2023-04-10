@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -10,6 +11,7 @@ import (
 
 	cmtconfig "github.com/cometbft/cometbft/config"
 	cmttime "github.com/cometbft/cometbft/types/time"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -297,6 +299,8 @@ func initTestnetFiles(
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -304,6 +308,7 @@ func initTestnetFiles(
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
+			addr, addr, addr, blsPk,
 		)
 		if err != nil {
 			return err

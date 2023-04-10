@@ -17,6 +17,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(Params{}, "cosmos-sdk/x/slashing/Params", nil)
 	legacy.RegisterAminoMsg(cdc, &MsgUnjail{}, "cosmos-sdk/MsgUnjail")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "cosmos-sdk/x/slashing/MsgUpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgImpeach{}, "cosmos-sdk/x/slashing/MsgImpeach")
 }
 
 // RegisterInterfaces registers the interfaces types with the Interface Registry.
@@ -24,6 +25,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgUnjail{},
 		&MsgUpdateParams{},
+		&MsgImpeach{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

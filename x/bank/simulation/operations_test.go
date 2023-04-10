@@ -8,6 +8,8 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
@@ -16,6 +18,7 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/simulation"
@@ -31,6 +34,7 @@ type SimTestSuite struct {
 
 	ctx           sdk.Context
 	accountKeeper types.AccountKeeper
+	authzKeeper   authzkeeper.Keeper
 	bankKeeper    keeper.Keeper
 	cdc           codec.Codec
 	app           *runtime.App
@@ -43,6 +47,7 @@ func (suite *SimTestSuite) SetupTest() {
 	)
 	suite.app, err = simtestutil.Setup(configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.ParamsModule(),
 		configurator.BankModule(),
 		configurator.StakingModule(),

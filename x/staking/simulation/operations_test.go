@@ -10,9 +10,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
+
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -80,13 +83,14 @@ func (s *SimTestSuite) SetupTest() {
 
 	var (
 		accountKeeper authkeeper.AccountKeeper
+		authzKeeper   authzkeeper.Keeper
 		mintKeeper    mintkeeper.Keeper
 		bankKeeper    bankkeeper.Keeper
 		distrKeeper   distrkeeper.Keeper
 		stakingKeeper *stakingkeeper.Keeper
 	)
 
-	app, err := simtestutil.SetupWithConfiguration(testutil.AppConfig, startupCfg, &bankKeeper, &accountKeeper, &mintKeeper, &distrKeeper, &stakingKeeper)
+	app, err := simtestutil.SetupWithConfiguration(testutil.AppConfig, startupCfg, &bankKeeper, &accountKeeper, &authzKeeper, &mintKeeper, &distrKeeper, &stakingKeeper)
 	require.NoError(s.T(), err)
 
 	ctx := app.BaseApp.NewContext(false, cmtproto.Header{})
@@ -131,7 +135,6 @@ func (s *SimTestSuite) TestWeightedOperations() {
 		opMsgRoute string
 		opMsgName  string
 	}{
-		{simulation.DefaultWeightMsgCreateValidator, types.ModuleName, sdk.MsgTypeURL(&types.MsgCreateValidator{})},
 		{simulation.DefaultWeightMsgEditValidator, types.ModuleName, sdk.MsgTypeURL(&types.MsgEditValidator{})},
 		{simulation.DefaultWeightMsgDelegate, types.ModuleName, sdk.MsgTypeURL(&types.MsgDelegate{})},
 		{simulation.DefaultWeightMsgUndelegate, types.ModuleName, sdk.MsgTypeURL(&types.MsgUndelegate{})},

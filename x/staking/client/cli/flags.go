@@ -32,6 +32,9 @@ const (
 	FlagNodeID        = "node-id"
 	FlagIP            = "ip"
 	FlagP2PPort       = "p2p-port"
+
+	FlagAddressRelayer = "addr-relayer"
+	FlagBlsKeyRelayer  = "bls-key-relayer"
 )
 
 // common flagsets to add to various functions
@@ -78,6 +81,20 @@ func FlagSetAmount() *flag.FlagSet {
 func FlagSetPublicKey() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(FlagPubKey, "", "The validator's Protobuf JSON encoded public key")
+	return fs
+}
+
+// FlagSetRelayerAddress Returns the flagset for relayer address related operations.
+func FlagSetRelayerAddress() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagAddressRelayer, "", "The relayer address of the validator")
+	return fs
+}
+
+// FlagSetRelayerBlsKey Returns the flagset for relayer bls pubkey related operations.
+func FlagSetRelayerBlsKey() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagBlsKeyRelayer, "", "The relayer bls pubkey of the validator")
 	return fs
 }
 

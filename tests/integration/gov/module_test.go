@@ -10,6 +10,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	_ "github.com/cosmos/cosmos-sdk/x/mint"
@@ -21,6 +22,7 @@ func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
 		configurator.NewAppConfig(
 			configurator.ParamsModule(),
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 			configurator.StakingModule(),
 			configurator.BankModule(),
 			configurator.GovModule(),

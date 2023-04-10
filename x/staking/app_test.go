@@ -1,16 +1,20 @@
 package staking_test
 
 import (
+	"encoding/hex"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -62,8 +66,12 @@ func TestStakingMsgs(t *testing.T) {
 
 	// create validator
 	description := types.NewDescription("foo_moniker", "", "", "", "")
+	blsSecretKey, _ := bls.RandKey()
+	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commissionRates, math.OneInt(),
+		sdk.ValAddress(addr1), valKey.PubKey(),
+		bondCoin, description, commissionRates, sdk.OneInt(),
+		addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 
@@ -87,8 +95,10 @@ func TestStakingMsgs(t *testing.T) {
 
 	// edit the validator
 	description = types.NewDescription("bar_moniker", "", "", "", "")
-	editValidatorMsg := types.NewMsgEditValidator(sdk.ValAddress(addr1), description, nil, nil)
-
+	editValidatorMsg := types.NewMsgEditValidator(
+		sdk.ValAddress(addr1), description, nil, nil,
+		sdk.AccAddress(""), "",
+	)
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, priv1)
 	require.NoError(t, err)

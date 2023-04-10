@@ -12,6 +12,7 @@ import (
 var (
 	_ sdk.Msg = &MsgUnjail{}
 	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg = &MsgImpeach{}
 
 	_ legacytx.LegacyMsg = &MsgUnjail{}
 	_ legacytx.LegacyMsg = &MsgUpdateParams{}
@@ -65,6 +66,39 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 
 	if err := msg.Params.Validate(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// NewMsgImpeach creates a new MsgImpeach instance
+func NewMsgImpeach(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgImpeach {
+	return &MsgImpeach{
+		ValidatorAddress: valAddr.String(),
+		From:             from.String(),
+	}
+}
+
+// GetSigners implements the sdk.Msg interface.
+func (msg MsgImpeach) GetSigners() []sdk.AccAddress {
+	fromAddr, _ := sdk.AccAddressFromHexUnsafe(msg.From)
+	return []sdk.AccAddress{fromAddr}
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (msg MsgImpeach) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (msg MsgImpeach) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.From); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
+	}
+
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
 	return nil

@@ -62,7 +62,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 	// NOTE: the slashing module need to be defined after the staking module on the
 	// NewSimulationManager constructor for this to work
 	simState.UnbondTime = unbondTime
-	params := types.NewParams(simState.UnbondTime, maxVals, 7, histEntries, simState.BondDenom, minCommissionRate)
+	params := types.NewParams(simState.UnbondTime, maxVals, 7, histEntries, simState.BondDenom, minCommissionRate, types.DefaultMinSelfDelegation)
 
 	// validators & delegations
 	var (
@@ -83,7 +83,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 			simulation.RandomDecAmount(simState.Rand, maxCommission),
 		)
 
-		validator, err := types.NewValidator(valAddr, simState.Accounts[i].ConsKey.PubKey(), types.Description{})
+		validator, err := types.NewSimpleValidator(valAddr, simState.Accounts[i].ConsKey.PubKey(), types.Description{})
 		if err != nil {
 			panic(err)
 		}
