@@ -2634,7 +2634,7 @@ func (s *E2ETestSuite) createGroupThresholdPolicyWithBalance(adminAddress, group
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &res))
 	groupPolicyAddress := res.GroupPolicies[0].Address
 
-	addr, err := sdk.AccAddressFromBech32(groupPolicyAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(groupPolicyAddress)
 	s.Require().NoError(err)
 	_, err = clitestutil.MsgSendExec(clientCtx, val.Address, addr,
 		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(tokens))),

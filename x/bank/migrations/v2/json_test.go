@@ -20,7 +20,7 @@ func TestMigrateJSON(t *testing.T) {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithCodec(encodingConfig.Codec)
 
-	voter, err := sdk.AccAddressFromBech32("cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
+	voter, err := sdk.AccAddressFromHexUnsafe("0x0Ec700c7b488Bf0326FEF647DafB65684371f024")
 	require.NoError(t, err)
 	bankGenState := &types.GenesisState{
 		Balances: []types.Balance{
@@ -59,7 +59,7 @@ func TestMigrateJSON(t *testing.T) {
 	expected := `{
 	"balances": [
 		{
-			"address": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+			"address": "0x0Ec700c7b488Bf0326FEF647DafB65684371f024",
 			"coins": [
 				{
 					"amount": "20",

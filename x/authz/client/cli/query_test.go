@@ -48,7 +48,7 @@ func (s *CLITestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Error: Invalid granter",
@@ -58,7 +58,7 @@ func (s *CLITestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Valid txn (json)",
@@ -191,7 +191,7 @@ func (s *CLITestSuite) TestQueryGranterGrants() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"no authorization found",

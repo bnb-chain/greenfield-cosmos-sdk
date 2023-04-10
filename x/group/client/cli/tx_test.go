@@ -228,7 +228,7 @@ func (s *CLITestSuite) TestTxCreateGroup() {
 			&sdk.TxResponse{},
 			fmt.Sprintf("%s %s %s", accounts[0].Address.String(), "null", invalidMembersAddressFile.Name()),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 		},
 		{
 			"invalid members weight",
@@ -794,7 +794,7 @@ func (s *CLITestSuite) TestTxCreateGroupWithPolicy() {
 				s.commonFlags...,
 			),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 			nil,
 			fmt.Sprintf("%s %s %s %s %s --%s=%v", accounts[0].Address.String(), validMetadata, validMetadata, invalidMembersAddressFile.Name(), thresholdDecisionPolicyFile.Name(), groupcli.FlagGroupPolicyAsAdmin, false),
 		},

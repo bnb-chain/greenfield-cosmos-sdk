@@ -137,7 +137,7 @@ func TestInitGenesis(t *testing.T) {
 				err := f.feegrantKeeper.InitGenesis(f.ctx, &feegrant.GenesisState{Allowances: tc.feeAllowances})
 				assert.ErrorContains(t, err, "failed to get allowance: no allowance")
 			} else {
-				expectedErr := errors.New("errors")
+				expectedErr := errors.New("invalid address hex length: 15 != 40")
 				f.accountKeeper.EXPECT().StringToBytes(tc.feeAllowances[0].Grantee).Return(nil, expectedErr).AnyTimes()
 				f.accountKeeper.EXPECT().StringToBytes(tc.feeAllowances[0].Granter).Return(nil, expectedErr).AnyTimes()
 

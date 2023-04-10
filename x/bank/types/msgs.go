@@ -27,11 +27,11 @@ func NewMsgSend(fromAddr, toAddr sdk.AccAddress, amount sdk.Coins) *MsgSend {
 
 // ValidateBasic Implements Msg.
 func (msg MsgSend) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid from address: %s", err)
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid to address: %s", err)
 	}
 
@@ -53,7 +53,7 @@ func (msg MsgSend) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgSend) GetSigners() []sdk.AccAddress {
-	fromAddress, _ := sdk.AccAddressFromBech32(msg.FromAddress)
+	fromAddress, _ := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	return []sdk.AccAddress{fromAddress}
 }
 
@@ -94,13 +94,13 @@ func (msg MsgMultiSend) GetSigners() []sdk.AccAddress {
 		return nil
 	}
 
-	addrs, _ := sdk.AccAddressFromBech32(msg.Inputs[0].Address)
+	addrs, _ := sdk.AccAddressFromHexUnsafe(msg.Inputs[0].Address)
 	return []sdk.AccAddress{addrs}
 }
 
 // ValidateBasic - validate transaction input
 func (in Input) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(in.Address); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(in.Address); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid input address: %s", err)
 	}
 
@@ -127,7 +127,7 @@ func NewInput(addr sdk.AccAddress, coins sdk.Coins) Input {
 
 // ValidateBasic - validate transaction output
 func (out Output) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(out.Address); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(out.Address); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid output address: %s", err)
 	}
 
@@ -181,7 +181,7 @@ func ValidateInputOutputs(input Input, outputs []Output) error {
 // GetSigners returns the signer addresses that are expected to sign the result
 // of GetSignBytes.
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	authority, _ := sdk.AccAddressFromBech32(msg.Authority)
+	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{authority}
 }
 
@@ -213,14 +213,14 @@ func (msg MsgSetSendEnabled) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for MsgSoftwareUpgrade.
 func (msg MsgSetSendEnabled) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	addr, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic runs basic validation on this MsgSetSendEnabled.
 func (msg MsgSetSendEnabled) ValidateBasic() error {
 	if len(msg.Authority) > 0 {
-		if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
 			return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 		}
 	}

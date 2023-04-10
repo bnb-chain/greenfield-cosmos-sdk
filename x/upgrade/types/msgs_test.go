@@ -29,7 +29,7 @@ func TestMsgSoftwareUpgrade(t *testing.T) {
 				},
 			},
 			true,
-			"authority: decoding bech32 failed",
+			"authority: invalid address hex length",
 		},
 		{
 			"invalid plan",
@@ -82,7 +82,7 @@ func TestMsgCancelUpgrade(t *testing.T) {
 				Authority: "authority",
 			},
 			true,
-			"authority: decoding bech32 failed",
+			"authority: invalid address hex length",
 		},
 		{
 			"all good",

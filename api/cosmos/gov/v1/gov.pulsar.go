@@ -7556,7 +7556,7 @@ type Params struct {
 	VetoThreshold string `protobuf:"bytes,6,opt,name=veto_threshold,json=vetoThreshold,proto3" json:"veto_threshold,omitempty"`
 	// The ratio representing the proportion of the deposit value that must be paid at proposal submission.
 	MinInitialDepositRatio string `protobuf:"bytes,7,opt,name=min_initial_deposit_ratio,json=minInitialDepositRatio,proto3" json:"min_initial_deposit_ratio,omitempty"`
-	// The cancel ratio which will not be returned back to the depositors when a proposal is cancelled.
+	// The cancel ratio which will not be returned back to the depositors when a proposal is canceled.
 	//
 	// Since: cosmos-sdk 0.48
 	ProposalCancelRatio string `protobuf:"bytes,8,opt,name=proposal_cancel_ratio,json=proposalCancelRatio,proto3" json:"proposal_cancel_ratio,omitempty"`

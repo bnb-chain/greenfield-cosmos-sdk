@@ -252,7 +252,7 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
-	//TODO: update validators' other fields
+	// TODO: update validators' other fields
 	return abci.ValidatorUpdate{
 		PubKey: tmProtoPk,
 		Power:  v.ConsensusPower(r),
@@ -267,7 +267,7 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 		panic(err)
 	}
 
-	//TODO: update validators' other fields
+	// TODO: update validators' other fields
 	return abci.ValidatorUpdate{
 		PubKey: tmProtoPk,
 		Power:  0,
@@ -453,7 +453,7 @@ func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
-	addr, err := sdk.ValAddressFromBech32(v.OperatorAddress)
+	addr, err := sdk.ValAddressFromHex(v.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

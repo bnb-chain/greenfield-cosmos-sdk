@@ -80,21 +80,18 @@ var _ AccountKeeperI = &AccountKeeper{}
 // may use auth.Keeper to access the accounts permissions map.
 func NewAccountKeeper(
 	cdc codec.BinaryCodec, storeService store.KVStoreService, proto func() sdk.AccountI,
-	maccPerms map[string][]string, bech32Prefix, authority string,
+	maccPerms map[string][]string, authority string,
 ) AccountKeeper {
 	permAddrs := make(map[string]types.PermissionsForAddress)
 	for name, perms := range maccPerms {
 		permAddrs[name] = types.NewPermissionsForAddress(name, perms)
 	}
 
-	bech32Codec := NewBech32Codec(bech32Prefix)
-
 	return AccountKeeper{
 		storeService: storeService,
 		proto:        proto,
 		cdc:          cdc,
 		permAddrs:    permAddrs,
-		addressCdc:   bech32Codec,
 		authority:    authority,
 	}
 }
@@ -102,12 +99,6 @@ func NewAccountKeeper(
 // GetAuthority returns the x/auth module's authority.
 func (ak AccountKeeper) GetAuthority() string {
 	return ak.authority
-}
-
-// GetAddressCodec returns the x/auth module's address.
-// x/auth is tied to bech32 encoded user accounts
-func (ak AccountKeeper) GetAddressCodec() address.Codec {
-	return ak.addressCdc
 }
 
 // Logger returns a module-specific logger.
@@ -264,13 +255,3 @@ func (ak AccountKeeper) UnmarshalAccount(bz []byte) (sdk.AccountI, error) {
 
 // GetCodec return codec.Codec object used by the keeper
 func (ak AccountKeeper) GetCodec() codec.BinaryCodec { return ak.cdc }
-
-// add getter for bech32Prefix
-func (ak AccountKeeper) getBech32Prefix() (string, error) {
-	bech32Codec, ok := ak.addressCdc.(bech32Codec)
-	if !ok {
-		return "", fmt.Errorf("unable cast addressCdc to bech32Codec; expected %T got %T", bech32Codec, ak.addressCdc)
-	}
-
-	return bech32Codec.bech32Prefix, nil
-}

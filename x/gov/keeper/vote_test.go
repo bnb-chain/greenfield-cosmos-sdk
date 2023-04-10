@@ -15,7 +15,7 @@ func TestVotes(t *testing.T) {
 	addrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdk.NewInt(10000000))
 
 	tp := TestProposal
-	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "description", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"), false)
+	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "description", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), false)
 	require.NoError(t, err)
 	proposalID := proposal.Id
 	metadata := "metadata"

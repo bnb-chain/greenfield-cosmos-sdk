@@ -110,14 +110,14 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("65337742stake", msg.Amount.String())
-	suite.Require().Equal("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r", msg.FromAddress)
-	suite.Require().Equal("cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.ToAddress)
+	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.FromAddress)
+	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.ToAddress)
 	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgSend{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
 // TestSimulateMsgSend tests the normal scenario of a valid message of type TypeMsgMultiSend.
-// Abonormal scenarios, where the message is created by an errors, are not tested here.
+// Abnormal scenarios, where the message is created by an errors, are not tested here.
 func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 	// setup 3 accounts
 	s := rand.NewSource(1)
@@ -138,10 +138,10 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 
 	require.True(operationMsg.OK)
 	require.Len(msg.Inputs, 1)
-	require.Equal("cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.Inputs[0].Address)
+	require.Equal("0x5cEEa0528c3b88442d6580c548753DD89b99a213", msg.Inputs[0].Address)
 	require.Equal("114949958stake", msg.Inputs[0].Coins.String())
 	require.Len(msg.Outputs, 2)
-	require.Equal("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r", msg.Outputs[1].Address)
+	require.Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Outputs[1].Address)
 	require.Equal("107287087stake", msg.Outputs[1].Coins.String())
 	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgMultiSend{}), sdk.MsgTypeURL(&msg))
 	require.Len(futureOperations, 0)

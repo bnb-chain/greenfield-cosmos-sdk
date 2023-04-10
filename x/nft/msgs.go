@@ -24,12 +24,12 @@ func (m MsgSend) ValidateBasic() error {
 		return ErrEmptyNFTID
 	}
 
-	_, err := sdk.AccAddressFromBech32(m.Sender)
+	_, err := sdk.AccAddressFromHexUnsafe(m.Sender)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", m.Sender)
 	}
 
-	_, err = sdk.AccAddressFromBech32(m.Receiver)
+	_, err = sdk.AccAddressFromHexUnsafe(m.Receiver)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid receiver address (%s)", m.Receiver)
 	}
@@ -38,6 +38,6 @@ func (m MsgSend) ValidateBasic() error {
 
 // GetSigners returns the expected signers for MsgSend.
 func (m MsgSend) GetSigners() []sdk.AccAddress {
-	signer, _ := sdk.AccAddressFromBech32(m.Sender)
+	signer, _ := sdk.AccAddressFromHexUnsafe(m.Sender)
 	return []sdk.AccAddress{signer}
 }

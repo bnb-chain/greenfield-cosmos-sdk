@@ -3,6 +3,7 @@ package mock
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"

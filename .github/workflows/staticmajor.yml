@@ -10,6 +10,10 @@ on:
 jobs:
   run_staticmajor:
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+      GOPRIVATE: github.com/bnb-chain
+      GH_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3

@@ -165,7 +165,7 @@ func (suite *SimTestSuite) TestSimulateMsgUnjail() {
 	// setup self delegation
 	delTokens := suite.stakingKeeper.TokensFromConsensusPower(ctx, 2)
 	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
-	val0AccAddress, err := sdk.ValAddressFromBech32(validator0.OperatorAddress)
+	val0AccAddress, err := sdk.ValAddressFromHex(validator0.OperatorAddress)
 	suite.Require().NoError(err)
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddress.Bytes(), validator0.GetOperator(), issuedShares)
 	suite.stakingKeeper.SetDelegation(ctx, selfDelegation)
@@ -183,7 +183,7 @@ func (suite *SimTestSuite) TestSimulateMsgUnjail() {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	suite.Require().True(operationMsg.OK)
-	suite.Require().Equal("cosmosvaloper1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7epjs3u", msg.ValidatorAddr)
+	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.ValidatorAddr)
 	suite.Require().Len(futureOperations, 0)
 }
 

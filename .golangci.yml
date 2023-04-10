@@ -48,6 +48,12 @@ issues:
     - text: "leading space"
       linters:
         - nolintlint
+    - text: "directive"
+      linters:
+        - nolintlint
+    - text: "var-naming"
+      linters:
+        - revive
 
   max-issues-per-linter: 10000
   max-same-issues: 10000

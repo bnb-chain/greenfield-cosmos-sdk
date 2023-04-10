@@ -46,7 +46,7 @@ func (msg MsgGrantAllowance) ValidateBasic() error {
 
 // GetSigners gets the granter account associated with an allowance
 func (msg MsgGrantAllowance) GetSigners() []sdk.AccAddress {
-	granter, _ := sdk.AccAddressFromBech32(msg.Granter)
+	granter, _ := sdk.AccAddressFromHexUnsafe(msg.Granter)
 	return []sdk.AccAddress{granter}
 }
 
@@ -87,7 +87,7 @@ func (msg MsgRevokeAllowance) ValidateBasic() error {
 // GetSigners gets the granter address associated with an Allowance
 // to revoke.
 func (msg MsgRevokeAllowance) GetSigners() []sdk.AccAddress {
-	granter, _ := sdk.AccAddressFromBech32(msg.Granter)
+	granter, _ := sdk.AccAddressFromHexUnsafe(msg.Granter)
 	return []sdk.AccAddress{granter}
 }
 

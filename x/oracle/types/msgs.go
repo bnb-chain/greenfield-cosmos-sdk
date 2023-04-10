@@ -22,7 +22,7 @@ type (
 	BLSSignature [BLSSignatureLength]byte
 )
 
-func NewMsgClaim(fromAddr string, srcShainId, destChainId uint32, sequence uint64, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
+func NewMsgClaim(fromAddr string, srcShainId, destChainId uint32, sequence, timestamp uint64, payload []byte, voteAddrSet []uint64, aggSignature []byte) *MsgClaim {
 	return &MsgClaim{
 		FromAddress:    fromAddr,
 		SrcChainId:     srcShainId,
@@ -87,8 +87,8 @@ func (m *MsgClaim) ValidateBasic() error {
 // GetSigners returns the expected signers for MsgCancelUpgrade.
 func (m *MsgClaim) GetSigners() []sdk.AccAddress {
 	// todo: implement this
-	//fromAddress := sdk.MustAccAddressFromHex(m.FromAddress)
-	//return []sdk.AccAddress{fromAddress}
+	// fromAddress := sdk.MustAccAddressFromHex(m.FromAddress)
+	// return []sdk.AccAddress{fromAddress}
 	return []sdk.AccAddress{}
 }
 
@@ -138,14 +138,14 @@ func (m MsgUpdateParams) GetSignBytes() []byte {
 // GetSigners returns the expected signers for a MsgUpdateParams message.
 func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	// todo: fix this
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+	addr, _ := sdk.AccAddressFromHexUnsafe(m.Authority)
 	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	// todo: fix this
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(m.Authority); err != nil {
 		return errormods.Wrap(err, "invalid authority address")
 	}
 

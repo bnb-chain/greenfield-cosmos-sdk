@@ -55,7 +55,6 @@ import (
 	pulsar_testpb "github.com/cosmos/cosmos-sdk/tests/integration/aminojson/internal/pulsar/testpb"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -340,12 +339,12 @@ func TestAminoJSON_Equivalence(t *testing.T) {
 			fmt.Printf("testing %s\n", tt.pulsar.ProtoReflect().Descriptor().FullName())
 			rapid.Check(t, func(t *rapid.T) {
 				// uncomment to debug; catch a panic and inspect application state
-				//defer func() {
+				// defer func() {
 				//	if r := recover(); r != nil {
 				//		//fmt.Printf("Panic: %+v\n", r)
 				//		t.FailNow()
 				//	}
-				//}()
+				// }()
 
 				msg := gen.Draw(t, "msg")
 				postFixPulsarMessage(msg)
@@ -408,7 +407,7 @@ func TestAminoJSON_LegacyParity(t *testing.T) {
 		// represent the array as nil, and a subsequent marshal to JSON represent the array as null instead of empty.
 		roundTripUnequal bool
 
-		// pulsar does not support marshalling a math.Dec as anything except a string.  Therefore, we cannot unmarshal
+		// pulsar does not support marshaling a math.Dec as anything except a string.  Therefore, we cannot unmarshal
 		// a pulsar encoded Math.dec (the string representation of a Decimal) into a gogo Math.dec (expecting an int64).
 		protoUnmarshalFails bool
 	}{
@@ -701,9 +700,7 @@ func postFixPulsarMessage(msg proto.Message) {
 			m.BaseAccount = &authapi.BaseAccount{}
 		}
 		_, _, bz := testdata.KeyTestPubAddr()
-		// always set address to a valid bech32 address
-		text, _ := bech32.ConvertAndEncode("cosmos", bz)
-		m.BaseAccount.Address = text
+		m.BaseAccount.Address = bz.String()
 
 		// see negative test
 		if len(m.Permissions) == 0 {

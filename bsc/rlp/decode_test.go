@@ -193,6 +193,7 @@ func TestStreamErrors(t *testing.T) {
 		}, nil, EOL},
 	}
 
+	nilStr := "<nil>"
 testfor:
 	for i, test := range tests {
 		if test.newStream == nil {
@@ -203,12 +204,12 @@ testfor:
 		for j, call := range test.calls {
 			fval := rs.MethodByName(call)
 			ret := fval.Call(nil)
-			err := "<nil>"
+			err := nilStr
 			if lastret := ret[len(ret)-1].Interface(); lastret != nil {
 				err = lastret.(error).Error()
 			}
 			if j == len(test.calls)-1 {
-				want := "<nil>"
+				want := nilStr
 				if test.error != nil {
 					want = test.error.Error()
 				}
@@ -217,7 +218,7 @@ testfor:
 					t.Errorf("test %d: last call (%s) error mismatch\ngot:  %s\nwant: %s",
 						i, call, err, test.error)
 				}
-			} else if err != "<nil>" {
+			} else if err != nilStr {
 				t.Log(test)
 				t.Errorf("test %d: call %d (%s) unexpected error: %q", i, j, call, err)
 				continue testfor
@@ -919,7 +920,7 @@ func encodeTestSlice(n uint) []byte {
 }
 
 func unhex(str string) []byte {
-	b, err := hex.DecodeString(strings.Replace(str, " ", "", -1))
+	b, err := hex.DecodeString(strings.ReplaceAll(str, " ", ""))
 	if err != nil {
 		panic(fmt.Sprintf("invalid hex string: %q", str))
 	}

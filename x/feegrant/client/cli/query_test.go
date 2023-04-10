@@ -6,7 +6,6 @@ import (
 	"cosmossdk.io/x/feegrant"
 	"cosmossdk.io/x/feegrant/client/cli"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 )
 
@@ -29,7 +28,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrant() {
 				grantee.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -39,7 +38,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrant() {
 				"wrong_grantee",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 	}
@@ -48,7 +47,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(s.clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -95,7 +94,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrantsByGrantee() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrantsByGrantee(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrantsByGrantee()
 
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
@@ -142,7 +141,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrantsByGranter() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrantsByGranter(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrantsByGranter()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {

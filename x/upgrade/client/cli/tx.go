@@ -89,7 +89,7 @@ func NewCmdSubmitUpgradeProposal() *cobra.Command {
 
 			authority, _ := cmd.Flags().GetString(FlagAuthority)
 			if authority != "" {
-				if _, err = sdk.AccAddressFromBech32(authority); err != nil {
+				if _, err = sdk.AccAddressFromHexUnsafe(authority); err != nil {
 					return fmt.Errorf("invalid authority address: %w", err)
 				}
 			} else {
@@ -143,7 +143,7 @@ func NewCmdSubmitCancelUpgradeProposal() *cobra.Command {
 
 			authority, _ := cmd.Flags().GetString(FlagAuthority)
 			if authority != "" {
-				if _, err = sdk.AccAddressFromBech32(authority); err != nil {
+				if _, err = sdk.AccAddressFromHexUnsafe(authority); err != nil {
 					return fmt.Errorf("invalid authority address: %w", err)
 				}
 			} else {

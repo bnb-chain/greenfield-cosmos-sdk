@@ -7,9 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	ParamsKey = []byte{0x01}
-)
+var ParamsKey = []byte{0x01}
 
 const (
 	ModuleName = "crosschain"

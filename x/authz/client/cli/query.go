@@ -57,11 +57,11 @@ $ %s query %s grants cosmos1skjw.. cosmos1skjwj.. %s
 			}
 			queryClient := authz.NewQueryClient(clientCtx)
 
-			granter, err := sdk.AccAddressFromBech32(args[0])
+			granter, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
-			grantee, err := sdk.AccAddressFromBech32(args[1])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -114,7 +114,7 @@ $ %s q %s grants-by-granter cosmos1skj..
 				return err
 			}
 
-			granter, err := sdk.AccAddressFromBech32(args[0])
+			granter, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -163,7 +163,7 @@ $ %s q %s grants-by-grantee cosmos1skj..
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
