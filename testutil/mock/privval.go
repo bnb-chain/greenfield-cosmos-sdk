@@ -1,7 +1,11 @@
 package mock
 
 import (
+	"encoding/binary"
+	"fmt"
+
 	"github.com/cometbft/cometbft/crypto"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -46,5 +50,18 @@ func (pv PV) SignProposal(chainID string, proposal *tmproto.Proposal) error {
 		return err
 	}
 	proposal.Signature = sig
+	return nil
+}
+
+// SignReveal implements PrivValidator interface
+func (pv PV) SignReveal(chainID string, reveal *tmproto.Reveal) error {
+	chainIDBytes := tmhash.Sum([]byte(chainID + "/"))
+	heightBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(heightBytes, uint64(reveal.Height))
+	sig, err := pv.PrivKey.Sign(append(chainIDBytes, heightBytes...))
+	if err != nil {
+		return fmt.Errorf("error signing reveal: %v", err)
+	}
+	reveal.Signature = sig
 	return nil
 }
