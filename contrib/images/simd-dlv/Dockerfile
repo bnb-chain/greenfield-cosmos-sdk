@@ -1,5 +1,7 @@
 FROM golang:1.20-alpine AS build
 
+ARG GH_TOKEN=""
+
 RUN apk add build-base git linux-headers libc-dev
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
@@ -15,6 +17,10 @@ COPY collections/go.mod collections/go.sum /work/collections/
 COPY store/go.mod store/go.sum /work/store/
 COPY log/go.mod log/go.sum /work/log/
 COPY x/tx/go.mod x/tx/go.sum /work/x/tx/
+
+RUN go env -w GOPRIVATE="github.com/bnb-chain/*"
+RUN git config --global url."https://${GH_TOKEN}@github.com".insteadOf "https://github.com"
+
 RUN go mod download
 
 COPY ./ /work
