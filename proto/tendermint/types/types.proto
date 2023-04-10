@@ -155,3 +155,9 @@ message TxProof {
   bytes                   data      = 2;
   tendermint.crypto.Proof proof     = 3;
 }
+
+// Reveal represents randao reveal from block proposer.
+message Reveal {
+  int64 height     = 1;
+  bytes signature  = 2;
+}
