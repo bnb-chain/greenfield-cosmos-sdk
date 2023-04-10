@@ -323,7 +323,7 @@ func (msg MsgUpdateCrossChainParams) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateCrossChainParams.
 func (msg MsgUpdateCrossChainParams) GetSigners() []sdk.AccAddress {
-	authority, _ := sdk.AccAddressFromBech32(msg.Authority)
+	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{authority}
 }
 
