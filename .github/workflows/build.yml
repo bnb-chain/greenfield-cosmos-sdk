@@ -6,12 +6,14 @@ on:
     branches:
       - main
       - release/**
-permissions:
-  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}-build
   cancel-in-progress: true
+
+env:
+  GOPRIVATE: github.com/bnb-chain
+  GH_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   build:
