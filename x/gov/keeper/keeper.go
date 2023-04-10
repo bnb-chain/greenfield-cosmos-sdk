@@ -17,9 +17,10 @@ import (
 
 // Keeper defines the governance module Keeper
 type Keeper struct {
-	authKeeper  types.AccountKeeper
-	bankKeeper  types.BankKeeper
-	distrkeeper types.DistributionKeeper
+	authKeeper       types.AccountKeeper
+	bankKeeper       types.BankKeeper
+	distrkeeper      types.DistributionKeeper
+	crossChainKeeper types.CrossChainKeeper
 
 	// The reference to the DelegationSet and ValidatorSet to get information about validators and delegators
 	sk types.StakingKeeper
@@ -61,7 +62,7 @@ func (k Keeper) GetAuthority() string {
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper, sk types.StakingKeeper, distrkeeper types.DistributionKeeper,
-	router baseapp.MessageRouter, config types.Config, authority string,
+	crossChainKeeper types.CrossChainKeeper, router baseapp.MessageRouter, config types.Config, authority string,
 ) *Keeper {
 	// ensure governance module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -78,15 +79,16 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		storeKey:    key,
-		authKeeper:  authKeeper,
-		bankKeeper:  bankKeeper,
-		distrkeeper: distrkeeper,
-		sk:          sk,
-		cdc:         cdc,
-		router:      router,
-		config:      config,
-		authority:   authority,
+		storeKey:         key,
+		authKeeper:       authKeeper,
+		bankKeeper:       bankKeeper,
+		distrkeeper:      distrkeeper,
+		crossChainKeeper: crossChainKeeper,
+		sk:               sk,
+		cdc:              cdc,
+		router:           router,
+		config:           config,
+		authority:        authority,
 	}
 }
 

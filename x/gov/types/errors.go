@@ -28,3 +28,15 @@ var (
 	ErrVotingPeriodEnded       = errors.Register(ModuleName, 20, "voting period already ended")
 	ErrInvalidProposal         = errors.Register(ModuleName, 21, "invalid proposal")
 )
+
+var (
+	ErrEmptyChange = errors.Register(ModuleName, 22, "crosschain: change is empty")
+	ErrEmptyValue  = errors.Register(ModuleName, 23, "crosschain: value  is empty")
+	ErrEmptyTarget = errors.Register(ModuleName, 24, "crosschain: target is empty")
+
+	ErrAddressSizeNotMatch     = errors.Register(ModuleName, 25, "number of old address not equal to new addresses")
+	ErrAddressNotValid         = errors.Register(ModuleName, 26, "address format is not valid")
+	ErrExceedParamsChangeLimit = errors.Register(ModuleName, 27, "exceed params change limit")
+	ErrInvalidUpgradeProposal  = errors.Register(ModuleName, 28, "invalid sync params package")
+	ErrInvalidValue            = errors.Register(ModuleName, 29, "decode hex value failed")
+)

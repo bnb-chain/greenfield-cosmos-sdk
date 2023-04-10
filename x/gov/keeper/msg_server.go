@@ -229,6 +229,18 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 	return &v1.MsgUpdateParamsResponse{}, nil
 }
 
+// UpdateCrossChainParams implements the MsgServer.UpdateCrossChainParams method.
+func (k msgServer) UpdateCrossChainParams(goCtx context.Context, msg *v1.MsgUpdateCrossChainParams) (*v1.MsgUpdateCrossChainParams, error) {
+	if k.authority != msg.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SyncParams(ctx, msg.Params); err != nil {
+		return nil, err
+	}
+	return &v1.MsgUpdateCrossChainParams{}, nil
+}
+
 type legacyMsgServer struct {
 	govAcct string
 	server  v1.MsgServer

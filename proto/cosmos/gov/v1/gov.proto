@@ -253,3 +253,14 @@ message Params {
   // burn deposits if quorum with vote type no_veto is met
   bool burn_vote_veto = 15;
 }
+
+//
+// Since: cosmos-sdk 0.47
+message CrossChainParamsChange {
+  // param to be updated or 'upgrade'
+  string  key  = 1;
+  // slice of
+  repeated string  values  = 2;
+  repeated string  targets  = 3;
+}
+
