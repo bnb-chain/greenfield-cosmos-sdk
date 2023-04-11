@@ -102,9 +102,6 @@ func TestUnJailNotBonded(t *testing.T) {
 		tstaking.CreateValidatorWithValPower(addr, val, 100, true)
 	}
 
-	staking.EndBlocker(ctx, f.stakingKeeper)
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-
 	// create a 6th validator with less power than the cliff validator (won't be bonded)
 	addr, val := valAddrs[5], pks[5]
 	amt := f.stakingKeeper.TokensFromConsensusPower(ctx, 50)
@@ -113,6 +110,9 @@ func TestUnJailNotBonded(t *testing.T) {
 	res, err := tstaking.CreateValidatorWithMsg(ctx, msg)
 	assert.NilError(t, err)
 	assert.Assert(t, res != nil)
+
+	staking.EndBlocker(ctx, f.stakingKeeper)
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 	staking.EndBlocker(ctx, f.stakingKeeper)
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)

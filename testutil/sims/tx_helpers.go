@@ -87,7 +87,8 @@ func GenSignedMockTx(r *rand.Rand, txConfig client.TxConfig, msgs []sdk.Msg, fee
 // returned.
 func SignCheckDeliver(
 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header types.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...cryptotypes.PrivKey,
+	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv []cryptotypes.PrivKey,
+	options ...SignCheckDeliverOption,
 ) (sdk.GasInfo, *sdk.Result, error) {
 	tx, err := GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
@@ -117,6 +118,9 @@ func SignCheckDeliver(
 
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(types2.RequestBeginBlock{Header: header})
+	for _, option := range options {
+		option()
+	}
 	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	if expPass {
@@ -131,4 +135,12 @@ func SignCheckDeliver(
 	app.Commit()
 
 	return gInfo, res, err
+}
+
+type SignCheckDeliverOption func()
+
+func SetMockHeight(app *baseapp.BaseApp, height int64) SignCheckDeliverOption {
+	return func() {
+		app.SetMockBlockHeight(height)
+	}
 }

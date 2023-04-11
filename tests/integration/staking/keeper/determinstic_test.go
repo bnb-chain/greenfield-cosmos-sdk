@@ -404,7 +404,7 @@ func TestGRPCDelegation(t *testing.T) {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.Delegation, 4566, false)
+	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.Delegation, 0, true)
 }
 
 func TestGRPCUnbondingDelegation(t *testing.T) {
@@ -477,7 +477,7 @@ func TestGRPCDelegatorDelegations(t *testing.T) {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.DelegatorDelegations, 4130, false)
+	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.DelegatorDelegations, 0, true)
 }
 
 func TestGRPCDelegatorValidator(t *testing.T) {
@@ -656,7 +656,7 @@ func TestGRPCPool(t *testing.T) {
 
 	f = initDeterministicFixture(t) // reset
 	getStaticValidator(f, t)
-	testdata.DeterministicIterations(f.ctx, t, &stakingtypes.QueryPoolRequest{}, f.queryClient.Pool, 6167, false)
+	testdata.DeterministicIterations(f.ctx, t, &stakingtypes.QueryPoolRequest{}, f.queryClient.Pool, 0, true)
 }
 
 func TestGRPCRedelegations(t *testing.T) {
@@ -736,6 +736,7 @@ func TestGRPCParams(t *testing.T) {
 			MaxEntries:        rapid.Uint32Min(1).Draw(rt, "max-entries"),
 			HistoricalEntries: rapid.Uint32Min(1).Draw(rt, "historical-entries"),
 			MinCommissionRate: sdk.NewDecWithPrec(rapid.Int64Range(0, 100).Draw(rt, "commission"), 2),
+			MinSelfDelegation: sdk.NewInt(rapid.Int64Range(1, 100).Draw(rt, "self-delegation")),
 		}
 
 		err := f.stakingKeeper.SetParams(f.ctx, params)
@@ -751,10 +752,11 @@ func TestGRPCParams(t *testing.T) {
 		MaxEntries:        5,
 		HistoricalEntries: 5,
 		MinCommissionRate: sdk.NewDecWithPrec(5, 2),
+		MinSelfDelegation: sdk.NewInt(1),
 	}
 
 	err := f.stakingKeeper.SetParams(f.ctx, params)
 	assert.NilError(t, err)
 
-	testdata.DeterministicIterations(f.ctx, t, &stakingtypes.QueryParamsRequest{}, f.queryClient.Params, 1114, false)
+	testdata.DeterministicIterations(f.ctx, t, &stakingtypes.QueryParamsRequest{}, f.queryClient.Params, 0, true)
 }

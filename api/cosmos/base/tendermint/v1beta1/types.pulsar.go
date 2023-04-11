@@ -2000,7 +2000,7 @@ const (
 )
 
 // Block is tendermint type Block, with the Header proposer address
-// field converted to bech32 string.
+// field converted to hex string.
 type Block struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2084,8 +2084,8 @@ type Header struct {
 	LastResultsHash    []byte `protobuf:"bytes,12,opt,name=last_results_hash,json=lastResultsHash,proto3" json:"last_results_hash,omitempty"`         // root hash of all results from the txs from the previous block
 	// consensus info
 	EvidenceHash []byte `protobuf:"bytes,13,opt,name=evidence_hash,json=evidenceHash,proto3" json:"evidence_hash,omitempty"` // evidence included in the block
-	// proposer_address is the original block proposer address, formatted as a Bech32 string.
-	// In Tendermint, this type is `bytes`, but in the SDK, we convert it to a Bech32 string
+	// proposer_address is the original block proposer address, formatted as a hex string.
+	// In Tendermint, this type is `bytes`, but in the SDK, we convert it to a hex string
 	// for better UX.
 	ProposerAddress string `protobuf:"bytes,14,opt,name=proposer_address,json=proposerAddress,proto3" json:"proposer_address,omitempty"` // original proposer of the block
 }

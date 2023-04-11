@@ -46,7 +46,8 @@ func NewMsgCreateValidator(
 	}
 	return &MsgCreateValidator{
 		Description:       description,
-		ValidatorAddress:  selfDelAddr.String(),
+		ValidatorAddress:  valAddr.String(),
+		DelegatorAddress:  selfDelAddr.String(),
 		Pubkey:            pkAny,
 		Value:             selfDelegation,
 		Commission:        commission,
@@ -62,11 +63,8 @@ func NewMsgCreateValidator(
 // If the validator address is not same as delegator's, then the validator must
 // sign the msg as well.
 func (msg MsgCreateValidator) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddress)
-
-	valAccAddr := sdk.AccAddress(valAddr)
-
-	return []sdk.AccAddress{valAccAddr}
+	from, _ := sdk.AccAddressFromHexUnsafe(msg.From)
+	return []sdk.AccAddress{from}
 }
 
 // GetSignBytes returns the message bytes to sign over.
