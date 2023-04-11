@@ -98,12 +98,12 @@ func (ab AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, 
 
 // GetTxCmd returns the root tx command for the feegrant module.
 func (ab AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd(ab.ac)
+	return cli.GetTxCmd()
 }
 
 // GetQueryCmd returns no root query command for the feegrant module.
 func (ab AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd(ab.ac)
+	return cli.GetQueryCmd()
 }
 
 // ----------------------------------------------------------------------------
@@ -218,6 +218,6 @@ func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 // WeightedOperations returns all the feegrant module operations with their respective weights.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
 	return simulation.WeightedOperations(
-		am.registry, simState.AppParams, simState.Cdc, am.accountKeeper, am.bankKeeper, am.keeper, am.ac,
+		am.registry, simState.AppParams, simState.Cdc, am.accountKeeper, am.bankKeeper, am.keeper,
 	)
 }

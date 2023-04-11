@@ -451,41 +451,6 @@ jobs:
         with:
           projectBaseDir: simapp/
 
-  test-rosetta:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.20.2
-          cache: true
-          cache-dependency-path: tools/rosetta/go.sum
-      - uses: technote-space/get-diff-action@v6.1.2
-        id: git_diff
-        with:
-          PATTERNS: |
-            contrib/rosetta/*
-            tools/rosetta/**/*.go
-            tools/rosetta/go.mod
-            tools/rosetta/go.sum
-            tools/rosetta/Makefile
-            Makefile
-      - name: tests
-        if: env.GIT_DIFF
-        run: |
-          make test-rosetta
-          cd tools/rosetta
-          go test -mod=readonly -timeout 30m -coverprofile=coverage.out -covermode=atomic -tags='norace ledger test_ledger_mock rocksdb_build' ./...
-      - name: sonarcloud
-        if: ${{ env.GIT_DIFF && !github.event.pull_request.draft && env.SONAR_TOKEN != null }}
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: tools/rosetta/
-
   test-collections:
     runs-on: ubuntu-latest
     steps:
@@ -677,6 +642,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - run: go env -w GOPRIVATE="github.com/bnb-chain/*"
+      - run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf "https://github.com"
+
       - uses: actions/setup-go@v4
         with:
           go-version: 1.20.2
@@ -702,36 +671,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: x/tx/
-
-  test-x-nft:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.20.2
-          cache: true
-          cache-dependency-path: x/nft/go.sum
-      - uses: technote-space/get-diff-action@v6.1.2
-        id: git_diff
-        with:
-          PATTERNS: |
-            x/nft/**/*.go
-            x/nft/go.mod
-            x/nft/go.sum
-      - name: tests
-        if: env.GIT_DIFF
-        run: |
-          cd x/nft
-          go test -mod=readonly -timeout 30m -coverprofile=coverage.out -covermode=atomic -tags='norace ledger test_ledger_mock rocksdb_build' ./...
-      - name: sonarcloud
-        if: ${{ env.GIT_DIFF && !github.event.pull_request.draft && env.SONAR_TOKEN != null }}
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: x/nft/
 
   test-x-circuit:
     runs-on: ubuntu-latest
@@ -767,6 +706,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - run: go env -w GOPRIVATE="github.com/bnb-chain/*"
+      - run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf "https://github.com"
+
       - uses: actions/setup-go@v4
         with:
           go-version: 1.20.2
@@ -797,6 +740,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - run: go env -w GOPRIVATE="github.com/bnb-chain/*"
+      - run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf "https://github.com"
+
       - uses: actions/setup-go@v4
         with:
           go-version: 1.20.2
@@ -826,6 +773,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - run: go env -w GOPRIVATE="github.com/bnb-chain/*"
+      - run: git config --global url."https://${{ secrets.GH_TOKEN }}@github.com".insteadOf "https://github.com"
+
       - uses: actions/setup-go@v4
         with:
           go-version: 1.20.2

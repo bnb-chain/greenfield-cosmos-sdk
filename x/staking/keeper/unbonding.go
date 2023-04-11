@@ -128,8 +128,8 @@ func (k Keeper) GetValidatorByUnbondingID(ctx sdk.Context, id uint64) (val types
 // Note, it does not set the unbonding delegation itself, use SetUnbondingDelegation(ctx, ubd) for that
 func (k Keeper) SetUnbondingDelegationByUnbondingID(ctx sdk.Context, ubd types.UnbondingDelegation, id uint64) {
 	store := ctx.KVStore(k.storeKey)
-	delAddr := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
-	valAddr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	delAddr := sdk.MustAccAddressFromHex(ubd.DelegatorAddress)
+	valAddr, err := sdk.ValAddressFromHex(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -146,14 +146,14 @@ func (k Keeper) SetUnbondingDelegationByUnbondingID(ctx sdk.Context, ubd types.U
 func (k Keeper) SetRedelegationByUnbondingID(ctx sdk.Context, red types.Redelegation, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 
-	delAddr := sdk.MustAccAddressFromBech32(red.DelegatorAddress)
+	delAddr := sdk.MustAccAddressFromHex(red.DelegatorAddress)
 
-	valSrcAddr, err := sdk.ValAddressFromBech32(red.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.ValAddressFromHex(red.ValidatorSrcAddress)
 	if err != nil {
 		panic(err)
 	}
 
-	valDstAddr, err := sdk.ValAddressFromBech32(red.ValidatorDstAddress)
+	valDstAddr, err := sdk.ValAddressFromHex(red.ValidatorDstAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -170,7 +170,7 @@ func (k Keeper) SetRedelegationByUnbondingID(ctx sdk.Context, red types.Redelega
 func (k Keeper) SetValidatorByUnbondingID(ctx sdk.Context, val types.Validator, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 
-	valAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+	valAddr, err := sdk.ValAddressFromHex(val.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -260,7 +260,7 @@ func (k Keeper) unbondingDelegationEntryCanComplete(ctx sdk.Context, id uint64) 
 	// Check if entry is matured.
 	if !ubd.Entries[i].OnHold() && ubd.Entries[i].IsMature(ctx.BlockHeader().Time) {
 		// If matured, complete it.
-		delegatorAddress, err := sdk.AccAddressFromBech32(ubd.DelegatorAddress)
+		delegatorAddress, err := sdk.AccAddressFromHexUnsafe(ubd.DelegatorAddress)
 		if err != nil {
 			return err
 		}

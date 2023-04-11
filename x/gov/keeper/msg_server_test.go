@@ -279,16 +279,6 @@ func (suite *KeeperTestSuite) TestVoteReq() {
 			expErr:    true,
 			expErrMsg: "metadata too long",
 		},
-		"voter error": {
-			preRun: func() uint64 {
-				return proposalID
-			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
-			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
-			metadata:  "",
-			expErr:    true,
-			expErrMsg: "address max length is 255",
-		},
 		"all good": {
 			preRun: func() uint64 {
 				msg, err := v1.NewMsgSubmitProposal(
@@ -401,16 +391,6 @@ func (suite *KeeperTestSuite) TestVoteWeightedReq() {
 			metadata:  strings.Repeat("a", 300),
 			expErr:    true,
 			expErrMsg: "metadata too long",
-		},
-		"voter error": {
-			preRun: func() uint64 {
-				return proposalID
-			},
-			option:    v1.VoteOption_VOTE_OPTION_YES,
-			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
-			metadata:  "",
-			expErr:    true,
-			expErrMsg: "address max length is 255",
 		},
 		"all good": {
 			preRun: func() uint64 {
@@ -600,7 +580,6 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 	res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res.ProposalId)
-	proposalID := res.ProposalId
 
 	cases := map[string]struct {
 		preRun    func() uint64
@@ -633,16 +612,6 @@ func (suite *KeeperTestSuite) TestLegacyMsgVote() {
 			metadata:  "",
 			expErr:    true,
 			expErrMsg: "inactive proposal",
-		},
-		"voter error": {
-			preRun: func() uint64 {
-				return proposalID
-			},
-			option:    v1beta1.OptionYes,
-			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
-			metadata:  "",
-			expErr:    true,
-			expErrMsg: "address max length is 255",
 		},
 		"all good": {
 			preRun: func() uint64 {
@@ -712,7 +681,6 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 	res, err := suite.msgSrvr.SubmitProposal(suite.ctx, msg)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(res.ProposalId)
-	proposalID := res.ProposalId
 
 	cases := map[string]struct {
 		preRun    func() uint64
@@ -746,16 +714,6 @@ func (suite *KeeperTestSuite) TestLegacyVoteWeighted() {
 			metadata:  "",
 			expErr:    true,
 			expErrMsg: "inactive proposal",
-		},
-		"voter error": {
-			preRun: func() uint64 {
-				return proposalID
-			},
-			option:    v1beta1.OptionYes,
-			voter:     sdk.AccAddress(strings.Repeat("a", 300)),
-			metadata:  "",
-			expErr:    true,
-			expErrMsg: "address max length is 255",
 		},
 		"all good": {
 			preRun: func() uint64 {

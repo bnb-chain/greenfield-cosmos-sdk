@@ -12,7 +12,6 @@ import (
 	"cosmossdk.io/x/feegrant/module"
 	feegranttestutil "cosmossdk.io/x/feegrant/testutil"
 
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -176,8 +175,8 @@ func (suite *KeeperTestSuite) TestKeeperCrud() {
 			suite.Equal(tc.allowance, allow)
 		})
 	}
-	address := "cosmos1rxr4mq58w3gtnx5tsc438mwjjafv3mja7k5pnu"
-	accAddr, err := codecaddress.NewBech32Codec("cosmos").StringToBytes(address)
+	address := "0xA55774c0962ddBFB2ea3012556b165D6cE8A01d1"
+	accAddr, err := sdk.AccAddressFromHexUnsafe(address)
 	suite.Require().NoError(err)
 	suite.accountKeeper.EXPECT().GetAccount(gomock.Any(), accAddr).Return(authtypes.NewBaseAccountWithAddress(accAddr)).AnyTimes()
 	suite.accountKeeper.EXPECT().StringToBytes(address).Return(accAddr, nil).AnyTimes()

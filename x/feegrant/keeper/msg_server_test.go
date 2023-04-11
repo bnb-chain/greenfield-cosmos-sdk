@@ -6,18 +6,16 @@ import (
 
 	"cosmossdk.io/x/feegrant"
 
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/golang/mock/gomock"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) TestGrantAllowance() {
 	ctx := suite.ctx.WithBlockTime(time.Now())
 	oneYear := ctx.BlockTime().AddDate(1, 0, 0)
 	yesterday := ctx.BlockTime().AddDate(0, 0, -1)
-
-	addressCodec := codecaddress.NewBech32Codec("cosmos")
 
 	testCases := []struct {
 		name      string
@@ -31,7 +29,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				any, err := codectypes.NewAnyWithValue(&feegrant.BasicAllowance{})
 				suite.Require().NoError(err)
 				invalid := "invalid-granter"
-				suite.accountKeeper.EXPECT().StringToBytes(invalid).Return(nil, errors.New("decoding bech32 failed")).AnyTimes()
+				suite.accountKeeper.EXPECT().StringToBytes(invalid).Return(nil, errors.New("invalid address hex length")).AnyTimes()
 
 				return &feegrant.MsgGrantAllowance{
 					Granter:   invalid,
@@ -40,7 +38,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				}
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"invalid grantee address",
@@ -48,7 +46,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				any, err := codectypes.NewAnyWithValue(&feegrant.BasicAllowance{})
 				suite.Require().NoError(err)
 				invalid := "invalid-grantee"
-				suite.accountKeeper.EXPECT().StringToBytes(invalid).Return(nil, errors.New("decoding bech32 failed")).AnyTimes()
+				suite.accountKeeper.EXPECT().StringToBytes(invalid).Return(nil, errors.New("invalid address hex length")).AnyTimes()
 
 				return &feegrant.MsgGrantAllowance{
 					Granter:   suite.addrs[0].String(),
@@ -57,13 +55,13 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				}
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"valid: grantee account doesn't exist",
 			func() *feegrant.MsgGrantAllowance {
-				grantee := "cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5"
-				granteeAccAddr, err := addressCodec.StringToBytes(grantee)
+				grantee := "0x319D057ce294319bA1fa5487134608727e1F3e29"
+				granteeAccAddr, err := sdk.AccAddressFromHexUnsafe(grantee)
 				suite.Require().NoError(err)
 				any, err := codectypes.NewAnyWithValue(&feegrant.BasicAllowance{
 					SpendLimit: suite.atom,
@@ -76,7 +74,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				suite.accountKeeper.EXPECT().BytesToString(granteeAccAddr).Return(grantee, nil).AnyTimes()
 
 				acc := authtypes.NewBaseAccountWithAddress(granteeAccAddr)
-				add, err := addressCodec.StringToBytes(grantee)
+				add, err := sdk.AccAddressFromHexUnsafe(grantee)
 				suite.Require().NoError(err)
 
 				suite.accountKeeper.EXPECT().NewAccountWithAddress(gomock.Any(), add).Return(acc).AnyTimes()
@@ -201,10 +199,10 @@ func (suite *KeeperTestSuite) TestRevokeAllowance() {
 	oneYear := suite.ctx.BlockTime().AddDate(1, 0, 0)
 
 	invalidGranter := "invalid-granter"
-	suite.accountKeeper.EXPECT().StringToBytes(invalidGranter).Return(nil, errors.New("decoding bech32 failed")).AnyTimes()
+	suite.accountKeeper.EXPECT().StringToBytes(invalidGranter).Return(nil, errors.New("invalid address hex length")).AnyTimes()
 
 	invalidGrantee := "invalid-grantee"
-	suite.accountKeeper.EXPECT().StringToBytes(invalidGrantee).Return(nil, errors.New("decoding bech32 failed")).AnyTimes()
+	suite.accountKeeper.EXPECT().StringToBytes(invalidGrantee).Return(nil, errors.New("invalid address hex length")).AnyTimes()
 
 	testCases := []struct {
 		name      string
@@ -221,7 +219,7 @@ func (suite *KeeperTestSuite) TestRevokeAllowance() {
 			},
 			func() {},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"error: invalid grantee",
@@ -231,7 +229,7 @@ func (suite *KeeperTestSuite) TestRevokeAllowance() {
 			},
 			func() {},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"error: fee allowance not found",

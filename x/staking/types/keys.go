@@ -120,7 +120,7 @@ func GetValidatorsByPowerIndexKey(validator Validator, powerReduction math.Int) 
 	powerBytes := consensusPowerBytes
 	powerBytesLen := len(powerBytes) // 8
 
-	addr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+	addr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

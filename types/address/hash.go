@@ -14,7 +14,7 @@ import (
 )
 
 // Len is the length of base addresses
-const Len = sha256.Size
+const Len = 20
 
 // Addressable represents any type from which we can derive an address.
 type Addressable interface {
@@ -23,7 +23,7 @@ type Addressable interface {
 
 // Hash creates a new address from address type and key.
 // The functions should only be used by new types defining their own address function
-// (eg public keys).
+// (e.g. public keys).
 func Hash(typ string, key []byte) []byte {
 	hasher := sha256.New()
 	_, err := hasher.Write(conv.UnsafeStrToBytes(typ))
@@ -36,7 +36,7 @@ func Hash(typ string, key []byte) []byte {
 	errors.AssertNil(err)
 	_, err = hasher.Write(key)
 	errors.AssertNil(err)
-	return hasher.Sum(nil)
+	return crypto.AddressHash(hasher.Sum(nil))
 }
 
 // Compose creates a new address based on sub addresses.
@@ -66,8 +66,8 @@ func Compose(typ string, subAddresses []Addressable) ([]byte, error) {
 // Module is a specialized version of a composed address for modules. Each module account
 // is constructed from a module name and a sequence of derivation keys (at least one
 // derivation key must be provided). The derivation keys must be unique
-// in the module scope, and is usually constructed from some object id. Example, let's
-// a x/dao module, and a new DAO object, it's address would be:
+// in the module scope, and is usually constructed from some object id. Example, let
+// an x/dao module, and a new DAO object, it's address would be:
 //
 //	address.Module(dao.ModuleName, newDAO.ID)
 func Module(moduleName string, derivationKeys ...[]byte) []byte {

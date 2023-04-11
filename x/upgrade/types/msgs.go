@@ -19,7 +19,7 @@ func (m MsgSoftwareUpgrade) GetSignBytes() []byte {
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgSoftwareUpgrade) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(m.Authority); err != nil {
 		return errorsmod.Wrap(err, "authority")
 	}
 
@@ -32,7 +32,7 @@ func (m *MsgSoftwareUpgrade) ValidateBasic() error {
 
 // GetSigners returns the expected signers for MsgSoftwareUpgrade.
 func (m *MsgSoftwareUpgrade) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+	addr, _ := sdk.AccAddressFromHexUnsafe(m.Authority)
 	return []sdk.AccAddress{addr}
 }
 
@@ -43,7 +43,7 @@ func (m MsgCancelUpgrade) GetSignBytes() []byte {
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgCancelUpgrade) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(m.Authority); err != nil {
 		return errorsmod.Wrap(err, "authority")
 	}
 
@@ -52,6 +52,6 @@ func (m *MsgCancelUpgrade) ValidateBasic() error {
 
 // GetSigners returns the expected signers for MsgCancelUpgrade.
 func (m *MsgCancelUpgrade) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+	addr, _ := sdk.AccAddressFromHexUnsafe(m.Authority)
 	return []sdk.AccAddress{addr}
 }

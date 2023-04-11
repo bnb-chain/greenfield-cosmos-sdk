@@ -107,11 +107,11 @@ func BroadcastTx(clientCtx client.Context, txf Factory, msgs ...sdk.Msg) error {
 		buf := bufio.NewReader(os.Stdin)
 		ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting", buf, os.Stderr)
 		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "error: %v\ncancelled transaction\n", err)
+			_, _ = fmt.Fprintf(os.Stderr, "error: %v\ncanceled transaction\n", err)
 			return err
 		}
 		if !ok {
-			_, _ = fmt.Fprintln(os.Stderr, "cancelled transaction")
+			_, _ = fmt.Fprintln(os.Stderr, "canceled transaction")
 			return nil
 		}
 	}
@@ -383,7 +383,7 @@ func makeAuxSignerData(clientCtx client.Context, f Factory, msgs ...sdk.Msg) (tx
 	}
 
 	if f.tip != nil {
-		if _, err := sdk.AccAddressFromBech32(f.tip.Tipper); err != nil {
+		if _, err := sdk.AccAddressFromHexUnsafe(f.tip.Tipper); err != nil {
 			return tx.AuxSignerData{}, sdkerrors.ErrInvalidAddress.Wrap("tipper must be a bech32 address")
 		}
 		b.SetTip(f.tip)

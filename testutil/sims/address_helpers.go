@@ -105,16 +105,16 @@ func TestAddr(addr, bech string) (sdk.AccAddress, error) {
 	if err != nil {
 		return nil, err
 	}
-	bechexpected := res.String()
-	if bech != bechexpected {
+	expected := res.String()
+	if bech != expected {
 		return nil, fmt.Errorf("bech encoding doesn't match reference")
 	}
 
-	bechres, err := sdk.AccAddressFromBech32(bech)
+	hexres, err := sdk.AccAddressFromHexUnsafe(bech)
 	if err != nil {
 		return nil, err
 	}
-	if !bytes.Equal(bechres, res) {
+	if !bytes.Equal(hexres, res) {
 		return nil, err
 	}
 

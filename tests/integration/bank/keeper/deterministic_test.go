@@ -28,7 +28,7 @@ import (
 
 var (
 	denomRegex   = sdk.DefaultCoinDenomRegex()
-	addr1        = sdk.MustAccAddressFromBech32("cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5")
+	addr1        = sdk.MustAccAddressFromHex("0x319D057ce294319bA1fa5487134608727e1F3e29")
 	coin1        = sdk.NewCoin("denom", sdk.NewInt(10))
 	metadataAtom = banktypes.Metadata{
 		Description: "The native staking token of the Cosmos Hub.",
@@ -185,7 +185,7 @@ func TestGRPCQuerySpendableBalances(t *testing.T) {
 	assert.NilError(t, err)
 
 	req := banktypes.NewQuerySpendableBalancesRequest(addr1, nil)
-	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.SpendableBalances, 2032, false)
+	testdata.DeterministicIterations(f.ctx, t, req, f.queryClient.SpendableBalances, 2023, false)
 }
 
 func TestGRPCQueryTotalSupply(t *testing.T) {
@@ -458,17 +458,17 @@ func TestGRPCDenomOwners(t *testing.T) {
 
 	denomOwners := []*banktypes.DenomOwner{
 		{
-			Address: "cosmos1qg65a9q6k2sqq7l3ycp428sqqpmqcucgzze299",
+			Address: "0x592888A0e7D564F2B8a002Aef0F8F08b61A6C0eB",
 			Balance: coin1,
 		},
 		{
-			Address: "cosmos1qglnsqgpq48l7qqzgs8qdshr6fh3gqq9ej3qut",
+			Address: "0xd57ceA561aE53FE496334d4985c0C9F6DebF3173",
 			Balance: coin1,
 		},
 	}
 
 	for i := 0; i < len(denomOwners); i++ {
-		addr, err := sdk.AccAddressFromBech32(denomOwners[i].Address)
+		addr, err := sdk.AccAddressFromHexUnsafe(denomOwners[i].Address)
 		assert.NilError(t, err)
 
 		err = banktestutil.FundAccount(f.bankKeeper, f.ctx, addr, sdk.NewCoins(coin1))

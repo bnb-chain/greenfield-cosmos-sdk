@@ -202,7 +202,7 @@ $ %s tx staking delegate %s1l2rsakp388kuv9k8qzq6lrm9taddae7fpx59wm 1000stake --f
 			}
 
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}
@@ -241,12 +241,12 @@ $ %s tx staking redelegate %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj %s1l2rsakp3
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valSrcAddr, err := sdk.ValAddressFromBech32(args[0])
+			valSrcAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}
 
-			valDstAddr, err := sdk.ValAddressFromBech32(args[1])
+			valDstAddr, err := sdk.ValAddressFromHex(args[1])
 			if err != nil {
 				return err
 			}
@@ -290,7 +290,7 @@ $ %s tx staking unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100stake --from
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}
@@ -336,7 +336,7 @@ $ %s tx staking cancel-unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100stake
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}

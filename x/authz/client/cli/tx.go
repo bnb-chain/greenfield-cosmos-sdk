@@ -72,7 +72,7 @@ Examples:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -231,7 +231,7 @@ Example:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -290,7 +290,7 @@ Example:
 func bech32toValAddresses(validators []string) ([]sdk.ValAddress, error) {
 	vals := make([]sdk.ValAddress, len(validators))
 	for i, validator := range validators {
-		addr, err := sdk.ValAddressFromBech32(validator)
+		addr, err := sdk.ValAddressFromHex(validator)
 		if err != nil {
 			return nil, err
 		}
@@ -303,7 +303,7 @@ func bech32toValAddresses(validators []string) ([]sdk.ValAddress, error) {
 func bech32toAccAddresses(accAddrs []string) ([]sdk.AccAddress, error) {
 	addrs := make([]sdk.AccAddress, len(accAddrs))
 	for i, addr := range accAddrs {
-		accAddr, err := sdk.AccAddressFromBech32(addr)
+		accAddr, err := sdk.AccAddressFromHexUnsafe(addr)
 		if err != nil {
 			return nil, err
 		}

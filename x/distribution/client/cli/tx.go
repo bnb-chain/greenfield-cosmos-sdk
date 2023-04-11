@@ -99,7 +99,7 @@ $ %s tx distribution withdraw-rewards %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}
@@ -159,7 +159,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 			// build multi-message transaction
 			msgs := make([]sdk.Msg, 0, len(validators))
 			for _, valAddr := range validators {
-				val, err := sdk.ValAddressFromBech32(valAddr)
+				val, err := sdk.ValAddressFromHex(valAddr)
 				if err != nil {
 					return err
 				}
@@ -203,7 +203,7 @@ $ %s tx distribution set-withdraw-addr %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			withdrawAddr, err := sdk.AccAddressFromBech32(args[0])
+			withdrawAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -264,7 +264,7 @@ func NewDepositValidatorRewardsPoolCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		Short: "Fund the validator rewards pool with the specified amount",
 		Example: fmt.Sprintf(
-			"%s tx distribution fund-validator-rewards-pool cosmosvaloper1x20lytyf6zkcrv5edpkfkn8sz578qg5sqfyqnp 100uatom --from mykey",
+			"%s tx distribution fund-validator-rewards-pool 0xE8df73ff15769c9Bf1D82039eC9E04A41E5D088B 100uatom --from mykey",
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -275,7 +275,7 @@ func NewDepositValidatorRewardsPoolCmd() *cobra.Command {
 
 			depositorAddr := clientCtx.GetFromAddress()
 
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.ValAddressFromHex(args[0])
 			if err != nil {
 				return err
 			}

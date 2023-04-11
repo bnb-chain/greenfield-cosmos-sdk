@@ -17,7 +17,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *nft.GenesisState) {
 	}
 	for _, entry := range data.Entries {
 		for _, nft := range entry.Nfts {
-			owner := sdk.MustAccAddressFromBech32(entry.Owner)
+			owner := sdk.MustAccAddressFromHex(entry.Owner)
 
 			if err := k.Mint(ctx, *nft, owner); err != nil {
 				panic(err)

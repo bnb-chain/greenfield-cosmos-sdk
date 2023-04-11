@@ -36,7 +36,7 @@ func TestMsgCreateGroup(t *testing.T) {
 				Admin: "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"invalid member address",
@@ -49,7 +49,7 @@ func TestMsgCreateGroup(t *testing.T) {
 				},
 			},
 			true,
-			"address: decoding bech32 failed",
+			"address: invalid address hex length",
 		},
 		{
 			"negitive member's weight not allowed",
@@ -182,7 +182,7 @@ func TestMsgUpdateGroupAdmin(t *testing.T) {
 				Admin:   "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"new admin: invalid bech32 address",
@@ -192,7 +192,7 @@ func TestMsgUpdateGroupAdmin(t *testing.T) {
 				NewAdmin: "new-admin",
 			},
 			true,
-			"new admin: decoding bech32 failed",
+			"new admin: invalid address hex length",
 		},
 		{
 			"admin & new admin is same",
@@ -252,7 +252,7 @@ func TestMsgUpdateGroupMetadata(t *testing.T) {
 				Admin:   "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"valid test",
@@ -300,7 +300,7 @@ func TestMsgUpdateGroupMembers(t *testing.T) {
 				Admin:   "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"empty member list",
@@ -384,7 +384,7 @@ func TestMsgCreateGroupWithPolicy(t *testing.T) {
 				return req
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"invalid member address",
@@ -402,7 +402,7 @@ func TestMsgCreateGroupWithPolicy(t *testing.T) {
 				return req
 			},
 			true,
-			"address: decoding bech32 failed",
+			"address: invalid address hex length",
 		},
 		{
 			"negative member's weight not allowed",
@@ -565,7 +565,7 @@ func TestMsgCreateGroupPolicy(t *testing.T) {
 				}
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"invalid threshold policy",
@@ -727,7 +727,7 @@ func TestMsgUpdateGroupPolicyDecisionPolicy(t *testing.T) {
 				Admin: "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"group policy: invalid bech32 address",
@@ -736,7 +736,7 @@ func TestMsgUpdateGroupPolicyDecisionPolicy(t *testing.T) {
 				GroupPolicyAddress: "address",
 			},
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 		},
 		{
 			"group policy: invalid bech32 address",
@@ -745,7 +745,7 @@ func TestMsgUpdateGroupPolicyDecisionPolicy(t *testing.T) {
 				GroupPolicyAddress: "address",
 			},
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 		},
 		{
 			"invalid decision policy",
@@ -807,7 +807,7 @@ func TestMsgUpdateGroupPolicyAdmin(t *testing.T) {
 				Admin: "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"policy address: invalid bech32 address",
@@ -817,7 +817,7 @@ func TestMsgUpdateGroupPolicyAdmin(t *testing.T) {
 				GroupPolicyAddress: "address",
 			},
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 		},
 		{
 			"new admin: invalid bech32 address",
@@ -827,7 +827,7 @@ func TestMsgUpdateGroupPolicyAdmin(t *testing.T) {
 				NewAdmin:           "new-admin",
 			},
 			true,
-			"new admin: decoding bech32 failed",
+			"new admin: invalid address hex length",
 		},
 		{
 			"same old and new admin",
@@ -879,7 +879,7 @@ func TestMsgUpdateGroupPolicyMetadata(t *testing.T) {
 				Admin: "admin",
 			},
 			true,
-			"admin: decoding bech32 failed",
+			"admin: invalid address hex length",
 		},
 		{
 			"group policy address: invalid bech32 address",
@@ -888,7 +888,7 @@ func TestMsgUpdateGroupPolicyMetadata(t *testing.T) {
 				GroupPolicyAddress: "address",
 			},
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 		},
 		{
 			"valid testcase",
@@ -930,7 +930,7 @@ func TestMsgSubmitProposal(t *testing.T) {
 				GroupPolicyAddress: "address",
 			},
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 		},
 		{
 			"proposers required",
@@ -1029,7 +1029,7 @@ func TestMsgVote(t *testing.T) {
 				Voter: "voter",
 			},
 			true,
-			"voter: decoding bech32 failed",
+			"voter: invalid address hex length",
 		},
 		{
 			"proposal id is required",
@@ -1088,7 +1088,7 @@ func TestMsgWithdrawProposal(t *testing.T) {
 				Address: "address",
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"proposal id is required",
@@ -1137,7 +1137,7 @@ func TestMsgExec(t *testing.T) {
 				Executor: "signer",
 			},
 			true,
-			"signer: decoding bech32 failed",
+			"signer: invalid address hex length",
 		},
 		{
 			"proposal is required",
@@ -1185,7 +1185,7 @@ func TestMsgLeaveGroup(t *testing.T) {
 				Address: "member",
 			},
 			true,
-			"group member: decoding bech32 failed",
+			"group member: invalid address hex length",
 		},
 		{
 			"group id is required",
@@ -1226,7 +1226,7 @@ func TestAmino(t *testing.T) {
 	out, err := cdc.Amino.MarshalJSON(group.MsgSubmitProposal{Proposers: []string{member1.String()}})
 	require.NoError(t, err)
 	require.Equal(t,
-		`{"type":"cosmos-sdk/group/MsgSubmitProposal","value":{"proposers":["cosmos1d4jk6cn9wgcsj540xq"]}}`,
+		`{"type":"cosmos-sdk/group/MsgSubmitProposal","value":{"proposers":["0x000000000000000000000000006D656d62657231"]}}`,
 		string(out),
 	)
 }

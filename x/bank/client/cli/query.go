@@ -70,7 +70,7 @@ Example:
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			addr, err := sdk.AccAddressFromBech32(args[0])
+			addr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -136,7 +136,7 @@ func GetSpendableBalancesCmd() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			addr, err := sdk.AccAddressFromBech32(args[0])
+			addr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

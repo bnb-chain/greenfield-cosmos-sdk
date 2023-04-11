@@ -209,7 +209,7 @@ func ProvideModule(in UpgradeInputs) UpgradeOutputs {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+		authority = authtypes.NewModuleAddressOrHexAddress(in.Config.Authority)
 	}
 
 	// set the governance module account as the authority for conducting upgrades

@@ -58,7 +58,6 @@ func (s *VestingAccountTestSuite) SetupTest() {
 		storeService,
 		authtypes.ProtoBaseAccount,
 		maccPerms,
-		"cosmos",
 		authtypes.NewModuleAddress("gov").String(),
 	)
 }

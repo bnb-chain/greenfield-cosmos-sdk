@@ -218,7 +218,7 @@ func (s *CLITestSuite) TestCLITxGrantAuthorization() {
 				fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
 			},
 			true,
-			"invalid separator index",
+			"invalid address hex length",
 		},
 		{
 			"Invalid expiration time",

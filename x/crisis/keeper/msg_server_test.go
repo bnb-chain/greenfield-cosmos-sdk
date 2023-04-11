@@ -65,7 +65,7 @@ func (s *KeeperTestSuite) TestMsgVerifyInvariant() {
 				InvariantRoute:      "total-supply",
 			},
 			expErr:    true,
-			expErrMsg: "empty address string is not allowed",
+			expErrMsg: "empty address",
 		},
 		{
 			name: "invalid sender address",
@@ -75,7 +75,7 @@ func (s *KeeperTestSuite) TestMsgVerifyInvariant() {
 				InvariantRoute:      "total-supply",
 			},
 			expErr:    true,
-			expErrMsg: "decoding bech32 failed",
+			expErrMsg: "invalid address hex length",
 		},
 		{
 			name: "unregistered invariant route",

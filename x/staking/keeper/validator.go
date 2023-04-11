@@ -385,13 +385,13 @@ func (k Keeper) DeleteValidatorQueue(ctx sdk.Context, val types.Validator) {
 
 	// since address string may change due to Bech32 prefix change, we parse the addresses into bytes
 	// format for normalization
-	deletingAddr, err := sdk.ValAddressFromBech32(val.OperatorAddress)
+	deletingAddr, err := sdk.ValAddressFromHex(val.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, addr := range addrs {
-		storedAddr, err := sdk.ValAddressFromBech32(addr)
+		storedAddr, err := sdk.ValAddressFromHex(addr)
 		if err != nil {
 			// even if we don't panic here, it will panic in UnbondAllMatureValidators at unbond time
 			panic(err)
@@ -444,7 +444,7 @@ func (k Keeper) UnbondAllMatureValidators(ctx sdk.Context) {
 			k.cdc.MustUnmarshal(unbondingValIterator.Value(), &addrs)
 
 			for _, valAddr := range addrs.Addresses {
-				addr, err := sdk.ValAddressFromBech32(valAddr)
+				addr, err := sdk.ValAddressFromHex(valAddr)
 				if err != nil {
 					panic(err)
 				}

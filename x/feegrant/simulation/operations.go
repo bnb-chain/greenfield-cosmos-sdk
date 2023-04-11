@@ -3,7 +3,6 @@ package simulation
 import (
 	"math/rand"
 
-	"cosmossdk.io/core/address"
 	"cosmossdk.io/x/feegrant"
 	"cosmossdk.io/x/feegrant/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -37,7 +36,6 @@ func WeightedOperations(
 	ak feegrant.AccountKeeper,
 	bk feegrant.BankKeeper,
 	k keeper.Keeper,
-	ac address.Codec,
 ) simulation.WeightedOperations {
 	var (
 		weightMsgGrantAllowance  int
@@ -63,7 +61,7 @@ func WeightedOperations(
 		),
 		simulation.NewWeightedOperation(
 			weightMsgRevokeAllowance,
-			SimulateMsgRevokeAllowance(codec.NewProtoCodec(registry), ak, bk, k, ac),
+			SimulateMsgRevokeAllowance(codec.NewProtoCodec(registry), ak, bk, k),
 		),
 	}
 }
@@ -118,7 +116,7 @@ func SimulateMsgGrantAllowance(cdc *codec.ProtoCodec, ak feegrant.AccountKeeper,
 }
 
 // SimulateMsgRevokeAllowance generates a MsgRevokeAllowance with random values.
-func SimulateMsgRevokeAllowance(cdc *codec.ProtoCodec, ak feegrant.AccountKeeper, bk feegrant.BankKeeper, k keeper.Keeper, ac address.Codec) simtypes.Operation {
+func SimulateMsgRevokeAllowance(cdc *codec.ProtoCodec, ak feegrant.AccountKeeper, bk feegrant.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
@@ -126,11 +124,11 @@ func SimulateMsgRevokeAllowance(cdc *codec.ProtoCodec, ak feegrant.AccountKeeper
 		var granterAddr sdk.AccAddress
 		var granteeAddr sdk.AccAddress
 		k.IterateAllFeeAllowances(ctx, func(grant feegrant.Grant) bool {
-			granter, err := ac.StringToBytes(grant.Granter)
+			granter, err := sdk.AccAddressFromHexUnsafe(grant.Granter)
 			if err != nil {
 				panic(err)
 			}
-			grantee, err := ac.StringToBytes(grant.Grantee)
+			grantee, err := sdk.AccAddressFromHexUnsafe(grant.Grantee)
 			if err != nil {
 				panic(err)
 			}

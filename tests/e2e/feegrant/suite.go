@@ -13,7 +13,6 @@ import (
 	"cosmossdk.io/x/feegrant/client/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -98,7 +97,7 @@ func (s *E2ETestSuite) createGrant(granter, grantee sdk.Address) {
 		commonFlags...,
 	)
 
-	cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+	cmd := cli.NewCmdFeeGrant()
 
 	_, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
 	s.Require().NoError(err)
@@ -131,7 +130,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrant() {
 				grantee.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -141,13 +140,13 @@ func (s *E2ETestSuite) TestCmdGetFeeGrant() {
 				"wrong_grantee",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
 			"non existed grant",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 				grantee.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
@@ -172,7 +171,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -219,7 +218,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrantsByGrantee() {
 		{
 			"non existent grantee",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false, &feegrant.QueryAllowancesResponse{}, 0,
@@ -238,7 +237,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrantsByGrantee() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrantsByGrantee(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrantsByGrantee()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -276,7 +275,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrantsByGranter() {
 		{
 			"non existent grantee",
 			[]string{
-				"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+				"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false, &feegrant.QueryAllowancesByGranterResponse{}, 0,
@@ -295,7 +294,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrantsByGranter() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.GetCmdQueryFeeGrantsByGranter(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.GetCmdQueryFeeGrantsByGranter()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -337,7 +336,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"wrong_granter",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -363,7 +362,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"invalid_granter",
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0x15Ec1D4647Ec0485cD21856eB169E95CB595e45D",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -376,7 +375,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -389,7 +388,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					fromName,
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0x15Ec1D4647Ec0485cD21856eB169E95CB595e45D",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, fromName),
 				},
@@ -402,7 +401,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1v57fx2l2rt6ehujuu99u2fw05779m5e2ux4z2h",
+					"0x17B64D36e6452C73699C6999095E5CeCf7e83b91",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
@@ -416,7 +415,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos17h5lzptx3ghvsuhk7wx4c4hnl7rsswxjer97em",
+					"0x9f1E2e29698b1b3e8bF262cdF3572aaF925Ec28C",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -428,7 +427,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos16dlc38dcqt0uralyd8hksxyrny6kaeqfjvjwp5",
+					"0x5093a4E223b6B98a78EfBD0c8D0C3eb44EfEB1DF",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -441,7 +440,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1ku40qup9vwag4wtf8cls9mkszxfthaklxkp3c8",
+					"0x5d2596027D155ef78046f06e4C7cd02A1CCE8D0d",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -466,7 +465,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -481,7 +480,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -496,7 +495,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -512,7 +511,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1w55kgcf3ltaqdy4ww49nge3klxmrdavrr6frmp",
+					"0x911c52f7644d88e99a11E65bDe12a364400B3B0b",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -528,7 +527,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0xfA4D171191cAcc5e12c3eA41ac8445e225C750F8",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -543,7 +542,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+					"0x170A9D72eA1aB2F04AcDDd6CddC3A87c45ACee90",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -558,7 +557,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos12nyk4pcf4arshznkpz882e4l4ts0lt0ap8ce54",
+					"0xA442dDB26b1e91E43E6c1966a883Ae4C54589376",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -572,7 +571,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0xfA4D171191cAcc5e12c3eA41ac8445e225C750F8",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -588,7 +587,7 @@ func (s *E2ETestSuite) TestNewCmdFeeGrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -616,9 +615,9 @@ func (s *E2ETestSuite) TestNewCmdRevokeFeegrant() {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 	}
 
-	address := "cosmos16ydaqh0fcnh4qt7a3jme4mmztm2qel5axcpw00"
+	address := "0x0EA9D661C1C2B5C7660146F1193700A527D81EFb"
 	// Create new fee grant specifically to test amino.
-	aminoGrantee, err := codecaddress.NewBech32Codec("cosmos").StringToBytes(address)
+	aminoGrantee, err := sdk.AccAddressFromHexUnsafe(address)
 	s.Require().NoError(err)
 	s.createGrant(granter, sdk.AccAddress(aminoGrantee))
 
@@ -658,7 +657,7 @@ func (s *E2ETestSuite) TestNewCmdRevokeFeegrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1aeuqja06474dfrj7uqsvukm6rael982kk89mqr",
+					"0xd74B05af1030Be940cEE8Cb952f01375cCB66711",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -696,7 +695,7 @@ func (s *E2ETestSuite) TestNewCmdRevokeFeegrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdRevokeFeegrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdRevokeFeegrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -745,7 +744,7 @@ func (s *E2ETestSuite) TestTxWithFeeGrant() {
 		commonFlags...,
 	)
 
-	cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+	cmd := cli.NewCmdFeeGrant()
 
 	_, err = clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
 	s.Require().NoError(err)
@@ -837,7 +836,7 @@ func (s *E2ETestSuite) TestFilteredFeeAllowance() {
 			append(
 				[]string{
 					"not an address",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagAllowedMsgs, allowMsgs),
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, spendLimit.String()),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -880,7 +879,7 @@ func (s *E2ETestSuite) TestFilteredFeeAllowance() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -902,7 +901,7 @@ func (s *E2ETestSuite) TestFilteredFeeAllowance() {
 	}
 
 	// get filtered fee allowance and check info
-	cmd := cli.GetCmdQueryFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+	cmd := cli.GetCmdQueryFeeGrant()
 	out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
 	s.Require().NoError(err)
 
@@ -959,13 +958,13 @@ func (s *E2ETestSuite) TestFilteredFeeAllowance() {
 				args := append(
 					[]string{
 						grantee.String(),
-						"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+						"0x170A9D72eA1aB2F04AcDDd6CddC3A87c45ACee90",
 						fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 						fmt.Sprintf("--%s=%s", flags.FlagFeeGranter, granter),
 					},
 					commonFlags...,
 				)
-				cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+				cmd := cli.NewCmdFeeGrant()
 				return clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
 			},
 			&sdk.TxResponse{},

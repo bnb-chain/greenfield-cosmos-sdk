@@ -28,7 +28,7 @@ func NewMsgUnjail(validatorAddr sdk.ValAddress) *MsgUnjail {
 
 // GetSigners returns the expected signers for MsgUnjail.
 func (msg MsgUnjail) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddr)
+	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddr)
 	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
 }
 
@@ -40,7 +40,7 @@ func (msg MsgUnjail) GetSignBytes() []byte {
 
 // ValidateBasic does a sanity check on the provided message.
 func (msg MsgUnjail) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddr); err != nil {
+	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddr); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("validator input address: %s", err)
 	}
 	return nil
@@ -53,13 +53,13 @@ func (msg MsgUpdateParams) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	addr, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check on the provided data.
 func (msg MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
 		return errorsmod.Wrap(err, "invalid authority address")
 	}
 

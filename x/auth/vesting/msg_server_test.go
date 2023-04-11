@@ -23,12 +23,12 @@ import (
 )
 
 var (
-	fromAddr   = sdk.AccAddress([]byte("from1________________"))
-	to1Addr    = sdk.AccAddress([]byte("to1__________________"))
-	to2Addr    = sdk.AccAddress([]byte("to2__________________"))
-	to3Addr    = sdk.AccAddress([]byte("to3__________________"))
-	fooCoin    = sdk.NewInt64Coin("foo", 100)
-	periodCoin = sdk.NewInt64Coin("foo", 20)
+	fromAddr, _ = sdk.AccAddressFromHexUnsafe(sdk.AccAddress("from1").String())
+	to1Addr, _  = sdk.AccAddressFromHexUnsafe(sdk.AccAddress("to1").String())
+	to2Addr, _  = sdk.AccAddressFromHexUnsafe(sdk.AccAddress("to2").String())
+	to3Addr, _  = sdk.AccAddressFromHexUnsafe(sdk.AccAddress("to3").String())
+	fooCoin     = sdk.NewInt64Coin("foo", 100)
+	periodCoin  = sdk.NewInt64Coin("foo", 20)
 )
 
 type VestingTestSuite struct {
@@ -56,7 +56,6 @@ func (s *VestingTestSuite) SetupTest() {
 		storeService,
 		authtypes.ProtoBaseAccount,
 		maccPerms,
-		"cosmos",
 		authtypes.NewModuleAddress("gov").String(),
 	)
 

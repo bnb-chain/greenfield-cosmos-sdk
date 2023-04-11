@@ -11,7 +11,6 @@ import (
 
 	"cosmossdk.io/depinject"
 
-	"cosmossdk.io/core/address"
 	"cosmossdk.io/core/appmodule"
 
 	modulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
@@ -20,7 +19,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -199,15 +197,8 @@ func (AppModule) WeightedOperations(_ module.SimulationState) []simtypes.Weighte
 
 func init() {
 	appmodule.Register(&modulev1.Module{},
-		appmodule.Provide(ProvideAddressCodec),
 		appmodule.Provide(ProvideModule),
 	)
-}
-
-// ProvideAddressCodec provides an address.Codec to the container for any
-// modules that want to do address string <> bytes conversion.
-func ProvideAddressCodec(config *modulev1.Module) address.Codec {
-	return codecaddress.NewBech32Codec(config.Bech32Prefix)
 }
 
 //nolint:revive
@@ -242,7 +233,7 @@ func ProvideModule(in AuthInputs) AuthOutputs {
 	// default to governance authority if not provided
 	authority := types.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
-		authority = types.NewModuleAddressOrBech32Address(in.Config.Authority)
+		authority = types.NewModuleAddressOrHexAddress(in.Config.Authority)
 	}
 
 	if in.RandomGenesisAccountsFn == nil {
@@ -253,7 +244,7 @@ func ProvideModule(in AuthInputs) AuthOutputs {
 		in.AccountI = types.ProtoBaseAccount
 	}
 
-	k := keeper.NewAccountKeeper(in.Cdc, in.StoreService, in.AccountI, maccPerms, in.Config.Bech32Prefix, authority.String())
+	k := keeper.NewAccountKeeper(in.Cdc, in.StoreService, in.AccountI, maccPerms, authority.String())
 	m := NewAppModule(in.Cdc, k, in.RandomGenesisAccountsFn, in.LegacySubspace)
 
 	return AuthOutputs{AccountKeeper: k, Module: m}

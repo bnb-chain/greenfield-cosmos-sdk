@@ -37,7 +37,7 @@ func NewMsgSubmitEvidence(s sdk.AccAddress, evi exported.Evidence) (*MsgSubmitEv
 
 // ValidateBasic performs basic (non-state-dependant) validation on a MsgSubmitEvidence.
 func (m MsgSubmitEvidence) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Submitter); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(m.Submitter); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid submitter address: %s", err)
 	}
 
@@ -60,7 +60,7 @@ func (m MsgSubmitEvidence) GetSignBytes() []byte {
 
 // GetSigners returns the single expected signer for a MsgSubmitEvidence.
 func (m MsgSubmitEvidence) GetSigners() []sdk.AccAddress {
-	submitter, _ := sdk.AccAddressFromBech32(m.Submitter)
+	submitter, _ := sdk.AccAddressFromHexUnsafe(m.Submitter)
 	return []sdk.AccAddress{submitter}
 }
 
@@ -73,7 +73,7 @@ func (m MsgSubmitEvidence) GetEvidence() exported.Evidence {
 }
 
 func (m MsgSubmitEvidence) GetSubmitter() sdk.AccAddress {
-	accAddr, err := sdk.AccAddressFromBech32(m.Submitter)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(m.Submitter)
 	if err != nil {
 		return nil
 	}

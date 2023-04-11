@@ -31,3 +31,9 @@ require (
 	google.golang.org/grpc v1.54.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace (
+	cosmossdk.io/api => ../../api
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230407055437-d971cdfb9041
+)

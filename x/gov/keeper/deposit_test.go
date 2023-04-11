@@ -329,7 +329,7 @@ func TestChargeDeposit(t *testing.T) {
 				// get balances of dest address
 				var prevBalance sdk.Coin
 				if len(params.ProposalCancelDest) != 0 {
-					accAddr := sdk.MustAccAddressFromBech32(params.ProposalCancelDest)
+					accAddr := sdk.MustAccAddressFromHex(params.ProposalCancelDest)
 					prevBalance = bankKeeper.GetBalance(ctx, accAddr, sdk.DefaultBondDenom)
 				}
 
@@ -345,7 +345,7 @@ func TestChargeDeposit(t *testing.T) {
 				require.NoError(t, err)
 
 				if len(params.ProposalCancelDest) != 0 {
-					accAddr := sdk.MustAccAddressFromBech32(params.ProposalCancelDest)
+					accAddr := sdk.MustAccAddressFromHex(params.ProposalCancelDest)
 					newBalanceAfterCancelProposal := bankKeeper.GetBalance(ctx, accAddr, sdk.DefaultBondDenom)
 					cancellationCharges := math.NewInt(0)
 					for _, deposits := range allDeposits {

@@ -244,7 +244,7 @@ func (suite *KeeperTestSuite) TestGetAuthority() {
 	}
 
 	tests := map[string]string{
-		"some random account":    "cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5",
+		"some random account":    "0x319D057ce294319bA1fa5487134608727e1F3e29",
 		"gov module account":     authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		"another module account": authtypes.NewModuleAddress(minttypes.ModuleName).String(),
 	}
@@ -1242,14 +1242,14 @@ func (suite *KeeperTestSuite) TestBalanceTrackingEvents() {
 		case banktypes.EventTypeCoinSpent:
 			coinsSpent, err := sdk.ParseCoinsNormalized(e.Attributes[1].Value)
 			require.NoError(err)
-			spender, err := sdk.AccAddressFromBech32(e.Attributes[0].Value)
+			spender, err := sdk.AccAddressFromHexUnsafe(e.Attributes[0].Value)
 			require.NoError(err)
 			balances[spender.String()] = balances[spender.String()].Sub(coinsSpent...)
 
 		case banktypes.EventTypeCoinReceived:
 			coinsRecv, err := sdk.ParseCoinsNormalized(e.Attributes[1].Value)
 			require.NoError(err)
-			receiver, err := sdk.AccAddressFromBech32(e.Attributes[0].Value)
+			receiver, err := sdk.AccAddressFromHexUnsafe(e.Attributes[0].Value)
 			require.NoError(err)
 			balances[receiver.String()] = balances[receiver.String()].Add(coinsRecv...)
 		}

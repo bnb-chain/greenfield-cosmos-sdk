@@ -18,7 +18,6 @@ import (
 	"cosmossdk.io/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	codecaddress "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -126,7 +125,7 @@ func (s *CLITestSuite) createGrant(granter, grantee sdk.Address) {
 		commonFlags...,
 	)
 
-	cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+	cmd := cli.NewCmdFeeGrant()
 	out, err := clitestutil.ExecTestCLICmd(s.clientCtx, cmd, args)
 	s.Require().NoError(err)
 
@@ -162,7 +161,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"wrong_granter",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -188,7 +187,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					"invalid_granter",
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0x15Ec1D4647Ec0485cD21856eB169E95CB595e45D",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -201,7 +200,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -214,7 +213,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					fromName,
-					"cosmos16dun6ehcc86e03wreqqww89ey569wuj4em572w",
+					"0x15Ec1D4647Ec0485cD21856eB169E95CB595e45D",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, fromName),
 				},
@@ -227,7 +226,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1v57fx2l2rt6ehujuu99u2fw05779m5e2ux4z2h",
+					"0x17B64D36e6452C73699C6999095E5CeCf7e83b91",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
@@ -241,7 +240,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos17h5lzptx3ghvsuhk7wx4c4hnl7rsswxjer97em",
+					"0x9f1E2e29698b1b3e8bF262cdF3572aaF925Ec28C",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -253,7 +252,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos16dlc38dcqt0uralyd8hksxyrny6kaeqfjvjwp5",
+					"0x5093a4E223b6B98a78EfBD0c8D0C3eb44EfEB1DF",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
@@ -266,7 +265,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1ku40qup9vwag4wtf8cls9mkszxfthaklxkp3c8",
+					"0x5d2596027D155ef78046f06e4C7cd02A1CCE8D0d",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,
@@ -291,7 +290,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -306,7 +305,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -321,7 +320,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, tenHours),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -337,7 +336,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1w55kgcf3ltaqdy4ww49nge3klxmrdavrr6frmp",
+					"0x911c52f7644d88e99a11E65bDe12a364400B3B0b",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -353,7 +352,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0xfA4D171191cAcc5e12c3eA41ac8445e225C750F8",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -368,7 +367,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+					"0x170A9D72eA1aB2F04AcDDd6CddC3A87c45ACee90",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
@@ -383,7 +382,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos12nyk4pcf4arshznkpz882e4l4ts0lt0ap8ce54",
+					"0xA442dDB26b1e91E43E6c1966a883Ae4C54589376",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -397,7 +396,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1vevyks8pthkscvgazc97qyfjt40m6g9xe85ry8",
+					"0xfA4D171191cAcc5e12c3eA41ac8445e225C750F8",
 					fmt.Sprintf("--%s=%d", cli.FlagPeriod, oneHour),
 					fmt.Sprintf("--%s=%s", cli.FlagPeriodLimit, "10stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -413,7 +412,7 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -437,10 +436,9 @@ func (s *CLITestSuite) TestNewCmdRevokeFeegrant() {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
 	}
 
-	addressCodec := codecaddress.NewBech32Codec("cosmos")
 	// Create new fee grant specifically to test amino.
-	encodedGrantee := "cosmos16ydaqh0fcnh4qt7a3jme4mmztm2qel5axcpw00"
-	aminoGrantee, err := addressCodec.StringToBytes(encodedGrantee)
+	encodedGrantee := "0x0EA9D661C1C2B5C7660146F1193700A527D81EFb"
+	aminoGrantee, err := sdk.AccAddressFromHexUnsafe(encodedGrantee)
 	s.Require().NoError(err)
 	s.createGrant(granter, sdk.AccAddress(aminoGrantee))
 
@@ -506,7 +504,7 @@ func (s *CLITestSuite) TestNewCmdRevokeFeegrant() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdRevokeFeegrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdRevokeFeegrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -549,7 +547,7 @@ func (s *CLITestSuite) TestTxWithFeeGrant() {
 		commonFlags...,
 	)
 
-	cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+	cmd := cli.NewCmdFeeGrant()
 
 	var res sdk.TxResponse
 	out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
@@ -663,7 +661,7 @@ func (s *CLITestSuite) TestFilteredFeeAllowance() {
 			append(
 				[]string{
 					"not an address",
-					"cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl",
+					"0x942742fA24F6000aB091d42e744D66F4bBd8cAc8",
 					fmt.Sprintf("--%s=%s", cli.FlagAllowedMsgs, allowMsgs),
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, spendLimit.String()),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
@@ -706,7 +704,7 @@ func (s *CLITestSuite) TestFilteredFeeAllowance() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+			cmd := cli.NewCmdFeeGrant()
 			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
 
 			if tc.expectErr {
@@ -754,14 +752,14 @@ func (s *CLITestSuite) TestFilteredFeeAllowance() {
 				args := append(
 					[]string{
 						grantee.String(),
-						"cosmos14cm33pvnrv2497tyt8sp9yavhmw83nwej3m0e8",
+						"0x170A9D72eA1aB2F04AcDDd6CddC3A87c45ACee90",
 						fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 						fmt.Sprintf("--%s=%s", flags.FlagFeeGranter, granter),
 					},
 					commonFlags...,
 				)
 
-				cmd := cli.NewCmdFeeGrant(codecaddress.NewBech32Codec("cosmos"))
+				cmd := cli.NewCmdFeeGrant()
 				out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
 				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &sdk.TxResponse{}), out.String())
 

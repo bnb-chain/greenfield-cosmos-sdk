@@ -170,7 +170,7 @@ func (s *MempoolTestSuite) TestPriorityNonceTxOrder() {
 				{p: 10, n: 5, a: sb},
 				{p: 10, n: 6, a: sb},
 			},
-			order: []int{3, 4, 5, 6, 7, 8, 0, 1, 2},
+			order: []int{0, 1, 2, 3, 4, 5, 6, 7, 8},
 		},
 		/*
 			The next 4 tests are different permutations of the same set:

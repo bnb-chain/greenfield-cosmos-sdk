@@ -179,7 +179,7 @@ func fetchKey(kb keyring.Keyring, keyref string) (*keyring.Record, error) {
 		return k, err
 	}
 
-	accAddr, err := sdk.AccAddressFromBech32(keyref)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(keyref)
 	if err != nil {
 		return k, err
 	}

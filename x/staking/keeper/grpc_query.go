@@ -69,7 +69,7 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 		return nil, status.Error(codes.InvalidArgument, "validator address cannot be empty")
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (k Querier) ValidatorDelegations(c context.Context, req *types.QueryValidat
 	store := ctx.KVStore(k.storeKey)
 	valStore := prefix.NewStore(store, types.DelegationKey)
 	delegations, pageRes, err := query.GenericFilteredPaginate(k.cdc, valStore, req.Pagination, func(key []byte, delegation *types.Delegation) (*types.Delegation, error) {
-		valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+		valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +143,7 @@ func (k Querier) ValidatorUnbondingDelegations(c context.Context, req *types.Que
 
 	store := ctx.KVStore(k.storeKey)
 
-	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -185,12 +185,12 @@ func (k Querier) Delegation(c context.Context, req *types.QueryDelegationRequest
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -226,12 +226,12 @@ func (k Querier) UnbondingDelegation(c context.Context, req *types.QueryUnbondin
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func (k Querier) DelegatorDelegations(c context.Context, req *types.QueryDelegat
 	var delegations types.Delegations
 	ctx := sdk.UnwrapSDKContext(c)
 
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -300,12 +300,12 @@ func (k Querier) DelegatorValidator(c context.Context, req *types.QueryDelegator
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	valAddr, err := sdk.ValAddressFromBech32(req.ValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -331,7 +331,7 @@ func (k Querier) DelegatorUnbondingDelegations(c context.Context, req *types.Que
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -416,7 +416,7 @@ func (k Querier) DelegatorValidators(c context.Context, req *types.QueryDelegato
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -467,17 +467,17 @@ func (k Querier) Params(c context.Context, _ *types.QueryParamsRequest) (*types.
 }
 
 func queryRedelegation(ctx sdk.Context, k Querier, req *types.QueryRedelegationsRequest) (redels types.Redelegations, err error) {
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	srcValAddr, err := sdk.ValAddressFromBech32(req.SrcValidatorAddr)
+	srcValAddr, err := sdk.ValAddressFromHex(req.SrcValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	dstValAddr, err := sdk.ValAddressFromBech32(req.DstValidatorAddr)
+	dstValAddr, err := sdk.ValAddressFromHex(req.DstValidatorAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +495,7 @@ func queryRedelegation(ctx sdk.Context, k Querier, req *types.QueryRedelegations
 }
 
 func queryRedelegationsFromSrcValidator(store storetypes.KVStore, k Querier, req *types.QueryRedelegationsRequest) (redels types.Redelegations, res *query.PageResponse, err error) {
-	valAddr, err := sdk.ValAddressFromBech32(req.SrcValidatorAddr)
+	valAddr, err := sdk.ValAddressFromHex(req.SrcValidatorAddr)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -517,7 +517,7 @@ func queryRedelegationsFromSrcValidator(store storetypes.KVStore, k Querier, req
 }
 
 func queryAllRedelegations(store storetypes.KVStore, k Querier, req *types.QueryRedelegationsRequest) (redels types.Redelegations, res *query.PageResponse, err error) {
-	delAddr, err := sdk.AccAddressFromBech32(req.DelegatorAddr)
+	delAddr, err := sdk.AccAddressFromHexUnsafe(req.DelegatorAddr)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -543,7 +543,7 @@ func DelegationToDelegationResponse(ctx sdk.Context, k *Keeper, del types.Delega
 		return types.DelegationResponse{}, types.ErrNoValidatorFound
 	}
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(del.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(del.DelegatorAddress)
 	if err != nil {
 		return types.DelegationResponse{}, err
 	}
@@ -575,16 +575,16 @@ func RedelegationsToRedelegationResponses(ctx sdk.Context, k *Keeper, redels typ
 	resp := make(types.RedelegationResponses, len(redels))
 
 	for i, redel := range redels {
-		valSrcAddr, err := sdk.ValAddressFromBech32(redel.ValidatorSrcAddress)
+		valSrcAddr, err := sdk.ValAddressFromHex(redel.ValidatorSrcAddress)
 		if err != nil {
 			panic(err)
 		}
-		valDstAddr, err := sdk.ValAddressFromBech32(redel.ValidatorDstAddress)
+		valDstAddr, err := sdk.ValAddressFromHex(redel.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}
 
-		delegatorAddress := sdk.MustAccAddressFromBech32(redel.DelegatorAddress)
+		delegatorAddress := sdk.MustAccAddressFromHex(redel.DelegatorAddress)
 
 		val, found := k.GetValidator(ctx, valDstAddr)
 		if !found {

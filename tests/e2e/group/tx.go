@@ -302,7 +302,7 @@ func (s *E2ETestSuite) TestTxCreateGroup() {
 				s.commonFlags...,
 			),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 			nil,
 			0,
 		},
@@ -843,7 +843,7 @@ func (s *E2ETestSuite) TestTxCreateGroupWithPolicy() {
 				s.commonFlags...,
 			),
 			true,
-			"message validation failed: address: empty address string is not allowed",
+			"message validation failed: address: decoding address from hex string failed: empty address",
 			nil,
 			0,
 		},
@@ -1591,7 +1591,7 @@ func (s *E2ETestSuite) TestTxSubmitProposal() {
 				s.commonFlags...,
 			),
 			true,
-			"group policy: decoding bech32 failed",
+			"group policy: invalid address hex length",
 			nil,
 			0,
 		},
@@ -2634,7 +2634,7 @@ func (s *E2ETestSuite) createGroupThresholdPolicyWithBalance(adminAddress, group
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &res))
 	groupPolicyAddress := res.GroupPolicies[0].Address
 
-	addr, err := sdk.AccAddressFromBech32(groupPolicyAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(groupPolicyAddress)
 	s.Require().NoError(err)
 	_, err = clitestutil.MsgSendExec(clientCtx, val.Address, addr,
 		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(tokens))),

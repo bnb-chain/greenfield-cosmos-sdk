@@ -49,7 +49,7 @@ func (e *Equivocation) ValidateBasic() error {
 // GetConsensusAddress returns the validator's consensus address at time of the
 // Equivocation infraction.
 func (e Equivocation) GetConsensusAddress() sdk.ConsAddress {
-	addr, _ := sdk.ConsAddressFromBech32(e.ConsensusAddress)
+	addr, _ := sdk.ConsAddressFromHex(e.ConsensusAddress)
 	return addr
 }
 
@@ -75,16 +75,12 @@ func (e Equivocation) GetTotalPower() int64 { return 0 }
 // FromABCIEvidence converts a CometBFT concrete Evidence type to
 // SDK Evidence using Equivocation as the concrete type.
 func FromABCIEvidence(e abci.Misbehavior) *Equivocation {
-	bech32PrefixConsAddr := sdk.GetConfig().GetBech32ConsensusAddrPrefix()
-	consAddr, err := sdk.Bech32ifyAddressBytes(bech32PrefixConsAddr, e.Validator.Address)
-	if err != nil {
-		panic(err)
-	}
+	consAddr := sdk.ConsAddress(e.Validator.Address)
 
 	return &Equivocation{
 		Height:           e.Height,
 		Power:            e.Validator.Power,
-		ConsensusAddress: consAddr,
+		ConsensusAddress: consAddr.String(),
 		Time:             e.Time,
 	}
 }

@@ -506,18 +506,6 @@ func (s *E2ETestSuite) TestNewWithdrawRewardsCmd() {
 		expectedResponseType []string
 	}{
 		{
-			"invalid validator address",
-			val.Address,
-			[]string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-			[]string{},
-		},
-		{
 			"valid transaction",
 			sdk.ValAddress(val.Address),
 			[]string{

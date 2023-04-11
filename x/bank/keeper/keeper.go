@@ -90,7 +90,7 @@ func NewBaseKeeper(
 	blockedAddrs map[string]bool,
 	authority string,
 ) BaseKeeper {
-	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(authority); err != nil {
 		panic(fmt.Errorf("invalid bank authority address: %w", err))
 	}
 

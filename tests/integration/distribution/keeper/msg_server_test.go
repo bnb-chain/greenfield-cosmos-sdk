@@ -130,7 +130,7 @@ func TestCommunityPoolSpend(t *testing.T) {
 	t.Parallel()
 	f := initFixture(t)
 
-	recipient := sdk.AccAddress([]byte("addr1_______________"))
+	recipient, _ := sdk.AccAddressFromHexUnsafe(sdk.AccAddress("recipient").String())
 
 	testCases := []struct {
 		name      string
@@ -156,7 +156,7 @@ func TestCommunityPoolSpend(t *testing.T) {
 				Amount:    sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
 			},
 			expErr:    true,
-			expErrMsg: "decoding bech32 failed",
+			expErrMsg: "invalid address hex length",
 		},
 		{
 			name: "valid message",
@@ -178,7 +178,7 @@ func TestCommunityPoolSpend(t *testing.T) {
 				assert.ErrorContains(t, err, tc.expErrMsg)
 			} else {
 				assert.NilError(t, err)
-				r, err := sdk.AccAddressFromBech32(tc.input.Recipient)
+				r, err := sdk.AccAddressFromHexUnsafe(tc.input.Recipient)
 				assert.NilError(t, err)
 
 				b := f.bankKeeper.GetAllBalances(f.ctx, r)
@@ -246,7 +246,7 @@ func TestMsgDepositValidatorRewardsPool(t *testing.T) {
 			} else {
 				assert.NilError(t, err)
 
-				valAddr, err := sdk.ValAddressFromBech32(tc.input.ValidatorAddress)
+				valAddr, err := sdk.ValAddressFromHex(tc.input.ValidatorAddress)
 				assert.NilError(t, err)
 
 				// check validator outstanding rewards

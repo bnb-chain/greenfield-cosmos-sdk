@@ -657,8 +657,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryVotes() {
 					{ProposalId: proposal.Id, Voter: addrs[0].String(), Options: v1.NewNonSplitVoteOption(v1.OptionAbstain)},
 					{ProposalId: proposal.Id, Voter: addrs[1].String(), Options: v1.NewNonSplitVoteOption(v1.OptionYes)},
 				}
-				accAddr1, err1 := sdk.AccAddressFromBech32(votes[0].Voter)
-				accAddr2, err2 := sdk.AccAddressFromBech32(votes[1].Voter)
+				accAddr1, err1 := sdk.AccAddressFromHexUnsafe(votes[0].Voter)
+				accAddr2, err2 := sdk.AccAddressFromHexUnsafe(votes[1].Voter)
 				suite.Require().NoError(err1)
 				suite.Require().NoError(err2)
 				suite.Require().NoError(suite.govKeeper.AddVote(ctx, proposal.Id, accAddr1, votes[0].Options, ""))
@@ -759,8 +759,8 @@ func (suite *KeeperTestSuite) TestLegacyGRPCQueryVotes() {
 					{ProposalId: proposal.Id, Voter: addrs[0].String(), Options: v1beta1.NewNonSplitVoteOption(v1beta1.OptionAbstain)},
 					{ProposalId: proposal.Id, Voter: addrs[1].String(), Options: v1beta1.NewNonSplitVoteOption(v1beta1.OptionYes)},
 				}
-				accAddr1, err1 := sdk.AccAddressFromBech32(votes[0].Voter)
-				accAddr2, err2 := sdk.AccAddressFromBech32(votes[1].Voter)
+				accAddr1, err1 := sdk.AccAddressFromHexUnsafe(votes[0].Voter)
+				accAddr2, err2 := sdk.AccAddressFromHexUnsafe(votes[1].Voter)
 				suite.Require().NoError(err1)
 				suite.Require().NoError(err2)
 				suite.Require().NoError(suite.govKeeper.AddVote(ctx, proposal.Id, accAddr1, v1.NewNonSplitVoteOption(v1.OptionAbstain), ""))

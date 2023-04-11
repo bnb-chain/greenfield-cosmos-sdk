@@ -163,7 +163,7 @@ func initKeepersWithmAccPerms(f *fixture, blockedAddrs map[string]bool) (authkee
 	storeService := runtime.NewKVStoreService(f.fetchStoreKey(authtypes.StoreKey).(*storetypes.KVStoreKey))
 	authKeeper := authkeeper.NewAccountKeeper(
 		appCodec, storeService, authtypes.ProtoBaseAccount,
-		maccPerms, sdk.Bech32MainPrefix, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		maccPerms, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	bankKeeper := keeper.NewBaseKeeper(
 		appCodec, f.fetchStoreKey(types.StoreKey), authKeeper, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -1200,7 +1200,7 @@ func TestBalanceTrackingEvents(t *testing.T) {
 	storeService := runtime.NewKVStoreService(f.fetchStoreKey(authtypes.StoreKey).(*storetypes.KVStoreKey))
 	f.accountKeeper = authkeeper.NewAccountKeeper(
 		f.appCodec, storeService,
-		authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
+		authtypes.ProtoBaseAccount, maccPerms,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -1257,14 +1257,14 @@ func TestBalanceTrackingEvents(t *testing.T) {
 		case types.EventTypeCoinSpent:
 			coinsSpent, err := sdk.ParseCoinsNormalized((string)(e.Attributes[1].Value))
 			assert.NilError(t, err)
-			spender, err := sdk.AccAddressFromBech32((string)(e.Attributes[0].Value))
+			spender, err := sdk.AccAddressFromHexUnsafe((string)(e.Attributes[0].Value))
 			assert.NilError(t, err)
 			balances[spender.String()] = balances[spender.String()].Sub(coinsSpent...)
 
 		case types.EventTypeCoinReceived:
 			coinsRecv, err := sdk.ParseCoinsNormalized((string)(e.Attributes[1].Value))
 			assert.NilError(t, err)
-			receiver, err := sdk.AccAddressFromBech32((string)(e.Attributes[0].Value))
+			receiver, err := sdk.AccAddressFromHexUnsafe((string)(e.Attributes[0].Value))
 			assert.NilError(t, err)
 			balances[receiver.String()] = balances[receiver.String()].Add(coinsRecv...)
 		}
@@ -1332,7 +1332,7 @@ func TestMintCoinRestrictions(t *testing.T) {
 
 	f.accountKeeper = authkeeper.NewAccountKeeper(
 		f.appCodec, storeService,
-		authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
+		authtypes.ProtoBaseAccount, maccPerms,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	f.accountKeeper.SetModuleAccount(f.ctx, multiPermAcc)

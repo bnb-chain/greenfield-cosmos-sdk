@@ -56,7 +56,7 @@ func TestCancelUnbondingDelegation(t *testing.T) {
 	validators := stakingKeeper.GetValidators(ctx, 10)
 	assert.Equal(t, len(validators), 1)
 
-	validatorAddr, err := sdk.ValAddressFromBech32(validators[0].OperatorAddress)
+	validatorAddr, err := sdk.ValAddressFromHex(validators[0].OperatorAddress)
 	assert.NilError(t, err)
 	delegatorAddr := delAddrs[0]
 
@@ -123,7 +123,7 @@ func TestCancelUnbondingDelegation(t *testing.T) {
 				Amount:           unbondingAmount,
 				CreationHeight:   0,
 			},
-			expErrMsg: "decoding bech32 failed",
+			expErrMsg: "invalid address hex length: 26 != 40",
 		},
 		{
 			Name:      "invalid amount",
