@@ -264,7 +264,7 @@ func NewDepositValidatorRewardsPoolCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		Short: "Fund the validator rewards pool with the specified amount",
 		Example: fmt.Sprintf(
-			"%s tx distribution fund-validator-rewards-pool cosmosvaloper1x20lytyf6zkcrv5edpkfkn8sz578qg5sqfyqnp 100uatom --from mykey",
+			"%s tx distribution fund-validator-rewards-pool 0xE8df73ff15769c9Bf1D82039eC9E04A41E5D088B 100uatom --from mykey",
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {

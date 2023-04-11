@@ -11,7 +11,7 @@ import "amino/amino.proto";
 option go_package = "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice";
 
 // Block is tendermint type Block, with the Header proposer address
-// field converted to bech32 string.
+// field converted to hex string.
 message Block {
   Header                         header      = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   .tendermint.types.Data         data        = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
@@ -45,8 +45,8 @@ message Header {
   // consensus info
   bytes evidence_hash = 13; // evidence included in the block
 
-  // proposer_address is the original block proposer address, formatted as a Bech32 string.
-  // In Tendermint, this type is `bytes`, but in the SDK, we convert it to a Bech32 string
+  // proposer_address is the original block proposer address, formatted as a hex string.
+  // In Tendermint, this type is `bytes`, but in the SDK, we convert it to a hex string
   // for better UX.
   string proposer_address = 14; // original proposer of the block
 }

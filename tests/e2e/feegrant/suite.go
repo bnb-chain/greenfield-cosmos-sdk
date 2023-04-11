@@ -130,7 +130,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrant() {
 				grantee.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -140,7 +140,7 @@ func (s *E2ETestSuite) TestCmdGetFeeGrant() {
 				"wrong_grantee",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -657,7 +657,7 @@ func (s *E2ETestSuite) TestNewCmdRevokeFeegrant() {
 			append(
 				[]string{
 					granter.String(),
-					"cosmos1aeuqja06474dfrj7uqsvukm6rael982kk89mqr",
+					"0xd74B05af1030Be940cEE8Cb952f01375cCB66711",
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
 				},
 				commonFlags...,

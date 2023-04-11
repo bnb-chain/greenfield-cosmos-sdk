@@ -49,7 +49,7 @@ func (s *E2ETestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Error: Invalid granter",
@@ -59,7 +59,7 @@ func (s *E2ETestSuite) TestQueryAuthorizations() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed: invalid character in string: ' '",
+			"invalid address hex length",
 		},
 		{
 			"Valid txn (json)",
@@ -212,7 +212,7 @@ func (s *E2ETestSuite) TestQueryGranterGrants() {
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 			0,
 		},
 		{

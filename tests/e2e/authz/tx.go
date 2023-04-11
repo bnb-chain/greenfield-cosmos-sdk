@@ -206,7 +206,7 @@ func (s *E2ETestSuite) TestCLITxGrantAuthorization() {
 			},
 			0,
 			true,
-			"invalid separator index",
+			"invalid address hex length",
 		},
 		{
 			"Invalid expiration time",
