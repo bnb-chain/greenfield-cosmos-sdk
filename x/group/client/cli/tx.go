@@ -482,7 +482,7 @@ func MsgUpdateGroupPolicyDecisionPolicyCmd() *cobra.Command {
 				return err
 			}
 
-			accountAddress, err := sdk.AccAddressFromBech32(args[1])
+			accountAddress, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}

@@ -48,7 +48,7 @@ func NewKeeper(
 	}
 
 	// ensure that authority is a valid AccAddress
-	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(authority); err != nil {
 		panic("authority is not a valid acc address")
 	}
 

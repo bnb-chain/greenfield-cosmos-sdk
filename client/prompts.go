@@ -29,7 +29,7 @@ func ValidatePromptURL(input string) error {
 
 // ValidatePromptAddress validates that the input is a valid Bech32 address.
 func ValidatePromptAddress(input string) error {
-	if _, err := sdk.AccAddressFromBech32(input); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(input); err != nil {
 		return fmt.Errorf("invalid address: %w", err)
 	}
 

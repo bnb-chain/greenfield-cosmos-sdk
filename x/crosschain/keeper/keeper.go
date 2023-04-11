@@ -93,7 +93,7 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
-	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
+	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
 ) (uint64, error) {
 	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, k.GetDestChainID(), channelID) != sdk.ChannelAllow {
 		return 0, fmt.Errorf("channel %d is not allowed to write syn package", channelID)

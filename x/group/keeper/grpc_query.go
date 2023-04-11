@@ -82,7 +82,7 @@ func (k Keeper) getGroupMembers(ctx sdk.Context, id uint64, pageRequest *query.P
 // GroupsByAdmin queries all groups where a given address is admin.
 func (k Keeper) GroupsByAdmin(goCtx context.Context, request *group.QueryGroupsByAdminRequest) (*group.QueryGroupsByAdminResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(request.Admin)
+	addr, err := sdk.AccAddressFromHexUnsafe(request.Admin)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (k Keeper) getGroupPoliciesByGroup(ctx sdk.Context, id uint64, pageRequest 
 // admin.
 func (k Keeper) GroupPoliciesByAdmin(goCtx context.Context, request *group.QueryGroupPoliciesByAdminRequest) (*group.QueryGroupPoliciesByAdminResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(request.Admin)
+	addr, err := sdk.AccAddressFromHexUnsafe(request.Admin)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (k Keeper) Proposal(goCtx context.Context, request *group.QueryProposalRequ
 // ProposalsByGroupPolicy queries all proposals of a group policy.
 func (k Keeper) ProposalsByGroupPolicy(goCtx context.Context, request *group.QueryProposalsByGroupPolicyRequest) (*group.QueryProposalsByGroupPolicyResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(request.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(request.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (k Keeper) getProposal(ctx sdk.Context, proposalID uint64) (group.Proposal,
 // VoteByProposalVoter queries a vote given a voter and a proposal ID.
 func (k Keeper) VoteByProposalVoter(goCtx context.Context, request *group.QueryVoteByProposalVoterRequest) (*group.QueryVoteByProposalVoterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(request.Voter)
+	addr, err := sdk.AccAddressFromHexUnsafe(request.Voter)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (k Keeper) VotesByProposal(goCtx context.Context, request *group.QueryVotes
 // VotesByVoter queries all votes of a voter.
 func (k Keeper) VotesByVoter(goCtx context.Context, request *group.QueryVotesByVoterRequest) (*group.QueryVotesByVoterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(request.Voter)
+	addr, err := sdk.AccAddressFromHexUnsafe(request.Voter)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func (k Keeper) GroupsByMember(goCtx context.Context, request *group.QueryGroups
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	member, err := sdk.AccAddressFromBech32(request.Address)
+	member, err := sdk.AccAddressFromHexUnsafe(request.Address)
 	if err != nil {
 		return nil, err
 	}

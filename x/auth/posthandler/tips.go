@@ -44,7 +44,7 @@ func (d tipDecorator) transferTip(ctx sdk.Context, sdkTx sdk.Tx) error {
 		return nil
 	}
 
-	tipper, err := sdk.AccAddressFromBech32(tipTx.GetTip().Tipper)
+	tipper, err := sdk.AccAddressFromHexUnsafe(tipTx.GetTip().Tipper)
 	if err != nil {
 		return err
 	}

@@ -172,7 +172,7 @@ var (
 					ModuleAccountPermissions: moduleAccPerms,
 					// By default modules authority is the governance module. This is configurable with the following:
 					// Authority: "group", // A custom module authority can be set using a module name
-					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
+					// Authority: "0x4110D9a5a4fc8C0c95024cff4c7C002B924AC520", // or a specific address
 				}),
 			},
 			{

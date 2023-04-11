@@ -187,7 +187,7 @@ func (suite *IntegrationTestSuite) TestGRPCQueryDelegation() {
 	app, ctx, queryClient, addrs, vals := suite.app, suite.ctx, suite.queryClient, suite.addrs, suite.vals
 	addrAcc, addrAcc1 := addrs[0], addrs[1]
 	addrVal := vals[0].OperatorAddress
-	valAddr, err := sdk.ValAddressFromBech32(addrVal)
+	valAddr, err := sdk.ValAddressFromHex(addrVal)
 	suite.NoError(err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	suite.True(found)
@@ -244,7 +244,7 @@ func (suite *IntegrationTestSuite) TestGRPCQueryDelegatorDelegations() {
 	app, ctx, queryClient, addrs, vals := suite.app, suite.ctx, suite.queryClient, suite.addrs, suite.vals
 	addrAcc := addrs[0]
 	addrVal1 := vals[0].OperatorAddress
-	valAddr, err := sdk.ValAddressFromBech32(addrVal1)
+	valAddr, err := sdk.ValAddressFromHex(addrVal1)
 	suite.NoError(err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	suite.True(found)
@@ -312,7 +312,7 @@ func (suite *IntegrationTestSuite) TestGRPCQueryValidatorDelegations() {
 	addrVal1 := vals[1].OperatorAddress
 	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
 	addrVal2 := valAddrs[4]
-	valAddr, err := sdk.ValAddressFromBech32(addrVal1)
+	valAddr, err := sdk.ValAddressFromHex(addrVal1)
 	suite.NoError(err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	suite.True(found)
@@ -381,7 +381,7 @@ func (suite *IntegrationTestSuite) TestGRPCQueryUnbondingDelegation() {
 	addrVal2 := vals[1].OperatorAddress
 
 	unbondingTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
-	valAddr, err1 := sdk.ValAddressFromBech32(addrVal2)
+	valAddr, err1 := sdk.ValAddressFromHex(addrVal2)
 	suite.NoError(err1)
 	_, err := app.StakingKeeper.Undelegate(ctx, addrAcc2, valAddr, sdk.NewDecFromInt(unbondingTokens))
 	suite.NoError(err)
@@ -440,11 +440,11 @@ func (suite *IntegrationTestSuite) TestGRPCQueryDelegatorUnbondingDelegations() 
 	addrVal, addrVal2 := vals[0].OperatorAddress, vals[1].OperatorAddress
 
 	unbondingTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
-	valAddr1, err1 := sdk.ValAddressFromBech32(addrVal)
+	valAddr1, err1 := sdk.ValAddressFromHex(addrVal)
 	suite.NoError(err1)
 	_, err := app.StakingKeeper.Undelegate(ctx, addrAcc, valAddr1, sdk.NewDecFromInt(unbondingTokens))
 	suite.NoError(err)
-	valAddr2, err1 := sdk.ValAddressFromBech32(addrVal2)
+	valAddr2, err1 := sdk.ValAddressFromHex(addrVal2)
 	suite.NoError(err1)
 	_, err = app.StakingKeeper.Undelegate(ctx, addrAcc, valAddr2, sdk.NewDecFromInt(unbondingTokens))
 	suite.NoError(err)

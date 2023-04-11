@@ -17,7 +17,7 @@ func (k *Keeper) VerifyInvariant(goCtx context.Context, msg *types.MsgVerifyInva
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	constantFee := sdk.NewCoins(k.GetConstantFee(ctx))
 
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromHexUnsafe(msg.Sender)
 	if err != nil {
 		return nil, err
 	}

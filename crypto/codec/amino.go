@@ -8,12 +8,13 @@ import (
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/tendermint/go-amino"
 )
 
 // RegisterCrypto registers all crypto dependency types with the provided Amino
 // codec.
 func RegisterCrypto(cdc *codec.LegacyAmino) {
-	cdc.RegisterInterface((*cryptotypes.PubKey)(nil), nil)
+	cdc.RegisterInterface((*cryptotypes.PubKey)(nil), &amino.InterfaceOptions{Priority: []string{"ethermint/PubKeyEthSecp256k1"}})
 	cdc.RegisterConcrete(sr25519.PubKey{},
 		sr25519.PubKeyName, nil)
 	cdc.RegisterConcrete(&ed25519.PubKey{},
@@ -23,7 +24,7 @@ func RegisterCrypto(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&kmultisig.LegacyAminoPubKey{},
 		kmultisig.PubKeyAminoRoute, nil)
 
-	cdc.RegisterInterface((*cryptotypes.PrivKey)(nil), nil)
+	cdc.RegisterInterface((*cryptotypes.PrivKey)(nil), &amino.InterfaceOptions{Priority: []string{"ethermint/PrivKeyEthSecp256k1"}})
 	cdc.RegisterConcrete(sr25519.PrivKey{},
 		sr25519.PrivKeyName, nil)
 	cdc.RegisterConcrete(&ed25519.PrivKey{}, //nolint:staticcheck

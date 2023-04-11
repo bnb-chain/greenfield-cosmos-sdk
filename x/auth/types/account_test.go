@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-	"sigs.k8s.io/yaml"
-
 	"cosmossdk.io/depinject"
+	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -43,7 +41,7 @@ func TestBaseAddressPubKey(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, pub2, acc.GetPubKey())
 
-	//------------------------------------
+	// ------------------------------------
 
 	// can set address on empty account
 	acc2 := types.BaseAccount{}
@@ -125,16 +123,6 @@ func TestGenesisAccountValidate(t *testing.T) {
 			require.Equal(t, tt.expErr, tt.acc.Validate() != nil)
 		})
 	}
-}
-
-func TestModuleAccountMarshalYAML(t *testing.T) {
-	name := "test"
-	moduleAcc := types.NewEmptyModuleAccount(name, types.Minter, types.Burner, types.Staking)
-	bs, err := yaml.Marshal(moduleAcc)
-	require.NoError(t, err)
-
-	want := "account_number: 0\naddress: cosmos1n7rdpqvgf37ktx30a2sv2kkszk3m7ncmg5drhe\nname: test\npermissions:\n- minter\n- burner\n- staking\npublic_key: \"\"\nsequence: 0\n"
-	require.Equal(t, want, string(bs))
 }
 
 func TestHasPermissions(t *testing.T) {
@@ -223,8 +211,8 @@ func TestGenesisAccountsContains(t *testing.T) {
 	require.True(t, genAccounts.Contains(acc.GetAddress()))
 }
 
-func TestNewModuleAddressOrBech32Address(t *testing.T) {
-	input := "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv"
-	require.Equal(t, input, types.NewModuleAddressOrBech32Address(input).String())
-	require.Equal(t, "cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl", types.NewModuleAddressOrBech32Address("distribution").String())
+func TestNewModuleAddressOrHexAddress(t *testing.T) {
+	input := "0x4110D9a5a4fc8C0c95024cff4c7C002B924AC520"
+	require.Equal(t, input, types.NewModuleAddressOrHexAddress(input).String())
+	require.Equal(t, "0x93354845030274cD4bf1686Abd60AB28EC52e1a7", types.NewModuleAddressOrHexAddress("distribution").String())
 }

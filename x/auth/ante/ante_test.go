@@ -1253,7 +1253,7 @@ func generatePubKeysAndSignatures(n int, msg []byte, _ bool) (pubkeys []cryptoty
 		//	privkey = ed25519.GenPrivKey()
 		//} else {
 		//	privkey = secp256k1.GenPrivKey()
-		//}
+		// }
 
 		pubkeys[i] = privkey.PubKey()
 		signatures[i], _ = privkey.Sign(msg)
@@ -1449,7 +1449,7 @@ func TestAnteHandlerReCheck(t *testing.T) {
 	tx, err = suite.CreateTestTx(privs, accNums, accSeqs, suite.ctx.ChainID())
 	require.NoError(t, err)
 	txBytes, err := json.Marshal(tx)
-	require.Nil(t, err, "Error marshalling tx: %v", err)
+	require.Nil(t, err, "Error marshaling tx: %v", err)
 	suite.ctx = suite.ctx.WithTxBytes(txBytes)
 
 	// require that state machine param-dependent checking is still run on recheck since parameters can change between check and recheck

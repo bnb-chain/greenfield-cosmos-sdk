@@ -117,7 +117,7 @@ func (s *KeeperTestSuite) TestMsgUpdateParams() {
 }
 
 func (s *KeeperTestSuite) TestCommunityPoolSpend() {
-	recipient := sdk.AccAddress([]byte("addr1_______________"))
+	recipient, _ := sdk.AccAddressFromHexUnsafe(sdk.AccAddress("recipient").String())
 
 	testCases := []struct {
 		name      string
@@ -143,7 +143,7 @@ func (s *KeeperTestSuite) TestCommunityPoolSpend() {
 				Amount:    sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(100))),
 			},
 			expErr:    true,
-			expErrMsg: "decoding bech32 failed",
+			expErrMsg: "invalid address hex length",
 		},
 		{
 			name: "valid message",
@@ -167,7 +167,7 @@ func (s *KeeperTestSuite) TestCommunityPoolSpend() {
 			} else {
 				s.Require().NoError(err)
 
-				r, err := sdk.AccAddressFromBech32(tc.input.Recipient)
+				r, err := sdk.AccAddressFromHexUnsafe(tc.input.Recipient)
 				s.Require().NoError(err)
 
 				b := s.bankKeeper.GetAllBalances(s.ctx, r)

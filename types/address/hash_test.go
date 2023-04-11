@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"testing"
 
+	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -22,10 +23,10 @@ func (suite *AddressSuite) TestHash() {
 	part1 := sha256.Sum256([]byte(typ))
 	expected := sha256.Sum256(append(part1[:], key...))
 	received := Hash(typ, key)
-	assert.Equal(expected[:], received, "must create a correct address")
+	assert.Equal(crypto.AddressHash(expected[:]).Bytes(), received, "must create a correct address")
 
 	received = Hash("other", key)
-	assert.NotEqual(expected[:], received, "must create a correct address")
+	assert.NotEqual(crypto.AddressHash(expected[:]).Bytes(), received, "must create a correct address")
 	assert.Len(received, Len, "must have correct length")
 }
 

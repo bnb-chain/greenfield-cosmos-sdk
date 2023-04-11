@@ -76,15 +76,15 @@ func (suite *GenTxTestSuite) setAccountBalance(balances []banktypes.Balance) jso
 		Params: banktypes.Params{DefaultSendEnabled: true},
 		Balances: []banktypes.Balance{
 			{
-				Address: "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+				Address: "0x0Ec700c7b488Bf0326FEF647DafB65684371f024",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1000000)},
 			},
 			{
-				Address: "cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl",
+				Address: "0x93354845030274cD4bf1686Abd60AB28EC52e1a7",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 2059726)},
 			},
 			{
-				Address: "cosmos1k5lndq46x9xpejdxq52q3ql3ycrphg4qxlfqn7",
+				Address: "0xEe10332A13816795560dd96a0D922A193Bd08F59",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 100000000000000)},
 			},
 		},

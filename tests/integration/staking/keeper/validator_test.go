@@ -117,7 +117,7 @@ func TestUpdateBondedValidatorsDecreaseCliff(t *testing.T) {
 	// require all the validators have their respective statuses
 	for valIdx, status := range expectedValStatus {
 		valAddr := validators[valIdx].OperatorAddress
-		addr, err := sdk.ValAddressFromBech32(valAddr)
+		addr, err := sdk.ValAddressFromHex(valAddr)
 		assert.NoError(t, err)
 		val, _ := app.StakingKeeper.GetValidator(ctx, addr)
 
@@ -436,7 +436,7 @@ func TestValidatorBondHeight(t *testing.T) {
 
 	validators[0] = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validators[0], true)
 
-	////////////////////////////////////////
+	// //////////////////////////////////////
 	// If two validators both increase to the same voting power in the same block,
 	// the one with the first transaction should become bonded
 	validators[1] = keeper.TestingUpdateValidator(app.StakingKeeper, ctx, validators[1], true)

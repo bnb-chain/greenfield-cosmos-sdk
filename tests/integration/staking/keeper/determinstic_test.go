@@ -26,14 +26,14 @@ import (
 )
 
 var (
-	validator1        = "cosmosvaloper1qqqryrs09ggeuqszqygqyqd2tgqmsqzewacjj7"
-	validatorAddr1, _ = sdk.ValAddressFromBech32(validator1)
-	validator2        = "cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj"
-	validatorAddr2, _ = sdk.ValAddressFromBech32(validator2)
-	delegator1        = "cosmos1nph3cfzk6trsmfxkeu943nvach5qw4vwstnvkl"
-	delegatorAddr1    = sdk.MustAccAddressFromBech32(delegator1)
-	delegator2        = "cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5"
-	delegatorAddr2    = sdk.MustAccAddressFromBech32(delegator2)
+	validator1        = "0xEe10332A13816795560dd96a0D922A193Bd08F59"
+	validatorAddr1, _ = sdk.ValAddressFromHex(validator1)
+	validator2        = "0x5953EB5998DED52EaC0121F37dFE032B65AADbcB"
+	validatorAddr2, _ = sdk.ValAddressFromHex(validator2)
+	delegator1        = "0x3E8E9A2E68cA57c5e8b7B37678677C474Eb6Bbea"
+	delegatorAddr1    = sdk.MustAccAddressFromHex(delegator1)
+	delegator2        = "0x319D057ce294319bA1fa5487134608727e1F3e29"
+	delegatorAddr2    = sdk.MustAccAddressFromHex(delegator2)
 )
 
 type DeterministicTestSuite struct {
@@ -258,7 +258,7 @@ func (suite *DeterministicTestSuite) TestGRPCValidator() {
 		ValidatorAddr: val.OperatorAddress,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Validator, 1915, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Validator, 1885, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCValidators() {
@@ -361,7 +361,7 @@ func (suite *DeterministicTestSuite) TestGRPCValidatorUnbondingDelegations() {
 		ValidatorAddr: validator.OperatorAddress,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.ValidatorUnbondingDelegations, 3719, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.ValidatorUnbondingDelegations, 3641, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDelegation() {
@@ -390,7 +390,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegation() {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Delegation, 4635, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Delegation, 4566, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCUnbondingDelegation() {
@@ -457,7 +457,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegatorDelegations() {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorDelegations, 4238, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorDelegations, 4130, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDelegatorValidator() {
@@ -488,7 +488,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegatorValidator() {
 		ValidatorAddr: validator.OperatorAddress,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorValidator, 3563, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorValidator, 3494, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDelegatorUnbondingDelegations() {
@@ -526,7 +526,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegatorUnbondingDelegations() {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorUnbondingDelegations, 1302, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorUnbondingDelegations, 1224, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCHistoricalInfo() {
@@ -579,7 +579,7 @@ func (suite *DeterministicTestSuite) TestGRPCHistoricalInfo() {
 		Height: height,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.HistoricalInfo, 1930, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.HistoricalInfo, 1900, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDelegatorValidators() {
@@ -609,7 +609,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegatorValidators() {
 	suite.Require().NoError(err)
 
 	req := &stakingtypes.QueryDelegatorValidatorsRequest{DelegatorAddr: delegator1}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorValidators, 3166, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DelegatorValidators, 3058, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCPool() {
@@ -627,11 +627,11 @@ func (suite *DeterministicTestSuite) TestGRPCPool() {
 func (suite *DeterministicTestSuite) TestGRPCRedelegations() {
 	rapid.Check(suite.T(), func(t *rapid.T) {
 		validator := suite.createAndSetValidatorWithStatus(t, stakingtypes.Bonded)
-		srcValAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+		srcValAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
 		suite.Require().NoError(err)
 
 		validator2 := suite.createAndSetValidatorWithStatus(t, stakingtypes.Bonded)
-		dstValAddr, err := sdk.ValAddressFromBech32(validator2.OperatorAddress)
+		dstValAddr, err := sdk.ValAddressFromHex(validator2.OperatorAddress)
 		suite.Require().NoError(err)
 
 		numDels := rapid.IntRange(1, 5).Draw(t, "num-dels")
@@ -683,7 +683,7 @@ func (suite *DeterministicTestSuite) TestGRPCRedelegations() {
 		DstValidatorAddr: validator2,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Redelegations, 3920, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Redelegations, 3821, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCParams() {

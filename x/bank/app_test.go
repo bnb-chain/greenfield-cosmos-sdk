@@ -386,7 +386,7 @@ func TestMsgSetSendEnabled(t *testing.T) {
 			accSeqs: []uint64{0},
 			expInError: []string{
 				"invalid authority",
-				"cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn",
+				govAddr,
 				addr1Str,
 				"expected gov account as only signer for proposal message",
 			},

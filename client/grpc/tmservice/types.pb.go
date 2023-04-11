@@ -31,7 +31,7 @@ var _ = time.Kitchen
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Block is tendermint type Block, with the Header proposer address
-// field converted to bech32 string.
+// field converted to hex string.
 type Block struct {
 	Header     Header             `protobuf:"bytes,1,opt,name=header,proto3" json:"header"`
 	Data       types.Data         `protobuf:"bytes,2,opt,name=data,proto3" json:"data"`
@@ -120,8 +120,8 @@ type Header struct {
 	LastResultsHash    []byte `protobuf:"bytes,12,opt,name=last_results_hash,json=lastResultsHash,proto3" json:"last_results_hash,omitempty"`
 	// consensus info
 	EvidenceHash []byte `protobuf:"bytes,13,opt,name=evidence_hash,json=evidenceHash,proto3" json:"evidence_hash,omitempty"`
-	// proposer_address is the original block proposer address, formatted as a Bech32 string.
-	// In Tendermint, this type is `bytes`, but in the SDK, we convert it to a Bech32 string
+	// proposer_address is the original block proposer address, formatted as a hex string.
+	// In Tendermint, this type is `bytes`, but in the SDK, we convert it to a hex string
 	// for better UX.
 	ProposerAddress string `protobuf:"bytes,14,opt,name=proposer_address,json=proposerAddress,proto3" json:"proposer_address,omitempty"`
 }

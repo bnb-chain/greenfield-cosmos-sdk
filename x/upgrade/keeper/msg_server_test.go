@@ -5,7 +5,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestSoftwareUpgrade() {
-	govAccAddr := "cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn" // TODO
+	govAccAddr := "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2" // TODO
 	// govAccAddr := s.govKeeper.GetGovernanceAccount(s.ctx).GetAddress().String()
 
 	testCases := []struct {
@@ -69,7 +69,7 @@ func (s *KeeperTestSuite) TestSoftwareUpgrade() {
 }
 
 func (s *KeeperTestSuite) TestCancelUpgrade() {
-	govAccAddr := "cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn" // TODO
+	govAccAddr := "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2" // TODO
 	// govAccAddr := s.govKeeper.GetGovernanceAccount(s.ctx).GetAddress().String()
 	err := s.upgradeKeeper.ScheduleUpgrade(s.ctx, types.Plan{
 		Name:   "some name",
@@ -93,7 +93,7 @@ func (s *KeeperTestSuite) TestCancelUpgrade() {
 			"expected gov account as only signer for proposal message",
 		},
 		{
-			"upgrade cancelled successfully",
+			"upgrade canceled successfully",
 			&types.MsgCancelUpgrade{
 				Authority: govAccAddr,
 			},

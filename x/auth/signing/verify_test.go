@@ -48,7 +48,6 @@ func TestVerifySignature(t *testing.T) {
 		key,
 		types.ProtoBaseAccount,
 		maccPerms,
-		"cosmos",
 		types.NewModuleAddress("gov").String(),
 	)
 

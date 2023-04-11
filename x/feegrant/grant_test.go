@@ -21,9 +21,9 @@ func TestGrant(t *testing.T) {
 
 	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
 
-	addr, err := sdk.AccAddressFromBech32("cosmos1qk93t4j0yyzgqgt6k5qf8deh8fq6smpn3ntu3x")
+	addr, err := sdk.AccAddressFromHexUnsafe("0xdF4AA991e455907136662745D576449949110290")
 	require.NoError(t, err)
-	addr2, err := sdk.AccAddressFromBech32("cosmos1p9qh4ldfd6n0qehujsal4k7g0e37kel90rc4ts")
+	addr2, err := sdk.AccAddressFromHexUnsafe("0xf5Acddf298F45733426E2b4D362413a54ba024Fa")
 	require.NoError(t, err)
 	atom := sdk.NewCoins(sdk.NewInt64Coin("atom", 555))
 	now := ctx.BlockTime()

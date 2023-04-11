@@ -259,7 +259,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidator() {
 		},
 		{
 			"with valid and not existing address",
-			[]string{"cosmosvaloper15jkng8hytwt22lllv6mw4k89qkqehtahd84ptu", fmt.Sprintf("--%s=json", flags.FlagOutput)},
+			[]string{"0x871755eDC6FA6ffC92D4b78B540f01D63e84dcf5", fmt.Sprintf("--%s=json", flags.FlagOutput)},
 			true,
 		},
 		{
@@ -1187,7 +1187,7 @@ func (s *E2ETestSuite) TestNewRedelegateCmd() {
 		{
 			"with wrong source validator address",
 			[]string{
-				`cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj`, // src-validator-addr
+				`0x80035D039aec57Fb139A050489dCCd3E0c7E4Ab0`,           // src-validator-addr
 				val2.ValAddress.String(),                               // dst-validator-addr
 				sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(150)).String(), // amount
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
@@ -1201,7 +1201,7 @@ func (s *E2ETestSuite) TestNewRedelegateCmd() {
 			"with wrong destination validator address",
 			[]string{
 				val.ValAddress.String(),                                // dst-validator-addr
-				`cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj`, // src-validator-addr
+				`0x80035D039aec57Fb139A050489dCCd3E0c7E4Ab0`,           // src-validator-addr
 				sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(150)).String(), // amount
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),

@@ -49,7 +49,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 				return err
 			}
 
-			toAddr, err := sdk.AccAddressFromBech32(args[1])
+			toAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -113,7 +113,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 
 			var output []types.Output
 			for _, arg := range args[1 : len(args)-1] {
-				toAddr, err := sdk.AccAddressFromBech32(arg)
+				toAddr, err := sdk.AccAddressFromHexUnsafe(arg)
 				if err != nil {
 					return err
 				}

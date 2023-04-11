@@ -28,7 +28,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrant() {
 				grantee.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 		{
@@ -38,7 +38,7 @@ func (s *CLITestSuite) TestCmdGetFeeGrant() {
 				"wrong_grantee",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			true, nil, nil,
 		},
 	}

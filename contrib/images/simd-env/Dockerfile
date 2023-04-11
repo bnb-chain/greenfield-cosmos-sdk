@@ -25,5 +25,8 @@ STOPSIGNAL SIGTERM
 VOLUME /simd
 WORKDIR /simd
 
+ENV CGO_CFLAGS="-O -D__BLST_PORTABLE__"
+ENV CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
+
 COPY contrib/images/simd-env/wrapper.sh /usr/bin/wrapper.sh
 COPY --from=build /work/build/simd /simd/

@@ -115,11 +115,11 @@ func (s *IntegrationTestSuite) TestEndBlockerPruning() {
 	policyRes2, err := s.groupKeeper.CreateGroupPolicy(ctx, policyReq2)
 	s.Require().NoError(err)
 
-	groupPolicyAddr, err := sdk.AccAddressFromBech32(policyRes.Address)
+	groupPolicyAddr, err := sdk.AccAddressFromHexUnsafe(policyRes.Address)
 	s.Require().NoError(err)
 	s.Require().NoError(testutil.FundAccount(s.bankKeeper, ctx, groupPolicyAddr, sdk.Coins{sdk.NewInt64Coin("test", 10000)}))
 
-	groupPolicyAddr2, err := sdk.AccAddressFromBech32(policyRes2.Address)
+	groupPolicyAddr2, err := sdk.AccAddressFromHexUnsafe(policyRes2.Address)
 	s.Require().NoError(err)
 	s.Require().NoError(testutil.FundAccount(s.bankKeeper, ctx, groupPolicyAddr2, sdk.Coins{sdk.NewInt64Coin("test", 10000)}))
 
@@ -390,7 +390,7 @@ func (s *IntegrationTestSuite) TestEndBlockerTallying() {
 	policyRes, err := s.groupKeeper.CreateGroupPolicy(ctx, policyReq)
 	s.Require().NoError(err)
 
-	groupPolicyAddr, err := sdk.AccAddressFromBech32(policyRes.Address)
+	groupPolicyAddr, err := sdk.AccAddressFromHexUnsafe(policyRes.Address)
 	s.Require().NoError(err)
 
 	votingPeriod := policy.GetVotingPeriod()

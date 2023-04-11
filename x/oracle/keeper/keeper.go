@@ -24,7 +24,7 @@ type Keeper struct {
 }
 
 func NewKeeper(
-	cdc codec.BinaryCodec, key storetypes.StoreKey, feeCollector string, authority string,
+	cdc codec.BinaryCodec, key storetypes.StoreKey, feeCollector, authority string,
 	crossChainKeeper types.CrossChainKeeper, bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper,
 ) Keeper {
 	return Keeper{
@@ -82,7 +82,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 
 // CheckClaim checks the bls signature
 func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddress, []sdk.AccAddress, error) {
-	//todo: implement this
+	// todo: implement this
 
 	return sdk.AccAddress{}, []sdk.AccAddress{}, nil
 }

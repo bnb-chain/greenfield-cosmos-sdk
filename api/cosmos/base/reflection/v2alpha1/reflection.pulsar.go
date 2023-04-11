@@ -12622,8 +12622,8 @@ type InterfaceImplementerDescriptor struct {
 
 	// fullname is the protobuf queryable name of the interface implementer
 	Fullname string `protobuf:"bytes,1,opt,name=fullname,proto3" json:"fullname,omitempty"`
-	// type_url defines the type URL used when marshalling the type as any
-	// this is required so we can provide type safe google.protobuf.Any marshalling and
+	// type_url defines the type URL used when marshaling the type as any
+	// this is required so we can provide type safe google.protobuf.Any marshaling and
 	// unmarshalling, making sure that we don't accept just 'any' type
 	// in our interface fields
 	TypeUrl string `protobuf:"bytes,2,opt,name=type_url,json=typeUrl,proto3" json:"type_url,omitempty"`

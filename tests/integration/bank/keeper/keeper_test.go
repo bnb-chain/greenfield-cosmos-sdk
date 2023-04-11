@@ -111,7 +111,7 @@ func (suite *IntegrationTestSuite) initKeepersWithmAccPerms(blockedAddrs map[str
 	maccPerms[randomPerm] = []string{"random"}
 	authKeeper := authkeeper.NewAccountKeeper(
 		appCodec, suite.fetchStoreKey(types.StoreKey), authtypes.ProtoBaseAccount,
-		maccPerms, sdk.Bech32MainPrefix, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		maccPerms, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	bankKeeper := keeper.NewBaseKeeper(
 		appCodec, suite.fetchStoreKey(types.StoreKey), authKeeper, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -1105,7 +1105,7 @@ func (suite *IntegrationTestSuite) TestBalanceTrackingEvents() {
 
 	suite.accountKeeper = authkeeper.NewAccountKeeper(
 		suite.appCodec, suite.fetchStoreKey(authtypes.StoreKey),
-		authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
+		authtypes.ProtoBaseAccount, maccPerms,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -1162,14 +1162,14 @@ func (suite *IntegrationTestSuite) TestBalanceTrackingEvents() {
 		case types.EventTypeCoinSpent:
 			coinsSpent, err := sdk.ParseCoinsNormalized((string)(e.Attributes[1].Value))
 			suite.Require().NoError(err)
-			spender, err := sdk.AccAddressFromBech32((string)(e.Attributes[0].Value))
+			spender, err := sdk.AccAddressFromHexUnsafe((string)(e.Attributes[0].Value))
 			suite.Require().NoError(err)
 			balances[spender.String()] = balances[spender.String()].Sub(coinsSpent...)
 
 		case types.EventTypeCoinReceived:
 			coinsRecv, err := sdk.ParseCoinsNormalized((string)(e.Attributes[1].Value))
 			suite.Require().NoError(err)
-			receiver, err := sdk.AccAddressFromBech32((string)(e.Attributes[0].Value))
+			receiver, err := sdk.AccAddressFromHexUnsafe((string)(e.Attributes[0].Value))
 			suite.Require().NoError(err)
 			balances[receiver.String()] = balances[receiver.String()].Add(coinsRecv...)
 		}
@@ -1233,7 +1233,7 @@ func (suite *IntegrationTestSuite) TestMintCoinRestrictions() {
 
 	suite.accountKeeper = authkeeper.NewAccountKeeper(
 		suite.appCodec, suite.fetchStoreKey(authtypes.StoreKey),
-		authtypes.ProtoBaseAccount, maccPerms, sdk.Bech32MainPrefix,
+		authtypes.ProtoBaseAccount, maccPerms,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	suite.accountKeeper.SetModuleAccount(suite.ctx, multiPermAcc)
