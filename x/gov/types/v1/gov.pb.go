@@ -921,12 +921,13 @@ func (m *Params) GetBurnVoteVeto() bool {
 	return false
 }
 
-// Since: cosmos-sdk 0.47
+// CrossChainParamsChange defines the parameter change or contract upgrade
 type CrossChainParamsChange struct {
-	// param to be updated or 'upgrade'
+	// parameter to be updated or 'upgrade' for contract upgrade
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// slice of
-	Values  []string `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	// values is a new parameter or slice of new contract addresses in hex format
+	Values []string `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	// targets defines a slice of addresses string in hex format
 	Targets []string `protobuf:"bytes,3,rep,name=targets,proto3" json:"targets,omitempty"`
 }
 

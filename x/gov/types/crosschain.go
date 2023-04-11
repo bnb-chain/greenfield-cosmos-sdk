@@ -12,11 +12,12 @@ const (
 
 var KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
 
-// SyncParamsPackage is the payload be relayed to BSC
+// SyncParamsPackage is the payload to be encoded for cross-chain IBC package
 type SyncParamsPackage struct {
+	// Key is the parameter to be changed
 	Key string
-	// new parameter or new smart contract address(es) if is ungraded proposal
+	// Value is either new parameter or new smart contract address(es) if it is an upgrade proposal
 	Value []byte
-	// smart contract address(es)
+	// Target is the smart contract address(es)
 	Target []byte
 }

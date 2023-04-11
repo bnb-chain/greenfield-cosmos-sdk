@@ -83,7 +83,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	}, nil
 }
 
-// CancelProposals implements the MsgServer.CancelProposal method.
+// CancelProposal CancelProposals implements the MsgServer.CancelProposal method.
 func (k msgServer) CancelProposal(goCtx context.Context, msg *v1.MsgCancelProposal) (*v1.MsgCancelProposalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	_, err := sdk.AccAddressFromHexUnsafe(msg.Proposer)
@@ -230,7 +230,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *v1.MsgUpdateParams) 
 }
 
 // UpdateCrossChainParams implements the MsgServer.UpdateCrossChainParams method.
-func (k msgServer) UpdateCrossChainParams(goCtx context.Context, msg *v1.MsgUpdateCrossChainParams) (*v1.MsgUpdateCrossChainParams, error) {
+func (k msgServer) UpdateCrossChainParams(goCtx context.Context, msg *v1.MsgUpdateCrossChainParams) (*v1.MsgUpdateCrossChainParamsResponse, error) {
 	if k.authority != msg.Authority {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
 	}
@@ -245,7 +245,7 @@ func (k msgServer) UpdateCrossChainParams(goCtx context.Context, msg *v1.MsgUpda
 	if err := k.SyncParams(ctx, msg.Params); err != nil {
 		return nil, err
 	}
-	return &v1.MsgUpdateCrossChainParams{}, nil
+	return &v1.MsgUpdateCrossChainParamsResponse{}, nil
 }
 
 type legacyMsgServer struct {

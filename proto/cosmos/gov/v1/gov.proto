@@ -254,13 +254,13 @@ message Params {
   bool burn_vote_veto = 15;
 }
 
-//
-// Since: cosmos-sdk 0.47
+// CrossChainParamsChange defines the parameter change or contract upgrade
 message CrossChainParamsChange {
-  // param to be updated or 'upgrade'
+  // parameter to be updated or 'upgrade' for contract upgrade
   string  key  = 1;
-  // slice of
+  // values is a new parameter or slice of new contract addresses in hex format
   repeated string  values  = 2;
+  // targets defines a slice of addresses string in hex format
   repeated string  targets  = 3;
 }
 

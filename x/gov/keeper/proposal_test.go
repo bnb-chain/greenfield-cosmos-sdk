@@ -325,3 +325,67 @@ func TestMigrateProposalMessages(t *testing.T) {
 	require.Equal(t, "Test", content.GetTitle())
 	require.Equal(t, "description", content.GetDescription())
 }
+
+func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
+	testCases := []struct {
+		name      string
+		request   *v1.MsgUpdateCrossChainParams
+		expectErr bool
+	}{
+		{
+			name: "set invalid authority",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: "foo",
+			},
+			expectErr: true,
+		},
+		{
+			name: "more than 1 parameter change is not allowed",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "change_1",
+					Values:  []string{"new_change_1"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' should all be hex address for contract upgrade",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"not_an_address"},
+					Targets: []string{"not_an_address"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' size not match",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"not_an_address", "not_an_address"},
+					Targets: []string{"not_an_address"},
+				},
+			},
+			expectErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			_, err := suite.msgSrvr.UpdateCrossChainParams(suite.ctx, tc.request)
+			if tc.expectErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+			}
+		})
+	}
+}
