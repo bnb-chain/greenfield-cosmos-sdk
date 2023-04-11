@@ -16,7 +16,6 @@ func (k Keeper) RegisterCrossChainSyncParamsApp() error {
 }
 
 func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) error {
-	// this validates content and size of changes is not empty
 	if err := cpc.ValidateBasic(); err != nil {
 		return err
 	}
@@ -66,8 +65,6 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 	)
 	return err
 }
-
-// Need these in order to register paramsKeeper to be a CrosschainApp so that it can register channel(3)
 
 func (k Keeper) ExecuteSynPackage(ctx sdk.Context, appCtx *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	k.Logger(ctx).Error("received sync params sync package", "payload", hex.EncodeToString(payload))

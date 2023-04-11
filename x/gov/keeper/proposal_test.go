@@ -369,11 +369,23 @@ func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
 				Authority: suite.govKeeper.GetAuthority(),
 				Params: v1.CrossChainParamsChange{
 					Key:     "upgrade",
-					Values:  []string{"not_an_address", "not_an_address"},
-					Targets: []string{"not_an_address"},
+					Values:  []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0xeAE67217D95E786a9309A363437066428b97c046"},
+					Targets: []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
 				},
 			},
 			expectErr: true,
+		},
+		{
+			name: "single parameter change should work",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "param_1",
+					Values:  []string{"new_param_1"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
 		},
 	}
 
