@@ -42,7 +42,6 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	// todo: check this
 	delAddr, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
@@ -129,7 +128,6 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	// todo: check this
 	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, blsPk)
 	if err != nil {
 		return nil, err
