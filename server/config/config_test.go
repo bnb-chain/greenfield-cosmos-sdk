@@ -24,7 +24,7 @@ func TestSetMinimumFees(t *testing.T) {
 	require.Equal(t, "5.000000000000000000foo", cfg.MinGasPrices)
 }
 
-func TestIndexEventsMarshalling(t *testing.T) {
+func TestIndexEventsmarshaling(t *testing.T) {
 	expectedIn := `index-events = ["key1", "key2", ]` + "\n"
 	cfg := DefaultConfig()
 	cfg.IndexEvents = []string{"key1", "key2"}
@@ -138,7 +138,7 @@ func TestIndexEventsWriteRead(t *testing.T) {
 	require.Equal(t, expected, actual, "config value")
 }
 
-func TestGlobalLabelsEventsMarshalling(t *testing.T) {
+func TestGlobalLabelsEventsmarshaling(t *testing.T) {
 	expectedIn := `global-labels = [
   ["labelname1", "labelvalue1"],
   ["labelname2", "labelvalue2"],

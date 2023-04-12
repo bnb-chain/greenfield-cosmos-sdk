@@ -28,7 +28,7 @@ RUN LEDGER_ENABLED=false make COSMOS_BUILD_OPTIONS="debug,nostrip" clean build
 
 
 FROM alpine AS run
-RUN apk add bash curl jq
+RUN apk add bash curl jq libstdc++
 EXPOSE 26656 26657
 ENTRYPOINT ["/usr/bin/wrapper.sh"]
 CMD ["start", "--log_format", "plain"]

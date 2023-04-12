@@ -1,0 +1,21 @@
+syntax = "proto3";
+package cosmos.crypto.eth.bls;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/crypto/keys/eth/bls";
+
+// PubKey defines a bls public key
+// Key is the compressed form of the pubkey.
+message PubKey {
+  option (gogoproto.goproto_stringer) = false;
+
+  // key is the public key in byte form
+  bytes key = 1;
+}
+
+// PrivKey defines a bls private key.
+message PrivKey {
+  // key is the private key in byte form
+  bytes key = 1;
+}
