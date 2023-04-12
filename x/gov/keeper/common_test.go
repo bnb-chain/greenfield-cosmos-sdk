@@ -99,6 +99,8 @@ func setupGovKeeper(t *testing.T) (
 	govKeeper.SetLegacyRouter(govRouter)
 	govKeeper.SetParams(ctx, v1.DefaultParams())
 
+	crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
+
 	// Register all handlers for the MegServiceRouter.
 	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
 	v1.RegisterMsgServer(msr, keeper.NewMsgServerImpl(govKeeper))

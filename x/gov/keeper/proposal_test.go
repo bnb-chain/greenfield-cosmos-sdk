@@ -335,18 +335,18 @@ func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
 		{
 			name: "set invalid authority",
 			request: &v1.MsgUpdateCrossChainParams{
-				Authority: "foo",
+				Authority: "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9",
 			},
 			expectErr: true,
 		},
 		{
-			name: "more than 1 parameter change is not allowed",
+			name: "parameter change should restrict values and targets only be size 1",
 			request: &v1.MsgUpdateCrossChainParams{
 				Authority: suite.govKeeper.GetAuthority(),
 				Params: v1.CrossChainParamsChange{
-					Key:     "change_1",
-					Values:  []string{"new_change_1"},
-					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033", "0000000000000000000000000000000000000000000000000000000000000034"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
 				},
 			},
 			expectErr: true,
@@ -357,8 +357,8 @@ func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
 				Authority: suite.govKeeper.GetAuthority(),
 				Params: v1.CrossChainParamsChange{
 					Key:     "upgrade",
-					Values:  []string{"not_an_address"},
-					Targets: []string{"not_an_address"},
+					Values:  []string{"not_an_hex_address"},
+					Targets: []string{"not_an_hex_address"},
 				},
 			},
 			expectErr: true,
@@ -380,8 +380,20 @@ func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
 			request: &v1.MsgUpdateCrossChainParams{
 				Authority: suite.govKeeper.GetAuthority(),
 				Params: v1.CrossChainParamsChange{
-					Key:     "param_1",
-					Values:  []string{"new_param_1"},
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "upgrade smart contract",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
 					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
 				},
 			},

@@ -235,13 +235,6 @@ func (k msgServer) UpdateCrossChainParams(goCtx context.Context, msg *v1.MsgUpda
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	signers := msg.GetSigners()
-	govAcct := k.GetGovernanceAccount(ctx).GetAddress()
-	if len(signers) != 1 || !signers[0].Equals(govAcct) {
-		return nil, govtypes.ErrInvalidSigner
-	}
-
 	if err := k.SyncParams(ctx, msg.Params); err != nil {
 		return nil, err
 	}
