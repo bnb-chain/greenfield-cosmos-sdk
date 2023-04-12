@@ -35,6 +35,7 @@ func createTestInput(t *testing.T) (*codec.LegacyAmino, *simapp.SimApp, sdk.Cont
 		app.AppCodec(),
 		app.GetKey(types.StoreKey),
 		app.AccountKeeper,
+		app.AuthzKeeper,
 		app.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -63,6 +64,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers 
 		cdc,
 		app.GetKey(types.StoreKey),
 		app.AccountKeeper,
+		app.AuthzKeeper,
 		app.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)

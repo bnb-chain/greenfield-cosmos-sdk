@@ -4,6 +4,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	_ "github.com/cosmos/cosmos-sdk/x/feegrant/module"
@@ -14,6 +15,7 @@ import (
 	"cosmossdk.io/core/appconfig"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -25,6 +27,7 @@ import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
+	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
@@ -44,6 +47,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				BeginBlockers: []string{
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					genutiltypes.ModuleName,
 					feegrant.ModuleName,
@@ -54,6 +58,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				EndBlockers: []string{
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					genutiltypes.ModuleName,
 					feegrant.ModuleName,
@@ -63,6 +68,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				},
 				InitGenesis: []string{
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					stakingtypes.ModuleName,
 					genutiltypes.ModuleName,
@@ -119,6 +125,10 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 		{
 			Name:   feegrant.ModuleName,
 			Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
+		},
+		{
+			Name:   authztypes.ModuleName,
+			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 		},
 	},
 })

@@ -16,6 +16,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -47,6 +48,7 @@ type suite struct {
 var appConfig = configurator.NewAppConfig(
 	configurator.ParamsModule(),
 	configurator.AuthModule(),
+	configurator.AuthzModule(),
 	configurator.StakingModule(),
 	configurator.BankModule(),
 	configurator.GovModule(),

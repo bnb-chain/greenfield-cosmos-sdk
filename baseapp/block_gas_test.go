@@ -13,6 +13,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/depinject"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
+	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	baseapptestutil "github.com/cosmos/cosmos-sdk/baseapp/testutil"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -21,7 +24,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
-	store "github.com/cosmos/cosmos-sdk/store/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,6 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import consensus as a blank
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -72,6 +75,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 		var (
 			bankKeeper        bankkeeper.Keeper
 			accountKeeper     authkeeper.AccountKeeper
+			authzKeeper       authzkeeper.Keeper
 			appBuilder        *runtime.AppBuilder
 			txConfig          client.TxConfig
 			cdc               codec.Codec
@@ -85,6 +89,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 		err = depinject.Inject(appConfig,
 			&bankKeeper,
 			&accountKeeper,
+			&authzKeeper,
 			&interfaceRegistry,
 			&txConfig,
 			&cdc,

@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/core/appconfig"
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"
@@ -13,6 +14,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -24,6 +26,7 @@ import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
+	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
@@ -44,6 +47,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 					minttypes.ModuleName,
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					genutiltypes.ModuleName,
 					nft.ModuleName,
@@ -53,6 +57,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				EndBlockers: []string{
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					minttypes.ModuleName,
 					genutiltypes.ModuleName,
@@ -62,6 +67,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				},
 				InitGenesis: []string{
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					stakingtypes.ModuleName,
 					minttypes.ModuleName,
@@ -116,6 +122,10 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 		{
 			Name:   nft.ModuleName,
 			Config: appconfig.WrapAny(&nftmodulev1.Module{}),
+		},
+		{
+			Name:   authztypes.ModuleName,
+			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 		},
 	},
 })

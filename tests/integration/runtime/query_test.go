@@ -22,6 +22,7 @@ import (
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	_ "github.com/cosmos/cosmos-sdk/x/params"
@@ -43,6 +44,7 @@ func initFixture(t assert.TestingT) *fixture {
 	app, err := simtestutil.Setup(
 		configurator.NewAppConfig(
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 			configurator.TxModule(),
 			configurator.ParamsModule(),
 			configurator.ConsensusModule(),

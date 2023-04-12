@@ -12,6 +12,7 @@ import (
 	types0 "github.com/cosmos/cosmos-sdk/x/auth/types"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gomock "github.com/golang/mock/gomock"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 // MockDistributionKeeper is a mock of DistributionKeeper interface.
@@ -722,4 +723,70 @@ func (m *MockStakingHooks) BeforeValidatorSlashed(ctx types.Context, valAddr typ
 func (mr *MockStakingHooksMockRecorder) BeforeValidatorSlashed(ctx, valAddr, fraction interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeforeValidatorSlashed", reflect.TypeOf((*MockStakingHooks)(nil).BeforeValidatorSlashed), ctx, valAddr, fraction)
+}
+
+// MockAuthzKeeper is a mock of AuthzKeeper interface
+type MockAuthzKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockAuthzKeeperMockRecorder
+}
+
+// MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper
+type MockAuthzKeeperMockRecorder struct {
+	mock *MockAuthzKeeper
+}
+
+// NewMockAuthzKeeper creates a new mock instance
+func NewMockAuthzKeeper(ctrl *gomock.Controller) *MockAuthzKeeper {
+	mock := &MockAuthzKeeper{ctrl: ctrl}
+	mock.recorder = &MockAuthzKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
+	return m.recorder
+}
+
+// DeleteGrant mocks base method
+func (m *MockAuthzKeeper) DeleteGrant(arg0 types.Context, arg1, arg2 types.AccAddress, arg3 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteGrant", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteGrant indicates an expected call of DeleteGrant
+func (mr *MockAuthzKeeperMockRecorder) DeleteGrant(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteGrant", reflect.TypeOf((*MockAuthzKeeper)(nil).DeleteGrant), arg0, arg1, arg2, arg3)
+}
+
+// GetGrant mocks base method
+func (m *MockAuthzKeeper) GetGrant(arg0 types.Context, arg1, arg2 types.AccAddress, arg3 string) (authz.Grant, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGrant", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(authz.Grant)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetGrant indicates an expected call of GetGrant
+func (mr *MockAuthzKeeperMockRecorder) GetGrant(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGrant", reflect.TypeOf((*MockAuthzKeeper)(nil).GetGrant), arg0, arg1, arg2, arg3)
+}
+
+// Update mocks base method
+func (m *MockAuthzKeeper) Update(arg0 types.Context, arg1, arg2 types.AccAddress, arg3 authz.Authorization) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockAuthzKeeperMockRecorder) Update(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAuthzKeeper)(nil).Update), arg0, arg1, arg2, arg3)
 }

@@ -3,6 +3,7 @@ package network
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	tmrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
 	tmclient "github.com/cometbft/cometbft/rpc/client"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 
@@ -52,6 +54,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import consensus as a blank
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -141,6 +144,7 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 func MinimumAppConfig() depinject.Config {
 	return configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.ParamsModule(),
 		configurator.BankModule(),
 		configurator.GenutilModule(),
@@ -490,6 +494,12 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
+		blsSecretKey, err := bls.RandKey()
+		if err != nil {
+			return nil, err
+		}
+		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -497,6 +507,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
+			addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err

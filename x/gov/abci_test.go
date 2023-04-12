@@ -1,12 +1,14 @@
 package gov_test
 
 import (
+	"encoding/hex"
 	"testing"
 	"time"
 
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -389,9 +391,12 @@ func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sd
 
 	for i := 0; i < len(addrs); i++ {
 		valTokens := sdk.TokensFromConsensusPower(powerAmt[i], sdk.DefaultPowerReduction)
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 		valCreateMsg, err := stakingtypes.NewMsgCreateValidator(
 			addrs[i], pubkeys[i], sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			TestDescription, TestCommissionRates, math.OneInt(),
+			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), blsPk,
 		)
 		require.NoError(t, err)
 		res, err := stakingMsgSvr.CreateValidator(sdk.WrapSDKContext(ctx), valCreateMsg)

@@ -17,6 +17,7 @@ import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
+	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
@@ -29,6 +30,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -48,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -112,6 +115,7 @@ func makeTestConfig() depinject.Config {
 						"mint",
 						"staking",
 						"auth",
+						"authz",
 						"bank",
 						"params",
 						"consensus",
@@ -119,6 +123,7 @@ func makeTestConfig() depinject.Config {
 					EndBlockers: []string{
 						"staking",
 						"auth",
+						"authz",
 						"bank",
 						"mint",
 						"params",
@@ -132,6 +137,7 @@ func makeTestConfig() depinject.Config {
 					},
 					InitGenesis: []string{
 						"auth",
+						"authz",
 						"bank",
 						"staking",
 						"mint",
@@ -175,6 +181,10 @@ func makeTestConfig() depinject.Config {
 			{
 				Name:   "tx",
 				Config: appconfig.WrapAny(&txconfigv1.Config{}),
+			},
+			{
+				Name:   authztypes.ModuleName,
+				Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 			},
 		},
 	})

@@ -19,16 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Accounts_FullMethodName             = "/cosmos.auth.v1beta1.Query/Accounts"
-	Query_Account_FullMethodName              = "/cosmos.auth.v1beta1.Query/Account"
-	Query_AccountAddressByID_FullMethodName   = "/cosmos.auth.v1beta1.Query/AccountAddressByID"
-	Query_Params_FullMethodName               = "/cosmos.auth.v1beta1.Query/Params"
-	Query_ModuleAccounts_FullMethodName       = "/cosmos.auth.v1beta1.Query/ModuleAccounts"
-	Query_ModuleAccountByName_FullMethodName  = "/cosmos.auth.v1beta1.Query/ModuleAccountByName"
-	Query_Bech32Prefix_FullMethodName         = "/cosmos.auth.v1beta1.Query/Bech32Prefix"
-	Query_AddressBytesToString_FullMethodName = "/cosmos.auth.v1beta1.Query/AddressBytesToString"
-	Query_AddressStringToBytes_FullMethodName = "/cosmos.auth.v1beta1.Query/AddressStringToBytes"
-	Query_AccountInfo_FullMethodName          = "/cosmos.auth.v1beta1.Query/AccountInfo"
+	Query_Accounts_FullMethodName            = "/cosmos.auth.v1beta1.Query/Accounts"
+	Query_Account_FullMethodName             = "/cosmos.auth.v1beta1.Query/Account"
+	Query_AccountAddressByID_FullMethodName  = "/cosmos.auth.v1beta1.Query/AccountAddressByID"
+	Query_Params_FullMethodName              = "/cosmos.auth.v1beta1.Query/Params"
+	Query_ModuleAccounts_FullMethodName      = "/cosmos.auth.v1beta1.Query/ModuleAccounts"
+	Query_ModuleAccountByName_FullMethodName = "/cosmos.auth.v1beta1.Query/ModuleAccountByName"
+	Query_AccountInfo_FullMethodName         = "/cosmos.auth.v1beta1.Query/AccountInfo"
 )
 
 // QueryClient is the client API for Query service.
@@ -56,18 +53,6 @@ type QueryClient interface {
 	ModuleAccounts(ctx context.Context, in *QueryModuleAccountsRequest, opts ...grpc.CallOption) (*QueryModuleAccountsResponse, error)
 	// ModuleAccountByName returns the module account info by module name
 	ModuleAccountByName(ctx context.Context, in *QueryModuleAccountByNameRequest, opts ...grpc.CallOption) (*QueryModuleAccountByNameResponse, error)
-	// Bech32Prefix queries bech32Prefix
-	//
-	// Since: cosmos-sdk 0.46
-	Bech32Prefix(ctx context.Context, in *Bech32PrefixRequest, opts ...grpc.CallOption) (*Bech32PrefixResponse, error)
-	// AddressBytesToString converts Account Address bytes to string
-	//
-	// Since: cosmos-sdk 0.46
-	AddressBytesToString(ctx context.Context, in *AddressBytesToStringRequest, opts ...grpc.CallOption) (*AddressBytesToStringResponse, error)
-	// AddressStringToBytes converts Address string to bytes
-	//
-	// Since: cosmos-sdk 0.46
-	AddressStringToBytes(ctx context.Context, in *AddressStringToBytesRequest, opts ...grpc.CallOption) (*AddressStringToBytesResponse, error)
 	// AccountInfo queries account info which is common to all account types.
 	//
 	// Since: cosmos-sdk 0.47
@@ -136,33 +121,6 @@ func (c *queryClient) ModuleAccountByName(ctx context.Context, in *QueryModuleAc
 	return out, nil
 }
 
-func (c *queryClient) Bech32Prefix(ctx context.Context, in *Bech32PrefixRequest, opts ...grpc.CallOption) (*Bech32PrefixResponse, error) {
-	out := new(Bech32PrefixResponse)
-	err := c.cc.Invoke(ctx, Query_Bech32Prefix_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) AddressBytesToString(ctx context.Context, in *AddressBytesToStringRequest, opts ...grpc.CallOption) (*AddressBytesToStringResponse, error) {
-	out := new(AddressBytesToStringResponse)
-	err := c.cc.Invoke(ctx, Query_AddressBytesToString_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) AddressStringToBytes(ctx context.Context, in *AddressStringToBytesRequest, opts ...grpc.CallOption) (*AddressStringToBytesResponse, error) {
-	out := new(AddressStringToBytesResponse)
-	err := c.cc.Invoke(ctx, Query_AddressStringToBytes_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *queryClient) AccountInfo(ctx context.Context, in *QueryAccountInfoRequest, opts ...grpc.CallOption) (*QueryAccountInfoResponse, error) {
 	out := new(QueryAccountInfoResponse)
 	err := c.cc.Invoke(ctx, Query_AccountInfo_FullMethodName, in, out, opts...)
@@ -197,18 +155,6 @@ type QueryServer interface {
 	ModuleAccounts(context.Context, *QueryModuleAccountsRequest) (*QueryModuleAccountsResponse, error)
 	// ModuleAccountByName returns the module account info by module name
 	ModuleAccountByName(context.Context, *QueryModuleAccountByNameRequest) (*QueryModuleAccountByNameResponse, error)
-	// Bech32Prefix queries bech32Prefix
-	//
-	// Since: cosmos-sdk 0.46
-	Bech32Prefix(context.Context, *Bech32PrefixRequest) (*Bech32PrefixResponse, error)
-	// AddressBytesToString converts Account Address bytes to string
-	//
-	// Since: cosmos-sdk 0.46
-	AddressBytesToString(context.Context, *AddressBytesToStringRequest) (*AddressBytesToStringResponse, error)
-	// AddressStringToBytes converts Address string to bytes
-	//
-	// Since: cosmos-sdk 0.46
-	AddressStringToBytes(context.Context, *AddressStringToBytesRequest) (*AddressStringToBytesResponse, error)
 	// AccountInfo queries account info which is common to all account types.
 	//
 	// Since: cosmos-sdk 0.47
@@ -237,15 +183,6 @@ func (UnimplementedQueryServer) ModuleAccounts(context.Context, *QueryModuleAcco
 }
 func (UnimplementedQueryServer) ModuleAccountByName(context.Context, *QueryModuleAccountByNameRequest) (*QueryModuleAccountByNameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModuleAccountByName not implemented")
-}
-func (UnimplementedQueryServer) Bech32Prefix(context.Context, *Bech32PrefixRequest) (*Bech32PrefixResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Bech32Prefix not implemented")
-}
-func (UnimplementedQueryServer) AddressBytesToString(context.Context, *AddressBytesToStringRequest) (*AddressBytesToStringResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddressBytesToString not implemented")
-}
-func (UnimplementedQueryServer) AddressStringToBytes(context.Context, *AddressStringToBytesRequest) (*AddressStringToBytesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddressStringToBytes not implemented")
 }
 func (UnimplementedQueryServer) AccountInfo(context.Context, *QueryAccountInfoRequest) (*QueryAccountInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AccountInfo not implemented")
@@ -371,60 +308,6 @@ func _Query_ModuleAccountByName_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Bech32Prefix_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Bech32PrefixRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Bech32Prefix(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_Bech32Prefix_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Bech32Prefix(ctx, req.(*Bech32PrefixRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_AddressBytesToString_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddressBytesToStringRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).AddressBytesToString(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_AddressBytesToString_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).AddressBytesToString(ctx, req.(*AddressBytesToStringRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_AddressStringToBytes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddressStringToBytesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).AddressStringToBytes(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_AddressStringToBytes_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).AddressStringToBytes(ctx, req.(*AddressStringToBytesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_AccountInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryAccountInfoRequest)
 	if err := dec(in); err != nil {
@@ -473,18 +356,6 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ModuleAccountByName",
 			Handler:    _Query_ModuleAccountByName_Handler,
-		},
-		{
-			MethodName: "Bech32Prefix",
-			Handler:    _Query_Bech32Prefix_Handler,
-		},
-		{
-			MethodName: "AddressBytesToString",
-			Handler:    _Query_AddressBytesToString_Handler,
-		},
-		{
-			MethodName: "AddressStringToBytes",
-			Handler:    _Query_AddressStringToBytes_Handler,
 		},
 		{
 			MethodName: "AccountInfo",

@@ -32,13 +32,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	vesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank/exported"
 	"github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
+	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	_ "github.com/cosmos/cosmos-sdk/x/params"
+	_ "github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 const (
@@ -126,6 +131,7 @@ func (suite *IntegrationTestSuite) SetupTest() {
 	app, err := sims.Setup(
 		configurator.NewAppConfig(
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 			configurator.BankModule(),
 			configurator.StakingModule(),
 			configurator.ParamsModule(),

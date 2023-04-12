@@ -33,9 +33,9 @@ func GenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalI
 	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
-		Use:   "gentx [key_name] [amount]",
+		Use:   "gentx [key_name] [amount] [validator] [relayer] [relayer_blskey]",
 		Short: "Generate a genesis tx carrying a self delegation",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(5),
 		Long: fmt.Sprintf(`Generate a genesis transaction that creates a validator with a self-delegation,
 that is signed by the key in the Keyring referenced by a given name. A node ID and Bech32 consensus
 pubkey may optionally be provided. If they are omitted, they will be retrieved from the priv_validator.json
@@ -43,7 +43,11 @@ file. The following default parameters are included:
     %s
 
 Example:
-$ %s gentx my-key-name 1000000stake --home=/path/to/home/dir --keyring-backend=os --chain-id=test-chain-1 \
+$ %s gentx my-key-name 1000000stake \
+	0x6D967dc83b625603c963713eABd5B43A281E595e \
+	0xcdd393723f1Af81faa3F3c87B51dAB72B6c68154 \
+	ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9 \
+	--home=/path/to/home/dir --keyring-backend=os --chain-id=test-chain-1 \
     --moniker="myvalidator" \
     --commission-max-change-rate=0.01 \
     --commission-max-rate=1.0 \
@@ -151,6 +155,24 @@ $ %s gentx my-key-name 1000000stake --home=/path/to/home/dir --keyring-backend=o
 			// config file instead of so many flags.
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/8177
 			createValCfg.Amount = amount
+
+			validator, err := sdk.ValAddressFromHex(args[2])
+			if err != nil {
+				return err
+			}
+			relayer, err := sdk.AccAddressFromHexUnsafe(args[3])
+			if err != nil {
+				return err
+			}
+			blsPk := args[4]
+			if len(blsPk) != 2*sdk.BLSPubKeyLength {
+				return fmt.Errorf("invalid relayer bls pubkey")
+			}
+
+			createValCfg.Validator = validator
+			createValCfg.Delegator = addr
+			createValCfg.Relayer = relayer
+			createValCfg.RelayerBlsKey = blsPk
 
 			// create a 'create-validator' message
 			txBldr, msg, err := cli.BuildCreateValidatorMsg(clientCtx, createValCfg, txFactory, true)

@@ -390,7 +390,7 @@ func (suite *DeterministicTestSuite) TestGRPCDelegation() {
 		DelegatorAddr: delegator1,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Delegation, 4566, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Delegation, 0, true)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCUnbondingDelegation() {
@@ -695,6 +695,7 @@ func (suite *DeterministicTestSuite) TestGRPCParams() {
 			MaxEntries:        rapid.Uint32Min(1).Draw(t, "max-entries"),
 			HistoricalEntries: rapid.Uint32Min(1).Draw(t, "historical-entries"),
 			MinCommissionRate: sdk.NewDecWithPrec(rapid.Int64Range(0, 100).Draw(t, "commission"), 2),
+			MinSelfDelegation: sdk.NewInt(rapid.Int64Range(1, 100).Draw(t, "self-delegation")),
 		}
 
 		err := suite.stakingKeeper.SetParams(suite.ctx, params)
@@ -710,10 +711,11 @@ func (suite *DeterministicTestSuite) TestGRPCParams() {
 		MaxEntries:        5,
 		HistoricalEntries: 5,
 		MinCommissionRate: sdk.NewDecWithPrec(5, 2),
+		MinSelfDelegation: sdk.NewInt(1),
 	}
 
 	err := suite.stakingKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), &stakingtypes.QueryParamsRequest{}, suite.queryClient.Params, 1114, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), &stakingtypes.QueryParamsRequest{}, suite.queryClient.Params, 0, true)
 }

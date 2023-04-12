@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -31,6 +32,7 @@ type IntegrationTestSuite struct {
 	addrs             []sdk.AccAddress
 	groupKeeper       keeper.Keeper
 	bankKeeper        bankkeeper.Keeper
+	authzKeeper       authzkeeper.Keeper
 	stakingKeeper     *stakingkeeper.Keeper
 	interfaceRegistry codectypes.InterfaceRegistry
 }
@@ -44,6 +46,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 		grouptestutil.AppConfig,
 		&s.interfaceRegistry,
 		&s.bankKeeper,
+		&s.authzKeeper,
 		&s.stakingKeeper,
 		&s.groupKeeper,
 	)

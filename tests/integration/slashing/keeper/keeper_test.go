@@ -7,6 +7,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,6 +37,7 @@ type KeeperTestSuite struct {
 	stakingKeeper     *stakingkeeper.Keeper
 	bankKeeper        bankkeeper.Keeper
 	accountKeeper     authkeeper.AccountKeeper
+	authzKeeper       authzkeeper.Keeper
 	interfaceRegistry codectypes.InterfaceRegistry
 	addrDels          []sdk.AccAddress
 	queryClient       slashingtypes.QueryClient
@@ -46,6 +49,7 @@ func (s *KeeperTestSuite) SetupTest() {
 		testutil.AppConfig,
 		&s.bankKeeper,
 		&s.accountKeeper,
+		&s.authzKeeper,
 		&s.slashingKeeper,
 		&s.stakingKeeper,
 		&s.interfaceRegistry,
@@ -93,9 +97,6 @@ func (s *KeeperTestSuite) TestUnJailNotBonded() {
 		addr, val := valAddrs[i], pks[i]
 		tstaking.CreateValidatorWithValPower(addr, val, 100, true)
 	}
-
-	staking.EndBlocker(ctx, s.stakingKeeper)
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 	// create a 6th validator with less power than the cliff validator (won't be bonded)
 	addr, val := valAddrs[5], pks[5]

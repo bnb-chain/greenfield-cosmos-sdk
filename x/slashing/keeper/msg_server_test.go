@@ -155,7 +155,7 @@ func (s *KeeperTestSuite) TestUnjail() {
 			malleate: func() *slashingtypes.MsgUnjail {
 				_, pubKey, addr := testdata.KeyTestPubAddr()
 				valAddr := sdk.ValAddress(addr)
-				val, err := types.NewValidator(valAddr, pubKey, types.Description{Moniker: "test"})
+				val, err := types.NewSimpleValidator(valAddr, pubKey, types.Description{Moniker: "test"})
 				s.Require().NoError(err)
 
 				s.stakingKeeper.EXPECT().Validator(s.ctx, valAddr).Return(val)
@@ -189,7 +189,7 @@ func (s *KeeperTestSuite) TestUnjail() {
 				_, pubKey, addr := testdata.KeyTestPubAddr()
 				valAddr := sdk.ValAddress(addr)
 
-				val, err := types.NewValidator(valAddr, pubKey, types.Description{Moniker: "test"})
+				val, err := types.NewSimpleValidator(valAddr, pubKey, types.Description{Moniker: "test"})
 				val.Tokens = sdk.NewInt(1000)
 				val.DelegatorShares = sdk.NewDec(1)
 				val.Jailed = false
@@ -219,7 +219,7 @@ func (s *KeeperTestSuite) TestUnjail() {
 				_, pubKey, addr := testdata.KeyTestPubAddr()
 				valAddr := sdk.ValAddress(addr)
 
-				val, err := types.NewValidator(valAddr, pubKey, types.Description{Moniker: "test"})
+				val, err := types.NewSimpleValidator(valAddr, pubKey, types.Description{Moniker: "test"})
 				val.Tokens = sdk.NewInt(1000)
 				val.DelegatorShares = sdk.NewDec(1)
 				val.Jailed = true
@@ -249,7 +249,7 @@ func (s *KeeperTestSuite) TestUnjail() {
 				_, pubKey, addr := testdata.KeyTestPubAddr()
 				valAddr := sdk.ValAddress(addr)
 
-				val, err := types.NewValidator(valAddr, pubKey, types.Description{Moniker: "test"})
+				val, err := types.NewSimpleValidator(valAddr, pubKey, types.Description{Moniker: "test"})
 				val.Tokens = sdk.NewInt(1000)
 				val.DelegatorShares = sdk.NewDec(1)
 				val.Jailed = true
@@ -279,7 +279,7 @@ func (s *KeeperTestSuite) TestUnjail() {
 				_, pubKey, addr := testdata.KeyTestPubAddr()
 				valAddr := sdk.ValAddress(addr)
 
-				val, err := types.NewValidator(valAddr, pubKey, types.Description{Moniker: "test"})
+				val, err := types.NewSimpleValidator(valAddr, pubKey, types.Description{Moniker: "test"})
 				val.Tokens = sdk.NewInt(1000)
 				val.DelegatorShares = sdk.NewDec(1)
 

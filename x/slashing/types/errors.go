@@ -13,4 +13,5 @@ var (
 	ErrMissingSelfDelegation        = sdkerrors.Register(ModuleName, 6, "validator has no self-delegation; cannot be unjailed")
 	ErrSelfDelegationTooLowToUnjail = sdkerrors.Register(ModuleName, 7, "validator's self delegation less than minimum; cannot be unjailed")
 	ErrNoSigningInfoFound           = sdkerrors.Register(ModuleName, 8, "no validator signing info found")
+	ErrSignerNotGovModule           = sdkerrors.Register(ModuleName, 9, "signer is not gov module account")
 )

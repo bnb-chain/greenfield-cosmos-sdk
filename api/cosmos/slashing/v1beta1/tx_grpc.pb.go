@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Msg_Unjail_FullMethodName       = "/cosmos.slashing.v1beta1.Msg/Unjail"
 	Msg_UpdateParams_FullMethodName = "/cosmos.slashing.v1beta1.Msg/UpdateParams"
+	Msg_Impeach_FullMethodName      = "/cosmos.slashing.v1beta1.Msg/Impeach"
 )
 
 // MsgClient is the client API for Msg service.
@@ -36,6 +37,8 @@ type MsgClient interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
+	// Impeach defines a method for removing an existing validator after gov proposal passes.
+	Impeach(ctx context.Context, in *MsgImpeach, opts ...grpc.CallOption) (*MsgImpeachResponse, error)
 }
 
 type msgClient struct {
@@ -64,6 +67,15 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 	return out, nil
 }
 
+func (c *msgClient) Impeach(ctx context.Context, in *MsgImpeach, opts ...grpc.CallOption) (*MsgImpeachResponse, error) {
+	out := new(MsgImpeachResponse)
+	err := c.cc.Invoke(ctx, Msg_Impeach_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
@@ -77,6 +89,8 @@ type MsgServer interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
+	// Impeach defines a method for removing an existing validator after gov proposal passes.
+	Impeach(context.Context, *MsgImpeach) (*MsgImpeachResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }
 
@@ -89,6 +103,9 @@ func (UnimplementedMsgServer) Unjail(context.Context, *MsgUnjail) (*MsgUnjailRes
 }
 func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
+}
+func (UnimplementedMsgServer) Impeach(context.Context, *MsgImpeach) (*MsgImpeachResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Impeach not implemented")
 }
 func (UnimplementedMsgServer) mustEmbedUnimplementedMsgServer() {}
 
@@ -139,6 +156,24 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_Impeach_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgImpeach)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).Impeach(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_Impeach_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).Impeach(ctx, req.(*MsgImpeach))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Msg_ServiceDesc is the grpc.ServiceDesc for Msg service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +188,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateParams",
 			Handler:    _Msg_UpdateParams_Handler,
+		},
+		{
+			MethodName: "Impeach",
+			Handler:    _Msg_Impeach_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -9,6 +9,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -34,6 +36,7 @@ type SimTestSuite struct {
 	codec             codec.Codec
 	interfaceRegistry codectypes.InterfaceRegistry
 	accountKeeper     authkeeper.AccountKeeper
+	authzKeeper       authzkeeper.Keeper
 	bankKeeper        bankkeeper.Keeper
 	groupKeeper       groupkeeper.Keeper
 }
@@ -44,6 +47,7 @@ func (suite *SimTestSuite) SetupTest() {
 		&suite.codec,
 		&suite.interfaceRegistry,
 		&suite.accountKeeper,
+		&suite.authzKeeper,
 		&suite.bankKeeper,
 		&suite.groupKeeper,
 	)

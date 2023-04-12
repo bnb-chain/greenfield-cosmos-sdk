@@ -3,6 +3,7 @@ package testutil
 import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/capability"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -12,6 +13,7 @@ import (
 
 	"cosmossdk.io/core/appconfig"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
@@ -22,6 +24,7 @@ import (
 	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
+	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	capabilitymodulev1 "cosmossdk.io/api/cosmos/capability/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
@@ -41,6 +44,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 					capabilitytypes.ModuleName,
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					genutiltypes.ModuleName,
 					paramstypes.ModuleName,
@@ -50,6 +54,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 					stakingtypes.ModuleName,
 					capabilitytypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					genutiltypes.ModuleName,
 					paramstypes.ModuleName,
@@ -58,6 +63,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				InitGenesis: []string{
 					capabilitytypes.ModuleName,
 					authtypes.ModuleName,
+					authztypes.ModuleName,
 					banktypes.ModuleName,
 					stakingtypes.ModuleName,
 					genutiltypes.ModuleName,
@@ -106,6 +112,10 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 			Config: appconfig.WrapAny(&capabilitymodulev1.Module{
 				SealKeeper: true,
 			}),
+		},
+		{
+			Name:   authztypes.ModuleName,
+			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 		},
 	},
 })
