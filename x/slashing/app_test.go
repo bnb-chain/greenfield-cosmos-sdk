@@ -1,14 +1,19 @@
 package slashing_test
 
 import (
+	"encoding/hex"
 	"errors"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
@@ -54,6 +59,7 @@ func TestSlashingMsgs(t *testing.T) {
 	app, err := sims.SetupWithConfiguration(configurator.NewAppConfig(
 		configurator.ParamsModule(),
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.StakingModule(),
 		configurator.SlashingModule(),
 		configurator.TxModule(),
@@ -70,15 +76,18 @@ func TestSlashingMsgs(t *testing.T) {
 
 	description := stakingtypes.NewDescription("foo_moniker", "", "", "", "")
 	commission := stakingtypes.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commission, math.OneInt(),
+		sdk.AccAddress(addr1), sdk.AccAddress(addr1), sdk.AccAddress(addr1), blsPk,
 	)
 	require.NoError(t, err)
 
 	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
 	txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-	_, _, err = sims.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, priv1)
+	_, _, err = sims.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, sims.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
 	require.True(t, sdk.Coins{genCoin.Sub(bondCoin)}.Equal(bankKeeper.GetAllBalances(ctxCheck, addr1)))
 
@@ -99,7 +108,7 @@ func TestSlashingMsgs(t *testing.T) {
 
 	// unjail should fail with unknown validator
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
-	_, res, err := sims.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{unjailMsg}, "", []uint64{0}, []uint64{1}, false, false, priv1)
+	_, res, err := sims.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{unjailMsg}, "", []uint64{0}, []uint64{1}, false, false, []cryptotypes.PrivKey{priv1}, sims.SetMockHeight(app.BaseApp, 0))
 	require.Error(t, err)
 	require.Nil(t, res)
 	require.True(t, errors.Is(types.ErrValidatorNotJailed, err))

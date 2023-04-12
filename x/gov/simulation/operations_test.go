@@ -18,6 +18,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
@@ -369,6 +371,7 @@ func TestSimulateMsgVoteWeighted(t *testing.T) {
 
 type suite struct {
 	AccountKeeper      authkeeper.AccountKeeper
+	AuthzKeeper        authzkeeper.Keeper
 	BankKeeper         bankkeeper.Keeper
 	GovKeeper          *keeper.Keeper
 	StakingKeeper      *stakingkeeper.Keeper
@@ -382,6 +385,7 @@ func createTestSuite(t *testing.T, isCheckTx bool) (suite, sdk.Context) {
 
 	app, err := simtestutil.Setup(configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.TxModule(),
 		configurator.ParamsModule(),
 		configurator.BankModule(),
@@ -389,7 +393,7 @@ func createTestSuite(t *testing.T, isCheckTx bool) (suite, sdk.Context) {
 		configurator.ConsensusModule(),
 		configurator.DistributionModule(),
 		configurator.GovModule(),
-	), &res.AccountKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.DistributionKeeper)
+	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.DistributionKeeper)
 	require.NoError(t, err)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, cmtproto.Header{})

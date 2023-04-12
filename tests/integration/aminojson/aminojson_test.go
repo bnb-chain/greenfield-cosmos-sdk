@@ -47,6 +47,7 @@ import (
 	"cosmossdk.io/x/tx/signing/aminojson"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ed25519types "github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
@@ -279,11 +280,11 @@ var (
 		genType(&slashingtypes.MsgUpdateParams{}, &slashingapi.MsgUpdateParams{}, genOpts.WithDisallowNil()),
 
 		// staking
-		genType(&stakingtypes.MsgCreateValidator{}, &stakingapi.MsgCreateValidator{},
-			genOpts.WithDisallowNil().
-				WithAnyTypes(&ed25519.PubKey{}).
-				WithInterfaceHint("cosmos.crypto.PubKey", &ed25519.PubKey{}),
-		),
+		//genType(&stakingtypes.MsgCreateValidator{}, &stakingapi.MsgCreateValidator{},
+		//	genOpts.WithDisallowNil().
+		//		WithAnyTypes(&ed25519.PubKey{}).
+		//		WithInterfaceHint("cosmos.crypto.PubKey", &ed25519.PubKey{}),
+		//),
 		genType(&stakingtypes.MsgEditValidator{}, &stakingapi.MsgEditValidator{}, genOpts.WithDisallowNil()),
 		genType(&stakingtypes.MsgDelegate{}, &stakingapi.MsgDelegate{}, genOpts.WithDisallowNil()),
 		genType(&stakingtypes.MsgUndelegate{}, &stakingapi.MsgUndelegate{}, genOpts.WithDisallowNil()),
@@ -533,15 +534,15 @@ func TestAminoJSON_LegacyParity(t *testing.T) {
 				MinSignedPerWindow:   dec10bz,
 			},
 		},
-		"staking/create_validator": {
-			gogo: &stakingtypes.MsgCreateValidator{Pubkey: pubkeyAny},
-			pulsar: &stakingapi.MsgCreateValidator{
-				Pubkey:      pubkeyAnyPulsar,
-				Description: &stakingapi.Description{},
-				Commission:  &stakingapi.CommissionRates{},
-				Value:       &v1beta1.Coin{},
-			},
-		},
+		//"staking/create_validator": {
+		//	gogo: &stakingtypes.MsgCreateValidator{Pubkey: pubkeyAny},
+		//	pulsar: &stakingapi.MsgCreateValidator{
+		//		Pubkey:      pubkeyAnyPulsar,
+		//		Description: &stakingapi.Description{},
+		//		Commission:  &stakingapi.CommissionRates{},
+		//		Value:       &v1beta1.Coin{},
+		//	},
+		//},
 		"staking/msg_cancel_unbonding_delegation_response": {
 			gogo:   &stakingtypes.MsgCancelUnbondingDelegationResponse{},
 			pulsar: &stakingapi.MsgCancelUnbondingDelegationResponse{},

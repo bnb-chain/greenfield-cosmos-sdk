@@ -3,6 +3,7 @@ package network
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,6 +26,7 @@ import (
 	"github.com/cometbft/cometbft/node"
 	cmtclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -52,7 +54,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"           // import auth as a blank
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config" // import auth tx config as a blank
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	_ "github.com/cosmos/cosmos-sdk/x/bank" // import bank as a blank
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import consensus as a blank
+	_ "github.com/cosmos/cosmos-sdk/x/bank"         // import bank as a blank
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import consensus as a blank
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -164,6 +167,7 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 func MinimumAppConfig() depinject.Config {
 	return configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.ParamsModule(),
 		configurator.BankModule(),
 		configurator.GenutilModule(),
@@ -511,6 +515,12 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
+		blsSecretKey, err := bls.RandKey()
+		if err != nil {
+			return nil, err
+		}
+		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
@@ -518,6 +528,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 			sdkmath.OneInt(),
+			addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err

@@ -40,6 +40,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth/vesting"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	_ "github.com/cosmos/cosmos-sdk/x/params"
 	_ "github.com/cosmos/cosmos-sdk/x/staking"
@@ -121,6 +122,7 @@ func initFixture(t assert.TestingT) *fixture {
 	app, err := sims.Setup(
 		configurator.NewAppConfig(
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 			configurator.BankModule(),
 			configurator.StakingModule(),
 			configurator.ParamsModule(),

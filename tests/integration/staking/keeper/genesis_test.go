@@ -175,7 +175,7 @@ func TestInitGenesisLargeValidatorSet(t *testing.T) {
 
 	bondedPoolAmt := math.ZeroInt()
 	for i := range validators {
-		validators[i], err = types.NewValidator(
+		validators[i], err = types.NewSimpleValidator(
 			sdk.ValAddress(addrs[i]),
 			PKs[i],
 			types.NewDescription(fmt.Sprintf("#%d", i), "", "", "", ""),

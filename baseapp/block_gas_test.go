@@ -14,6 +14,8 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	store "cosmossdk.io/store/types"
 
 	baseapptestutil "github.com/cosmos/cosmos-sdk/baseapp/testutil"
@@ -32,6 +34,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import consensus as a blank
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -74,6 +77,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 		var (
 			bankKeeper        bankkeeper.Keeper
 			accountKeeper     authkeeper.AccountKeeper
+			authzKeeper       authzkeeper.Keeper
 			appBuilder        *runtime.AppBuilder
 			txConfig          client.TxConfig
 			cdc               codec.Codec
@@ -84,6 +88,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 
 		err = depinject.Inject(configurator.NewAppConfig(
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 			configurator.TxModule(),
 			configurator.ParamsModule(),
 			configurator.ConsensusModule(),
@@ -92,6 +97,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 		),
 			&bankKeeper,
 			&accountKeeper,
+			&authzKeeper,
 			&interfaceRegistry,
 			&txConfig,
 			&cdc,

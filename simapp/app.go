@@ -16,11 +16,12 @@ import (
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/gogoproto/proto"
+	"github.com/spf13/cast"
+
 	"github.com/cosmos/cosmos-sdk/x/crosschain"
 	crosschainkeeper "github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
-	"github.com/cosmos/gogoproto/proto"
-	"github.com/spf13/cast"
 
 	simappparams "cosmossdk.io/simapp/params"
 	storetypes "cosmossdk.io/store/types"
@@ -305,7 +306,7 @@ func NewSimApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.StakingKeeper = stakingkeeper.NewKeeper(
-		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.AuthzKeeper, app.BankKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.MintKeeper = mintkeeper.NewKeeper(appCodec, keys[minttypes.StoreKey], app.StakingKeeper, app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 

@@ -6,8 +6,10 @@ import (
 	"time"
 
 	_ "cosmossdk.io/x/feegrant/module"
+
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
 	_ "github.com/cosmos/cosmos-sdk/x/genutil"
@@ -20,6 +22,8 @@ import (
 	"cosmossdk.io/x/feegrant/simulation"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -30,7 +34,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
-	"github.com/stretchr/testify/suite"
 )
 
 type SimTestSuite struct {
@@ -50,6 +53,7 @@ func (suite *SimTestSuite) SetupTest() {
 	var err error
 	suite.app, err = simtestutil.Setup(configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.BankModule(),
 		configurator.StakingModule(),
 		configurator.TxModule(),

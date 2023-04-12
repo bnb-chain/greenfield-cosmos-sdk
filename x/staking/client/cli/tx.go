@@ -44,78 +44,14 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	stakingTxCmd.AddCommand(
-		NewCreateValidatorCmd(),
 		NewEditValidatorCmd(),
 		NewDelegateCmd(),
-		NewRedelegateCmd(),
+		//NewRedelegateCmd(),
 		NewUnbondCmd(),
 		NewCancelUnbondingDelegation(),
 	)
 
 	return stakingTxCmd
-}
-
-// NewCreateValidatorCmd returns a CLI command handler for creating a MsgCreateValidator transaction.
-func NewCreateValidatorCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "create-validator [path/to/validator.json]",
-		Short: "create new validator initialized with a self-delegation to it",
-		Args:  cobra.ExactArgs(1),
-		Long:  `Create a new validator initialized with a self-delegation by submitting a JSON file with the new validator details.`,
-		Example: strings.TrimSpace(
-			fmt.Sprintf(`
-$ %s tx staking create-validator path/to/validator.json --from keyname
-
-Where validator.json contains:
-
-{
-	"pubkey": {"@type":"/cosmos.crypto.ed25519.PubKey","key":"oWg2ISpLF405Jcm2vXV+2v4fnjodh6aafuIdeoW+rUw="},
-	"amount": "1000000stake",
-	"moniker": "myvalidator",
-	"identity": "optional identity signature (ex. UPort or Keybase)",
-	"website": "validator's (optional) website",
-	"security": "validator's (optional) security contact email",
-	"details": "validator's (optional) details",
-	"commission-rate": "0.1",
-	"commission-max-rate": "0.2",
-	"commission-max-change-rate": "0.01",
-	"min-self-delegation": "1"
-}
-
-where we can get the pubkey using "%s tendermint show-validator"
-`, version.AppName, version.AppName)),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			txf, err := tx.NewFactoryCLI(clientCtx, cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			validator, err := parseAndValidateValidatorJSON(clientCtx.Codec, args[0])
-			if err != nil {
-				return err
-			}
-
-			txf, msg, err := newBuildCreateValidatorMsg(clientCtx, txf, cmd.Flags(), validator)
-			if err != nil {
-				return err
-			}
-
-			return tx.GenerateOrBroadcastTxWithFactory(clientCtx, txf, msg)
-		},
-	}
-
-	cmd.Flags().String(FlagIP, "", fmt.Sprintf("The node's public IP. It takes effect only when used in combination with --%s", flags.FlagGenerateOnly))
-	cmd.Flags().String(FlagNodeID, "", "The node's ID")
-	flags.AddTxFlagsToCmd(cmd)
-
-	_ = cmd.MarkFlagRequired(flags.FlagFrom)
-
-	return cmd
 }
 
 // NewEditValidatorCmd returns a CLI command handler for creating a MsgEditValidator transaction.
@@ -135,6 +71,7 @@ func NewEditValidatorCmd() *cobra.Command {
 			security, _ := cmd.Flags().GetString(FlagSecurityContact)
 			details, _ := cmd.Flags().GetString(FlagDetails)
 			description := types.NewDescription(moniker, identity, website, security, details)
+			relayer := sdk.AccAddress("")
 
 			var newRate *sdk.Dec
 
@@ -160,7 +97,19 @@ func NewEditValidatorCmd() *cobra.Command {
 				newMinSelfDelegation = &msb
 			}
 
-			msg := types.NewMsgEditValidator(sdk.ValAddress(valAddr), description, newRate, newMinSelfDelegation)
+			relayerAddr, _ := cmd.Flags().GetString(FlagAddressRelayer)
+			blsPk, _ := cmd.Flags().GetString(FlagBlsKeyRelayer)
+			if relayerAddr != "" {
+				relayer, err = sdk.AccAddressFromHexUnsafe(relayerAddr)
+				if err != nil {
+					return fmt.Errorf("invalid relayer address: %v", err)
+				}
+			}
+
+			msg := types.NewMsgEditValidator(
+				sdk.ValAddress(valAddr), description, newRate, newMinSelfDelegation,
+				relayer, blsPk,
+			)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -169,6 +118,8 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetDescriptionEdit())
 	cmd.Flags().AddFlagSet(flagSetCommissionUpdate())
 	cmd.Flags().AddFlagSet(FlagSetMinSelfDelegation())
+	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
+	cmd.Flags().AddFlagSet(FlagSetRelayerBlsKey())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -362,41 +313,6 @@ $ %s tx staking cancel-unbond %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj 100stake
 	return cmd
 }
 
-func newBuildCreateValidatorMsg(clientCtx client.Context, txf tx.Factory, fs *flag.FlagSet, val validator) (tx.Factory, *types.MsgCreateValidator, error) {
-	valAddr := clientCtx.GetFromAddress()
-
-	description := types.NewDescription(
-		val.Moniker,
-		val.Identity,
-		val.Website,
-		val.Security,
-		val.Details,
-	)
-
-	msg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(valAddr), val.PubKey, val.Amount, description, val.CommissionRates, val.MinSelfDelegation,
-	)
-	if err != nil {
-		return txf, nil, err
-	}
-	if err := msg.ValidateBasic(); err != nil {
-		return txf, nil, err
-	}
-
-	genOnly, _ := fs.GetBool(flags.FlagGenerateOnly)
-	if genOnly {
-		ip, _ := fs.GetString(FlagIP)
-		p2pPort, _ := fs.GetUint(FlagP2PPort)
-		nodeID, _ := fs.GetString(FlagNodeID)
-
-		if nodeID != "" && ip != "" && p2pPort > 0 {
-			txf = txf.WithMemo(fmt.Sprintf("%s@%s:%d", nodeID, ip, p2pPort))
-		}
-	}
-
-	return txf, msg, nil
-}
-
 // Return the flagset, particular flags, and a description of defaults
 // this is anticipated to be used with the gen-tx
 func CreateValidatorMsgFlagSet(ipDefault string) (fs *flag.FlagSet, defaultsDesc string) {
@@ -447,6 +363,11 @@ type TxCreateValidatorConfig struct {
 	SecurityContact string
 	Details         string
 	Identity        string
+
+	Validator     sdk.ValAddress
+	Delegator     sdk.AccAddress
+	Relayer       sdk.AccAddress
+	RelayerBlsKey string
 }
 
 func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, chainID string, valPubKey cryptotypes.PubKey) (TxCreateValidatorConfig, error) {
@@ -556,7 +477,8 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 		return txBldr, nil, err
 	}
 
-	valAddr := clientCtx.GetFromAddress()
+	from := clientCtx.GetFromAddress()
+
 	description := types.NewDescription(
 		config.Moniker,
 		config.Identity,
@@ -583,12 +505,9 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 	}
 
 	msg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(valAddr),
-		config.PubKey,
-		amount,
-		description,
-		commissionRates,
-		minSelfDelegation,
+		config.Validator, config.PubKey,
+		amount, description, commissionRates, minSelfDelegation,
+		from, config.Delegator, config.Relayer, config.RelayerBlsKey,
 	)
 	if err != nil {
 		return txBldr, msg, err

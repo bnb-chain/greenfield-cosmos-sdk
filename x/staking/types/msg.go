@@ -35,6 +35,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.ValAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
+	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -46,10 +47,14 @@ func NewMsgCreateValidator(
 	return &MsgCreateValidator{
 		Description:       description,
 		ValidatorAddress:  valAddr.String(),
+		DelegatorAddress:  selfDelAddr.String(),
 		Pubkey:            pkAny,
 		Value:             selfDelegation,
 		Commission:        commission,
 		MinSelfDelegation: minSelfDelegation,
+		From:              from.String(),
+		RelayerAddress:    relayerAddr.String(),
+		RelayerBlsKey:     relayerBlsKey,
 	}, nil
 }
 
@@ -58,11 +63,8 @@ func NewMsgCreateValidator(
 // If the validator address is not same as delegator's, then the validator must
 // sign the msg as well.
 func (msg MsgCreateValidator) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddress)
-
-	valAccAddr := sdk.AccAddress(valAddr)
-
-	return []sdk.AccAddress{valAccAddr}
+	from, _ := sdk.AccAddressFromHexUnsafe(msg.From)
+	return []sdk.AccAddress{from}
 }
 
 // GetSignBytes returns the message bytes to sign over.
@@ -85,6 +87,14 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 
 	if !msg.Value.IsValid() || !msg.Value.Amount.IsPositive() {
 		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "invalid delegation amount")
+	}
+
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
+	}
+
+	if len(msg.RelayerBlsKey) != 2*sdk.BLSPubKeyLength {
+		return ErrValidatorRelayerInvalidBlsKey
 	}
 
 	if msg.Description == (Description{}) {
@@ -122,12 +132,17 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 // NewMsgEditValidator creates a new MsgEditValidator instance
 //
 //nolint:interfacer
-func NewMsgEditValidator(valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int) *MsgEditValidator {
+func NewMsgEditValidator(
+	valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
+	newRelayerAddr sdk.AccAddress, newRelayerBlsKey string,
+) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,
 		CommissionRate:    newRate,
 		ValidatorAddress:  valAddr.String(),
 		MinSelfDelegation: newMinSelfDelegation,
+		RelayerAddress:    newRelayerAddr.String(),
+		RelayerBlsKey:     newRelayerBlsKey,
 	}
 }
 
@@ -163,6 +178,13 @@ func (msg MsgEditValidator) ValidateBasic() error {
 	if msg.CommissionRate != nil {
 		if msg.CommissionRate.GT(math.LegacyOneDec()) || msg.CommissionRate.IsNegative() {
 			return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "commission rate must be between 0 and 1 (inclusive)")
+		}
+	}
+
+	if len(msg.RelayerAddress) != 0 {
+		_, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
+		if err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 		}
 	}
 

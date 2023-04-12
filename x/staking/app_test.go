@@ -1,16 +1,22 @@
 package staking_test
 
 import (
+	"encoding/hex"
 	"testing"
 
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -62,14 +68,18 @@ func TestStakingMsgs(t *testing.T) {
 
 	// create validator
 	description := types.NewDescription("foo_moniker", "", "", "", "")
+	blsSecretKey, _ := bls.RandKey()
+	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commissionRates, math.OneInt(),
+		sdk.ValAddress(addr1), valKey.PubKey(),
+		bondCoin, description, commissionRates, sdk.OneInt(),
+		addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 
 	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
 	txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, priv1)
+	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, "", []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simtestutil.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
 	require.True(t, sdk.Coins{genCoin.Sub(bondCoin)}.Equal(bankKeeper.GetAllBalances(ctxCheck, addr1)))
 
@@ -87,10 +97,12 @@ func TestStakingMsgs(t *testing.T) {
 
 	// edit the validator
 	description = types.NewDescription("bar_moniker", "", "", "", "")
-	editValidatorMsg := types.NewMsgEditValidator(sdk.ValAddress(addr1), description, nil, nil)
-
+	editValidatorMsg := types.NewMsgEditValidator(
+		sdk.ValAddress(addr1), description, nil, nil,
+		sdk.AccAddress(""), "",
+	)
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, priv1)
+	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
 	require.NoError(t, err)
 
 	ctxCheck = app.BaseApp.NewContext(true, cmtproto.Header{})
@@ -103,7 +115,7 @@ func TestStakingMsgs(t *testing.T) {
 	delegateMsg := types.NewMsgDelegate(addr2, sdk.ValAddress(addr1), bondCoin)
 
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{delegateMsg}, "", []uint64{1}, []uint64{0}, true, true, priv2)
+	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{delegateMsg}, "", []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	ctxCheck = app.BaseApp.NewContext(true, cmtproto.Header{})
@@ -114,7 +126,7 @@ func TestStakingMsgs(t *testing.T) {
 	// begin unbonding
 	beginUnbondingMsg := types.NewMsgUndelegate(addr2, sdk.ValAddress(addr1), bondCoin)
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
-	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, "", []uint64{1}, []uint64{1}, true, true, priv2)
+	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, "", []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	// delegation should exist anymore

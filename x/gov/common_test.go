@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -16,6 +18,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -29,7 +33,6 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -101,6 +104,7 @@ var pubkeys = []cryptotypes.PubKey{
 
 type suite struct {
 	AccountKeeper      authkeeper.AccountKeeper
+	AuthzKeeper        authzkeeper.Keeper
 	BankKeeper         bankkeeper.Keeper
 	GovKeeper          *keeper.Keeper
 	StakingKeeper      *stakingkeeper.Keeper
@@ -117,12 +121,13 @@ func createTestSuite(t *testing.T) suite {
 			configurator.AuthModule(),
 			configurator.StakingModule(),
 			configurator.BankModule(),
+			configurator.AuthzModule(),
 			configurator.GovModule(),
 			configurator.ConsensusModule(),
 			configurator.DistributionModule(),
 		),
 		simtestutil.DefaultStartUpConfig(),
-		&res.AccountKeeper, &res.BankKeeper, &res.GovKeeper, &res.DistributionKeeper, &res.StakingKeeper,
+		&res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.DistributionKeeper, &res.StakingKeeper,
 	)
 	require.NoError(t, err)
 

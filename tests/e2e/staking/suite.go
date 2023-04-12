@@ -92,184 +92,6 @@ func (s *E2ETestSuite) TearDownSuite() {
 	s.network.Cleanup()
 }
 
-func (s *E2ETestSuite) TestNewCreateValidatorCmd() {
-	require := s.Require()
-	val := s.network.Validators[0]
-
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
-	require.NoError(err)
-
-	pub, err := k.GetPubKey()
-	require.NoError(err)
-
-	newAddr := sdk.AccAddress(pub.Address())
-	_, err = clitestutil.MsgSendExec(
-		val.ClientCtx,
-		val.Address,
-		newAddr,
-		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(200))), fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-	)
-	require.NoError(err)
-	s.Require().NoError(s.network.WaitForNextBlock())
-
-	validJSON := fmt.Sprintf(`
-	{
-  		"pubkey": {"@type":"/cosmos.crypto.ed25519.PubKey","key":"oWg2ISpLF405Jcm2vXV+2v4fnjodh6aafuIdeoW+rUw="},
-  		"amount": "%dstake",
-  		"moniker": "NewValidator",
-  		"commission-rate": "0.5",
-  		"commission-max-rate": "1.0",
-  		"commission-max-change-rate": "0.1",
-  		"min-self-delegation": "1"
-	}`, 100)
-	validJSONFile := testutil.WriteToNewTempFile(s.T(), validJSON)
-	defer func() {
-		if err := validJSONFile.Close(); err != nil {
-			val.Ctx.Logger.Info("Error closing file: %s\n", err)
-		}
-	}()
-
-	noAmountJSON := `
-	{
-  		"pubkey": {"@type":"/cosmos.crypto.ed25519.PubKey","key":"oWg2ISpLF405Jcm2vXV+2v4fnjodh6aafuIdeoW+rUw="},
-  		"moniker": "NewValidator",
-  		"commission-rate": "0.5",
-  		"commission-max-rate": "1.0",
-  		"commission-max-change-rate": "0.1",
-  		"min-self-delegation": "1"
-	}`
-	noAmountJSONFile := testutil.WriteToNewTempFile(s.T(), noAmountJSON)
-	defer func() {
-		if err := noAmountJSONFile.Close(); err != nil {
-			val.Ctx.Logger.Info("Error closing file: %s\n", err)
-		}
-	}()
-
-	noPubKeyJSON := fmt.Sprintf(`
-	{
-  		"amount": "%dstake",
-  		"moniker": "NewValidator",
-  		"commission-rate": "0.5",
-  		"commission-max-rate": "1.0",
-  		"commission-max-change-rate": "0.1",
-  		"min-self-delegation": "1"
-	}`, 100)
-	noPubKeyJSONFile := testutil.WriteToNewTempFile(s.T(), noPubKeyJSON)
-	defer func() {
-		if err := noPubKeyJSONFile.Close(); err != nil {
-			val.Ctx.Logger.Info("Error closing file: %s\n", err)
-		}
-	}()
-
-	noMonikerJSON := fmt.Sprintf(`
-	{
-  		"pubkey": {"@type":"/cosmos.crypto.ed25519.PubKey","key":"oWg2ISpLF405Jcm2vXV+2v4fnjodh6aafuIdeoW+rUw="},
-  		"amount": "%dstake",
-  		"commission-rate": "0.5",
-  		"commission-max-rate": "1.0",
-  		"commission-max-change-rate": "0.1",
-  		"min-self-delegation": "1"
-	}`, 100)
-	noMonikerJSONFile := testutil.WriteToNewTempFile(s.T(), noMonikerJSON)
-	defer func() {
-		if err := noMonikerJSONFile.Close(); err != nil {
-			val.Ctx.Logger.Info("Error closing file: %s\n", err)
-		}
-	}()
-
-	testCases := []struct {
-		name         string
-		args         []string
-		expectErr    bool
-		expectedCode uint32
-		respType     proto.Message
-	}{
-		{
-			"invalid transaction (missing amount)",
-			[]string{
-				noAmountJSONFile.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"invalid transaction (missing pubkey)",
-			[]string{
-				noPubKeyJSONFile.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"invalid transaction (missing moniker)",
-			[]string{
-				noMonikerJSONFile.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"valid transaction",
-			[]string{
-				validJSONFile.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, 0, &sdk.TxResponse{},
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-
-		s.Run(tc.name, func() {
-			cmd := cli.NewCreateValidatorCmd()
-			clientCtx := val.ClientCtx
-
-			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
-			if tc.expectErr {
-				require.Error(err)
-			} else {
-				require.NoError(err, "test: %s\noutput: %s", tc.name, out.String())
-				err = clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType)
-				require.NoError(err, out.String(), "test: %s, output\n:", tc.name, out.String())
-				s.Require().NoError(s.network.WaitForNextBlock())
-
-				txRespHash := tc.respType.(*sdk.TxResponse)
-				txResp, err := clitestutil.GetTxResponse(s.network, clientCtx, txRespHash.TxHash)
-				s.Require().NoError(err)
-				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
-
-				var hadEvent bool
-				events := txResp.Logs[0].GetEvents()
-				for i := 0; i < len(events); i++ {
-					if events[i].GetType() == "create_validator" {
-						attributes := events[i].GetAttributes()
-						require.Equal(attributes[1].Value, "100stake")
-						hadEvent = true
-						break
-					}
-				}
-
-				s.Require().True(hadEvent)
-			}
-		})
-	}
-}
-
 func (s *E2ETestSuite) TestGetCmdQueryValidator() {
 	val := s.network.Validators[0]
 	testCases := []struct {
@@ -927,12 +749,13 @@ historical_entries: 10000
 max_entries: 7
 max_validators: 100
 min_commission_rate: "0.000000000000000000"
+min_self_delegation: "1"
 unbonding_time: 1814400s`,
 		},
 		{
 			"with json output",
 			[]string{fmt.Sprintf("--%s=json", flags.FlagOutput)},
-			`{"unbonding_time":"1814400s","max_validators":100,"max_entries":7,"historical_entries":10000,"bond_denom":"stake","min_commission_rate":"0.000000000000000000"}`,
+			`{"unbonding_time":"1814400s","max_validators":100,"max_entries":7,"historical_entries":10000,"bond_denom":"stake","min_commission_rate":"0.000000000000000000","min_self_delegation":"1"}`,
 		},
 	}
 	for _, tc := range testCases {

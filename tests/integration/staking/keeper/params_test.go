@@ -22,6 +22,7 @@ func TestParams(t *testing.T) {
 			configurator.ParamsModule(),
 			configurator.ConsensusModule(),
 			configurator.AuthModule(),
+			configurator.AuthzModule(),
 		),
 		simtestutil.DefaultStartUpConfig(),
 		&stakingKeeper)

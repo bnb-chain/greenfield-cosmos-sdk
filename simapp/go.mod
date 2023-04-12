@@ -23,6 +23,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.6
 	github.com/ethereum/go-ethereum v1.10.19 // indirect
 	github.com/golang/mock v1.6.0
+	github.com/prysmaticlabs/prysm v0.0.0-20220124113610-e26cde5e091b
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
@@ -162,7 +163,6 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/prysmaticlabs/eth2-types v0.0.0-20210303084904-c9735a06829d // indirect
-	github.com/prysmaticlabs/prysm v0.0.0-20220124113610-e26cde5e091b // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect

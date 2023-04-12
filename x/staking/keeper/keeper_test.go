@@ -36,6 +36,7 @@ type KeeperTestSuite struct {
 	stakingKeeper *stakingkeeper.Keeper
 	bankKeeper    *stakingtestutil.MockBankKeeper
 	accountKeeper *stakingtestutil.MockAccountKeeper
+	authzKeeper   *stakingtestutil.MockAuthzKeeper
 	queryClient   stakingtypes.QueryClient
 	msgServer     stakingtypes.MsgServer
 }
@@ -51,11 +52,13 @@ func (s *KeeperTestSuite) SetupTest() {
 	accountKeeper.EXPECT().GetModuleAddress(stakingtypes.BondedPoolName).Return(bondedAcc.GetAddress())
 	accountKeeper.EXPECT().GetModuleAddress(stakingtypes.NotBondedPoolName).Return(notBondedAcc.GetAddress())
 	bankKeeper := stakingtestutil.NewMockBankKeeper(ctrl)
+	authzKeeper := stakingtestutil.NewMockAuthzKeeper(ctrl)
 
 	keeper := stakingkeeper.NewKeeper(
 		encCfg.Codec,
 		key,
 		accountKeeper,
+		authzKeeper,
 		bankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)

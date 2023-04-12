@@ -1,6 +1,7 @@
 package genutil_test
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -9,6 +10,7 @@ import (
 
 	"cosmossdk.io/math"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"gotest.tools/v3/assert"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -21,6 +23,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
@@ -67,6 +70,7 @@ func initFixture(t assert.TestingT) *fixture {
 			configurator.StakingModule(),
 			configurator.ParamsModule(),
 			configurator.ConsensusModule(),
+			configurator.AuthzModule(),
 			configurator.AuthModule()),
 		simtestutil.DefaultStartUpConfig(),
 		&encCfg.InterfaceRegistry, &encCfg.Codec, &encCfg.TxConfig, &encCfg.Amino,
@@ -79,11 +83,17 @@ func initFixture(t assert.TestingT) *fixture {
 
 	amount := sdk.NewInt64Coin(sdk.DefaultBondDenom, 50)
 	one := math.OneInt()
+	blsSecretKey1, _ := bls.RandKey()
+	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
+
 	f.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one)
+		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	assert.NilError(t, err)
+
+	blsSecretKey2, _ := bls.RandKey()
+	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
 	f.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one)
+		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
 	assert.NilError(t, err)
 
 	return f

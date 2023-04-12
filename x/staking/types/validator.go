@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
@@ -38,14 +39,16 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewValidator constructs a new Validator
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
 //
-//nolint:interfacer
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
+//nolint:interfacerh
+func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
 	pkAny, err := codectypes.NewAnyWithValue(pubKey)
 	if err != nil {
 		return Validator{}, err
 	}
+
+	blsPk, err := hex.DecodeString(sdk.BLSEmptyPubKey)
 
 	return Validator{
 		OperatorAddress:         operator.String(),
@@ -60,7 +63,29 @@ func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, descriptio
 		Commission:              NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
 		MinSelfDelegation:       math.OneInt(),
 		UnbondingOnHoldRefCount: 0,
+		SelfDelAddress:          operator.String(),
+		RelayerAddress:          operator.String(),
+		RelayerBlsKey:           blsPk,
 	}, nil
+}
+
+// NewValidator constructs a new Validator
+//
+//nolint:interfacerh
+func NewValidator(
+	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
+	description Description, selfDelegator sdk.AccAddress,
+	relayer sdk.AccAddress, relayerBlsKey []byte,
+) (Validator, error) {
+	val, err := NewSimpleValidator(operator, pubKey, description)
+	if err != nil {
+		return val, err
+	}
+
+	val.SelfDelAddress = selfDelegator.String()
+	val.RelayerAddress = relayer.String()
+	val.RelayerBlsKey = relayerBlsKey
+	return val, nil
 }
 
 // Validators is a collection of Validator
@@ -436,7 +461,10 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.Commission.Equal(other.Commission) &&
 		v.Jailed == other.Jailed &&
 		v.MinSelfDelegation.Equal(other.MinSelfDelegation) &&
-		v.ConsensusPubkey.Equal(other.ConsensusPubkey)
+		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
+		v.SelfDelAddress == other.SelfDelAddress &&
+		v.RelayerAddress == other.RelayerAddress &&
+		bytes.Equal(v.RelayerBlsKey, other.RelayerBlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -446,9 +474,10 @@ func (v *Validator) Equal(v2 *Validator) bool {
 		v.UnbondingTime.Equal(v2.UnbondingTime)
 }
 
-func (v Validator) IsJailed() bool        { return v.Jailed }
-func (v Validator) GetMoniker() string    { return v.Description.Moniker }
-func (v Validator) GetStatus() BondStatus { return v.Status }
+func (v Validator) IsJailed() bool           { return v.Jailed }
+func (v Validator) GetMoniker() string       { return v.Description.Moniker }
+func (v Validator) GetStatus() BondStatus    { return v.Status }
+func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
@@ -513,4 +542,26 @@ func (v Validator) GetDelegatorShares() math.LegacyDec { return v.DelegatorShare
 func (v Validator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	var pk cryptotypes.PubKey
 	return unpacker.UnpackAny(v.ConsensusPubkey, &pk)
+}
+
+func (v Validator) GetSelfDelegator() sdk.AccAddress {
+	if v.SelfDelAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfDelAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetRelayer() sdk.AccAddress {
+	if v.RelayerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }

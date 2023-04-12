@@ -58,7 +58,12 @@ func (k Keeper) getGrant(ctx sdk.Context, skey []byte) (grant authz.Grant, found
 	return grant, true
 }
 
-func (k Keeper) update(ctx sdk.Context, grantee, granter sdk.AccAddress, updated authz.Authorization) error {
+func (k Keeper) GetGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) (grant authz.Grant, found bool) {
+	skey := grantStoreKey(grantee, granter, msgType)
+	return k.getGrant(ctx, skey)
+}
+
+func (k Keeper) Update(ctx sdk.Context, grantee, granter sdk.AccAddress, updated authz.Authorization) error {
 	skey := grantStoreKey(grantee, granter, updated.MsgTypeURL())
 	grant, found := k.getGrant(ctx, skey)
 	if !found {
@@ -123,7 +128,7 @@ func (k Keeper) DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []
 			if resp.Delete {
 				err = k.DeleteGrant(ctx, grantee, granter, sdk.MsgTypeURL(msg))
 			} else if resp.Updated != nil {
-				err = k.update(ctx, grantee, granter, resp.Updated)
+				err = k.Update(ctx, grantee, granter, resp.Updated)
 			}
 			if err != nil {
 				return nil, err
