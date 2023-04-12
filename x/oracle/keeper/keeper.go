@@ -1,10 +1,15 @@
 package keeper
 
 import (
+	"bytes"
 	"encoding/hex"
 
+	sdkerrors "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/willf/bitset"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
@@ -76,15 +81,101 @@ func (k Keeper) GetRelayerRewardShare(ctx sdk.Context) uint32 {
 
 // IsRelayerValid returns true if the relayer is valid and allowed to send the claim message
 func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validators []stakingtypes.Validator, claimTimestamp uint64) (bool, error) {
-	// todo: implement this
-	return true, nil
+	var validatorIndex int64 = -1
+	var vldr stakingtypes.Validator
+	for index, validator := range validators {
+		if validator.RelayerAddress == relayer.String() {
+			validatorIndex = int64(index)
+			vldr = validator
+			break
+		}
+	}
+
+	if validatorIndex < 0 {
+		return false, sdkerrors.Wrapf(types.ErrNotRelayer, "sender(%s) is not a relayer", relayer.String())
+	}
+
+	inturnRelayerTimeout, relayerInterval := k.GetRelayerParams(ctx)
+
+	// check whether submitter of msgClaim is an in-turn relayer
+	inturnRelayerBlsKey, _, err := k.getInturnRelayer(ctx, relayerInterval)
+	if err != nil {
+		return false, err
+	}
+
+	if bytes.Equal(inturnRelayerBlsKey, vldr.RelayerBlsKey) {
+		return true, nil
+	}
+
+	// It is possible that claim comes from out-turn relayers when exceeding the inturnRelayerTimeout, all other
+	// relayers can relay within the in-turn relayer's current interval
+	curTime := ctx.BlockTime().Unix()
+	if uint64(curTime) < claimTimestamp {
+		return false, nil
+	}
+
+	return uint64(curTime)-claimTimestamp >= inturnRelayerTimeout, nil
 }
 
 // CheckClaim checks the bls signature
 func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddress, []sdk.AccAddress, error) {
-	// todo: implement this
+	relayer, err := sdk.AccAddressFromHexUnsafe(claim.FromAddress)
+	if err != nil {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrInvalidAddress, "from address (%s) is invalid", claim.FromAddress)
+	}
 
-	return sdk.AccAddress{}, []sdk.AccAddress{}, nil
+	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
+	if !ok {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
+	}
+	validators := historicalInfo.Valset
+
+	isValid, err := k.IsRelayerValid(ctx, relayer, validators, claim.Timestamp)
+	if err != nil {
+		return sdk.AccAddress{}, nil, err
+	}
+
+	if !isValid {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrRelayerNotInTurn, "relayer(%s) is not in turn", claim.FromAddress)
+	}
+
+	validatorsBitSet := bitset.From(claim.VoteAddressSet)
+	if validatorsBitSet.Count() > uint(len(validators)) {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrValidatorSet, "number of validator set is larger than validators")
+	}
+
+	signedRelayers := make([]sdk.AccAddress, 0, validatorsBitSet.Count())
+	votedPubKeys := make([]bls.PublicKey, 0, validatorsBitSet.Count())
+	for index, val := range validators {
+		if !validatorsBitSet.Test(uint(index)) {
+			continue
+		}
+
+		signedRelayers = append(signedRelayers, sdk.MustAccAddressFromHex(val.RelayerAddress))
+
+		votePubKey, err := bls.PublicKeyFromBytes(val.RelayerBlsKey)
+		if err != nil {
+			return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsPubKey, "BLS public key converts failed: %v", err)
+		}
+		votedPubKeys = append(votedPubKeys, votePubKey)
+	}
+
+	// The valid voted validators should be no less than 2/3 validators.
+	if len(votedPubKeys) <= len(validators)*2/3 {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsVotesNotEnough, "not enough validators voted, need: %d, voted: %d", len(validators)*2/3, len(votedPubKeys))
+	}
+
+	// Verify the aggregated signature.
+	aggSig, err := bls.SignatureFromBytes(claim.AggSignature)
+	if err != nil {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrInvalidBlsSignature, "BLS signature converts failed: %v", err)
+	}
+
+	if !aggSig.FastAggregateVerify(votedPubKeys, claim.GetBlsSignBytes()) {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrInvalidBlsSignature, "signature verify failed")
+	}
+
+	return relayer, signedRelayers, nil
 }
 
 // GetParams returns the current params
@@ -100,8 +191,32 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 }
 
 func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64) ([]byte, *types.RelayInterval, error) {
-	// todo: implement this
-	return nil, nil, nil
+	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
+	if !ok {
+		return nil, nil, sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
+	}
+	validators := historicalInfo.Valset
+
+	validatorsSize := len(validators)
+
+	// totalIntervals is sum of intervals from all relayers
+	totalIntervals := relayerInterval * uint64(validatorsSize)
+
+	curTimeStamp := uint64(ctx.BlockTime().Unix())
+
+	// remainder is used to locate inturn relayer.
+	remainder := curTimeStamp % totalIntervals
+	inTurnRelayerIndex := remainder / relayerInterval
+
+	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)
+	end := start + relayerInterval
+
+	inturnRelayer := validators[inTurnRelayerIndex]
+
+	return inturnRelayer.RelayerBlsKey, &types.RelayInterval{
+		Start: start,
+		End:   end,
+	}, nil
 }
 
 func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*types.QueryInturnRelayerResponse, error) {
