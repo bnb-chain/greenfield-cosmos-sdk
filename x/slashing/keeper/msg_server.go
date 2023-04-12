@@ -90,15 +90,5 @@ func (k msgServer) Impeach(goCtx context.Context, msg *types.MsgImpeach) (*types
 	// Jail forever.
 	k.JailForever(ctx, consAddr)
 
-	// todo: confirm the event deleted here
-	//ctx.EventManager().EmitEvents(sdk.Events{
-	//	sdk.NewEvent(
-	//		sdk.EventTypeMessage,
-	//		sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-	//		sdk.NewAttribute(sdk.AttributeKeySender, msg.From),
-	//		sdk.NewAttribute(types.AttributeKeyAddress, msg.ValidatorAddress),
-	//	),
-	//})
-
 	return &types.MsgImpeachResponse{}, nil
 }
