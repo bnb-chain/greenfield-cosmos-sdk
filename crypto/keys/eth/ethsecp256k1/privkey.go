@@ -94,6 +94,7 @@ func (privKey *PrivKey) UnmarshalAminoJSON(bz []byte) error {
 // where the last byte contains the recovery ID.
 func (privKey *PrivKey) Sign(digestBz []byte) ([]byte, error) {
 	if len(digestBz) != crypto.DigestLength {
+		// TODO: return error after EIP712 enabled
 		digestBz = crypto.Keccak256Hash(digestBz).Bytes()
 	}
 
