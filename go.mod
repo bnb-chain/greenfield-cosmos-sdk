@@ -61,6 +61,7 @@ require (
 	github.com/tendermint/tendermint v0.35.9
 	github.com/tidwall/btree v1.6.0
 	github.com/wealdtech/go-eth2-util v1.6.3
+	github.com/willf/bitset v1.1.3
 	golang.org/x/crypto v0.7.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683

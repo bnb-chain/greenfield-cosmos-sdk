@@ -5,6 +5,7 @@ import (
 	"math"
 
 	errormods "cosmossdk.io/errors"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
@@ -86,10 +87,8 @@ func (m *MsgClaim) ValidateBasic() error {
 
 // GetSigners returns the expected signers for MsgCancelUpgrade.
 func (m *MsgClaim) GetSigners() []sdk.AccAddress {
-	// todo: implement this
-	// fromAddress := sdk.MustAccAddressFromHex(m.FromAddress)
-	// return []sdk.AccAddress{fromAddress}
-	return []sdk.AccAddress{}
+	fromAddress := sdk.MustAccAddressFromHex(m.FromAddress)
+	return []sdk.AccAddress{fromAddress}
 }
 
 // GetBlsSignBytes returns the sign bytes of bls signature
@@ -137,14 +136,12 @@ func (m MsgUpdateParams) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
 func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	// todo: fix this
 	addr, _ := sdk.AccAddressFromHexUnsafe(m.Authority)
 	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
-	// todo: fix this
 	if _, err := sdk.AccAddressFromHexUnsafe(m.Authority); err != nil {
 		return errormods.Wrap(err, "invalid authority address")
 	}
