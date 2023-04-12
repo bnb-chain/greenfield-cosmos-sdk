@@ -104,6 +104,7 @@ func DefaultParams() Params {
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDeleteObject", 1.2e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCopyObject", 1.2e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCancelCreateObject", 1.2e3),
+		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgUpdateObjectInfo", 1.2e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDiscontinueObject", 2.4e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgDiscontinueBucket", 2.4e3),
 		NewMsgGasParamsWithFixedGas("/bnbchain.greenfield.storage.MsgCreateGroup", 2.4e3),
