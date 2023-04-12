@@ -43,16 +43,13 @@ type MsgCreateValidator struct {
 	Description       Description                            `protobuf:"bytes,1,opt,name=description,proto3" json:"description"`
 	Commission        CommissionRates                        `protobuf:"bytes,2,opt,name=commission,proto3" json:"commission"`
 	MinSelfDelegation github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=min_self_delegation,json=minSelfDelegation,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"min_self_delegation"`
-	// Deprecated: Use of Delegator Address in MsgCreateValidator is deprecated.
-	// The validator address bytes and delegator address bytes refer to the same account while creating validator (defer
-	// only in bech32 notation).
-	DelegatorAddress string      `protobuf:"bytes,4,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"` // Deprecated: Do not use.
-	ValidatorAddress string      `protobuf:"bytes,5,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
-	Pubkey           *types.Any  `protobuf:"bytes,6,opt,name=pubkey,proto3" json:"pubkey,omitempty"`
-	Value            types1.Coin `protobuf:"bytes,7,opt,name=value,proto3" json:"value"`
-	From             string      `protobuf:"bytes,8,opt,name=from,proto3" json:"from,omitempty"`
-	RelayerAddress   string      `protobuf:"bytes,9,opt,name=relayer_address,json=relayerAddress,proto3" json:"relayer_address,omitempty"`
-	RelayerBlsKey    string      `protobuf:"bytes,10,opt,name=relayer_bls_key,json=relayerBlsKey,proto3" json:"relayer_bls_key,omitempty"`
+	DelegatorAddress  string                                 `protobuf:"bytes,4,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"` // Deprecated: Do not use.
+	ValidatorAddress  string                                 `protobuf:"bytes,5,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	Pubkey            *types.Any                             `protobuf:"bytes,6,opt,name=pubkey,proto3" json:"pubkey,omitempty"`
+	Value             types1.Coin                            `protobuf:"bytes,7,opt,name=value,proto3" json:"value"`
+	From              string                                 `protobuf:"bytes,8,opt,name=from,proto3" json:"from,omitempty"`
+	RelayerAddress    string                                 `protobuf:"bytes,9,opt,name=relayer_address,json=relayerAddress,proto3" json:"relayer_address,omitempty"`
+	RelayerBlsKey     string                                 `protobuf:"bytes,10,opt,name=relayer_bls_key,json=relayerBlsKey,proto3" json:"relayer_bls_key,omitempty"`
 }
 
 func (m *MsgCreateValidator) Reset()         { *m = MsgCreateValidator{} }
