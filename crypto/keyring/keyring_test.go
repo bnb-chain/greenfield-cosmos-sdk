@@ -18,6 +18,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
@@ -457,11 +458,14 @@ func TestInMemoryLanguage(t *testing.T) {
 }
 
 func TestInMemoryWithKeyring(t *testing.T) {
-	priv := cryptotypes.PrivKey(secp256k1.GenPrivKey())
+	pk, err := ethsecp256k1.GenPrivKey()
+	require.NoError(t, err)
+	priv := types.PrivKey(pk)
 	pub := priv.PubKey()
 
 	cdc := getCodec()
-	_, err := NewLocalRecord("test record", priv, pub)
+	_, err = NewLocalRecord("test record", priv, pub)
+	require.NoError(t, err)
 
 	multi := multisig.NewLegacyAminoPubKey(
 		1, []cryptotypes.PubKey{

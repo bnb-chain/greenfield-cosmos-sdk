@@ -131,8 +131,8 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 		BondedTokens:      sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
 		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
-		SigningAlgo:       string(hd.Secp256k1Type),
-		KeyringOptions:    []keyring.Option{},
+		SigningAlgo:       string(hd.EthSecp256k1Type),
+		KeyringOptions:    []keyring.Option{keyring.ETHAlgoOption()},
 		PrintMnemonic:     false,
 	}
 }

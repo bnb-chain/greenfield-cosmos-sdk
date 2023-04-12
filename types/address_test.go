@@ -435,25 +435,25 @@ func (s *addressTestSuite) TestAddressTypesEquals() {
 	valAddr2 := types.ValAddress(addr2)
 
 	// equality
-	s.Require().True(accAddr1.Equals(accAddr1))
-	s.Require().True(consAddr1.Equals(consAddr1))
-	s.Require().True(valAddr1.Equals(valAddr1))
+	s.Require().True(accAddr1.Equals(accAddr1))   //nolint:gocritic
+	s.Require().True(consAddr1.Equals(consAddr1)) //nolint:gocritic
+	s.Require().True(valAddr1.Equals(valAddr1))   //nolint:gocritic
 
 	// emptiness
-	s.Require().True(types.AccAddress{}.Equals(types.AccAddress{}))
+	s.Require().True(types.AccAddress{}.Equals(types.AccAddress{})) //nolint:gocritic
 	s.Require().True(types.AccAddress{}.Equals(types.AccAddress(nil)))
 	s.Require().True(types.AccAddress(nil).Equals(types.AccAddress{}))
-	s.Require().True(types.AccAddress(nil).Equals(types.AccAddress(nil)))
+	s.Require().True(types.AccAddress(nil).Equals(types.AccAddress(nil))) //nolint:gocritic
 
-	s.Require().True(types.ConsAddress{}.Equals(types.ConsAddress{}))
+	s.Require().True(types.ConsAddress{}.Equals(types.ConsAddress{})) //nolint:gocritic
 	s.Require().True(types.ConsAddress{}.Equals(types.ConsAddress(nil)))
 	s.Require().True(types.ConsAddress(nil).Equals(types.ConsAddress{}))
-	s.Require().True(types.ConsAddress(nil).Equals(types.ConsAddress(nil)))
+	s.Require().True(types.ConsAddress(nil).Equals(types.ConsAddress(nil))) //nolint:gocritic
 
-	s.Require().True(types.ValAddress{}.Equals(types.ValAddress{}))
+	s.Require().True(types.ValAddress{}.Equals(types.ValAddress{})) //nolint:gocritic
 	s.Require().True(types.ValAddress{}.Equals(types.ValAddress(nil)))
 	s.Require().True(types.ValAddress(nil).Equals(types.ValAddress{}))
-	s.Require().True(types.ValAddress(nil).Equals(types.ValAddress(nil)))
+	s.Require().True(types.ValAddress(nil).Equals(types.ValAddress(nil))) //nolint:gocritic
 
 	s.Require().False(accAddr1.Equals(accAddr2))
 	s.Require().Equal(accAddr1.Equals(accAddr2), accAddr2.Equals(accAddr1))
