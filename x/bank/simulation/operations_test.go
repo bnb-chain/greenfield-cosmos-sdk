@@ -8,8 +8,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
@@ -34,7 +32,6 @@ type SimTestSuite struct {
 
 	ctx           sdk.Context
 	accountKeeper types.AccountKeeper
-	authzKeeper   authzkeeper.Keeper
 	bankKeeper    keeper.Keeper
 	cdc           codec.Codec
 	app           *runtime.App

@@ -35,7 +35,6 @@ type KeeperTestSuite struct {
 	stakingKeeper *stakingkeeper.Keeper
 	bankKeeper    *stakingtestutil.MockBankKeeper
 	accountKeeper *stakingtestutil.MockAccountKeeper
-	authzKeeper   *stakingtestutil.MockAuthzKeeper
 	queryClient   stakingtypes.QueryClient
 	msgServer     stakingtypes.MsgServer
 }

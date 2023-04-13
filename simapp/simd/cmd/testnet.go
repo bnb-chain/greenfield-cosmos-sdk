@@ -19,9 +19,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"cosmossdk.io/math"
-
 	"cosmossdk.io/simapp"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -309,9 +308,9 @@ func initTestnetFiles(
 			valPubKeys[i],
 			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-			math.OneInt(),
-			addr, addr, addr, blsPk,
+			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
+			sdk.OneInt(),
+			addr, addr, addr, addr, blsPk,
 		)
 		if err != nil {
 			return err

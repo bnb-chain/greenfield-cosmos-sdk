@@ -58,7 +58,7 @@ func (sh *Helper) CreateValidatorMsg(addr sdk.ValAddress, pk cryptotypes.PubKey,
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
 	)
 	require.NoError(sh.t, err)
 	return msg
@@ -75,7 +75,7 @@ func (sh *Helper) createValidator(addr sdk.ValAddress, pk cryptotypes.PubKey, co
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
+		sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), sdk.AccAddress(addr), blsPk,
 	)
 	require.NoError(sh.t, err)
 	res, err := sh.msgSrvr.CreateValidator(sh.Ctx.WithBlockHeight(0), msg)

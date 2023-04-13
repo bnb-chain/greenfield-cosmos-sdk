@@ -80,8 +80,9 @@ func TestSlashingMsgs(t *testing.T) {
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commission, math.OneInt(),
-		sdk.AccAddress(addr1), sdk.AccAddress(addr1), sdk.AccAddress(addr1), blsPk,
+		sdk.ValAddress(addr1), valKey.PubKey(),
+		bondCoin, description, commission, sdk.OneInt(),
+		addr1, addr1, addr1, addr1, blsPk,
 	)
 	require.NoError(t, err)
 

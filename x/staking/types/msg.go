@@ -36,7 +36,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.ValAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
-	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, relayerBlsKey string,
+	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, challengerAddr sdk.AccAddress, blsKey string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -55,7 +55,8 @@ func NewMsgCreateValidator(
 		MinSelfDelegation: minSelfDelegation,
 		From:              from.String(),
 		RelayerAddress:    relayerAddr.String(),
-		RelayerBlsKey:     relayerBlsKey,
+		ChallengerAddress: challengerAddr.String(),
+		BlsKey:            blsKey,
 	}, nil
 }
 
@@ -107,8 +108,12 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 	}
 
-	if len(msg.RelayerBlsKey) != 2*sdk.BLSPubKeyLength {
-		return ErrValidatorRelayerInvalidBlsKey
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid challenger address: %s", err)
+	}
+
+	if len(msg.BlsKey) != 2*sdk.BLSPubKeyLength {
+		return ErrValidatorInvalidBlsKey
 	}
 
 	if msg.Description == (Description{}) {
@@ -148,7 +153,7 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 //nolint:interfacer
 func NewMsgEditValidator(
 	valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
-	newRelayerAddr sdk.AccAddress, newRelayerBlsKey string,
+	newRelayerAddr sdk.AccAddress, newChallengerAddr sdk.AccAddress, newBlsKey string,
 ) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,
@@ -156,7 +161,8 @@ func NewMsgEditValidator(
 		ValidatorAddress:  valAddr.String(),
 		MinSelfDelegation: newMinSelfDelegation,
 		RelayerAddress:    newRelayerAddr.String(),
-		RelayerBlsKey:     newRelayerBlsKey,
+		ChallengerAddress: newChallengerAddr.String(),
+		BlsKey:            newBlsKey,
 	}
 }
 
@@ -184,6 +190,20 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 
+	if len(msg.RelayerAddress) != 0 {
+		_, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
+		if err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
+		}
+	}
+
+	if len(msg.ChallengerAddress) != 0 {
+		_, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+		if err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid challenger address: %s", err)
+		}
+	}
+
 	if msg.Description == (Description{}) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "empty description")
 	}
@@ -198,13 +218,6 @@ func (msg MsgEditValidator) ValidateBasic() error {
 	if msg.CommissionRate != nil {
 		if msg.CommissionRate.GT(math.LegacyOneDec()) || msg.CommissionRate.IsNegative() {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "commission rate must be between 0 and 1 (inclusive)")
-		}
-	}
-
-	if len(msg.RelayerAddress) != 0 {
-		_, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
-		if err != nil {
-			return sdkerrors.ErrInvalidAddress.Wrapf("invalid relayer address: %s", err)
 		}
 	}
 

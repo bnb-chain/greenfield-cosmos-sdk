@@ -70,6 +70,7 @@ func NewEditValidatorCmd() *cobra.Command {
 			details, _ := cmd.Flags().GetString(FlagDetails)
 			description := types.NewDescription(moniker, identity, website, security, details)
 			relayer := sdk.AccAddress("")
+			challenger := sdk.AccAddress("")
 
 			var newRate *sdk.Dec
 
@@ -96,7 +97,6 @@ func NewEditValidatorCmd() *cobra.Command {
 			}
 
 			relayerAddr, _ := cmd.Flags().GetString(FlagAddressRelayer)
-			blsPk, _ := cmd.Flags().GetString(FlagBlsKeyRelayer)
 			if relayerAddr != "" {
 				relayer, err = sdk.AccAddressFromHexUnsafe(relayerAddr)
 				if err != nil {
@@ -104,9 +104,19 @@ func NewEditValidatorCmd() *cobra.Command {
 				}
 			}
 
+			challengerAddr, _ := cmd.Flags().GetString(FlagAddressChallenger)
+			if challengerAddr != "" {
+				challenger, err = sdk.AccAddressFromHexUnsafe(challengerAddr)
+				if err != nil {
+					return fmt.Errorf("invalid challenger address: %v", err)
+				}
+			}
+
+			blsPk, _ := cmd.Flags().GetString(FlagBlsKey)
+
 			msg := types.NewMsgEditValidator(
 				sdk.ValAddress(valAddr), description, newRate, newMinSelfDelegation,
-				relayer, blsPk,
+				relayer, challenger, blsPk,
 			)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -117,7 +127,8 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(flagSetCommissionUpdate())
 	cmd.Flags().AddFlagSet(FlagSetMinSelfDelegation())
 	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
-	cmd.Flags().AddFlagSet(FlagSetRelayerBlsKey())
+	cmd.Flags().AddFlagSet(FlagSetChallengerAddress())
+	cmd.Flags().AddFlagSet(FlagSetBlsKey())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -362,10 +373,11 @@ type TxCreateValidatorConfig struct {
 	Details         string
 	Identity        string
 
-	Validator     sdk.ValAddress
-	Delegator     sdk.AccAddress
-	Relayer       sdk.AccAddress
-	RelayerBlsKey string
+	Validator  sdk.AccAddress
+	Delegator  sdk.AccAddress
+	Relayer    sdk.AccAddress
+	Challenger sdk.AccAddress
+	BlsKey     string
 }
 
 func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, chainID string, valPubKey cryptotypes.PubKey) (TxCreateValidatorConfig, error) {
@@ -503,10 +515,9 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 	}
 
 	msg, err := types.NewMsgCreateValidator(
-		config.Validator, config.PubKey,
+		sdk.ValAddress(config.Validator), config.PubKey,
 		amount, description, commissionRates, minSelfDelegation,
-		from, config.Delegator, config.Relayer, config.RelayerBlsKey,
-	)
+		from, config.Delegator, config.Relayer, config.Challenger, config.BlsKey)
 	if err != nil {
 		return txBldr, msg, err
 	}
