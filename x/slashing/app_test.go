@@ -81,7 +81,7 @@ func TestSlashingMsgs(t *testing.T) {
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(), bondCoin, description, commission, math.OneInt(),
-		sdk.AccAddress(addr1), sdk.AccAddress(addr1), sdk.AccAddress(addr1), blsPk,
+		addr1, addr1, addr1, blsPk,
 	)
 	require.NoError(t, err)
 

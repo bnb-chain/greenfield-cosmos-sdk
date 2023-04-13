@@ -46,7 +46,7 @@ func NewTxCmd() *cobra.Command {
 	stakingTxCmd.AddCommand(
 		NewEditValidatorCmd(),
 		NewDelegateCmd(),
-		//NewRedelegateCmd(),
+		// NewRedelegateCmd(),
 		NewUnbondCmd(),
 		NewCancelUnbondingDelegation(),
 	)

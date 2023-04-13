@@ -49,6 +49,9 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 	}
 
 	blsPk, err := hex.DecodeString(sdk.BLSEmptyPubKey)
+	if err != nil {
+		return Validator{}, err
+	}
 
 	return Validator{
 		OperatorAddress:         operator.String(),
