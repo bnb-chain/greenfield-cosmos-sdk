@@ -60,7 +60,7 @@ func (msg MsgSetWithdrawAddress) ValidateBasic() error {
 	return nil
 }
 
-func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
+func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.AccAddress) *MsgWithdrawDelegatorReward {
 	return &MsgWithdrawDelegatorReward{
 		DelegatorAddress: delAddr.String(),
 		ValidatorAddress: valAddr.String(),
@@ -93,7 +93,7 @@ func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
 	return nil
 }
 
-func NewMsgWithdrawValidatorCommission(valAddr sdk.ValAddress) *MsgWithdrawValidatorCommission {
+func NewMsgWithdrawValidatorCommission(valAddr sdk.AccAddress) *MsgWithdrawValidatorCommission {
 	return &MsgWithdrawValidatorCommission{
 		ValidatorAddress: valAddr.String(),
 	}
@@ -104,8 +104,8 @@ func (msg MsgWithdrawValidatorCommission) Type() string  { return TypeMsgWithdra
 
 // Return address that must sign over msg.GetSignBytes()
 func (msg MsgWithdrawValidatorCommission) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddress)
-	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
+	valAddr, _ := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
+	return []sdk.AccAddress{valAddr}
 }
 
 // get the bytes for the message signer to sign on

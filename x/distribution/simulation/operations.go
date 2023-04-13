@@ -140,7 +140,7 @@ func SimulateMsgWithdrawDelegatorReward(txConfig client.TxConfig, ak types.Accou
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgWithdrawDelegatorReward(simAccount.Address, validator.GetOperator())
+		msg := types.NewMsgWithdrawDelegatorReward(simAccount.Address, sdk.AccAddress(validator.GetOperator()))
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -184,7 +184,7 @@ func SimulateMsgWithdrawValidatorCommission(txConfig client.TxConfig, ak types.A
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgWithdrawValidatorCommission(validator.GetOperator())
+		msg := types.NewMsgWithdrawValidatorCommission(sdk.AccAddress(validator.GetOperator()))
 
 		txCtx := simulation.OperationInput{
 			R:               r,
