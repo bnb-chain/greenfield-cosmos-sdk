@@ -83,7 +83,7 @@ func (k msgServer) SubmitProposal(goCtx context.Context, msg *v1.MsgSubmitPropos
 	}, nil
 }
 
-// CancelProposal CancelProposals implements the MsgServer.CancelProposal method.
+// CancelProposal implements the MsgServer.CancelProposal method.
 func (k msgServer) CancelProposal(goCtx context.Context, msg *v1.MsgCancelProposal) (*v1.MsgCancelProposalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	_, err := sdk.AccAddressFromHexUnsafe(msg.Proposer)
