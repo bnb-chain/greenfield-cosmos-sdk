@@ -71,12 +71,14 @@ func (suite *GenTxTestSuite) SetupTest() {
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(pk1.Address()), pk1,
 		amount, desc, comm, one,
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk)
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk)
 	suite.NoError(err)
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(pk2.Address()), pk1,
 		amount, desc, comm, one,
-		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk)
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk1.Address()), blsPk)
 	suite.NoError(err)
 }
 

@@ -17,7 +17,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -90,13 +89,22 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, types.ErrValidatorRelayerAddressExists
 	}
 
-	// check to see if the relayer bls pubkey has been registered before
-	blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
-	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
-		return nil, types.ErrValidatorRelayerInvalidBlsKey
+	// check to see if the challenger address has been registered before
+	challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+	if err != nil {
+		return nil, err
 	}
-	if _, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
-		return nil, types.ErrValidatorRelayerBlsKeyExists
+	if _, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
+		return nil, types.ErrValidatorChallengerAddressExists
+	}
+
+	// check to see if the bls pubkey has been registered before
+	blsPk, err := hex.DecodeString(msg.BlsKey)
+	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+		return nil, types.ErrValidatorInvalidBlsKey
+	}
+	if _, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+		return nil, types.ErrValidatorBlsKeyExists
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -128,7 +136,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, blsPk)
+	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, challengerAddr, blsPk)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +160,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByConsAddr(ctx, validator)
 	k.SetValidatorByRelayerAddress(ctx, validator)
-	k.SetValidatorByRelayerBlsKey(ctx, validator)
+	k.SetValidatorByChallengerAddress(ctx, validator)
+	k.SetValidatorByBlsKey(ctx, validator)
+	k.SetValidatorByConsAddr(ctx, validator)
 	k.SetNewValidatorByPowerIndex(ctx, validator)
 
 	// call the after-creation hook
@@ -189,7 +199,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfDelAddress),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
 	})
 
@@ -260,20 +272,37 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
-	// replace relayer bls pubkey
-	if len(msg.RelayerBlsKey) != 0 {
-		blsPk, err := hex.DecodeString(msg.RelayerBlsKey)
-		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
-			return nil, types.ErrValidatorRelayerInvalidBlsKey
+	// replace challenger address
+	if len(msg.ChallengerAddress) != 0 {
+		challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+		if err != nil {
+			return nil, err
 		}
-		if tmpValidator, found := k.GetValidatorByRelayerBlsKey(ctx, blsPk); found {
+		if tmpValidator, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
-				return nil, types.ErrValidatorRelayerBlsKeyExists
+				return nil, types.ErrValidatorChallengerAddressExists
 			}
 		} else {
-			k.DeleteValidatorByRelayerBlsKey(ctx, validator)
-			validator.RelayerBlsKey = blsPk
-			k.SetValidatorByRelayerBlsKey(ctx, validator)
+			k.DeleteValidatorByChallengerAddress(ctx, validator)
+			validator.ChallengerAddress = challengerAddr.String()
+			k.SetValidatorByChallengerAddress(ctx, validator)
+		}
+	}
+
+	// replace bls pubkey
+	if len(msg.BlsKey) != 0 {
+		blsPk, err := hex.DecodeString(msg.BlsKey)
+		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+			return nil, types.ErrValidatorInvalidBlsKey
+		}
+		if tmpValidator, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorBlsKeyExists
+			}
+		} else {
+			k.DeleteValidatorByBlsKey(ctx, validator)
+			validator.BlsKey = blsPk
+			k.SetValidatorByBlsKey(ctx, validator)
 		}
 	}
 
@@ -285,7 +314,8 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			sdk.NewAttribute(types.AttributeKeyCommissionRate, validator.Commission.String()),
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
-			sdk.NewAttribute(types.AttributeKeyRelayerBlsKey, string(validator.RelayerBlsKey)),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
 		),
 	})
 
@@ -583,7 +613,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdateParam
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if k.authority != msg.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
+		return nil, errorsmod.Wrapf(gov.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, msg.Authority)
 	}
 
 	// store params

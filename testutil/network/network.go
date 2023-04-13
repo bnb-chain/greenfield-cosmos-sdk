@@ -526,9 +526,9 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			valPubKeys[i],
 			sdk.NewCoin(cfg.BondDenom, cfg.BondedTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(commission, sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
-			sdkmath.OneInt(),
-			addr, addr, addr, blsPubKey,
+			stakingtypes.NewCommissionRates(commission, sdk.OneDec(), sdk.OneDec()),
+			sdk.OneInt(),
+			addr, addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err

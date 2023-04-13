@@ -59,11 +59,23 @@ func (k Keeper) GetValidatorByRelayerAddr(ctx sdk.Context, relayerAddr sdk.AccAd
 	return k.GetValidator(ctx, opAddr)
 }
 
-// get a single validator by relayer bls pubkey
-func (k Keeper) GetValidatorByRelayerBlsKey(ctx sdk.Context, blsPk []byte) (validator types.Validator, found bool) {
+// get a single validator by bls pubkey
+func (k Keeper) GetValidatorByBlsKey(ctx sdk.Context, blsPk []byte) (validator types.Validator, found bool) {
 	store := ctx.KVStore(k.storeKey)
 
-	opAddr := store.Get(types.GetValidatorByRelayerBlsKey(blsPk))
+	opAddr := store.Get(types.GetValidatorByBlsKey(blsPk))
+	if opAddr == nil {
+		return validator, false
+	}
+
+	return k.GetValidator(ctx, opAddr)
+}
+
+// GetValidatorByChallengerAddr gets a single validator by challenger address
+func (k Keeper) GetValidatorByChallengerAddr(ctx sdk.Context, challengerAddr sdk.AccAddress) (validator types.Validator, found bool) {
+	store := ctx.KVStore(k.storeKey)
+
+	opAddr := store.Get(types.GetValidatorByChallengerAddrKey(challengerAddr))
 	if opAddr == nil {
 		return validator, false
 	}
@@ -85,6 +97,51 @@ func (k Keeper) SetValidator(ctx sdk.Context, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	bz := types.MustMarshalValidator(k.cdc, &validator)
 	store.Set(types.GetValidatorKey(validator.GetOperator()), bz)
+}
+
+// validator index
+func (k Keeper) SetValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) error {
+	relayer := validator.GetRelayer()
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByRelayerAddrKey(relayer), validator.GetOperator())
+	return nil
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) {
+	relayer := validator.GetRelayer()
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByRelayerAddrKey(relayer))
+}
+
+// validator index
+func (k Keeper) SetValidatorByChallengerAddress(ctx sdk.Context, validator types.Validator) error {
+	challenger := validator.GetChallenger()
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByChallengerAddrKey(challenger), validator.GetOperator())
+	return nil
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByChallengerAddress(ctx sdk.Context, validator types.Validator) {
+	challenger := validator.GetChallenger()
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByChallengerAddrKey(challenger))
+}
+
+// validator index
+func (k Keeper) SetValidatorByBlsKey(ctx sdk.Context, validator types.Validator) error {
+	blsPk := validator.GetBlsKey()
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetValidatorByBlsKey(blsPk), validator.GetOperator())
+	return nil
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByBlsKey(ctx sdk.Context, validator types.Validator) {
+	blsPk := validator.GetBlsKey()
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByBlsKey(blsPk))
 }
 
 // validator index
@@ -119,36 +176,6 @@ func (k Keeper) DeleteValidatorByPowerIndex(ctx sdk.Context, validator types.Val
 func (k Keeper) SetNewValidatorByPowerIndex(ctx sdk.Context, validator types.Validator) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)), validator.GetOperator())
-}
-
-// validator index
-func (k Keeper) SetValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) error {
-	blsPk := validator.GetRelayer()
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValidatorByRelayerAddrKey(blsPk), validator.GetOperator())
-	return nil
-}
-
-// validator index
-func (k Keeper) DeleteValidatorByRelayerAddress(ctx sdk.Context, validator types.Validator) {
-	blsPk := validator.GetRelayer()
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetValidatorByRelayerAddrKey(blsPk))
-}
-
-// validator index
-func (k Keeper) SetValidatorByRelayerBlsKey(ctx sdk.Context, validator types.Validator) error {
-	blsPk := validator.GetRelayerBlsKey()
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetValidatorByRelayerBlsKey(blsPk), validator.GetOperator())
-	return nil
-}
-
-// validator index
-func (k Keeper) DeleteValidatorByRelayerBlsKey(ctx sdk.Context, validator types.Validator) {
-	blsPk := validator.GetRelayerBlsKey()
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetValidatorByRelayerBlsKey(blsPk))
 }
 
 // Update the tokens of an existing validator, update the validators power index key
@@ -237,7 +264,9 @@ func (k Keeper) RemoveValidator(ctx sdk.Context, address sdk.ValAddress) {
 	store.Delete(types.GetValidatorKey(address))
 	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorByRelayerAddrKey(validator.GetRelayer()))
-	store.Delete(types.GetValidatorByRelayerBlsKey(validator.RelayerBlsKey))
+	store.Delete(types.GetValidatorByChallengerAddrKey(validator.GetChallenger()))
+	store.Delete(types.GetValidatorByBlsKey(validator.BlsKey))
+	store.Delete(types.GetValidatorByConsAddrKey(valConsAddr))
 	store.Delete(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx)))
 
 	if err := k.Hooks().AfterValidatorRemoved(ctx, valConsAddr, validator.GetOperator()); err != nil {

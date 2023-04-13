@@ -669,9 +669,9 @@ func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sd
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 		valCreateMsg, err := stakingtypes.NewMsgCreateValidator(
 			addrs[i], pubkeys[i], sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
-			TestDescription, TestCommissionRates, math.OneInt(),
-			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), blsPk,
-		)
+			TestDescription, TestCommissionRates, sdk.OneInt(),
+			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]),
+			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), blsPk)
 		require.NoError(t, err)
 		res, err := stakingMsgSvr.CreateValidator(ctx, valCreateMsg)
 		require.NoError(t, err)
