@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _ sdk.Msg                            = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgCancelProposal{}
-	_, _, _, _, _, _, _ legacytx.LegacyMsg                 = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgCancelProposal{}
-	_, _                codectypes.UnpackInterfacesMessage = &MsgSubmitProposal{}, &MsgExecLegacyContent{}
+	_, _, _, _, _, _, _, _ sdk.Msg                            = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgUpdateCrossChainParams{}, &MsgCancelProposal{}
+	_, _, _, _, _, _, _, _ legacytx.LegacyMsg                 = &MsgSubmitProposal{}, &MsgDeposit{}, &MsgVote{}, &MsgVoteWeighted{}, &MsgExecLegacyContent{}, &MsgUpdateParams{}, &MsgUpdateCrossChainParams{}, &MsgCancelProposal{}
+	_, _                   codectypes.UnpackInterfacesMessage = &MsgSubmitProposal{}, &MsgExecLegacyContent{}
 )
 
 // NewMsgSubmitProposal creates a new MsgSubmitProposal.
@@ -303,6 +303,26 @@ func (msg MsgUpdateParams) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgUpdateParams.
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
+	return []sdk.AccAddress{authority}
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (msg MsgUpdateCrossChainParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+	}
+	return msg.Params.ValidateBasic()
+}
+
+// GetSignBytes returns the message bytes to sign over.
+func (msg MsgUpdateCrossChainParams) GetSignBytes() []byte {
+	bz := codec.ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// GetSigners returns the expected signers for a MsgUpdateCrossChainParams.
+func (msg MsgUpdateCrossChainParams) GetSigners() []sdk.AccAddress {
 	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{authority}
 }

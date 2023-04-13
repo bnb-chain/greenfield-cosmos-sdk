@@ -4,6 +4,7 @@ package testutil
 
 import (
 	context "context"
+	"math/big"
 
 	math "cosmossdk.io/math"
 
@@ -38,4 +39,13 @@ type StakingKeeper interface {
 // DistributionKeeper defines the expected distribution keeper
 type DistributionKeeper interface {
 	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
+
+// CrossChainKeeper defines the expected crossChain keeper
+type CrossChainKeeper interface {
+	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
+
+	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+		packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
+	) (uint64, error)
 }

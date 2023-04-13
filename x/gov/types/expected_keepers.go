@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"math/big"
 
 	"cosmossdk.io/math"
 
@@ -55,6 +56,14 @@ type BankKeeper interface {
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 	BurnCoins(ctx sdk.Context, name string, amt sdk.Coins) error
+}
+
+type CrossChainKeeper interface {
+	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+		packageLoad []byte, relayerFee *big.Int, ackRelayerFee *big.Int,
+	) (uint64, error)
+
+	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
 }
 
 // Event Hooks

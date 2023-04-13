@@ -28,6 +28,7 @@ type KeeperTestSuite struct {
 	bankKeeper        *govtestutil.MockBankKeeper
 	stakingKeeper     *govtestutil.MockStakingKeeper
 	distKeeper        *govtestutil.MockDistributionKeeper
+	crossChainKeeper  *govtestutil.MockCrossChainKeeper
 	queryClient       v1.QueryClient
 	legacyQueryClient v1beta1.QueryClient
 	addrs             []sdk.AccAddress
@@ -40,7 +41,7 @@ func (suite *KeeperTestSuite) SetupSuite() {
 }
 
 func (suite *KeeperTestSuite) reset() {
-	govKeeper, acctKeeper, bankKeeper, stakingKeeper, distKeeper, encCfg, ctx := setupGovKeeper(suite.T())
+	govKeeper, acctKeeper, bankKeeper, stakingKeeper, distKeeper, crossChainKeeper, encCfg, ctx := setupGovKeeper(suite.T())
 
 	// Populate the gov account with some coins, as the TestProposal we have
 	// is a MsgSend from the gov account.
@@ -63,6 +64,7 @@ func (suite *KeeperTestSuite) reset() {
 	suite.bankKeeper = bankKeeper
 	suite.stakingKeeper = stakingKeeper
 	suite.distKeeper = distKeeper
+	suite.crossChainKeeper = crossChainKeeper
 	suite.cdc = encCfg.Codec
 	suite.queryClient = queryClient
 	suite.legacyQueryClient = legacyQueryClient
@@ -73,7 +75,7 @@ func (suite *KeeperTestSuite) reset() {
 }
 
 func TestIncrementProposalNumber(t *testing.T) {
-	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t) //nolint:dogsled
+	govKeeper, _, _, _, _, _, _, ctx := setupGovKeeper(t) //nolint:dogsled
 
 	tp := TestProposal
 	_, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), false)
@@ -93,7 +95,7 @@ func TestIncrementProposalNumber(t *testing.T) {
 }
 
 func TestProposalQueues(t *testing.T) {
-	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t) //nolint:dogsled
+	govKeeper, _, _, _, _, _, _, ctx := setupGovKeeper(t) //nolint:dogsled
 
 	// create test proposals
 	tp := TestProposal

@@ -325,3 +325,91 @@ func TestMigrateProposalMessages(t *testing.T) {
 	require.Equal(t, "Test", content.GetTitle())
 	require.Equal(t, "description", content.GetDescription())
 }
+
+func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
+	testCases := []struct {
+		name      string
+		request   *v1.MsgUpdateCrossChainParams
+		expectErr bool
+	}{
+		{
+			name: "set invalid authority",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9",
+			},
+			expectErr: true,
+		},
+		{
+			name: "parameter change should restrict values and targets only be size 1",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033", "0000000000000000000000000000000000000000000000000000000000000034"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' should all be hex address for contract upgrade",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"not_an_hex_address"},
+					Targets: []string{"not_an_hex_address"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' size not match",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0xeAE67217D95E786a9309A363437066428b97c046"},
+					Targets: []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "single parameter change should work",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "upgrade smart contract",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			_, err := suite.msgSrvr.UpdateCrossChainParams(suite.ctx, tc.request)
+			if tc.expectErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+			}
+		})
+	}
+}
