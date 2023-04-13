@@ -26,7 +26,8 @@ type ValidatorI interface {
 	GetOperator() sdk.ValAddress                             // operator address to receive/return validators coins
 	GetSelfDelegator() sdk.AccAddress                        // validator address used for self delegation
 	GetRelayer() sdk.AccAddress                              // validator authorized relayer/operator address
-	GetRelayerBlsKey() []byte                                // validator authorized relayer/operator's bls pubkey
+	GetChallenger() sdk.AccAddress                           // validator authorized challenger/operator address
+	GetBlsKey() []byte                                       // validator authorized relayer/challenger's bls pubkey
 	ConsPubKey() (cryptotypes.PubKey, error)                 // validation consensus pubkey (cryptotypes.PubKey)
 	TmConsPublicKey() (cmtprotocrypto.PublicKey, error)      // validation consensus pubkey (CometBFT)
 	GetConsAddr() (sdk.ConsAddress, error)                   // validation consensus address

@@ -39,7 +39,7 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewSimpleValidator constructs a new Validator with default self delegation, relayer address and nil relayer bls pubkey
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address, challenger address and nil bls pubkey
 //
 //nolint:interfacerh
 func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
@@ -55,17 +55,18 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 		ConsensusPubkey:         pkAny,
 		Jailed:                  false,
 		Status:                  Unbonded,
-		Tokens:                  math.ZeroInt(),
-		DelegatorShares:         math.LegacyZeroDec(),
+		Tokens:                  sdk.ZeroInt(),
+		DelegatorShares:         sdk.ZeroDec(),
 		Description:             description,
 		UnbondingHeight:         int64(0),
 		UnbondingTime:           time.Unix(0, 0).UTC(),
-		Commission:              NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
-		MinSelfDelegation:       math.OneInt(),
+		Commission:              NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+		MinSelfDelegation:       sdk.OneInt(),
 		UnbondingOnHoldRefCount: 0,
 		SelfDelAddress:          operator.String(),
 		RelayerAddress:          operator.String(),
-		RelayerBlsKey:           blsPk,
+		ChallengerAddress:       operator.String(),
+		BlsKey:                  blsPk,
 	}, nil
 }
 
@@ -75,7 +76,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 func NewValidator(
 	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
 	description Description, selfDelegator sdk.AccAddress,
-	relayer sdk.AccAddress, relayerBlsKey []byte,
+	relayer sdk.AccAddress, challenger sdk.AccAddress, blsKey []byte,
 ) (Validator, error) {
 	val, err := NewSimpleValidator(operator, pubKey, description)
 	if err != nil {
@@ -84,7 +85,8 @@ func NewValidator(
 
 	val.SelfDelAddress = selfDelegator.String()
 	val.RelayerAddress = relayer.String()
-	val.RelayerBlsKey = relayerBlsKey
+	val.BlsKey = blsKey
+	val.ChallengerAddress = challenger.String()
 	return val, nil
 }
 
@@ -277,10 +279,28 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
-	// TODO: update validators' other fields
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	var challenger []byte
+	if len(v.ChallengerAddress) > 0 {
+		challenger, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey: tmProtoPk,
-		Power:  v.ConsensusPower(r),
+		PubKey:            tmProtoPk,
+		Power:             v.ConsensusPower(r),
+		RelayerAddress:    relayer,
+		ChallengerAddress: challenger,
+		BlsKey:            v.BlsKey,
 	}
 }
 
@@ -292,10 +312,28 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 		panic(err)
 	}
 
-	// TODO: update validators' other fields
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	var challenger []byte
+	if len(v.ChallengerAddress) > 0 {
+		challenger, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey: tmProtoPk,
-		Power:  0,
+		PubKey:            tmProtoPk,
+		Power:             0,
+		RelayerAddress:    relayer,
+		ChallengerAddress: challenger,
+		BlsKey:            v.BlsKey,
 	}
 }
 
@@ -464,7 +502,7 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
 		v.SelfDelAddress == other.SelfDelAddress &&
 		v.RelayerAddress == other.RelayerAddress &&
-		bytes.Equal(v.RelayerBlsKey, other.RelayerBlsKey)
+		bytes.Equal(v.BlsKey, other.BlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -474,15 +512,26 @@ func (v *Validator) Equal(v2 *Validator) bool {
 		v.UnbondingTime.Equal(v2.UnbondingTime)
 }
 
-func (v Validator) IsJailed() bool           { return v.Jailed }
-func (v Validator) GetMoniker() string       { return v.Description.Moniker }
-func (v Validator) GetStatus() BondStatus    { return v.Status }
-func (v Validator) GetRelayerBlsKey() []byte { return v.RelayerBlsKey }
+func (v Validator) IsJailed() bool        { return v.Jailed }
+func (v Validator) GetMoniker() string    { return v.Description.Moniker }
+func (v Validator) GetStatus() BondStatus { return v.Status }
+func (v Validator) GetBlsKey() []byte     { return v.BlsKey }
 func (v Validator) GetOperator() sdk.ValAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
-	addr, err := sdk.ValAddressFromHex(v.OperatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.OperatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return sdk.ValAddress(addr)
+}
+
+func (v Validator) GetChallenger() sdk.AccAddress {
+	if v.ChallengerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
 	if err != nil {
 		panic(err)
 	}

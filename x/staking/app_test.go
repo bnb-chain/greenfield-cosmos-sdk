@@ -73,7 +73,7 @@ func TestStakingMsgs(t *testing.T) {
 	createValidatorMsg, err := types.NewMsgCreateValidator(
 		sdk.ValAddress(addr1), valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
-		addr1, addr1, addr1, blsPubKey,
+		addr1, addr1, addr1, addr1, blsPubKey,
 	)
 	require.NoError(t, err)
 
@@ -99,7 +99,7 @@ func TestStakingMsgs(t *testing.T) {
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
 		sdk.ValAddress(addr1), description, nil, nil,
-		sdk.AccAddress(""), "",
+		sdk.AccAddress(""), sdk.AccAddress(""), "",
 	)
 	header = cmtproto.Header{Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, "", []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})
