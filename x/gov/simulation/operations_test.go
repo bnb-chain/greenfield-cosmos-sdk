@@ -10,6 +10,8 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/require"
 
+	crosschainkeeper "github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -24,6 +26,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
+	_ "github.com/cosmos/cosmos-sdk/x/crosschain"
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	dk "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govcodec "github.com/cosmos/cosmos-sdk/x/gov/codec"
@@ -374,6 +377,7 @@ type suite struct {
 	AuthzKeeper        authzkeeper.Keeper
 	BankKeeper         bankkeeper.Keeper
 	GovKeeper          *keeper.Keeper
+	CrossChainKeeper   crosschainkeeper.Keeper
 	StakingKeeper      *stakingkeeper.Keeper
 	DistributionKeeper dk.Keeper
 	App                *runtime.App
@@ -393,7 +397,8 @@ func createTestSuite(t *testing.T, isCheckTx bool) (suite, sdk.Context) {
 		configurator.ConsensusModule(),
 		configurator.DistributionModule(),
 		configurator.GovModule(),
-	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.DistributionKeeper)
+		configurator.CrossChainModule(),
+	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.DistributionKeeper, &res.CrossChainKeeper)
 	require.NoError(t, err)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, cmtproto.Header{})
