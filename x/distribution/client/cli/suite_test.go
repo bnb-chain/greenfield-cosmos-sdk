@@ -3,14 +3,13 @@ package cli_test
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"strings"
-	"testing"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/suite"
+	"io"
+	"strings"
+	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -498,13 +497,39 @@ func (s *CLITestSuite) TestNewWithdrawRewardsCmd() {
 			},
 			false, &sdk.TxResponse{},
 		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			bz, err := distrclitestutil.MsgWithdrawDelegatorRewardExec(s.clientCtx, tc.valAddr, tc.args...)
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err)
+				s.Require().NoError(s.clientCtx.Codec.UnmarshalJSON(bz, tc.respType), string(bz))
+			}
+		})
+	}
+}
+
+func (s *CLITestSuite) TestNewWithdrawCommissionCmd() {
+	val := testutil.CreateKeyringAccounts(s.T(), s.kr, 1)
+
+	testCases := []struct {
+		name      string
+		valAddr   fmt.Stringer
+		args      []string
+		expectErr bool
+		respType  proto.Message
+	}{
 		{
-			"valid transaction (with commission)",
+			"valid transaction",
 			sdk.ValAddress(val[0].Address),
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=true", cli.FlagCommission),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
 			},
