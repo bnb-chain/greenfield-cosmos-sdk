@@ -10,8 +10,6 @@ const (
 	KeyUpgrade                        = "upgrade"
 )
 
-var KeySyncParamsRelayerFee = []byte("SyncParamsRelayerFee")
-
 // SyncParamsPackage is the payload to be encoded for cross-chain IBC package
 type SyncParamsPackage struct {
 	// Key is the parameter to be changed

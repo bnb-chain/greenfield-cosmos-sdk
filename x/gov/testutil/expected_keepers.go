@@ -41,7 +41,7 @@ type DistributionKeeper interface {
 	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
-// CrossChainKeeper defines the expected distribution keeper
+// CrossChainKeeper defines the expected crossChain keeper
 type CrossChainKeeper interface {
 	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
 

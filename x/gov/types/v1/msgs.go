@@ -309,7 +309,7 @@ func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgUpdateCrossChainParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 	return msg.Params.ValidateBasic()
