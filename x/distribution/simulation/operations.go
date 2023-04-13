@@ -184,7 +184,7 @@ func SimulateMsgWithdrawValidatorCommission(txConfig client.TxConfig, ak types.A
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgWithdrawValidatorCommission(validator.GetOperator())
+		msg := types.NewMsgWithdrawValidatorCommission(sdk.AccAddress(validator.GetOperator()))
 
 		txCtx := simulation.OperationInput{
 			R:               r,
