@@ -12,6 +12,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -340,7 +341,12 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, err
 	}
 
-	// TODO: And a hard fork to allow all delegations, before that fork, only self delegation allowed.
+	if !ctx.IsUpgraded(upgradetypes.EnablePublicDelegationUpgrade) {
+		selfDelAddress := validator.GetSelfDelegator()
+		if delegatorAddress.String() != selfDelAddress.String() {
+			return nil, types.ErrDelegationNotAllowed
+		}
+	}
 
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
@@ -381,6 +387,10 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	if !ctx.IsUpgraded(upgradetypes.EnablePublicDelegationUpgrade) {
+		return nil, types.ErrRedelegationNotAllowed
+	}
+
 	valSrcAddr, err := sdk.ValAddressFromHex(msg.ValidatorSrcAddress)
 	if err != nil {
 		return nil, err

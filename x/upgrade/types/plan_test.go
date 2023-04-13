@@ -11,7 +11,6 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/x/upgrade/types"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -34,13 +33,13 @@ func TestPlanString(t *testing.T) {
 				Info:   "https://foo.bar/baz",
 				Height: 7890,
 			},
-			expect: "name:\"by height\" time:<seconds:-62135596800 > height:7890 info:\"https://foo.bar/baz\" ",
+			expect: "name:\"by height\" height:7890 info:\"https://foo.bar/baz\" ",
 		},
 		"neither": {
 			p: types.Plan{
 				Name: "almost-empty",
 			},
-			expect: "name:\"almost-empty\" time:<seconds:-62135596800 > ",
+			expect: "name:\"almost-empty\" ",
 		},
 	}
 
@@ -68,17 +67,6 @@ func TestPlanValid(t *testing.T) {
 		"no name": {
 			p: types.Plan{
 				Height: 123450000,
-			},
-		},
-		"time-base upgrade": {
-			p: types.Plan{
-				Time: time.Now(),
-			},
-		},
-		"IBC upgrade": {
-			p: types.Plan{
-				Height:              123450000,
-				UpgradedClientState: &codectypes.Any{},
 			},
 		},
 		"no due at": {
@@ -147,7 +135,7 @@ func TestShouldExecute(t *testing.T) {
 	for name, tc := range cases {
 		tc := tc // copy to local variable for scopelint
 		t.Run(name, func(t *testing.T) {
-			ctx := sdk.NewContext(nil, cmtproto.Header{Height: tc.ctxHeight, Time: tc.ctxTime}, false, log.NewNopLogger())
+			ctx := sdk.NewContext(nil, cmtproto.Header{Height: tc.ctxHeight, Time: tc.ctxTime}, false, nil, log.NewNopLogger())
 			should := tc.p.ShouldExecute(ctx)
 			assert.Equal(t, tc.expected, should)
 		})

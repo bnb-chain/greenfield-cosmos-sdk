@@ -21,7 +21,7 @@ func (k Keeper) CurrentPlan(c context.Context, req *types.QueryCurrentPlanReques
 		return &types.QueryCurrentPlanResponse{}, nil
 	}
 
-	return &types.QueryCurrentPlanResponse{Plan: &plan}, nil
+	return &types.QueryCurrentPlanResponse{Plan: plan}, nil
 }
 
 // AppliedPlan implements the Query/AppliedPlan gRPC method
@@ -72,9 +72,4 @@ func (k Keeper) ModuleVersions(c context.Context, req *types.QueryModuleVersions
 	return &types.QueryModuleVersionsResponse{
 		ModuleVersions: mv,
 	}, nil
-}
-
-// Authority implements the Query/Authority gRPC method, returning the account capable of performing upgrades
-func (k Keeper) Authority(c context.Context, req *types.QueryAuthorityRequest) (*types.QueryAuthorityResponse, error) {
-	return &types.QueryAuthorityResponse{Address: k.authority}, nil
 }

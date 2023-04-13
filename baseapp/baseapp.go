@@ -145,6 +145,9 @@ type BaseApp struct { //nolint: maligned
 	streamingManager storetypes.StreamingManager
 
 	chainID string
+
+	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
+	upgradeChecker func(ctx sdk.Context, name string) bool
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -192,6 +195,11 @@ func NewBaseApp(
 	app.runTxRecoveryMiddleware = newDefaultRecoveryMiddleware()
 
 	return app
+}
+
+// ChainID returns the chain id.
+func (app *BaseApp) ChainID() string {
+	return app.chainID
 }
 
 // Name returns the name of the BaseApp.
@@ -410,7 +418,7 @@ func (app *BaseApp) setState(mode runTxMode, header cmtproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	baseState := &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, false, app.logger).WithStreamingManager(app.streamingManager),
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger).WithStreamingManager(app.streamingManager),
 	}
 
 	switch mode {

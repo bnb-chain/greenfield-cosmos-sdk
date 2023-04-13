@@ -41,6 +41,7 @@ type Context struct {
 	kvGasConfig          storetypes.GasConfig
 	transientKVGasConfig storetypes.GasConfig
 	streamingManager     storetypes.StreamingManager
+	upgradeChecker       func(ctx Context, name string) bool
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -65,6 +66,12 @@ func (c Context) Priority() int64                               { return c.prior
 func (c Context) KVGasConfig() storetypes.GasConfig             { return c.kvGasConfig }
 func (c Context) TransientKVGasConfig() storetypes.GasConfig    { return c.transientKVGasConfig }
 func (c Context) StreamingManager() storetypes.StreamingManager { return c.streamingManager }
+func (c Context) IsUpgraded(name string) bool {
+	if c.upgradeChecker == nil {
+		return false
+	}
+	return c.upgradeChecker(c, name)
+}
 
 // clone the header before returning
 func (c Context) BlockHeader() cmtproto.Header {
@@ -96,7 +103,7 @@ func (c Context) Err() error {
 }
 
 // create a new context
-func NewContext(ms storetypes.MultiStore, header cmtproto.Header, isCheckTx bool, logger log.Logger) Context {
+func NewContext(ms storetypes.MultiStore, header cmtproto.Header, isCheckTx bool, upgradeChecker func(Context, string) bool, logger log.Logger) Context {
 	// https://github.com/gogo/protobuf/issues/519
 	header.Time = header.Time.UTC()
 	return Context{
@@ -111,6 +118,7 @@ func NewContext(ms storetypes.MultiStore, header cmtproto.Header, isCheckTx bool
 		eventManager:         NewEventManager(),
 		kvGasConfig:          storetypes.KVGasConfig(),
 		transientKVGasConfig: storetypes.TransientGasConfig(),
+		upgradeChecker:       upgradeChecker,
 	}
 }
 

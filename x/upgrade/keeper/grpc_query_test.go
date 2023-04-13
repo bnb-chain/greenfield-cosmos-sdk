@@ -17,8 +17,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 type UpgradeTestSuite struct {
@@ -35,10 +33,7 @@ func (suite *UpgradeTestSuite) SetupTest() {
 	key := storetypes.NewKVStoreKey(types.StoreKey)
 	testCtx := testutil.DefaultContextWithDB(suite.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	suite.ctx = testCtx.Ctx
-
-	skipUpgradeHeights := make(map[int64]bool)
-
-	suite.upgradeKeeper = keeper.NewKeeper(skipUpgradeHeights, key, suite.encCfg.Codec, "", nil, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	suite.upgradeKeeper = keeper.NewKeeper(key, suite.encCfg.Codec, "", nil)
 	suite.upgradeKeeper.SetModuleVersionMap(suite.ctx, module.VersionMap{
 		"bank": 0,
 	})
@@ -74,7 +69,7 @@ func (suite *UpgradeTestSuite) TestQueryCurrentPlan() {
 				suite.upgradeKeeper.ScheduleUpgrade(suite.ctx, plan)
 
 				req = &types.QueryCurrentPlanRequest{}
-				expResponse = types.QueryCurrentPlanResponse{Plan: &plan}
+				expResponse = types.QueryCurrentPlanResponse{Plan: []*types.Plan{&plan}}
 			},
 			true,
 		},
@@ -217,12 +212,6 @@ func (suite *UpgradeTestSuite) TestModuleVersions() {
 			}
 		})
 	}
-}
-
-func (suite *UpgradeTestSuite) TestAuthority() {
-	res, err := suite.queryClient.Authority(context.Background(), &types.QueryAuthorityRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(authtypes.NewModuleAddress(govtypes.ModuleName).String(), res.Address)
 }
 
 func TestUpgradeTestSuite(t *testing.T) {
