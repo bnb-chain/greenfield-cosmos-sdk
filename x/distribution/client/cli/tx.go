@@ -96,7 +96,7 @@ $ %s tx distribution withdraw-rewards 0x91D7d.. --from mykey
 				return err
 			}
 			delAddr := clientCtx.GetFromAddress()
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -187,7 +187,7 @@ $ %[1]s tx distribution withdraw-all-rewards --from mykey
 			// build multi-message transaction
 			msgs := make([]sdk.Msg, 0, len(validators))
 			for _, valAddr := range validators {
-				val, err := sdk.ValAddressFromHex(valAddr)
+				val, err := sdk.AccAddressFromHexUnsafe(valAddr)
 				if err != nil {
 					return err
 				}

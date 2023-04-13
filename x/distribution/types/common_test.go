@@ -13,6 +13,6 @@ var (
 	emptyDelAddr sdk.AccAddress
 
 	valPk1       = ed25519.GenPrivKey().PubKey()
-	valAddr1     = sdk.ValAddress(valPk1.Address())
-	emptyValAddr sdk.ValAddress
+	valAddr1     = sdk.AccAddress(valPk1.Address())
+	emptyValAddr sdk.AccAddress
 )

@@ -36,7 +36,7 @@ func TestMsgSetWithdrawAddress(t *testing.T) {
 func TestMsgWithdrawDelegatorReward(t *testing.T) {
 	tests := []struct {
 		delegatorAddr sdk.AccAddress
-		validatorAddr sdk.ValAddress
+		validatorAddr sdk.AccAddress
 		expectPass    bool
 	}{
 		{delAddr1, valAddr1, true},
@@ -57,7 +57,7 @@ func TestMsgWithdrawDelegatorReward(t *testing.T) {
 // test ValidateBasic for MsgWithdrawValidatorCommission
 func TestMsgWithdrawValidatorCommission(t *testing.T) {
 	tests := []struct {
-		validatorAddr sdk.ValAddress
+		validatorAddr sdk.AccAddress
 		expectPass    bool
 	}{
 		{valAddr1, true},
