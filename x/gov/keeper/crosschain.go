@@ -26,10 +26,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 		var value []byte
 		var err error
 		if cpc.Key == types.KeyUpgrade {
-			value, err = sdk.AccAddressFromHexUnsafe(v)
-			if err != nil {
-				return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", v)
-			}
+			value = sdk.MustAccAddressFromHex(v)
 		} else {
 			value, err = hex.DecodeString(v)
 			if err != nil {
@@ -37,11 +34,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 			}
 		}
 		values = append(values, value...)
-
-		addr, err := sdk.AccAddressFromHexUnsafe(cpc.Targets[i])
-		if err != nil {
-			return sdkerrors.Wrapf(types.ErrAddressNotValid, "smart contract address is not valid %s", cpc.Targets[i])
-		}
+		addr := sdk.MustAccAddressFromHex(cpc.Targets[i])
 		addresses = append(addresses, addr.Bytes()...)
 	}
 
@@ -66,17 +59,17 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 	return err
 }
 
-func (k Keeper) ExecuteSynPackage(ctx sdk.Context, appCtx *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+func (k Keeper) ExecuteSynPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	k.Logger(ctx).Error("received sync params sync package", "payload", hex.EncodeToString(payload))
 	return sdk.ExecuteResult{}
 }
 
-func (k Keeper) ExecuteAckPackage(ctx sdk.Context, header *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+func (k Keeper) ExecuteAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	k.Logger(ctx).Error("received sync params in ack package", "payload", hex.EncodeToString(payload))
 	return sdk.ExecuteResult{}
 }
 
-func (k Keeper) ExecuteFailAckPackage(ctx sdk.Context, header *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+func (k Keeper) ExecuteFailAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
 	k.Logger(ctx).Error("received sync params fail ack package", "payload", hex.EncodeToString(payload))
 	return sdk.ExecuteResult{}
 }
