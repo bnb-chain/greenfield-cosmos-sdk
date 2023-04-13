@@ -3,6 +3,7 @@ package v1
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
+	"strings"
 )
 
 func NewCrossChainParamsChange(key string, values, targets []string) *CrossChainParamsChange {
@@ -23,10 +24,10 @@ func (m *CrossChainParamsChange) ValidateBasic() error {
 	for i := 0; i < len(m.Values); i++ {
 		value := m.Values[i]
 		target := m.Targets[i]
-		if len(value) == 0 {
+		if len(strings.TrimSpace(value)) == 0 {
 			return types.ErrEmptyValue
 		}
-		if len(target) == 0 {
+		if len(strings.TrimSpace(target)) == 0 {
 			return types.ErrEmptyTarget
 		}
 		if m.Key == types.KeyUpgrade {
