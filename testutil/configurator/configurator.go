@@ -7,11 +7,16 @@ import (
 	authzmodulev1 "cosmossdk.io/api/cosmos/authz/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
+	crosschainmodulev1 "cosmossdk.io/api/cosmos/crosschain/module/v1"
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
+	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
+	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
 	mintmodulev1 "cosmossdk.io/api/cosmos/mint/module/v1"
+	nftmodulev1 "cosmossdk.io/api/cosmos/nft/module/v1"
+	oraclemodulev1 "cosmossdk.io/api/cosmos/oracle/module/v1"
 	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	slashingmodulev1 "cosmossdk.io/api/cosmos/slashing/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
@@ -42,6 +47,8 @@ var beginBlockOrder = []string{
 	"params",
 	"consensus",
 	"vesting",
+	"crosschain",
+	"oracle",
 }
 
 var endBlockersOrder = []string{
@@ -65,6 +72,8 @@ var endBlockersOrder = []string{
 	"consensus",
 	"upgrade",
 	"vesting",
+	"crosschain",
+	"oracle",
 }
 
 var initGenesisOrder = []string{
@@ -88,6 +97,8 @@ var initGenesisOrder = []string{
 	"consensus",
 	"upgrade",
 	"vesting",
+	"crosschain",
+	"oracle",
 }
 
 type appConfig struct {
@@ -119,6 +130,8 @@ func AuthModule() ModuleOption {
 					{Account: "bonded_tokens_pool", Permissions: []string{"burner", "staking"}},
 					{Account: "not_bonded_tokens_pool", Permissions: []string{"burner", "staking"}},
 					{Account: "gov", Permissions: []string{"burner"}},
+					{Account: "nft"},
+					{Account: "crosschain", Permissions: []string{"minter"}},
 				},
 			}),
 		}
@@ -235,6 +248,51 @@ func MintModule() ModuleOption {
 					Implementation: "github.com/cosmos/cosmos-sdk/x/staking/keeper/*keeper.Keeper",
 				},
 			},
+		}
+	}
+}
+
+func EvidenceModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["evidence"] = &appv1alpha1.ModuleConfig{
+			Name:   "evidence",
+			Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
+		}
+	}
+}
+
+func GroupModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["group"] = &appv1alpha1.ModuleConfig{
+			Name:   "group",
+			Config: appconfig.WrapAny(&groupmodulev1.Module{}),
+		}
+	}
+}
+
+func NFTModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["nft"] = &appv1alpha1.ModuleConfig{
+			Name:   "nft",
+			Config: appconfig.WrapAny(&nftmodulev1.Module{}),
+		}
+	}
+}
+
+func CrossChainModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["crosschain"] = &appv1alpha1.ModuleConfig{
+			Name:   "crosschain",
+			Config: appconfig.WrapAny(&crosschainmodulev1.Module{}),
+		}
+	}
+}
+
+func OracleModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["oracle"] = &appv1alpha1.ModuleConfig{
+			Name:   "oracle",
+			Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
 		}
 	}
 }

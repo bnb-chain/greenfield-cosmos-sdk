@@ -21,12 +21,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_SubmitProposal_FullMethodName    = "/cosmos.gov.v1.Msg/SubmitProposal"
-	Msg_ExecLegacyContent_FullMethodName = "/cosmos.gov.v1.Msg/ExecLegacyContent"
-	Msg_Vote_FullMethodName              = "/cosmos.gov.v1.Msg/Vote"
-	Msg_VoteWeighted_FullMethodName      = "/cosmos.gov.v1.Msg/VoteWeighted"
-	Msg_Deposit_FullMethodName           = "/cosmos.gov.v1.Msg/Deposit"
-	Msg_UpdateParams_FullMethodName      = "/cosmos.gov.v1.Msg/UpdateParams"
+	Msg_SubmitProposal_FullMethodName         = "/cosmos.gov.v1.Msg/SubmitProposal"
+	Msg_ExecLegacyContent_FullMethodName      = "/cosmos.gov.v1.Msg/ExecLegacyContent"
+	Msg_Vote_FullMethodName                   = "/cosmos.gov.v1.Msg/Vote"
+	Msg_VoteWeighted_FullMethodName           = "/cosmos.gov.v1.Msg/VoteWeighted"
+	Msg_Deposit_FullMethodName                = "/cosmos.gov.v1.Msg/Deposit"
+	Msg_UpdateParams_FullMethodName           = "/cosmos.gov.v1.Msg/UpdateParams"
+	Msg_UpdateCrossChainParams_FullMethodName = "/cosmos.gov.v1.Msg/UpdateCrossChainParams"
 )
 
 // MsgClient is the client API for Msg service.
@@ -49,6 +50,8 @@ type MsgClient interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
+	// UpdateCrossChainParams defines a method to send IBC package to update cross-chain params
+	UpdateCrossChainParams(ctx context.Context, in *MsgUpdateCrossChainParams, opts ...grpc.CallOption) (*MsgUpdateCrossChainParamsResponse, error)
 }
 
 type msgClient struct {
@@ -113,6 +116,15 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 	return out, nil
 }
 
+func (c *msgClient) UpdateCrossChainParams(ctx context.Context, in *MsgUpdateCrossChainParams, opts ...grpc.CallOption) (*MsgUpdateCrossChainParamsResponse, error) {
+	out := new(MsgUpdateCrossChainParamsResponse)
+	err := c.cc.Invoke(ctx, Msg_UpdateCrossChainParams_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
@@ -133,6 +145,8 @@ type MsgServer interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
+	// UpdateCrossChainParams defines a method to send IBC package to update cross-chain params
+	UpdateCrossChainParams(context.Context, *MsgUpdateCrossChainParams) (*MsgUpdateCrossChainParamsResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }
 
@@ -157,6 +171,9 @@ func (UnimplementedMsgServer) Deposit(context.Context, *MsgDeposit) (*MsgDeposit
 }
 func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
+}
+func (UnimplementedMsgServer) UpdateCrossChainParams(context.Context, *MsgUpdateCrossChainParams) (*MsgUpdateCrossChainParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCrossChainParams not implemented")
 }
 func (UnimplementedMsgServer) mustEmbedUnimplementedMsgServer() {}
 
@@ -279,6 +296,24 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_UpdateCrossChainParams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateCrossChainParams)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UpdateCrossChainParams(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_UpdateCrossChainParams_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UpdateCrossChainParams(ctx, req.(*MsgUpdateCrossChainParams))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Msg_ServiceDesc is the grpc.ServiceDesc for Msg service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -309,6 +344,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateParams",
 			Handler:    _Msg_UpdateParams_Handler,
+		},
+		{
+			MethodName: "UpdateCrossChainParams",
+			Handler:    _Msg_UpdateCrossChainParams_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

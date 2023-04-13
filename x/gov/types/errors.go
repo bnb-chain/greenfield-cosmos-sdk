@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -22,4 +23,16 @@ var (
 	ErrInvalidSignalMsg        = sdkerrors.Register(ModuleName, 14, "signal message is invalid")
 	ErrMetadataTooLong         = sdkerrors.Register(ModuleName, 15, "metadata too long")
 	ErrMinDepositTooSmall      = sdkerrors.Register(ModuleName, 16, "minimum deposit is too small")
+)
+
+var (
+	ErrEmptyChange = errors.Register(ModuleName, 22, "crosschain: change is empty")
+	ErrEmptyValue  = errors.Register(ModuleName, 23, "crosschain: value  is empty")
+	ErrEmptyTarget = errors.Register(ModuleName, 24, "crosschain: target is empty")
+
+	ErrAddressSizeNotMatch     = errors.Register(ModuleName, 25, "number of old address not equal to new addresses")
+	ErrAddressNotValid         = errors.Register(ModuleName, 26, "address format is not valid")
+	ErrExceedParamsChangeLimit = errors.Register(ModuleName, 27, "exceed params change limit")
+	ErrInvalidUpgradeProposal  = errors.Register(ModuleName, 28, "invalid sync params package")
+	ErrInvalidValue            = errors.Register(ModuleName, 29, "decode hex value failed")
 )

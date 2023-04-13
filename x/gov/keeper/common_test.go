@@ -49,6 +49,7 @@ func setupGovKeeper(t *testing.T) (
 	*govtestutil.MockAccountKeeper,
 	*govtestutil.MockBankKeeper,
 	*govtestutil.MockStakingKeeper,
+	*govtestutil.MockCrossChainKeeper,
 	moduletestutil.TestEncodingConfig,
 	sdk.Context,
 ) {
@@ -69,6 +70,8 @@ func setupGovKeeper(t *testing.T) (
 	acctKeeper := govtestutil.NewMockAccountKeeper(ctrl)
 	bankKeeper := govtestutil.NewMockBankKeeper(ctrl)
 	stakingKeeper := govtestutil.NewMockStakingKeeper(ctrl)
+	crossChainKeeper := govtestutil.NewMockCrossChainKeeper(ctrl)
+
 	acctKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(govAcct).AnyTimes()
 	acctKeeper.EXPECT().GetModuleAccount(gomock.Any(), types.ModuleName).Return(authtypes.NewEmptyModuleAccount(types.ModuleName)).AnyTimes()
 	trackMockBalances(bankKeeper)
@@ -81,19 +84,21 @@ func setupGovKeeper(t *testing.T) (
 	stakingKeeper.EXPECT().TotalBondedTokens(gomock.Any()).Return(math.NewInt(10000000)).AnyTimes()
 
 	// Gov keeper initializations
-	govKeeper := keeper.NewKeeper(encCfg.Codec, key, acctKeeper, bankKeeper, stakingKeeper, msr, types.DefaultConfig(), govAcct.String())
+	govKeeper := keeper.NewKeeper(encCfg.Codec, key, acctKeeper, bankKeeper, stakingKeeper, crossChainKeeper, msr, types.DefaultConfig(), govAcct.String())
 	govKeeper.SetProposalID(ctx, 1)
 	govRouter := v1beta1.NewRouter() // Also register legacy gov handlers to test them too.
 	govRouter.AddRoute(types.RouterKey, v1beta1.ProposalHandler)
 	govKeeper.SetLegacyRouter(govRouter)
 	govKeeper.SetParams(ctx, v1.DefaultParams())
 
+	crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
+
 	// Register all handlers for the MegServiceRouter.
 	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)
 	v1.RegisterMsgServer(msr, keeper.NewMsgServerImpl(govKeeper))
 	banktypes.RegisterMsgServer(msr, nil) // Nil is fine here as long as we never execute the proposal's Msgs.
 
-	return govKeeper, acctKeeper, bankKeeper, stakingKeeper, encCfg, ctx
+	return govKeeper, acctKeeper, bankKeeper, stakingKeeper, crossChainKeeper, encCfg, ctx
 }
 
 // trackMockBalances sets up expected calls on the Mock BankKeeper, and also

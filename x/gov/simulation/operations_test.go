@@ -11,6 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	crosschainkeeper "github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
+
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -24,7 +26,10 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
+
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
+	_ "github.com/cosmos/cosmos-sdk/x/crosschain"
+	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	govcodec "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"github.com/cosmos/cosmos-sdk/x/gov/simulation"
@@ -328,13 +333,14 @@ func TestSimulateMsgVoteWeighted(t *testing.T) {
 }
 
 type suite struct {
-	cdc           codec.Codec
-	AccountKeeper authkeeper.AccountKeeper
-	AuthzKeeper   authzkeeper.Keeper
-	BankKeeper    bankkeeper.Keeper
-	GovKeeper     *keeper.Keeper
-	StakingKeeper *stakingkeeper.Keeper
-	App           *runtime.App
+	cdc              codec.Codec
+	AccountKeeper    authkeeper.AccountKeeper
+	AuthzKeeper      authzkeeper.Keeper
+	BankKeeper       bankkeeper.Keeper
+	GovKeeper        *keeper.Keeper
+	StakingKeeper    *stakingkeeper.Keeper
+	CrossChainKeeper crosschainkeeper.Keeper
+	App              *runtime.App
 }
 
 // returns context and an app with updated mint keeper
@@ -350,7 +356,8 @@ func createTestSuite(t *testing.T, isCheckTx bool) (suite, sdk.Context) {
 		configurator.StakingModule(),
 		configurator.ConsensusModule(),
 		configurator.GovModule(),
-	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.cdc)
+		configurator.CrossChainModule(),
+	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.CrossChainKeeper, &res.cdc)
 	require.NoError(t, err)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})

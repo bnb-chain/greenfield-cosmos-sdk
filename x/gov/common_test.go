@@ -23,6 +23,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
+	_ "github.com/cosmos/cosmos-sdk/x/crosschain"
+	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -120,6 +122,7 @@ func createTestSuite(t *testing.T) suite {
 			configurator.BankModule(),
 			configurator.AuthzModule(),
 			configurator.GovModule(),
+			configurator.CrossChainModule(),
 			configurator.ConsensusModule(),
 		),
 		simtestutil.DefaultStartUpConfig(),

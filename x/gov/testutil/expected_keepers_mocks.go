@@ -6,6 +6,7 @@ package testutil
 
 import (
 	context "context"
+	"math/big"
 	reflect "reflect"
 
 	math "cosmossdk.io/math"
@@ -1034,4 +1035,57 @@ func (m *MockStakingKeeper) TotalBondedTokens(arg0 types.Context) math.Int {
 func (mr *MockStakingKeeperMockRecorder) TotalBondedTokens(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TotalBondedTokens", reflect.TypeOf((*MockStakingKeeper)(nil).TotalBondedTokens), arg0)
+}
+
+// MockCrossChainKeeper is a mock of CrossChainKeeper interface.
+type MockCrossChainKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockCrossChainKeeperMockRecorder
+}
+
+// MockCrossChainKeeperMockRecorder is the mock recorder for MockCrossChainKeeper.
+type MockCrossChainKeeperMockRecorder struct {
+	mock *MockCrossChainKeeper
+}
+
+// NewMockCrossChainKeeper creates a new mock instance.
+func NewMockCrossChainKeeper(ctrl *gomock.Controller) *MockCrossChainKeeper {
+	mock := &MockCrossChainKeeper{ctrl: ctrl}
+	mock.recorder = &MockCrossChainKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCrossChainKeeper) EXPECT() *MockCrossChainKeeperMockRecorder {
+	return m.recorder
+}
+
+// RegisterChannel mocks base method.
+func (m *MockCrossChainKeeper) RegisterChannel(name string, id types.ChannelID, app types.CrossChainApplication) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegisterChannel", name, id, app)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RegisterChannel indicates an expected call of RegisterChannel.
+func (mr *MockCrossChainKeeperMockRecorder) RegisterChannel(name, id, app interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterChannel", reflect.TypeOf((*MockCrossChainKeeper)(nil).RegisterChannel), name, id, app)
+}
+
+// CreateRawIBCPackageWithFee mocks base method.
+func (m *MockCrossChainKeeper) CreateRawIBCPackageWithFee(ctx types.Context, channelID types.ChannelID, packageType types.CrossChainPackageType,
+	packageLoad []byte, relayerFee, ackRelayerFee *big.Int) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRawIBCPackageWithFee", ctx, channelID, packageType, packageLoad, relayerFee, ackRelayerFee)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRawIBCPackageWithFee indicates an expected call of CreateRawIBCPackageWithFee.
+func (mr *MockCrossChainKeeperMockRecorder) CreateRawIBCPackageWithFee(ctx, channelID, packageType, packageLoad, relayerFee, ackRelayerFee interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRawIBCPackageWithFee", reflect.TypeOf((*MockCrossChainKeeper)(nil).CreateRawIBCPackageWithFee), ctx, channelID, packageType, packageLoad, relayerFee, ackRelayerFee)
 }
