@@ -36,7 +36,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.ValAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
-	from sdk.AccAddress, selfDelAddr sdk.AccAddress, relayerAddr sdk.AccAddress, challengerAddr sdk.AccAddress, blsKey string,
+	from, selfDelAddr, relayerAddr, challengerAddr sdk.AccAddress, blsKey string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -153,7 +153,7 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 //nolint:interfacer
 func NewMsgEditValidator(
 	valAddr sdk.ValAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
-	newRelayerAddr sdk.AccAddress, newChallengerAddr sdk.AccAddress, newBlsKey string,
+	newRelayerAddr, newChallengerAddr sdk.AccAddress, newBlsKey string,
 ) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,

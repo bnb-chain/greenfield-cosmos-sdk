@@ -1,8 +1,8 @@
 package ethsecp256k1
 
 import (
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
 const (

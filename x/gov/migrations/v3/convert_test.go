@@ -6,12 +6,10 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	v3 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v3"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,37 +68,6 @@ func TestConvertToLegacyProposal(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestConvertToLegacyProposalContent(t *testing.T) {
-	msg := upgradetypes.MsgSoftwareUpgrade{Authority: "gov module", Plan: upgradetypes.Plan{Name: "test upgrade"}}
-	msgsAny, err := tx.SetMsgs([]sdk.Msg{&msg})
-	require.NoError(t, err)
-	tallyResult := v1.EmptyTallyResult()
-	proposal := v1.Proposal{
-		Id:               1,
-		Status:           v1.StatusDepositPeriod,
-		Messages:         msgsAny,
-		Metadata:         "proposal metadata",
-		FinalTallyResult: &tallyResult,
-	}
-
-	legacyP, err := v3.ConvertToLegacyProposal(proposal)
-	require.NoError(t, err)
-	tp, ok := legacyP.Content.GetCachedValue().(*upgradetypes.MsgSoftwareUpgrade)
-	require.Truef(t, ok, "expected *MsgSoftwareUpgrade, got %T", legacyP.Content.GetCachedValue())
-	require.Equal(t, &msg, tp)
-
-	// more than one message is not supported
-	proposal.Messages, err = tx.SetMsgs([]sdk.Msg{&msg, &msg})
-	require.NoError(t, err)
-	_, err = v3.ConvertToLegacyProposal(proposal)
-	require.ErrorIs(t, sdkerrors.ErrInvalidType, err)
-
-	// zero messages is not supported
-	proposal.Messages = nil
-	_, err = v3.ConvertToLegacyProposal(proposal)
-	require.ErrorIs(t, sdkerrors.ErrInvalidType, err)
 }
 
 func TestConvertToLegacyTallyResult(t *testing.T) {

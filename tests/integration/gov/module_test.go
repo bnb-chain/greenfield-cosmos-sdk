@@ -8,6 +8,7 @@ import (
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/simapp"
@@ -30,7 +31,7 @@ func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
 	appOptions[flags.FlagHome] = simapp.DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = 5
 
-	app := simapp.NewSimApp(log.NewNopLogger(), db, nil, true, appOptions, baseapp.SetChainID("test-chain-id"))
+	app := simapp.NewSimApp(log.NewNopLogger(), db, nil, true, "test-chain-id", serverconfig.DefaultConfig(), appOptions, baseapp.SetChainID("test-chain-id"))
 
 	genesisState := simapp.GenesisStateWithSingleValidator(t, app)
 	stateBytes, err := tmjson.Marshal(genesisState)

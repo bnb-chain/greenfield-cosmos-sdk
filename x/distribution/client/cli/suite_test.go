@@ -3,13 +3,14 @@ package cli_test
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"strings"
+	"testing"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/suite"
-	"io"
-	"strings"
-	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

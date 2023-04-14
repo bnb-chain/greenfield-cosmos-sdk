@@ -157,7 +157,7 @@ func (s *SimTestSuite) TestWeightedOperations() {
 // TestSimulateMsgCreateValidator tests the normal scenario of a valid message of type TypeMsgCreateValidator.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
 // Todo: fix later
-//func (s *SimTestSuite) TestSimulateMsgCreateValidator() {
+// func (s *SimTestSuite) TestSimulateMsgCreateValidator() {
 //	require := s.Require()
 //	// begin a new block
 //	s.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: s.app.LastBlockHeight() + 1, AppHash: s.app.LastCommitID().Hash}})

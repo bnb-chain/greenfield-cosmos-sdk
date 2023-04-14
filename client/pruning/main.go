@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cometbft/cometbft/node"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
@@ -40,6 +42,8 @@ func PruningCmd(appCreator servertypes.AppCreator) *cobra.Command {
 		`,
 		Example: "prune --home './' --app-db-backend 'goleveldb' --pruning 'custom' --pruning-keep-recent 100",
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			ctx := server.GetServerContextFromCmd(cmd)
+			cfg := ctx.Config
 			vp := viper.New()
 
 			// Bind flags to the Context's Viper so we can get pruning options.
@@ -61,8 +65,17 @@ func PruningCmd(appCreator servertypes.AppCreator) *cobra.Command {
 				return err
 			}
 
+			config, err := serverconfig.GetConfig(vp)
+			if err != nil {
+				return err
+			}
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-			app := appCreator(logger, db, nil, vp)
+			genDocProvider := node.DefaultGenesisDocProviderFunc(cfg)
+			genDoc, err := genDocProvider()
+			if err != nil {
+				return err
+			}
+			app := appCreator(logger, db, nil, genDoc.ChainID, &config, vp)
 			cms := app.CommitMultiStore()
 
 			rootMultiStore, ok := cms.(*rootmulti.Store)

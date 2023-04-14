@@ -35,13 +35,6 @@ service Query {
   rpc ModuleVersions(QueryModuleVersionsRequest) returns (QueryModuleVersionsResponse) {
     option (google.api.http).get = "/cosmos/upgrade/v1beta1/module_versions";
   }
-
-  // Returns the account with authority to conduct upgrades
-  //
-  // Since: cosmos-sdk 0.46
-  rpc Authority(QueryAuthorityRequest) returns (QueryAuthorityResponse) {
-    option (google.api.http).get = "/cosmos/upgrade/v1beta1/authority";
-  }
 }
 
 // QueryCurrentPlanRequest is the request type for the Query/CurrentPlan RPC
@@ -52,7 +45,7 @@ message QueryCurrentPlanRequest {}
 // method.
 message QueryCurrentPlanResponse {
   // plan is the current upgrade plan.
-  Plan plan = 1;
+  repeated Plan plan = 1;
 }
 
 // QueryCurrentPlanRequest is the request type for the Query/AppliedPlan RPC

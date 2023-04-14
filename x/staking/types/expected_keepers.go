@@ -27,9 +27,9 @@ type AccountKeeper interface {
 }
 
 type AuthzKeeper interface {
-	GetGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) (grant authz.Grant, found bool)
-	Update(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, updated authz.Authorization) error
-	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
+	GetGrant(ctx sdk.Context, grantee, granter sdk.AccAddress, msgType string) (grant authz.Grant, found bool)
+	Update(ctx sdk.Context, grantee, granter sdk.AccAddress, updated authz.Authorization) error
+	DeleteGrant(ctx sdk.Context, grantee, granter sdk.AccAddress, msgType string) error
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.

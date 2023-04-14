@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/math"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -129,9 +129,15 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	} else {
 		app = appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil)
 	}
+
 	if err := app.Load(true); err != nil {
 		return nil, fmt.Errorf("failed to load app: %w", err)
 	}
+
+	// enable delegation in tests
+	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
+		return upgradetypes.EnablePublicDelegationUpgrade == s
+	})
 
 	// create validator set
 	valSet, err := startupConfig.ValidatorSet()

@@ -3,10 +3,12 @@ package server
 import (
 	"fmt"
 
-	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+	cmtcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+	"github.com/cometbft/cometbft/node"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/server/types"
 )
 
@@ -33,9 +35,18 @@ application.
 			if err != nil {
 				return err
 			}
-			app := appCreator(ctx.Logger, db, nil, ctx.Viper)
-			// rollback tendermint state
-			height, hash, err := tmcmd.RollbackState(ctx.Config, removeBlock)
+			config, err := serverconfig.GetConfig(ctx.Viper)
+			if err != nil {
+				return err
+			}
+			genDocProvider := node.DefaultGenesisDocProviderFunc(ctx.Config)
+			genDoc, err := genDocProvider()
+			if err != nil {
+				return err
+			}
+			app := appCreator(ctx.Logger, db, nil, genDoc.ChainID, &config, ctx.Viper)
+			// rollback CometBFT state
+			height, hash, err := cmtcmd.RollbackState(ctx.Config, removeBlock)
 			if err != nil {
 				return fmt.Errorf("failed to rollback tendermint state: %w", err)
 			}
