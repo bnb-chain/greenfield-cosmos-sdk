@@ -26,6 +26,7 @@ import (
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -275,6 +276,12 @@ func NewSimApp(
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
+	// Enable the public delegation for e2e testing
+	serverCfg.Upgrade = append(serverCfg.Upgrade, serverconfig.UpgradeConfig{
+		Name:   upgradetypes.EnablePublicDelegationUpgrade,
+		Height: 2,
+		Info:   "Enable public delegation, after this fork, anyone can delegate and redelegate to any validator.",
+	})
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	app.RegisterUpgradeHandlers(chainID, serverCfg)
 

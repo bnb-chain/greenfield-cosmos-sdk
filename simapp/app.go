@@ -457,6 +457,12 @@ func NewSimApp(
 		panic(err)
 	}
 
+	// Enable the public delegation for e2e testing
+	serverCfg.Upgrade = append(serverCfg.Upgrade, serverconfig.UpgradeConfig{
+		Name:   upgradetypes.EnablePublicDelegationUpgrade,
+		Height: 2,
+		Info:   "Enable public delegation, after this fork, anyone can delegate and redelegate to any validator.",
+	})
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// Make sure it's called after `app.ModuleManager` and `app.configurator` are set.
 	app.RegisterUpgradeHandlers(chainID, serverCfg)
