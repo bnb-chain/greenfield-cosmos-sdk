@@ -78,7 +78,7 @@ func TestMigrateJSON(t *testing.T) {
 		"max_deposit_period": "172800s",
 		"min_deposit": [
 			{
-				"amount": "10000000",
+				"amount": "1000000000000000000",
 				"denom": "stake"
 			}
 		]
@@ -125,7 +125,7 @@ func TestMigrateJSON(t *testing.T) {
 	],
 	"starting_proposal_id": "1",
 	"tally_params": {
-		"quorum": "0.334000000000000000",
+		"quorum": "0.500000000000000000",
 		"threshold": "0.500000000000000000",
 		"veto_threshold": "0.334000000000000000"
 	},

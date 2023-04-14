@@ -260,8 +260,7 @@ func TestTickPassedVotingPeriod(t *testing.T) {
 			activeQueue := suite.GovKeeper.ActiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
 			require.False(t, activeQueue.Valid())
 			activeQueue.Close()
-
-			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 5*depositMultiplier))}
+			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 500000000000*depositMultiplier))}
 			newProposalMsg, err := v1.NewMsgSubmitProposal([]sdk.Msg{mkTestLegacyContent(t)}, proposalCoins, addrs[0].String(), "", "Proposal", "description of proposal", tc.expedited)
 			require.NoError(t, err)
 
@@ -362,7 +361,7 @@ func TestProposalPassedEndblocker(t *testing.T) {
 			valAddr := sdk.ValAddress(addrs[0])
 			proposer := addrs[0]
 
-			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{1000000000000})
 			staking.EndBlocker(ctx, suite.StakingKeeper)
 
 			macc := suite.GovKeeper.GetGovernanceAccount(ctx)
@@ -372,7 +371,7 @@ func TestProposalPassedEndblocker(t *testing.T) {
 			proposal, err := suite.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "title", "summary", proposer, tc.expedited)
 			require.NoError(t, err)
 
-			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 10*depositMultiplier))}
+			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 1000000000000*depositMultiplier))}
 			newDepositMsg := v1.NewMsgDeposit(addrs[0], proposal.Id, proposalCoins)
 
 			res, err := govMsgSvr.Deposit(ctx, newDepositMsg)
@@ -417,14 +416,14 @@ func TestEndBlockerProposalHandlerFailed(t *testing.T) {
 	valAddr := sdk.ValAddress(addrs[0])
 	proposer := addrs[0]
 
-	createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+	createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{1000000000000})
 	staking.EndBlocker(ctx, suite.StakingKeeper)
 
 	msg := banktypes.NewMsgSend(authtypes.NewModuleAddress(types.ModuleName), addrs[0], sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000))))
 	proposal, err := suite.GovKeeper.SubmitProposal(ctx, []sdk.Msg{msg}, "", "title", "summary", proposer, false)
 	require.NoError(t, err)
 
-	proposalCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 10)))
+	proposalCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 1000000000000)))
 	newDepositMsg := v1.NewMsgDeposit(addrs[0], proposal.Id, proposalCoins)
 
 	govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
@@ -498,7 +497,7 @@ func TestExpeditedProposal_PassAndConversionToRegular(t *testing.T) {
 			proposer := addrs[0]
 
 			// Create a validator so that able to vote on proposal.
-			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10000000000000})
 			staking.EndBlocker(ctx, suite.StakingKeeper)
 
 			inactiveQueue := suite.GovKeeper.InactiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
@@ -515,7 +514,7 @@ func TestExpeditedProposal_PassAndConversionToRegular(t *testing.T) {
 			submitterInitialBalance := suite.BankKeeper.GetAllBalances(ctx, addrs[0])
 			depositorInitialBalance := suite.BankKeeper.GetAllBalances(ctx, addrs[1])
 
-			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 5*depositMultiplier))}
+			proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, suite.StakingKeeper.TokensFromConsensusPower(ctx, 500000000000*depositMultiplier))}
 			newProposalMsg, err := v1.NewMsgSubmitProposal([]sdk.Msg{}, proposalCoins, proposer.String(), "metadata", "title", "summary", true)
 			require.NoError(t, err)
 

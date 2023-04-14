@@ -789,7 +789,7 @@ The governance module contains the following parameters:
 | min_deposit                   | array (coins)    | [{"denom":"uatom","amount":"10000000"}] |
 | max_deposit_period            | string (time ns) | "172800000000000" (17280s)              |
 | voting_period                 | string (time ns) | "172800000000000" (17280s)              |
-| quorum                        | string (dec)     | "0.334000000000000000"                  |
+| quorum                        | string (dec)     | "0.500000000000000000"                  |
 | threshold                     | string (dec)     | "0.500000000000000000"                  |
 | veto                          | string (dec)     | "0.334000000000000000"                  |
 | expedited_threshold           | string (time ns) | "0.667000000000000000"                  |
@@ -923,12 +923,12 @@ params:
     denom: stake
   min_initial_deposit_ratio: "0.000000000000000000"
   proposal_cancel_burn_rate: "0.500000000000000000"
-  quorum: "0.334000000000000000"
+  quorum: "0.500000000000000000"
   threshold: "0.500000000000000000"
   veto_threshold: "0.334000000000000000"
   voting_period: 172800s
 tally_params:
-  quorum: "0.334000000000000000"
+  quorum: "0.500000000000000000"
   threshold: "0.500000000000000000"
   veto_threshold: "0.334000000000000000"
 voting_params:

@@ -13,8 +13,8 @@ const (
 
 // Default governance params
 var (
-	DefaultMinDepositTokens = sdk.NewInt(10000000)
-	DefaultQuorum           = sdk.NewDecWithPrec(334, 3)
+	DefaultMinDepositTokens = sdk.NewInt(1000000000000000000)
+	DefaultQuorum           = sdk.NewDecWithPrec(5, 1)
 	DefaultThreshold        = sdk.NewDecWithPrec(5, 1)
 	DefaultVetoThreshold    = sdk.NewDecWithPrec(334, 3)
 )

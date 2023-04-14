@@ -46,15 +46,15 @@ func TestDeposits(t *testing.T) {
 				depositMultiplier = v1.DefaultMinExpeditedDepositTokensRatio
 			}
 
-			TestAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdk.NewInt(10000000*depositMultiplier))
+			TestAddrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 2, sdk.NewInt(1000000000000000000*depositMultiplier))
 
 			tp := TestProposal
 			proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "title", "summary", TestAddrs[0], tc.expedited)
 			require.NoError(t, err)
 			proposalID := proposal.Id
 
-			fourStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 4*depositMultiplier)))
-			fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 5*depositMultiplier)))
+			fourStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 400000000000*depositMultiplier)))
+			fiveStake := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, stakingKeeper.TokensFromConsensusPower(ctx, 500000000000*depositMultiplier)))
 
 			addr0Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[0])
 			addr1Initial := bankKeeper.GetAllBalances(ctx, TestAddrs[1])

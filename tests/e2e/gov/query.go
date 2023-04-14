@@ -23,7 +23,7 @@ func (s *E2ETestSuite) TestCmdParams() {
 		{
 			"json output",
 			[]string{fmt.Sprintf("--%s=json", flags.FlagOutput)},
-			`{"voting_params":{"voting_period":"172800s"},"deposit_params":{"min_deposit":[{"denom":"stake","amount":"10000000"}],"max_deposit_period":"172800s"},"tally_params":{"quorum":"0.334000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000"},"params":{"min_deposit":[{"denom":"stake","amount":"10000000"}],"max_deposit_period":"172800s","voting_period":"172800s","quorum":"0.334000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000","min_initial_deposit_ratio":"0.000000000000000000","proposal_cancel_ratio":"0.500000000000000000","proposal_cancel_dest":"","expedited_voting_period":"86400s","expedited_threshold":"0.667000000000000000","expedited_min_deposit":[{"denom":"stake","amount":"50000000"}],"burn_vote_quorum":false,"burn_proposal_deposit_prevote":false,"burn_vote_veto":true}}`,
+			`{"voting_params":{"voting_period":"172800s"},"deposit_params":{"min_deposit":[{"denom":"stake","amount":"1000000000000000000"}],"max_deposit_period":"172800s"},"tally_params":{"quorum":"0.500000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000"},"params":{"min_deposit":[{"denom":"stake","amount":"10000000"}],"max_deposit_period":"172800s","voting_period":"172800s","quorum":"0.500000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000","min_initial_deposit_ratio":"0.000000000000000000","proposal_cancel_ratio":"0.500000000000000000","proposal_cancel_dest":"","expedited_voting_period":"86400s","expedited_threshold":"0.667000000000000000","expedited_min_deposit":[{"denom":"stake","amount":"5000000000000000000"}],"burn_vote_quorum":false,"burn_proposal_deposit_prevote":false,"burn_vote_veto":true}}`,
 		},
 		{
 			"text output",
@@ -32,30 +32,30 @@ func (s *E2ETestSuite) TestCmdParams() {
 deposit_params:
   max_deposit_period: 172800s
   min_deposit:
-  - amount: "10000000"
+  - amount: "1000000000000000000"
     denom: stake
 params:
   burn_proposal_deposit_prevote: false
   burn_vote_quorum: false
   burn_vote_veto: true
   expedited_min_deposit:
-  - amount: "50000000"
+  - amount: "5000000000000000000"
     denom: stake
   expedited_threshold: "0.667000000000000000"
   expedited_voting_period: 86400s
   max_deposit_period: 172800s
   min_deposit:
-  - amount: "10000000"
+  - amount: "1000000000000000000"
     denom: stake
   min_initial_deposit_ratio: "0.000000000000000000"
   proposal_cancel_dest: ""
   proposal_cancel_ratio: "0.500000000000000000"
-  quorum: "0.334000000000000000"
+  quorum: "0.500000000000000000"
   threshold: "0.500000000000000000"
   veto_threshold: "0.334000000000000000"
   voting_period: 172800s
 tally_params:
-  quorum: "0.334000000000000000"
+  quorum: "0.500000000000000000"
   threshold: "0.500000000000000000"
   veto_threshold: "0.334000000000000000"
 voting_params:
@@ -100,7 +100,7 @@ func (s *E2ETestSuite) TestCmdParam() {
 				"tallying",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			`{"quorum":"0.334000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000"}`,
+			`{"quorum":"0.500000000000000000","threshold":"0.500000000000000000","veto_threshold":"0.334000000000000000"}`,
 		},
 		{
 			"deposit params",
@@ -108,7 +108,7 @@ func (s *E2ETestSuite) TestCmdParam() {
 				"deposit",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
-			`{"min_deposit":[{"denom":"stake","amount":"10000000"}],"max_deposit_period":"172800000000000"}`,
+			`{"min_deposit":[{"denom":"stake","amount":"1000000000000000000"}],"max_deposit_period":"172800000000000"}`,
 		},
 	}
 
