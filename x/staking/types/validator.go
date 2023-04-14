@@ -79,7 +79,7 @@ func NewSimpleValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, desc
 func NewValidator(
 	operator sdk.ValAddress, pubKey cryptotypes.PubKey,
 	description Description, selfDelegator sdk.AccAddress,
-	relayer sdk.AccAddress, challenger sdk.AccAddress, blsKey []byte,
+	relayer, challenger sdk.AccAddress, blsKey []byte,
 ) (Validator, error) {
 	val, err := NewSimpleValidator(operator, pubKey, description)
 	if err != nil {

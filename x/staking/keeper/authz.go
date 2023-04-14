@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-func (k Keeper) CheckStakeAuthorization(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msg sdk.Msg) error {
+func (k Keeper) CheckStakeAuthorization(ctx sdk.Context, grantee, granter sdk.AccAddress, msg sdk.Msg) error {
 	grant, found := k.authzKeeper.GetGrant(ctx, grantee, granter, sdk.MsgTypeURL(msg))
 	if !found {
 		return authz.ErrNoAuthorizationFound

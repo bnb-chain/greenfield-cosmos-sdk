@@ -41,7 +41,7 @@ var invalidStrs = []string{
 	types.Bech32PrefixConsPub + "6789",
 }
 
-func (s *addressTestSuite) testMarshal(original interface{}, res interface{}, marshal func() ([]byte, error), unmarshal func([]byte) error) {
+func (s *addressTestSuite) testMarshal(original, res interface{}, marshal func() ([]byte, error), unmarshal func([]byte) error) {
 	bz, err := marshal()
 	s.Require().Nil(err)
 	s.Require().Nil(unmarshal(bz))
@@ -89,7 +89,10 @@ func (s *addressTestSuite) TestRandAccAddrConsistency() {
 	pub := &ed25519.PubKey{Key: pubBz}
 
 	for i := 0; i < 1000; i++ {
-		rand.Read(pub.Key)
+		_, err := rand.Read(pub.Key)
+		if err != nil {
+			s.T().Fatal(err)
+		}
 
 		acc := types.AccAddress(pub.Address())
 		res := types.AccAddress{}
@@ -98,7 +101,7 @@ func (s *addressTestSuite) TestRandAccAddrConsistency() {
 		s.testMarshal(&acc, &res, acc.Marshal, (&res).Unmarshal)
 
 		str := acc.String()
-		res, err := types.AccAddressFromHexUnsafe(str)
+		res, err = types.AccAddressFromHexUnsafe(str)
 		s.Require().Nil(err)
 		s.Require().Equal(acc, res)
 
@@ -128,7 +131,10 @@ func (s *addressTestSuite) TestValAddr() {
 	pub := &ed25519.PubKey{Key: pubBz}
 
 	for i := 0; i < 20; i++ {
-		rand.Read(pub.Key)
+		_, err := rand.Read(pub.Key)
+		if err != nil {
+			s.T().Fatal(err)
+		}
 
 		acc := types.ValAddress(pub.Address())
 		res := types.ValAddress{}
@@ -137,7 +143,7 @@ func (s *addressTestSuite) TestValAddr() {
 		s.testMarshal(&acc, &res, acc.Marshal, (&res).Unmarshal)
 
 		str := acc.String()
-		res, err := types.ValAddressFromHex(str)
+		res, err = types.ValAddressFromHex(str)
 		s.Require().Nil(err)
 		s.Require().Equal(acc, res)
 
@@ -273,7 +279,10 @@ func RandString(n int) string {
 func (s *addressTestSuite) TestAddressInterface() {
 	pubBz := make([]byte, ed25519.PubKeySize)
 	pub := &ed25519.PubKey{Key: pubBz}
-	rand.Read(pub.Key)
+	_, err := rand.Read(pub.Key)
+	if err != nil {
+		s.T().Fatal(err)
+	}
 
 	addrs := []types.Address{
 		types.ConsAddress(pub.Address()),
