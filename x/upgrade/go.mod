@@ -40,7 +40,6 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.2 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
-	github.com/bufbuild/protocompile v0.5.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -176,7 +175,7 @@ require (
 replace (
 	cosmossdk.io/api => ../../api
 	cosmossdk.io/log => ../../log
-	cosmossdk.io/x/upgrade => ../../x/upgrade
+
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230407055437-d971cdfb9041
 	github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230321173237-fe77d4bca302 => ../../.
