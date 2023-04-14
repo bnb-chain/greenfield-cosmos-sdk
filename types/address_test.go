@@ -318,14 +318,6 @@ func (s *addressTestSuite) TestVerifyAddressFormat() {
 }
 
 func (s *addressTestSuite) TestCustomAddressVerifier() {
-
-	caddr, err2 := types.ValAddressFromHex("C8D8FBFEFCA9FE64880AA876B9D51A943F02FA80")
-	fmt.Println(caddr, err2)
-	caddr.Bytes()
-	covAddr := &ed25519.PubKey{Key: caddr.Bytes()}
-	fmt.Println(covAddr.Address())
-	return
-
 	// Create a 10 byte address
 	addr := []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	accHex := types.AccAddress(addr).String()
@@ -352,15 +344,9 @@ func (s *addressTestSuite) TestCustomAddressVerifier() {
 		return fmt.Errorf("incorrect address length %d", n)
 	})
 
-	// Verifiy that the custom logic rejects this 10 byte address
+	// Verify that the custom logic rejects this 10 byte address
 	err = types.VerifyAddressFormat(addr)
 	s.Require().NotNil(err)
-	// _, err = types.AccAddressFromHexUnsafe(accHex)
-	// s.Require().NotNil(err)
-	// _, err = types.ValAddressFromHex(valHex)
-	// s.Require().NotNil(err)
-	// _, err = types.ConsAddressFromHex(consHex)
-	// s.Require().NotNil(err)
 
 	// Reinitialize the global config to default address verifier (nil)
 	types.GetConfig().SetAddressVerifier(nil)
