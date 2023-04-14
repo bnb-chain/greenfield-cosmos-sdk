@@ -13,6 +13,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -61,7 +62,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	appOptions.SetDefault(flags.FlagHome, DefaultNodeHome)
 	appOptions.SetDefault(server.FlagInvCheckPeriod, simcli.FlagPeriodValue)
 
-	app := NewSimApp(logger, db, nil, true, appOptions, interBlockCacheOpt())
+	app := NewSimApp(logger, db, nil, true, SimAppChainID, serverconfig.DefaultConfig(), appOptions, interBlockCacheOpt())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -116,7 +117,7 @@ func BenchmarkInvariants(b *testing.B) {
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
-	app := NewSimApp(logger, db, nil, true, appOptions, interBlockCacheOpt())
+	app := NewSimApp(logger, db, nil, true, SimAppChainID, serverconfig.DefaultConfig(), appOptions, interBlockCacheOpt())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(

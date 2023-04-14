@@ -145,7 +145,6 @@ func (s *TestSuite) TestInvalidClaim() {
 	s.Require().NotNil(err, "process claim should return error")
 	s.Require().Contains(err.Error(), "src chain id is invalid")
 
-	//s.app.CrossChainKeeper.SetDestChainID(sdk.ChainID(65))
 	s.crossChainKeeper.EXPECT().IsDestChainSupported(sdk.ChainID(65)).Return(true).AnyTimes()
 
 	// invalid payload

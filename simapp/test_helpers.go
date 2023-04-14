@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -21,6 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/server"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -46,7 +48,11 @@ func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewSimApp(log.NewNopLogger(), db, nil, true, appOptions)
+	app := NewSimApp(log.NewNopLogger(), db, nil, true, "", serverconfig.DefaultConfig(), appOptions)
+	// enable delegation in tests
+	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
+		return upgradetypes.EnablePublicDelegationUpgrade == s
+	})
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
@@ -72,7 +78,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000000000))),
 	}
 
-	app := NewSimApp(options.Logger, options.DB, nil, true, options.AppOpts)
+	app := NewSimApp(options.Logger, options.DB, nil, true, "", serverconfig.DefaultConfig(), options.AppOpts)
 	genesisState := app.DefaultGenesis()
 	genesisState, err = simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 	require.NoError(t, err)
@@ -128,6 +134,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	t.Helper()
 
 	app, genesisState := setup(true, 5)
+
 	genesisState, err := simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, genAccs, balances...)
 	require.NoError(t, err)
 
@@ -223,11 +230,10 @@ func NewTestNetworkFixture() network.TestFixture {
 	}
 	defer os.RemoveAll(dir)
 
-	app := NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(dir))
-
+	app := NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(dir))
 	appCtr := func(val network.ValidatorI) servertypes.Application {
 		return NewSimApp(
-			val.GetCtx().Logger, dbm.NewMemDB(), nil, true,
+			val.GetCtx().Logger, dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(),
 			simtestutil.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir),
 			bam.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 			bam.SetMinGasPrices(val.GetAppConfig().MinGasPrices),

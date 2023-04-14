@@ -1,9 +1,10 @@
 package v1
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
-	"strings"
 )
 
 func NewCrossChainParamsChange(key string, values, targets []string) *CrossChainParamsChange {

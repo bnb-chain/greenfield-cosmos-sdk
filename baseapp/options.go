@@ -297,3 +297,8 @@ func (app *BaseApp) SetStoreMetrics(gatherer metrics.StoreMetrics) {
 func (app *BaseApp) SetStreamingManager(manager storetypes.StreamingManager) {
 	app.streamingManager = manager
 }
+
+// SetUpgradeChecker is used to set a upgrade checker from the upgrade module
+func (app *BaseApp) SetUpgradeChecker(checker func(sdk.Context, string) bool) {
+	app.upgradeChecker = checker
+}

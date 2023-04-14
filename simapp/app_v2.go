@@ -10,6 +10,7 @@ import (
 
 	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/x/crosschain"
 	"github.com/cosmos/cosmos-sdk/x/oracle"
 
@@ -25,6 +26,7 @@ import (
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -164,6 +166,8 @@ func NewSimApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
+	chainID string,
+	serverCfg *serverconfig.Config,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *SimApp {
@@ -258,7 +262,9 @@ func NewSimApp(
 	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
-
+	baseAppOptions = append(baseAppOptions, func(ba *baseapp.BaseApp) {
+		ba.SetUpgradeChecker(app.UpgradeKeeper.IsUpgraded)
+	})
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
 
 	// register streaming services
@@ -270,8 +276,14 @@ func NewSimApp(
 
 	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
+	// Enable the public delegation for e2e testing
+	serverCfg.Upgrade = append(serverCfg.Upgrade, serverconfig.UpgradeConfig{
+		Name:   upgradetypes.EnablePublicDelegationUpgrade,
+		Height: 2,
+		Info:   "Enable public delegation, after this fork, anyone can delegate and redelegate to any validator.",
+	})
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
-	app.RegisterUpgradeHandlers()
+	app.RegisterUpgradeHandlers(chainID, serverCfg)
 
 	// add test gRPC service for testing gRPC queries in isolation
 	testdata_pulsar.RegisterQueryServer(app.GRPCQueryRouter(), testdata_pulsar.QueryImpl{})

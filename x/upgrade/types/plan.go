@@ -14,12 +14,6 @@ const UpgradeInfoFilename = "upgrade-info.json"
 
 // ValidateBasic does basic validation of a Plan
 func (p Plan) ValidateBasic() error {
-	if !p.Time.IsZero() {
-		return sdkerrors.ErrInvalidRequest.Wrap("time-based upgrades have been deprecated in the SDK")
-	}
-	if p.UpgradedClientState != nil {
-		return sdkerrors.ErrInvalidRequest.Wrap("upgrade logic for IBC has been moved to the IBC module")
-	}
 	if len(p.Name) == 0 {
 		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "name cannot be empty")
 	}

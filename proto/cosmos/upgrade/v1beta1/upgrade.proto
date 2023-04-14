@@ -1,10 +1,7 @@
 syntax = "proto3";
 package cosmos.upgrade.v1beta1;
 
-import "google/protobuf/any.proto";
 import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
-import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
 
 option go_package                      = "cosmossdk.io/x/upgrade/types";
@@ -24,60 +21,13 @@ message Plan {
   // reached and the software will exit.
   string name = 1;
 
-  // Deprecated: Time based upgrades have been deprecated. Time based upgrade logic
-  // has been removed from the SDK.
-  // If this field is not empty, an error will be thrown.
-  google.protobuf.Timestamp time = 2
-      [deprecated = true, (gogoproto.stdtime) = true, (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-
   // The height at which the upgrade must be performed.
-  int64 height = 3;
+  // Only used if Time is not set.
+  int64 height = 2;
 
   // Any application specific upgrade info to be included on-chain
   // such as a git commit that validators could automatically upgrade to
-  string info = 4;
-
-  // Deprecated: UpgradedClientState field has been deprecated. IBC upgrade logic has been
-  // moved to the IBC module in the sub module 02-client.
-  // If this field is not empty, an error will be thrown.
-  google.protobuf.Any upgraded_client_state = 5 [deprecated = true];
-}
-
-// SoftwareUpgradeProposal is a gov Content type for initiating a software
-// upgrade.
-// Deprecated: This legacy proposal is deprecated in favor of Msg-based gov
-// proposals, see MsgSoftwareUpgrade.
-message SoftwareUpgradeProposal {
-  option deprecated                          = true;
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-  option (amino.name)                        = "cosmos-sdk/SoftwareUpgradeProposal";
-  option (gogoproto.equal)                   = true;
-
-  // title of the proposal
-  string title = 1;
-
-  // description of the proposal
-  string description = 2;
-
-  // plan of the proposal
-  Plan plan = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
-}
-
-// CancelSoftwareUpgradeProposal is a gov Content type for cancelling a software
-// upgrade.
-// Deprecated: This legacy proposal is deprecated in favor of Msg-based gov
-// proposals, see MsgCancelUpgrade.
-message CancelSoftwareUpgradeProposal {
-  option deprecated                          = true;
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-  option (amino.name)                        = "cosmos-sdk/CancelSoftwareUpgradeProposal";
-  option (gogoproto.equal)                   = true;
-
-  // title of the proposal
-  string title = 1;
-
-  // description of the proposal
-  string description = 2;
+  string info = 3;
 }
 
 // ModuleVersion specifies a module and its consensus version.

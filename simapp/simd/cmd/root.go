@@ -44,7 +44,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	// for consistency between app-v1 and app-v2, we do it the same way via methods on simapp
-	tempApp := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(tempDir()))
+	tempApp := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(tempDir()))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -282,12 +282,13 @@ func newApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
+	chainID string,
+	serverCfg *serverconfig.Config,
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
-
 	return simapp.NewSimApp(
-		logger, db, traceStore, true,
+		logger, db, traceStore, true, chainID, serverCfg,
 		appOpts,
 		baseappOptions...,
 	)
@@ -321,15 +322,19 @@ func appExport(
 	// overwrite the FlagInvCheckPeriod
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
+	serverCfg, err := serverconfig.GetConfig(viperAppOpts)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
 
 	if height != -1 {
-		simApp = simapp.NewSimApp(logger, db, traceStore, false, appOpts)
+		simApp = simapp.NewSimApp(logger, db, traceStore, false, "", &serverCfg, appOpts)
 
 		if err := simApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = simapp.NewSimApp(logger, db, traceStore, true, appOpts)
+		simApp = simapp.NewSimApp(logger, db, traceStore, true, "", &serverCfg, appOpts)
 	}
 
 	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

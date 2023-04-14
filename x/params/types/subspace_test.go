@@ -44,7 +44,7 @@ func (suite *SubspaceTestSuite) SetupTest() {
 	suite.amino = encodingConfig.Amino
 
 	ss := types.NewSubspace(suite.cdc, suite.amino, key, tkey, "testsubspace")
-	suite.ctx = sdk.NewContext(ms, cmtproto.Header{}, false, log.NewNopLogger())
+	suite.ctx = sdk.NewContext(ms, cmtproto.Header{}, false, nil, log.NewNopLogger())
 	suite.ss = ss.WithKeyTable(paramKeyTable())
 }
 

@@ -26,7 +26,7 @@ func DefaultContext(key, tkey storetypes.StoreKey) sdk.Context {
 	if err != nil {
 		panic(err)
 	}
-	ctx := sdk.NewContext(cms, cmtproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cms, cmtproto.Header{}, false, nil, log.NewNopLogger())
 
 	return ctx
 }
@@ -45,7 +45,7 @@ func DefaultContextWithDB(t *testing.T, key, tkey storetypes.StoreKey) TestConte
 	err := cms.LoadLatestVersion()
 	assert.NoError(t, err)
 
-	ctx := sdk.NewContext(cms, cmtproto.Header{Time: time.Now()}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cms, cmtproto.Header{Time: time.Now()}, false, nil, log.NewNopLogger())
 
 	return TestContext{ctx, db, cms}
 }

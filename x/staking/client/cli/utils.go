@@ -17,6 +17,8 @@ import (
 )
 
 // validator struct to define the fields of the validator
+//
+//nolint:unused
 type validator struct {
 	Amount            sdk.Coin
 	PubKey            cryptotypes.PubKey
@@ -29,6 +31,7 @@ type validator struct {
 	MinSelfDelegation math.Int
 }
 
+//nolint:unused
 func parseAndValidateValidatorJSON(cdc codec.Codec, path string) (validator, error) {
 	type internalVal struct {
 		Amount              string          `json:"amount"`

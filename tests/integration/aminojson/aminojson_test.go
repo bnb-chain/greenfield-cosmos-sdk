@@ -294,10 +294,6 @@ var (
 
 		// upgrade
 		genType(&upgradetypes.Plan{}, &upgradeapi.Plan{}, genOpts.WithDisallowNil()),
-		genType(&upgradetypes.SoftwareUpgradeProposal{}, &upgradeapi.SoftwareUpgradeProposal{}, genOpts.WithDisallowNil()),
-		genType(&upgradetypes.CancelSoftwareUpgradeProposal{}, &upgradeapi.CancelSoftwareUpgradeProposal{}, genOpts),
-		genType(&upgradetypes.MsgSoftwareUpgrade{}, &upgradeapi.MsgSoftwareUpgrade{}, genOpts.WithDisallowNil()),
-		genType(&upgradetypes.MsgCancelUpgrade{}, &upgradeapi.MsgCancelUpgrade{}, genOpts),
 
 		// vesting
 		genType(&vestingtypes.BaseVestingAccount{}, &vestingapi.BaseVestingAccount{}, genOpts.WithDisallowNil()),
