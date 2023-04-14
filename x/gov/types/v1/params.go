@@ -18,9 +18,9 @@ const (
 
 // Default governance params
 var (
-	DefaultMinDepositTokens          = sdk.NewInt(10000000)
+	DefaultMinDepositTokens          = sdk.NewInt(1000000000000000000)
 	DefaultMinExpeditedDepositTokens = DefaultMinDepositTokens.Mul(math.NewInt(DefaultMinExpeditedDepositTokensRatio))
-	DefaultQuorum                    = sdk.NewDecWithPrec(334, 3)
+	DefaultQuorum                    = sdk.NewDecWithPrec(5, 1)
 	DefaultThreshold                 = sdk.NewDecWithPrec(5, 1)
 	DefaultExpeditedThreshold        = sdk.NewDecWithPrec(667, 3)
 	DefaultVetoThreshold             = sdk.NewDecWithPrec(334, 3)

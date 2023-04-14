@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	DefaultRelayerTimeout     uint64 = 40  // in s
+	DefaultRelayerTimeout     uint64 = 90  // in s
 	DefaultRelayerRewardShare uint32 = 50  // in s
 	DefaultRealyerInterval    uint64 = 600 // in s
 )
