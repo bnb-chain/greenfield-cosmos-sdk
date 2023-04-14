@@ -137,7 +137,7 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	}
 
 	// enable delegation in tests
-	app.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
+	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
 		return upgradetypes.EnablePublicDelegationUpgrade == s
 	})
 

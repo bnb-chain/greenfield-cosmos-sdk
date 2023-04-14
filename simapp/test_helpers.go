@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -48,6 +49,10 @@ func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
 	app := NewSimApp(log.NewNopLogger(), db, nil, true, "", serverconfig.DefaultConfig(), appOptions)
+	// enable delegation in tests
+	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
+		return upgradetypes.EnablePublicDelegationUpgrade == s
+	})
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
@@ -129,6 +134,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	t.Helper()
 
 	app, genesisState := setup(true, 5)
+
 	genesisState, err := simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, genAccs, balances...)
 	require.NoError(t, err)
 
