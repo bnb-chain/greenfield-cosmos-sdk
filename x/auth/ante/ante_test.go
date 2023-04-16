@@ -29,7 +29,7 @@ import (
 
 // Test that simulate transaction accurately estimates gas cost
 func TestSimulateGasCost(t *testing.T) {
-	// This test has a test case that uses another's output.
+	// This test has a test case that uses another output.
 	var simulatedGas uint64
 
 	// Same data for every test case
@@ -691,7 +691,7 @@ func TestAnteHandlerMemoGas(t *testing.T) {
 					accNums:   []uint64{0},
 					accSeqs:   []uint64{0},
 					feeAmount: sdk.NewCoins(sdk.NewInt64Coin("atom", 0)),
-					gasLimit:  0,
+					gasLimit:  1,
 					msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].acc.GetAddress())},
 					privs:     []cryptotypes.PrivKey{accs[0].priv},
 				}

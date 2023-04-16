@@ -6,11 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// FeeAllowance implementations are tied to a given fee delegator and delegatee,
+// FeeAllowanceI implementations are tied to a given fee delegator and delegatee,
 // and are used to enforce fee grant limits.
 type FeeAllowanceI interface {
 	// Accept can use fee payment requested as well as timestamp of the current block
-	// to determine whether or not to process this. This is checked in
+	// to determine whether to process this. This is checked in
 	// Keeper.UseGrantedFees and the return values should match how it is handled there.
 	//
 	// If it returns an error, the fee payment is rejected, otherwise it is accepted.

@@ -1,0 +1,65 @@
+syntax = "proto3";
+package cosmos.gashub.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/gashub/v1beta1/gashub.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// Msg defines the gashub Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // UpdateParams defines a governance operation for updating the x/gashub module parameters.
+  // The authority is defined in the keeper.
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // SetMsgGasParams is a governance operation for setting the MsgGasParams flag
+  // on any number of msg types. Only the entries to add or update should be
+  // included. Entries that already exist in the store, but that aren't
+  // included in this message, will be left unchanged.
+  rpc SetMsgGasParams(MsgSetMsgGasParams) returns (MsgSetMsgGasParamsResponse);}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority    = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  option (amino.name) = "cosmos-sdk/x/gashub/MsgUpdateParams";
+
+  // params defines the x/gashub parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
+
+// MsgSetMsgGasParams is the Msg/SetMsgGasParams request type.
+//
+// Only entries to add/update/delete need to be included.
+// Existing MsgGasParams entries that are not included in this
+// message are left unchanged.
+message MsgSetMsgGasParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "cosmos-sdk/MsgSetMsgGasParams";
+
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // update_set is the list of entries to add or update.
+  repeated MsgGasParams update_set = 2;
+
+  // delete_set is a list of msg types that will have their MsgGasParams entries deleted.
+  // If a msg type is included that doesn't have a MsgGasParams entry,
+  // it will be ignored.
+  repeated string delete_set = 3;
+}
+
+// MsgSetMsgGasParamsResponse defines the Msg/SetMsgGasParams response type.
+message MsgSetMsgGasParamsResponse {}

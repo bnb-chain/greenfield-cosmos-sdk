@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 )
 
 // AddressGenerator creates and returns a random address generator using rapid.
@@ -44,10 +45,18 @@ func KeyTestPubAddr() (cryptotypes.PrivKey, cryptotypes.PubKey, sdk.AccAddress) 
 	return key, pub, addr
 }
 
-// KeyTestPubAddr generates a new secp256r1 keypair.
+// KeyTestPubAddrSecp256R1 generates a new secp256r1 keypair.
 func KeyTestPubAddrSecp256R1(t *testing.T) (cryptotypes.PrivKey, cryptotypes.PubKey, sdk.AccAddress) {
 	key, err := secp256r1.GenPrivKey()
 	assert.NilError(t, err)
+	pub := key.PubKey()
+	addr := sdk.AccAddress(pub.Address())
+	return key, pub, addr
+}
+
+// KeyTestPubAddrEthSecp256k1 generates a new eth_secp256k1 keypair.
+func KeyTestPubAddrEthSecp256k1() (cryptotypes.PrivKey, cryptotypes.PubKey, sdk.AccAddress) {
+	key, _ := ethsecp256k1.GenPrivKey()
 	pub := key.PubKey()
 	addr := sdk.AccAddress(pub.Address())
 	return key, pub, addr

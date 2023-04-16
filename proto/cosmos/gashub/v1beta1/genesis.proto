@@ -1,0 +1,17 @@
+syntax = "proto3";
+package cosmos.gashub.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/gashub/v1beta1/gashub.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// GenesisState defines the gashub module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+
+  // msg_gas_params defines the gas consumption for a msg type.
+  repeated MsgGasParams msg_gas_params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}

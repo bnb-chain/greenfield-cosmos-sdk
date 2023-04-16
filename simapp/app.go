@@ -22,6 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crosschain"
 	crosschainkeeper "github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
+	gashubkeeper "github.com/cosmos/cosmos-sdk/x/gashub/keeper"
 
 	simappparams "cosmossdk.io/simapp/params"
 	storetypes "cosmossdk.io/store/types"
@@ -82,6 +83,8 @@ import (
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/cosmos-sdk/x/gashub"
+	gashubtypes "github.com/cosmos/cosmos-sdk/x/gashub/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -141,6 +144,7 @@ var (
 		nftmodule.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		crosschain.AppModuleBasic{},
+		gashub.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -194,6 +198,7 @@ type SimApp struct {
 	NFTKeeper             nftkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	CrossChainKeeper      crosschainkeeper.Keeper
+	GashubKeeper          gashubkeeper.Keeper
 
 	// the module manager
 	ModuleManager *module.Manager
@@ -269,6 +274,7 @@ func NewSimApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, consensusparamtypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, authzkeeper.StoreKey, nftkeeper.StoreKey, group.StoreKey, crosschaintypes.StoreKey,
+		gashubtypes.StoreKey,
 	)
 
 	// register streaming services
@@ -344,6 +350,8 @@ func NewSimApp(
 
 	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
+	app.GashubKeeper = gashubkeeper.NewKeeper(appCodec, keys[gashubtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
 	// by granting the governance module the right to execute the message.
@@ -409,6 +417,7 @@ func NewSimApp(
 		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		crosschain.NewAppModule(app.CrossChainKeeper, app.BankKeeper, app.StakingKeeper),
+		gashub.NewAppModule(app.GashubKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -438,7 +447,7 @@ func NewSimApp(
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: The genutils module must also occur after auth so that it can access the params from auth.
 	genesisModuleOrder := []string{
-		authtypes.ModuleName, banktypes.ModuleName,
+		authtypes.ModuleName, banktypes.ModuleName, gashubtypes.ModuleName,
 		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName,
 		minttypes.ModuleName, crisistypes.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, nft.ModuleName, group.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,

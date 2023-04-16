@@ -38,7 +38,7 @@ func (sud SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 		return newCtx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be GasTx")
 	}
 
-	newCtx = SetGasMeter(simulate, ctx, gasTx.GetGas())
+	newCtx = SetGasMeter(simulate, ctx, gasTx.GetGas()).WithTxSize(uint64(len(ctx.TxBytes())))
 
 	// Decorator will catch an OutOfGasPanic caused in the next antehandler
 	// AnteHandlers must have their own defer/recover in order for the BaseApp

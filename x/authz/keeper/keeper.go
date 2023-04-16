@@ -20,11 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-// TODO: Revisit this once we have propoer gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054,
-// https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(20)
-
 type Keeper struct {
 	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
@@ -362,8 +357,6 @@ func (k Keeper) removeFromGrantQueue(ctx sdk.Context, grantKey []byte, granter, 
 	queueItems := queueItem.MsgTypeUrls
 
 	for index, typeURL := range queueItems {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "grant queue")
-
 		if typeURL == msgType {
 			end := len(queueItem.MsgTypeUrls) - 1
 			queueItems[index] = queueItems[end]

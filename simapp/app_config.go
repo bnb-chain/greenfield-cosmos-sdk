@@ -13,6 +13,7 @@ import (
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
+	gashubmodulev1 "cosmossdk.io/api/cosmos/gashub/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
 	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
@@ -43,6 +44,7 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	gashubtypes "github.com/cosmos/cosmos-sdk/x/gashub/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/group"
@@ -138,6 +140,7 @@ var (
 						consensustypes.ModuleName,
 						crosschaintypes.ModuleName,
 						oracletypes.ModuleName,
+						gashubtypes.ModuleName,
 					},
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -240,6 +243,10 @@ var (
 			{
 				Name:   oracletypes.ModuleName,
 				Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
+			},
+			{
+				Name:   gashubtypes.ModuleName,
+				Config: appconfig.WrapAny(&gashubmodulev1.Module{}),
 			},
 		},
 	})

@@ -7,7 +7,7 @@ require (
 	cosmossdk.io/math v1.0.0
 	github.com/coinbase/rosetta-sdk-go/types v1.0.0
 	github.com/cometbft/cometbft v0.37.1-0.20230411132551-3a91d155e664
-	github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230321173237-fe77d4bca302
+	github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230328185921-37ba88872dbc
 	github.com/cosmos/rosetta-sdk-go v0.10.0
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/spf13/cobra v1.7.0
@@ -23,6 +23,7 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.3 // indirect
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	cosmossdk.io/store v0.1.0-alpha.1.0.20230328185921-37ba88872dbc // indirect
+	cosmossdk.io/x/feegrant v0.0.0-00010101000000-000000000000 // indirect
 	cosmossdk.io/x/tx v0.5.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -69,7 +70,7 @@ require (
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -164,11 +165,13 @@ require (
 replace (
 	cosmossdk.io/api => ../../api
 	cosmossdk.io/log => ../../log
+	cosmossdk.io/x/feegrant => ../../x/feegrant
 	cosmossdk.io/x/upgrade => ../../x/upgrade
 )
 
 replace (
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cosmos/cosmos-sdk v0.46.0-beta2.0.20230321173237-fe77d4bca302 => ../../.
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230407055437-d971cdfb9041
+	github.com/cosmos/cosmos-sdk => ../../.
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )

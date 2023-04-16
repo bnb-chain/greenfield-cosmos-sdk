@@ -33,6 +33,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/gashub"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
@@ -204,6 +205,7 @@ func TestRunMigrations(t *testing.T) {
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
 					"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
 					"oracle":       oracle.AppModule{}.ConsensusVersion(),
+					"gashub":       gashub.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -255,6 +257,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"genutil":      genutil.AppModule{}.ConsensusVersion(),
 			"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
 			"oracle":       oracle.AppModule{}.ConsensusVersion(),
+			"gashub":       gashub.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)

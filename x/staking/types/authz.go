@@ -8,9 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-// TODO: Revisit this once we have propoer gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054, https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(10)
+const authListSizeLimitation = 41
 
 var _ authz.Authorization = &StakeAuthorization{}
 
@@ -66,6 +64,16 @@ func (a StakeAuthorization) ValidateBasic() error {
 	if a.AuthorizationType == AuthorizationType_AUTHORIZATION_TYPE_UNSPECIFIED {
 		return authz.ErrUnknownAuthorizationType
 	}
+	if allowList := a.GetAllowList().GetAddress(); allowList != nil {
+		if len(allowList) > authListSizeLimitation {
+			return errorsmod.Wrapf(authz.ErrTooManyValidators, "allow list number: %d, limit: %d", len(allowList), authListSizeLimitation)
+		}
+	}
+	if denyList := a.GetDenyList().GetAddress(); denyList != nil {
+		if len(denyList) > authListSizeLimitation {
+			return errorsmod.Wrapf(authz.ErrTooManyValidators, "deny list number: %d, limit: %d", len(denyList), authListSizeLimitation)
+		}
+	}
 
 	return nil
 }
@@ -100,7 +108,6 @@ func (a StakeAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptRe
 	isValidatorExists := false
 	allowedList := a.GetAllowList().GetAddress()
 	for _, validator := range allowedList {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "stake authorization")
 		if validator == validatorAddress {
 			isValidatorExists = true
 			break
@@ -109,7 +116,6 @@ func (a StakeAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptRe
 
 	denyList := a.GetDenyList().GetAddress()
 	for _, validator := range denyList {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "stake authorization")
 		if validator == validatorAddress {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("cannot delegate/undelegate to %s validator", validator)
 		}
