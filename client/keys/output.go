@@ -1,6 +1,8 @@
 package keys
 
 import (
+	"encoding/hex"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -13,11 +15,12 @@ import (
 // KeyOutput defines a structure wrapping around an Info object used for output
 // functionality.
 type KeyOutput struct {
-	Name     string `json:"name" yaml:"name"`
-	Type     string `json:"type" yaml:"type"`
-	Address  string `json:"address" yaml:"address"`
-	PubKey   string `json:"pubkey" yaml:"pubkey"`
-	Mnemonic string `json:"mnemonic,omitempty" yaml:"mnemonic"`
+	Name      string `json:"name" yaml:"name"`
+	Type      string `json:"type" yaml:"type"`
+	Address   string `json:"address" yaml:"address"`
+	PubKey    string `json:"pubkey" yaml:"pubkey"`
+	PubKeyHex string `json:"pubkey_hex" yaml:"pubkey_hex"`
+	Mnemonic  string `json:"mnemonic,omitempty" yaml:"mnemonic"`
 }
 
 // NewKeyOutput creates a default KeyOutput instance without Mnemonic, Threshold and PubKeys
@@ -31,10 +34,11 @@ func NewKeyOutput(name string, keyType keyring.KeyType, a sdk.Address, pk crypto
 		return KeyOutput{}, err
 	}
 	return KeyOutput{
-		Name:    name,
-		Type:    keyType.String(),
-		Address: a.String(),
-		PubKey:  string(bz),
+		Name:      name,
+		Type:      keyType.String(),
+		Address:   a.String(),
+		PubKey:    string(bz),
+		PubKeyHex: hex.EncodeToString(pk.Bytes()),
 	}, nil
 }
 

@@ -42,7 +42,7 @@ func TestBech32KeysOutput(t *testing.T) {
 	out, err := MkAccKeyOutput(k)
 	require.NoError(t, err)
 	require.Equal(t, expectedOutput, out)
-	require.Equal(t, "{Name:multisig Type:multi Address:0x9a4fF4eA75776B118b6d13B3aBD8737511CcdAE0 PubKey:{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":1,\"public_keys\":[{\"@type\":\"/cosmos.crypto.secp256k1.PubKey\",\"key\":\"AurroA7jvfPd1AadmmOvWM2rJSwipXfRf8yD6pLbA2DJ\"}]} Mnemonic:}", fmt.Sprintf("%+v", out))
+	require.Equal(t, "{Name:multisig Type:multi Address:0x9a4fF4eA75776B118b6d13B3aBD8737511CcdAE0 PubKey:{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":1,\"public_keys\":[{\"@type\":\"/cosmos.crypto.secp256k1.PubKey\",\"key\":\"AurroA7jvfPd1AadmmOvWM2rJSwipXfRf8yD6pLbA2DJ\"}]} PubKeyHex:22c1f7e208011226eb5ae9872102eaeba00ee3bdf3ddd4069d9a63af58cdab252c22a577d17fcc83ea92db0360c9 Mnemonic:}", fmt.Sprintf("%+v", out))
 }
 
 func TestProtoMarshalJSON(t *testing.T) {
