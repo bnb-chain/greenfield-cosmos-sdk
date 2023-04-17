@@ -58,7 +58,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(testutil.DefaultChainId)
 
 	s.commonFlags = []string{
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -177,29 +177,6 @@ func (s *CLITestSuite) TestTxCreateGroup() {
 					accounts[0].Address.String(),
 					"",
 					validMembersFile.Name(),
-				},
-				s.commonFlags...,
-			),
-			&sdk.TxResponse{},
-			fmt.Sprintf("%s %s %s", accounts[0].Address.String(), "", validMembersFile.Name()),
-			false,
-			"",
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					accounts[0].Address.String(),
-					"",
-					validMembersFile.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 				},
 				s.commonFlags...,
 			),
@@ -360,29 +337,6 @@ func (s *CLITestSuite) TestTxUpdateGroupAdmin() {
 			"",
 		},
 		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					accounts[0].Address.String(),
-					groupIDs[1],
-					accounts[1].Address.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			&sdk.TxResponse{},
-			fmt.Sprintf("%s %s %s --%s=%s", accounts[0].Address.String(), groupIDs[1], accounts[1].Address.String(), flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			false,
-			"",
-		},
-		{
 			"group id invalid",
 			func() client.Context {
 				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
@@ -466,26 +420,6 @@ func (s *CLITestSuite) TestTxUpdateGroupMetadata() {
 				s.commonFlags...,
 			),
 			fmt.Sprintf("%s %s %s", accounts[0].Address.String(), "1", validMetadata),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					accounts[0].Address.String(),
-					"1",
-					validMetadata,
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s --%s=%s", accounts[0].Address.String(), "1", validMetadata, flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"group metadata too long",
@@ -579,26 +513,6 @@ func (s *CLITestSuite) TestTxUpdateGroupMembers() {
 				s.commonFlags...,
 			),
 			fmt.Sprintf("%s %s %s", accounts[0].Address.String(), groupID, validUpdatedMembersFileName),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					accounts[0].Address.String(),
-					groupID,
-					validUpdatedMembersFileName,
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s --%s=%s", accounts[0].Address.String(), groupID, validUpdatedMembersFileName, flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"group member metadata too long",
@@ -746,32 +660,6 @@ func (s *CLITestSuite) TestTxCreateGroupWithPolicy() {
 			"",
 			&sdk.TxResponse{},
 			fmt.Sprintf("%s %s %s %s %s --%s=%v", accounts[0].Address.String(), validMetadata, validMetadata, validMembersFile.Name(), thresholdDecisionPolicyFile.Name(), groupcli.FlagGroupPolicyAsAdmin, true),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					accounts[0].Address.String(),
-					validMetadata,
-					validMetadata,
-					validMembersFile.Name(),
-					thresholdDecisionPolicyFile.Name(),
-					fmt.Sprintf("--%s=%v", groupcli.FlagGroupPolicyAsAdmin, false),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			fmt.Sprintf("%s %s %s %s %s --%s=%v --%s=%s", accounts[0].Address.String(), validMetadata, validMetadata, validMembersFile.Name(), thresholdDecisionPolicyFile.Name(), groupcli.FlagGroupPolicyAsAdmin, false, flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"invalid members address",
@@ -925,30 +813,6 @@ func (s *CLITestSuite) TestTxCreateGroupPolicy() {
 			fmt.Sprintf("%s %s %s %s", val.Address.String(), fmt.Sprintf("%v", groupID), validMetadata, percentageDecisionPolicyFile.Name()),
 		},
 		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					val.Address.String(),
-					fmt.Sprintf("%v", groupID),
-					validMetadata,
-					thresholdDecisionPolicyFile.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			false,
-			"",
-			&sdk.TxResponse{},
-			fmt.Sprintf("%s %s %s %s --%s=%s", val.Address.String(), fmt.Sprintf("%v", groupID), validMetadata, thresholdDecisionPolicyFile.Name(), flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-		},
-		{
 			"wrong admin",
 			func() client.Context {
 				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
@@ -1087,26 +951,6 @@ func (s *CLITestSuite) TestTxUpdateGroupPolicyAdmin() {
 			fmt.Sprintf("%s %s %s", groupPolicyAdmin.Address.String(), groupPolicyAddress.Address.String(), newAdmin.Address.String()),
 		},
 		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					groupPolicyAdmin.Address.String(),
-					groupPolicyAddress.Address.String(),
-					newAdmin.Address.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s --%s=%s", groupPolicyAdmin.Address.String(), groupPolicyAddress.Address.String(), newAdmin.Address.String(), flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-		},
-		{
 			"wrong admin",
 			func() client.Context {
 				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
@@ -1227,26 +1071,6 @@ func (s *CLITestSuite) TestTxUpdateGroupPolicyDecisionPolicy() {
 				commonFlags...,
 			),
 			fmt.Sprintf("%s %s %s", groupPolicyAdmin.Address.String(), groupPolicyAddress.Address.String(), percentageDecisionPolicy.Name()),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					groupPolicyAdmin.Address.String(),
-					groupPolicyAddress.Address.String(),
-					thresholdDecisionPolicy.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s --%s=%s", groupPolicyAdmin.Address.String(), groupPolicyAddress.Address.String(), thresholdDecisionPolicy.Name(), flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"wrong admin",
@@ -1382,26 +1206,6 @@ func (s *CLITestSuite) TestTxUpdateGroupPolicyMetadata() {
 				commonFlags...,
 			),
 			fmt.Sprintf("%s %s %s", groupPolicyAdmin.String(), groupPolicyAddress.String(), validMetadata),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					groupPolicyAdmin.String(),
-					groupPolicyAddress.String(),
-					validMetadata,
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s --%s=%s", groupPolicyAdmin.String(), groupPolicyAddress.String(), validMetadata, flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"long metadata",
@@ -1559,24 +1363,6 @@ func (s *CLITestSuite) TestTxSubmitProposal() {
 			),
 			fmt.Sprintf("%s --%s=try", proposalFile.Name(), groupcli.FlagExec),
 		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					proposalFile.Name(),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			fmt.Sprintf("%s --%s=%s", proposalFile.Name(), flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-		},
 	}
 
 	for _, tc := range testCases {
@@ -1657,27 +1443,6 @@ func (s *CLITestSuite) TestTxVote() {
 				s.commonFlags...,
 			),
 			fmt.Sprintf("%s %s %s %s --%s=try", ids[1], accounts[0].Address.String(), "VOTE_OPTION_YES", "", groupcli.FlagExec),
-		},
-		{
-			"with amino-json",
-			func() client.Context {
-				bz, _ := s.encCfg.Codec.Marshal(&sdk.TxResponse{})
-				c := clitestutil.NewMockCometRPC(abci.ResponseQuery{
-					Value: bz,
-				})
-				return s.baseCtx.WithClient(c)
-			},
-			append(
-				[]string{
-					ids[3],
-					accounts[0].Address.String(),
-					"VOTE_OPTION_YES",
-					"",
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				s.commonFlags...,
-			),
-			fmt.Sprintf("%s %s %s %s --%s=%s", ids[3], accounts[0].Address.String(), "VOTE_OPTION_YES", "", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 		},
 		{
 			"metadata too long",

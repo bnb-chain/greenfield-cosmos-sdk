@@ -9,6 +9,7 @@ import (
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -78,8 +79,8 @@ func (s *TxConfigTestSuite) TestTxBuilderSetMsgs() {
 }
 
 func (s *TxConfigTestSuite) TestTxBuilderSetSignatures() {
-	privKey, pubkey, addr := testdata.KeyTestPubAddr()
-	privKey2, pubkey2, _ := testdata.KeyTestPubAddr()
+	privKey, pubkey, addr := testdata.KeyTestPubAddrEthSecp256k1()
+	privKey2, pubkey2, _ := testdata.KeyTestPubAddrEthSecp256k1()
 	multisigPk := kmultisig.NewLegacyAminoPubKey(2, []cryptotypes.PubKey{pubkey, pubkey2})
 
 	txBuilder := s.TxConfig.NewTxBuilder()
@@ -129,7 +130,7 @@ func (s *TxConfigTestSuite) TestTxBuilderSetSignatures() {
 	// sign transaction
 	signerData := signing.SignerData{
 		Address:       addr.String(),
-		ChainID:       "test",
+		ChainID:       sdktestutil.DefaultChainId,
 		AccountNumber: 1,
 		Sequence:      seq1,
 		PubKey:        pubkey,
@@ -141,7 +142,7 @@ func (s *TxConfigTestSuite) TestTxBuilderSetSignatures() {
 
 	signerData = signing.SignerData{
 		Address:       msigAddr.String(),
-		ChainID:       "test",
+		ChainID:       sdktestutil.DefaultChainId,
 		AccountNumber: 3,
 		Sequence:      mseq,
 		PubKey:        multisigPk,

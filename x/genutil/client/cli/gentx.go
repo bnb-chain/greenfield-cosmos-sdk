@@ -46,7 +46,7 @@ $ %s gentx my-key-name 1000000stake \
 	0x6D967dc83b625603c963713eABd5B43A281E595e \
 	0xcdd393723f1Af81faa3F3c87B51dAB72B6c68154 \
 	ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9 \
-	--home=/path/to/home/dir --keyring-backend=os --chain-id=test-chain-1 \
+	--home=/path/to/home/dir --keyring-backend=os --chain-id=greenfield_9000-1 \
     --moniker="myvalidator" \
     --commission-max-change-rate=0.01 \
     --commission-max-rate=1.0 \

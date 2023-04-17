@@ -36,7 +36,7 @@ func TestNestedAnys(t *testing.T) {
 	testProposal := v1beta1.NewTextProposal("Proposal", "testing proposal")
 	msgContent, err := v1.NewLegacyContent(testProposal, "cosmos1govacct")
 	require.NoError(t, err)
-	proposal, err := v1.NewProposal([]sdk.Msg{msgContent}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), false)
+	proposal, err := v1.NewProposal([]sdk.Msg{msgContent}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), false)
 	require.NoError(t, err)
 
 	require.NotPanics(t, func() { _ = proposal.String() })
@@ -45,11 +45,11 @@ func TestNestedAnys(t *testing.T) {
 
 func TestProposalSetExpedited(t *testing.T) {
 	const startExpedited = false
-	proposal, err := v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), startExpedited)
+	proposal, err := v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), startExpedited)
 	require.NoError(t, err)
 	require.Equal(t, startExpedited, proposal.Expedited)
 
-	proposal, err = v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), !startExpedited)
+	proposal, err = v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), !startExpedited)
 	require.NoError(t, err)
 	require.Equal(t, !startExpedited, proposal.Expedited)
 }
@@ -70,7 +70,7 @@ func TestProposalGetMinDepositFromParams(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		proposal, err := v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		proposal, err := v1.NewProposal([]sdk.Msg{}, 1, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		require.NoError(t, err)
 
 		actualMinDeposit := proposal.GetMinDepositFromParams(v1.DefaultParams())

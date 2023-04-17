@@ -28,7 +28,7 @@ func (suite *KeeperTestSuite) TestGetSetProposal() {
 
 	for _, tc := range testCases {
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		suite.Require().NoError(err)
 		proposalID := proposal.Id
 		suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -57,7 +57,7 @@ func (suite *KeeperTestSuite) TestDeleteProposal() {
 			},
 		)
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		suite.Require().NoError(err)
 		proposalID := proposal.Id
 		suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -78,7 +78,7 @@ func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 
 	for _, tc := range testCases {
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		suite.Require().NoError(err)
 
 		suite.Require().Nil(proposal.VotingStartTime)
@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	for _, tc := range testCases {
 		suite.reset()
 		tp := TestProposal
-		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		suite.Require().NoError(err)
 		suite.Require().Nil(proposal.VotingStartTime)
 
@@ -134,7 +134,7 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 
 		// add vote
 		voteOptions := []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}
-		err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), voteOptions, "")
+		err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), voteOptions, "")
 		suite.Require().NoError(err)
 
 		suite.Require().NotPanics(func() {
@@ -142,7 +142,7 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 		}, "")
 
 		// add vote but proposal is deleted along with its VotingPeriodProposalKey
-		err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), voteOptions, "")
+		err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), voteOptions, "")
 		suite.Require().ErrorContains(err, ": inactive proposal")
 	}
 }
@@ -181,7 +181,7 @@ func (suite *KeeperTestSuite) TestSubmitProposal() {
 	for i, tc := range testCases {
 		prop, err := v1.NewLegacyContent(tc.content, tc.authority)
 		suite.Require().NoError(err)
-		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), tc.expedited)
+		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), tc.expedited)
 		suite.Require().True(errors.Is(tc.expectedErr, err), "tc #%d; got: %v, expected: %v", i, err, tc.expectedErr)
 	}
 }
@@ -194,7 +194,7 @@ func (suite *KeeperTestSuite) TestGetProposalsFiltered() {
 
 	for _, s := range status {
 		for i := 0; i < 50; i++ {
-			p, err := v1.NewProposal(TestProposal, proposalID, time.Now(), time.Now(), "metadata", "title", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"), false)
+			p, err := v1.NewProposal(TestProposal, proposalID, time.Now(), time.Now(), "metadata", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), false)
 			suite.Require().NoError(err)
 
 			p.Status = s

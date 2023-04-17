@@ -18,6 +18,7 @@ import (
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestGetCurrentPlanCmd(t *testing.T) {
@@ -30,7 +31,7 @@ func TestGetCurrentPlanCmd(t *testing.T) {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		name         string
@@ -78,7 +79,7 @@ func TestGetAppliedPlanCmd(t *testing.T) {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		name         string
@@ -126,7 +127,7 @@ func TestGetModuleVersionsCmd(t *testing.T) {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		msg          string

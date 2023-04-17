@@ -14,7 +14,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -38,14 +38,14 @@ import (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	priv2 = secp256k1.GenPrivKey()
-	pk1   = priv1.PubKey()
-	pk2   = priv2.PubKey()
-	addr1 = sdk.AccAddress(pk1.Address())
-	addr2 = sdk.AccAddress(pk2.Address())
-	desc  = stakingtypes.NewDescription("testname", "", "", "", "")
-	comm  = stakingtypes.CommissionRates{}
+	priv1, _ = ethsecp256k1.GenPrivKey()
+	priv2, _ = ethsecp256k1.GenPrivKey()
+	pk1      = priv1.PubKey()
+	pk2      = priv2.PubKey()
+	addr1    = sdk.AccAddress(pk1.Address())
+	addr2    = sdk.AccAddress(pk2.Address())
+	desc     = stakingtypes.NewDescription("testname", "", "", "", "")
+	comm     = stakingtypes.CommissionRates{}
 )
 
 type fixture struct {
@@ -77,7 +77,7 @@ func initFixture(t assert.TestingT) *fixture {
 		&f.accountKeeper, &f.bankKeeper, &f.stakingKeeper)
 	assert.NilError(t, err)
 
-	f.ctx = app.BaseApp.NewContext(false, cmtproto.Header{})
+	f.ctx = app.BaseApp.NewContext(false, cmtproto.Header{ChainID: sdktestutil.DefaultChainId})
 	f.encodingConfig = encCfg
 	f.baseApp = app.BaseApp
 

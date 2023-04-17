@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -24,11 +25,14 @@ func MakeTestEncodingConfig(modules ...module.AppModuleBasic) TestEncodingConfig
 	aminoCodec := codec.NewLegacyAmino()
 	interfaceRegistry := types.NewInterfaceRegistry()
 	codec := codec.NewProtoCodec(interfaceRegistry)
+	txCfg := tx.NewTxConfig(codec, []signingtypes.SignMode{
+		signingtypes.SignMode_SIGN_MODE_EIP_712,
+	})
 
 	encCfg := TestEncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Codec:             codec,
-		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
+		TxConfig:          txCfg,
 		Amino:             aminoCodec,
 	}
 

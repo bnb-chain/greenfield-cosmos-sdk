@@ -10,6 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,7 +80,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightesOps {
-		operationMsg, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, sdktestutil.DefaultChainId)
 		suite.Require().NoError(err)
 
 		// the following checks are very much dependent from the ordering of the output given
@@ -100,11 +101,17 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 	accounts := suite.getTestingAccounts(r, 3)
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+		},
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgSend(suite.accountKeeper, suite.bankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgSend
@@ -112,8 +119,8 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("65337742stake", msg.Amount.String())
-	suite.Require().Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.FromAddress)
-	suite.Require().Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.ToAddress)
+	suite.Require().Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.FromAddress)
+	suite.Require().Equal("0x6b11EA2aF9b83C6E0BBCe6254d776F82BB6b6C13", msg.ToAddress)
 	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgSend{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
@@ -127,11 +134,17 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 	accounts := suite.getTestingAccounts(r, 3)
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+		},
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgMultiSend(suite.accountKeeper, suite.bankKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	require := suite.Require()
 	require.NoError(err)
 
@@ -140,10 +153,10 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSend() {
 
 	require.True(operationMsg.OK)
 	require.Len(msg.Inputs, 1)
-	require.Equal("0x5cEEa0528c3b88442d6580c548753DD89b99a213", msg.Inputs[0].Address)
+	require.Equal("0x520ecc4903A9F355246c1FF384E694b6dFFcE2Ec", msg.Inputs[0].Address)
 	require.Equal("114949958stake", msg.Inputs[0].Coins.String())
 	require.Len(msg.Outputs, 2)
-	require.Equal("0x45f3624b98fCfc4D7A6b37B0957b656878636773", msg.Outputs[1].Address)
+	require.Equal("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", msg.Outputs[1].Address)
 	require.Equal("107287087stake", msg.Outputs[1].Coins.String())
 	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgMultiSend{}), sdk.MsgTypeURL(&msg))
 	require.Len(futureOperations, 0)
@@ -160,7 +173,13 @@ func (suite *SimTestSuite) TestSimulateModuleAccountMsgSend() {
 	accounts := suite.getTestingAccounts(r, accCount)
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+		},
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgSendToModuleAccount(suite.accountKeeper, suite.bankKeeper, moduleAccCount)
@@ -168,7 +187,7 @@ func (suite *SimTestSuite) TestSimulateModuleAccountMsgSend() {
 	s = rand.NewSource(1)
 	r = rand.New(s)
 
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().Error(err)
 
 	var msg types.MsgSend
@@ -191,12 +210,18 @@ func (suite *SimTestSuite) TestSimulateMsgMultiSendToModuleAccount() {
 	accounts := suite.getTestingAccounts(r, accCount)
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+		},
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgMultiSendToModuleAccount(suite.accountKeeper, suite.bankKeeper, mAccCount)
 
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().Error(err)
 
 	var msg types.MsgMultiSend
