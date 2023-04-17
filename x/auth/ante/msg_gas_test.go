@@ -79,13 +79,11 @@ func TestMsgGas(t *testing.T) {
 		mgd := ante.NewConsumeMsgGasDecorator(suite.accountKeeper, suite.gashubKeeper)
 		anteHandler := sdk.ChainAnteDecorators(mgd)
 
-		suite.ctx.GasMeter().GasConsumed()
+		gasConsumedBefore := suite.ctx.GasMeter().GasConsumed()
 		_, err = anteHandler(suite.ctx, tx, true)
-		// TODO: fix this
-		require.Contains(t, err.Error(), "failed to find fee calculator")
+		require.NoError(t, err)
 
-		// TODO
-		// gasConsumedAfter := suite.ctx.GasMeter().GasConsumed()
-		// require.Equal(t, tc.expectedGas, gasConsumedAfter-gasConsumedBefore)
+		gasConsumedAfter := suite.ctx.GasMeter().GasConsumed()
+		require.Equal(t, tc.expectedGas, gasConsumedAfter-gasConsumedBefore)
 	}
 }

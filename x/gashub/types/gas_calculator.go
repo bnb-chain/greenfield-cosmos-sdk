@@ -17,8 +17,6 @@ type (
 )
 
 var (
-	calculatorsGen = make(map[string]GasCalculatorGenerator)
-
 	FixedGasCalculatorGen = func(mgh MsgGasParams) GasCalculator {
 		if fixedTyp := mgh.GetFixedType(); fixedTyp != nil {
 			return FixedGasCalculator(fixedTyp.FixedGas)
@@ -48,12 +46,19 @@ var (
 	}
 )
 
-func RegisterCalculatorGen(msgType string, feeCalcGen GasCalculatorGenerator) {
-	calculatorsGen[msgType] = feeCalcGen
-}
-
-func GetGasCalculatorGen(msgType string) GasCalculatorGenerator {
-	return calculatorsGen[msgType]
+func GetGasCalculatorGen(mgp MsgGasParams) (GasCalculatorGenerator, error) {
+	switch {
+	case mgp.GetFixedType() != nil:
+		return FixedGasCalculatorGen, nil
+	case mgp.GetGrantType() != nil:
+		return MsgGrantGasCalculatorGen, nil
+	case mgp.GetMultiSendType() != nil:
+		return MsgMultiSendGasCalculatorGen, nil
+	case mgp.GetGrantAllowanceType() != nil:
+		return MsgGrantAllowanceGasCalculatorGen, nil
+	default:
+		return nil, errorsmod.Wrap(errors.ErrInvalidMsgGasParams, "unknown MsgGasParams type")
+	}
 }
 
 func FixedGasCalculator(amount uint64) GasCalculator {
