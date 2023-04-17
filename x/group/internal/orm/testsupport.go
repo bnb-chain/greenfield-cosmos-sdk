@@ -7,7 +7,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 
 	"cosmossdk.io/store"
-	"cosmossdk.io/store/gaskv"
 	"cosmossdk.io/store/metrics"
 	storetypes "cosmossdk.io/store/types"
 )
@@ -88,7 +87,7 @@ func NewGasCountingMockContext() *GasCountingMockContext {
 }
 
 func (g GasCountingMockContext) KVStore(store storetypes.KVStore) storetypes.KVStore {
-	return gaskv.NewStore(store, g.GasMeter, storetypes.KVGasConfig())
+	return store
 }
 
 func (g GasCountingMockContext) GasConsumed() storetypes.Gas {

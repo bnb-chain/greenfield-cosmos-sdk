@@ -1,0 +1,53 @@
+syntax = "proto3";
+package cosmos.gashub.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// Params defines the parameters for the gashub module.
+message Params {
+  option (amino.name) = "cosmos-sdk/x/gashub/Params";
+  option (gogoproto.equal) = true;
+
+  // max_tx_size is the maximum size of a transaction's bytes.
+  uint64 max_tx_size = 1 [(gogoproto.customname) = "MaxTxSize"];
+  // min_gas_per_byte is the minimum gas to be paid per byte of a transaction's
+  uint64 min_gas_per_byte = 2 [(gogoproto.customname) = "MinGasPerByte"];
+}
+
+// MsgGasParams defines gas consumption for a msg type
+message MsgGasParams {
+  option (gogoproto.equal) = true;
+
+  string msg_type_url = 1 [(gogoproto.customname) = "MsgTypeUrl"];
+  // gas_params is the oneof that represents either fixed_gas_params or dynamic_gas_params
+  oneof gas_params {
+    // fixed_type specifies fixed type gas params.
+    FixedGasParams fixed_type = 2;
+    // grant_type specifies dynamic type gas params for msg/grant.
+    DynamicGasParams grant_type = 3;
+    // grant_type specifies dynamic type gas params for msg/multiSend.
+    DynamicGasParams multi_send_type = 4;
+    // grant_type specifies dynamic type gas params for msg/grantAllowance.
+    DynamicGasParams grant_allowance_type = 5;
+  }
+  // FixedGasParams defines the parameters for fixed gas type.
+  message FixedGasParams {
+    option (gogoproto.equal) = true;
+
+    // fixed_gas is the gas cost for a fixed type msg
+    uint64 fixed_gas = 1 [(gogoproto.customname) = "FixedGas"];
+  }
+
+  // DynamicGasParams defines the parameters for dynamic gas type.
+  message DynamicGasParams {
+    option (gogoproto.equal) = true;
+
+    // fixed_gas is the base gas cost for a dynamic type msg
+    uint64 fixed_gas    = 1 [(gogoproto.customname) = "FixedGas"];
+    // gas_per_item is the gas cost for a dynamic type msg per item
+    uint64 gas_per_item = 2 [(gogoproto.customname) = "GasPerItem"];
+  }
+}

@@ -57,7 +57,7 @@ func (msg MsgSend) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{fromAddress}
 }
 
-// NewMsgMultiSend - construct arbitrary multi-in, multi-out send msg.
+// NewMsgMultiSend - construct arbitrary single-in, multi-out send msg.
 func NewMsgMultiSend(in Input, out []Output) *MsgMultiSend {
 	return &MsgMultiSend{Inputs: []Input{in}, Outputs: out}
 }

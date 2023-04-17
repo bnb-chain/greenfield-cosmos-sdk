@@ -11,6 +11,7 @@ require (
 	cosmossdk.io/log v1.0.0
 	cosmossdk.io/math v1.0.0
 	cosmossdk.io/store v0.1.0-alpha.1.0.20230328185921-37ba88872dbc
+	cosmossdk.io/x/feegrant v0.0.0-00010101000000-000000000000
 	cosmossdk.io/x/tx v0.5.0
 	cosmossdk.io/x/upgrade v0.0.0-00010101000000-000000000000
 	github.com/99designs/keyring v1.2.1
@@ -32,7 +33,7 @@ require (
 	github.com/cosmos/ledger-cosmos-go v0.13.0
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/ethereum/go-ethereum v1.10.19
-	github.com/gogo/protobuf v1.3.2
+	github.com/gogo/protobuf v1.3.3
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.3
 	github.com/google/gofuzz v1.2.0
@@ -181,24 +182,30 @@ require (
 	nhooyr.io/websocket v1.8.6 // indirect
 )
 
+// Here are the short-lived replace the Cosmos SDK
+// Replace here are pending PRs, or version to be tagged
+replace (
+	cosmossdk.io/x/feegrant => ./x/feegrant
+	cosmossdk.io/x/upgrade => ./x/upgrade
+)
+
 // Below are the long-lived replace of the Cosmos SDK
 replace (
 	cosmossdk.io/api => ./api
 	cosmossdk.io/log => ./log
-	cosmossdk.io/x/upgrade => ./x/upgrade
 
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230407055437-d971cdfb9041
-
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
 	// Fix upstream GHSA-h395-qcrw-5vmq vulnerability.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
