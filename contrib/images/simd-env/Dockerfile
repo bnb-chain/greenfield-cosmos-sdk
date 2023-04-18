@@ -17,6 +17,7 @@ COPY store/go.mod store/go.sum /work/store/
 COPY log/go.mod log/go.sum /work/log/
 COPY x/tx/go.mod x/tx/go.sum /work/x/tx/
 COPY x/upgrade/go.mod x/upgrade/go.sum /work/x/upgrade/
+COPY x/feegrant/go.mod x/feegrant/go.sum /work/x/feegrant/
 
 RUN go env -w GOPRIVATE="github.com/bnb-chain/*"
 RUN git config --global url."https://${GH_TOKEN}@github.com".insteadOf "https://github.com"
