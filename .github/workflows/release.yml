@@ -7,44 +7,32 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+" # Push events to matching v*, i.e. v1.0, v20.15.10
 
-permissions:
-  contents: read
-
 jobs:
   release:
-    permissions:
-      contents: write # for goreleaser/goreleaser-action to create a GitHub release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.20.2
-      - name: Unshallow
-        run: git fetch --prune --unshallow
-      - name: Create release
-        uses: goreleaser/goreleaser-action@v3
-        with:
-          args: release --rm-dist --release-notes ./RELEASE_NOTES.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set Env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-  release-success:
-    needs: release
-    if: ${{ success() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify Slack on success
-        uses: rtCamp/action-slack-notify@v2.2.0
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Generate Change Log
+        id: changelog
+        run: |
+          chmod 755 ./.github/generate_change_log.sh
+          CHANGELOG=$(./.github/generate_change_log.sh ${{ env.RELEASE_VERSION }})
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_CHANNEL: cosmos-tech
-          SLACK_USERNAME: Cosmos SDK Release Bot
-          SLACK_ICON: https://avatars.githubusercontent.com/t/5997665?size=64
-          SLACK_COLOR: good
-          SLACK_TITLE: "Cosmos SDK ${{ github.ref_name }} is tagged :tada:"
-          SLACK_MESSAGE: "@channel :point_right: https://github.com/cosmos/cosmos-sdk/releases/tag/${{ github.ref_name }}"
-          SLACK_FOOTER: ""
-          SLACK_LINK_NAMES: true
-          MSG_MINIMAL: true
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ env.RELEASE_VERSION}}
+          release_name: ${{ env.RELEASE_VERSION}}
+          body: |
+            ${{ env.CHANGELOG }}
+          draft: false
+          prerelease: false
