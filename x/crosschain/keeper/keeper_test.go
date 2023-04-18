@@ -3,8 +3,10 @@ package keeper_test
 import (
 	"testing"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -13,7 +15,6 @@ import (
 	testutil2 "github.com/cosmos/cosmos-sdk/x/crosschain/testutil"
 	"github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	"github.com/cosmos/cosmos-sdk/x/mint"
-	"github.com/stretchr/testify/suite"
 )
 
 type TestSuite struct {

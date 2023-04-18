@@ -3,8 +3,8 @@ package keeper
 import (
 	"context"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/x/nft"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"

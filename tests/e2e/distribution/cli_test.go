@@ -6,7 +6,7 @@ package distribution
 import (
 	"testing"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 
 	"github.com/stretchr/testify/suite"

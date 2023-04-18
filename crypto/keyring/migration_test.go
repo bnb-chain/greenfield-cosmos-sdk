@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"

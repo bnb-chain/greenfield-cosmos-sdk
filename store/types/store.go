@@ -7,9 +7,9 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/store/metrics"
-	pruningtypes "cosmossdk.io/store/pruning/types"
-	snapshottypes "cosmossdk.io/store/snapshots/types"
+	"github.com/cosmos/cosmos-sdk/store/metrics"
+	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
+	snapshottypes "github.com/cosmos/cosmos-sdk/store/snapshots/types"
 )
 
 type Store interface {

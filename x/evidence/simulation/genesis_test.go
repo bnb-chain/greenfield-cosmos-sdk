@@ -5,10 +5,12 @@ import (
 	"math/rand"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
-	"cosmossdk.io/x/evidence/simulation"
-	"cosmossdk.io/x/evidence/types"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
+	"github.com/cosmos/cosmos-sdk/x/evidence/simulation"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"

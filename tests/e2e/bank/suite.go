@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/suite"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/math"
 	"github.com/cosmos/cosmos-sdk/testutil"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"

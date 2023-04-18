@@ -3,8 +3,9 @@ package testutil
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"

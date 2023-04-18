@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/crosschain/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

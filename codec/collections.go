@@ -3,8 +3,8 @@ package codec
 import (
 	gogotypes "github.com/cosmos/gogoproto/types"
 
-	"cosmossdk.io/collections"
-	collcodec "cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections"
+	collcodec "github.com/cosmos/cosmos-sdk/collections/codec"
 
 	"github.com/cosmos/gogoproto/proto"
 )

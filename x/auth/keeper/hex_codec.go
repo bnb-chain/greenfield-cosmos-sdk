@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"cosmossdk.io/core/address"
+	"github.com/cosmos/cosmos-sdk/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

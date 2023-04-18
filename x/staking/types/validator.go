@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtprotocrypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
+
+	"github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"

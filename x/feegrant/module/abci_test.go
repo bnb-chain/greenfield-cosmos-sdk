@@ -3,13 +3,15 @@ package module_test
 import (
 	"testing"
 
-	storetypes "cosmossdk.io/store/types"
-	"cosmossdk.io/x/feegrant"
-	"cosmossdk.io/x/feegrant/keeper"
-	"cosmossdk.io/x/feegrant/module"
-	feegranttestutil "cosmossdk.io/x/feegrant/testutil"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	feegranttestutil "github.com/cosmos/cosmos-sdk/x/feegrant/testutil"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil"

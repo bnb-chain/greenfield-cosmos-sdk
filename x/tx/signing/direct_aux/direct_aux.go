@@ -8,10 +8,10 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
-	txv1beta1 "cosmossdk.io/api/cosmos/tx/v1beta1"
+	signingv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/signing/v1beta1"
+	txv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/v1beta1"
 
-	"cosmossdk.io/x/tx/signing"
+	"github.com/cosmos/cosmos-sdk/x/tx/signing"
 )
 
 // SignModeHandler is the SIGN_MODE_DIRECT_AUX implementation of signing.SignModeHandler.

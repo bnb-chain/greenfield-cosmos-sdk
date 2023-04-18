@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/x/evidence/exported"
+	"github.com/cosmos/cosmos-sdk/x/evidence/exported"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

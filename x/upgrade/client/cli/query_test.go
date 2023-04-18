@@ -9,8 +9,8 @@ import (
 	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/x/upgrade"
-	upgradecli "cosmossdk.io/x/upgrade/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradecli "github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

@@ -3,8 +3,8 @@ package collections_test
 import (
 	"testing"
 
-	"cosmossdk.io/collections"
-	"cosmossdk.io/collections/colltest"
+	"github.com/cosmos/cosmos-sdk/collections"
+	"github.com/cosmos/cosmos-sdk/collections/colltest"
 	"github.com/stretchr/testify/require"
 )
 

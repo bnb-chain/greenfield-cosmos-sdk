@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	errormods "cosmossdk.io/errors"
+	errormods "github.com/cosmos/cosmos-sdk/errors"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 

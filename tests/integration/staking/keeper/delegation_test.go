@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"

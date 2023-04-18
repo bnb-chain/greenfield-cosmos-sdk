@@ -3,11 +3,11 @@ package store
 import (
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/cache"
-	"cosmossdk.io/store/metrics"
-	"cosmossdk.io/store/rootmulti"
-	"cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/log"
+	"github.com/cosmos/cosmos-sdk/store/cache"
+	"github.com/cosmos/cosmos-sdk/store/metrics"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
+	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
 func NewCommitMultiStore(db dbm.DB, logger log.Logger, metricGatherer metrics.StoreMetrics) types.CommitMultiStore {

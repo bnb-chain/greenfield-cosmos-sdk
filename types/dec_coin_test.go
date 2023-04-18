@@ -4,8 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

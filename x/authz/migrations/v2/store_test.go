@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/stretchr/testify/require"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"

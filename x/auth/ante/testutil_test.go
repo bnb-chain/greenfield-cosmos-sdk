@@ -9,13 +9,13 @@ import (
 
 	// TODO We don't need to import these API types if we use gogo's registry
 	// ref: https://github.com/cosmos/cosmos-sdk/issues/14647
-	_ "cosmossdk.io/api/cosmos/bank/v1beta1"
-	_ "cosmossdk.io/api/cosmos/crypto/secp256k1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/bank/v1beta1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/crypto/secp256k1"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	_ "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"

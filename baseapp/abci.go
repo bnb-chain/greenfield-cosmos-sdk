@@ -16,10 +16,10 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/store/rootmulti"
-	snapshottypes "cosmossdk.io/store/snapshots/types"
-	storetypes "cosmossdk.io/store/types"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
+	snapshottypes "github.com/cosmos/cosmos-sdk/store/snapshots/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/telemetry"

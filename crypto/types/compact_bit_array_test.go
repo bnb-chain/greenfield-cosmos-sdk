@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math/unsafe"
+	"github.com/cosmos/cosmos-sdk/math/unsafe"
 )
 
 func randCompactBitArray(bits int) (*CompactBitArray, []byte) {

@@ -8,8 +8,8 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/suite"
 
-	"cosmossdk.io/depinject"
-	pruningtypes "cosmossdk.io/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/depinject"
+	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"

@@ -8,11 +8,11 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	storetypes "cosmossdk.io/store/types"
-	"cosmossdk.io/x/nft"
-	"cosmossdk.io/x/nft/keeper"
-	"cosmossdk.io/x/nft/module"
-	nfttestutil "cosmossdk.io/x/nft/testutil"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/cosmos/cosmos-sdk/x/nft/keeper"
+	"github.com/cosmos/cosmos-sdk/x/nft/module"
+	nfttestutil "github.com/cosmos/cosmos-sdk/x/nft/testutil"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/runtime"

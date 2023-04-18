@@ -8,8 +8,9 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"
 
-	ormv1 "cosmossdk.io/api/cosmos/orm/v1"
 	"github.com/cosmos/cosmos-proto/generator"
+
+	ormv1 "github.com/cosmos/cosmos-sdk/api/cosmos/orm/v1"
 )
 
 const (

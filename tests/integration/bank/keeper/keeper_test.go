@@ -7,14 +7,16 @@ import (
 	"testing"
 	"time"
 
-	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
-	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttime "github.com/cometbft/cometbft/types/time"
 	"gotest.tools/v3/assert"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/math"
+
+	authmodulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/auth/module/v1"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"

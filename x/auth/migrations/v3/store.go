@@ -1,8 +1,9 @@
 package v3
 
 import (
-	corestore "cosmossdk.io/core/store"
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
+	corestore "github.com/cosmos/cosmos-sdk/core/store"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"sync"
 
-	errorsmod "cosmossdk.io/errors"
 	"github.com/hashicorp/golang-lru/simplelru"
 	"golang.org/x/crypto/sha3"
 	"sigs.k8s.io/yaml"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/internal/conv"

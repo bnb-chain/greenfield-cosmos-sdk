@@ -6,7 +6,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 
-	"cosmossdk.io/depinject/internal/graphviz"
+	"github.com/cosmos/cosmos-sdk/depinject/internal/graphviz"
 )
 
 // OnePerModuleType marks a type which

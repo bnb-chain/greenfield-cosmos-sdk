@@ -9,19 +9,21 @@ import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/core/address"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/errors"
 
-	modulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
+	"github.com/cosmos/cosmos-sdk/core/address"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
 
-	"cosmossdk.io/depinject"
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/feegrant/module/v1"
 
-	store "cosmossdk.io/store/types"
-	"cosmossdk.io/x/feegrant"
-	"cosmossdk.io/x/feegrant/client/cli"
-	"cosmossdk.io/x/feegrant/keeper"
-	"cosmossdk.io/x/feegrant/simulation"
+	"github.com/cosmos/cosmos-sdk/depinject"
+
+	store "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/simulation"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

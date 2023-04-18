@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"cosmossdk.io/collections"
-	"cosmossdk.io/core/store"
 	db "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/cosmos-sdk/collections"
+	"github.com/cosmos/cosmos-sdk/core/store"
 	"github.com/stretchr/testify/require"
 )
 

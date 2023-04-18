@@ -8,11 +8,12 @@ import (
 	context "context"
 	reflect "reflect"
 
-	math "cosmossdk.io/math"
+	gomock "github.com/golang/mock/gomock"
+
+	math "github.com/cosmos/cosmos-sdk/math"
 	types "github.com/cosmos/cosmos-sdk/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	types0 "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockDistributionKeeper is a mock of DistributionKeeper interface.

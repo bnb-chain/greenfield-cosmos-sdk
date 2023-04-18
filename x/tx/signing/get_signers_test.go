@@ -3,12 +3,13 @@ package signing
 import (
 	"testing"
 
-	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
-	groupv1 "cosmossdk.io/api/cosmos/group/v1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"cosmossdk.io/x/tx/internal/testpb"
+	bankv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/bank/v1beta1"
+	groupv1 "github.com/cosmos/cosmos-sdk/api/cosmos/group/v1"
+
+	"github.com/cosmos/cosmos-sdk/x/tx/internal/testpb"
 )
 
 func TestGetSigners(t *testing.T) {

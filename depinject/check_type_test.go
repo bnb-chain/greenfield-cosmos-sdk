@@ -7,7 +7,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"cosmossdk.io/depinject/internal/graphviz"
+	"github.com/cosmos/cosmos-sdk/depinject/internal/graphviz"
 )
 
 func TestCheckIsExportedType(t *testing.T) {

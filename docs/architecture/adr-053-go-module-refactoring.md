@@ -59,7 +59,7 @@ functionality (such as math, errors, store, etc.)
 effort should be made to avoid API breaking changes in the existing code using
 aliases and wrapper types (as done in https://github.com/cosmos/cosmos-sdk/pull/10779
 and https://github.com/cosmos/cosmos-sdk/pull/11788)
-* new go modules should be moved to a standalone domain (`cosmossdk.io`) before
+* new go modules should be moved to a standalone domain (`github.com/cosmos/cosmos-sdk`) before
 being tagged as `v1.0.0` to accommodate the possibility that they may be
 better served by a standalone repository in the future
 * all go modules should follow the guidelines in https://go.dev/blog/module-compatibility

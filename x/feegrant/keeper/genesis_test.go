@@ -7,11 +7,12 @@ import (
 	"github.com/golang/mock/gomock"
 	"gotest.tools/v3/assert"
 
-	storetypes "cosmossdk.io/store/types"
-	"cosmossdk.io/x/feegrant"
-	"cosmossdk.io/x/feegrant/keeper"
-	"cosmossdk.io/x/feegrant/module"
-	feegranttestutil "cosmossdk.io/x/feegrant/testutil"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	feegranttestutil "github.com/cosmos/cosmos-sdk/x/feegrant/testutil"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"

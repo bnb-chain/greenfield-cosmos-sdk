@@ -12,8 +12,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/dynamicpb"
 
-	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/client/v2/autocli/flag"
+	"github.com/cosmos/cosmos-sdk/client/v2/autocli"
+	"github.com/cosmos/cosmos-sdk/client/v2/autocli/flag"
 )
 
 var (

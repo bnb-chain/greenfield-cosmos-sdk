@@ -3,11 +3,11 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"

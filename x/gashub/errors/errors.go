@@ -1,6 +1,6 @@
 package errors
 
-import "cosmossdk.io/errors"
+import "github.com/cosmos/cosmos-sdk/errors"
 
 // gashubCodespace is the codespace for all errors defined in gashub package
 const gashubCodespace = "gashub"

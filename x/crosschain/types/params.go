@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
 )
 
 var DefaultInitModuleBalance sdkmath.Int

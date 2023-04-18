@@ -7,7 +7,7 @@ import (
 	"time"
 	"unsafe"
 
-	sdkmath "cosmossdk.io/math"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

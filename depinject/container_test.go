@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gotest.tools/v3/golden"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
 )
 
 type KVStoreKey struct {

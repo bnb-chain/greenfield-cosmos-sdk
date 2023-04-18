@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math"
 	fuzz "github.com/google/gofuzz"
 
-	"cosmossdk.io/store/prefix"
+	"github.com/cosmos/cosmos-sdk/math"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"

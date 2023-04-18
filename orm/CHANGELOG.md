@@ -42,7 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### API Breaking Changes
 
-* [#14822](https://github.com/cosmos/cosmos-sdk/pull/14822) Migrate to cosmossdk.io/core genesis API
+* [#14822](https://github.com/cosmos/cosmos-sdk/pull/14822) Migrate to github.com/cosmos/cosmos-sdk/core genesis API
 
 ### State-machine Breaking Changes
 

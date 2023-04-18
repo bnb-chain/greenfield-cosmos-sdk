@@ -7,9 +7,9 @@ import (
 	cmtprotocrypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 	ics23 "github.com/confio/ics23/go"
 
-	errorsmod "cosmossdk.io/errors"
-	sdkmaps "cosmossdk.io/store/internal/maps"
-	sdkproofs "cosmossdk.io/store/internal/proofs"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	sdkmaps "github.com/cosmos/cosmos-sdk/store/internal/maps"
+	sdkproofs "github.com/cosmos/cosmos-sdk/store/internal/proofs"
 )
 
 const (

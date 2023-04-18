@@ -1,8 +1,9 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	"github.com/cosmos/cosmos-sdk/errors"
 )
 
 const StoreCodespace = "store"

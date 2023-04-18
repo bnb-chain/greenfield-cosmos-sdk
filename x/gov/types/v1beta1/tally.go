@@ -1,7 +1,7 @@
 package v1beta1
 
 import (
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/dynamicpb"
 
-	msgv1 "cosmossdk.io/api/cosmos/msg/v1"
+	msgv1 "github.com/cosmos/cosmos-sdk/api/cosmos/msg/v1"
 )
 
 // GetSignersContext is a context for retrieving the list of signers from a

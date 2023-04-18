@@ -1,8 +1,8 @@
 package legacytx
 
 import (
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"

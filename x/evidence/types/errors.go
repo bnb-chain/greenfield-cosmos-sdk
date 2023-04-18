@@ -1,6 +1,6 @@
 package types
 
-import "cosmossdk.io/errors"
+import "github.com/cosmos/cosmos-sdk/errors"
 
 // x/evidence module sentinel errors
 var (

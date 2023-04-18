@@ -3,8 +3,9 @@ package ante_test
 import (
 	"testing"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/stretchr/testify/require"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"

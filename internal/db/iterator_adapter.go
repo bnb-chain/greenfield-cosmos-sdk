@@ -1,7 +1,7 @@
 package db
 
 import (
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	dbm "github.com/cosmos/cosmos-sdk/db"
 )

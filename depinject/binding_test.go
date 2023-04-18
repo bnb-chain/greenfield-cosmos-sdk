@@ -10,7 +10,7 @@ import (
 	"github.com/regen-network/gocuke"
 	"github.com/stretchr/testify/assert"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
 )
 
 func TestBindInterface(t *testing.T) {
@@ -128,7 +128,7 @@ func (s *bindingSuite) ThereIsNoError() {
 }
 
 func fullTypeName(typeName string) string {
-	return fmt.Sprintf("cosmossdk.io/depinject_test/depinject_test.%s", typeName)
+	return fmt.Sprintf("github.com/cosmos/cosmos-sdk/depinject_test/depinject_test.%s", typeName)
 }
 
 func (s *bindingSuite) ThereIsAGlobalBindingForA(preferredType, interfaceType string) {

@@ -187,7 +187,7 @@ managed:
   go_package_prefix:
     default: foo.bar/api # the go package prefix of your package
     override:
-      buf.build/cosmos/cosmos-sdk: cosmossdk.io/api # required to import the Cosmos SDK api module
+      buf.build/cosmos/cosmos-sdk: github.com/cosmos/cosmos-sdk/api # required to import the Cosmos SDK api module
 plugins:
   - name: go
     out: .
@@ -227,7 +227,7 @@ type Keeper struct {
 ```
 
 Then instantiate the `StateStore` instance via an `ormdb.ModuleDB` that is instantiated from the `SchemaDescriptor`
-above and one or more store services from `cosmossdk.io/core/store`. Ex:
+above and one or more store services from `github.com/cosmos/cosmos-sdk/core/store`. Ex:
 ```go
 func NewKeeper(storeService store.KVStoreService) (*Keeper, error) {
     modDb, err := ormdb.NewModuleDB(MyModuleSchema, ormdb.ModuleDBOptions{KVStoreService: storeService})

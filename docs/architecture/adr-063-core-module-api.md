@@ -91,7 +91,7 @@ manual wiring. The individual services described below are all bundled in a conv
 
 #### Store Services
 
-Store services will be defined in the `cosmossdk.io/core/store` package.
+Store services will be defined in the `github.com/cosmos/cosmos-sdk/core/store` package.
 
 The generic `store.KVStore` interface is the same as current SDK `KVStore` interface. Store keys have been refactored
 into store services which, instead of expecting the context to know about stores, invert the pattern and allow
@@ -124,7 +124,7 @@ type of store they need in their dependency injection (or manual) constructors.
 
 #### Event Service
 
-The event `Service` will be defined in the `cosmossdk.io/core/event` package.
+The event `Service` will be defined in the `github.com/cosmos/cosmos-sdk/core/event` package.
 
 The event `Service` allows modules to emit typed and legacy untyped events:
 
@@ -164,7 +164,7 @@ by other modules. If there is a client-side need to add events in patch releases
 
 
 Modules will provide their core services to the runtime module via extension interfaces built on top of the
-`cosmossdk.io/core/appmodule.AppModule` tag interface. This tag interface requires only two empty methods which
+`github.com/cosmos/cosmos-sdk/core/appmodule.AppModule` tag interface. This tag interface requires only two empty methods which
 allow `depinject` to identify implementors as `depinject.OnePerModule` types and as app module implementations:
 ```go
 type AppModule interface {
@@ -175,7 +175,7 @@ type AppModule interface {
 }
 ```
 
-Other core extension interfaces will be defined in `cosmossdk.io/core` should be supported by valid runtime
+Other core extension interfaces will be defined in `github.com/cosmos/cosmos-sdk/core` should be supported by valid runtime
 implementations.
 
 #### `MsgServer` and `QueryServer` registration
@@ -327,7 +327,7 @@ func ProvideGrpcGateway() GrpcGatewayInfo {
 Crisis module invariants and simulations are subject to potential redesign and should be managed with types
 defined in the crisis and simulation modules respectively.
 
-Extension interface for CLI commands will be provided via the `cosmossdk.io/client/v2` module and its
+Extension interface for CLI commands will be provided via the `github.com/cosmos/cosmos-sdk/client/v2` module and its
 [autocli](./adr-058-auto-generated-cli.md) framework.
 
 #### Example Usage
@@ -359,7 +359,7 @@ func ProvideApp(config *foomodulev2.Module, evtSvc event.EventService, db orm.Mo
 
 ### Runtime Compatibility Version
 
-The `core` module will define a static integer var, `cosmossdk.io/core.RuntimeCompatibilityVersion`, which is
+The `core` module will define a static integer var, `github.com/cosmos/cosmos-sdk/core.RuntimeCompatibilityVersion`, which is
 a minor version indicator of the core module that is accessible at runtime. Correct runtime module implementations
 should check this compatibility version and return an error if the current `RuntimeCompatibilityVersion` is higher
 than the version of the core API that this runtime version can support. When new features are adding to the `core`

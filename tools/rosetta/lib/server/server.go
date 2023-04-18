@@ -10,9 +10,9 @@ import (
 	assert "github.com/cosmos/rosetta-sdk-go/asserter"
 	"github.com/cosmos/rosetta-sdk-go/server"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/tools/rosetta/lib/internal/service"
-	crgtypes "cosmossdk.io/tools/rosetta/lib/types"
+	"github.com/cosmos/cosmos-sdk/log"
+	"github.com/cosmos/cosmos-sdk/tools/rosetta/lib/internal/service"
+	crgtypes "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/types"
 )
 
 const (

@@ -7,13 +7,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdkmath "cosmossdk.io/math"
-	"cosmossdk.io/x/feegrant"
-	"cosmossdk.io/x/feegrant/module"
-	"cosmossdk.io/x/feegrant/simulation"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
 	moduletypes "github.com/cosmos/cosmos-sdk/types/module"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	"github.com/cosmos/cosmos-sdk/x/feegrant/simulation"
 )
 
 func TestRandomizedGenState(t *testing.T) {

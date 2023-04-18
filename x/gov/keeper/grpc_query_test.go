@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"

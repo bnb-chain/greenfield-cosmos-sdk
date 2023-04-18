@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math/unsafe"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/store/cachekv"
-	"cosmossdk.io/store/dbadapter"
-	"cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/math/unsafe"
+
+	"github.com/cosmos/cosmos-sdk/store/cachekv"
+	"github.com/cosmos/cosmos-sdk/store/dbadapter"
+	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
 func newCacheKVStore() types.CacheKVStore {

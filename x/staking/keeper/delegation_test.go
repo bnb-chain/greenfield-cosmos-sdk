@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/golang/mock/gomock"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"

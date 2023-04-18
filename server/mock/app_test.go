@@ -5,10 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/log"
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"

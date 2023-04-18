@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	errorsmod "cosmossdk.io/errors"
 	"github.com/spf13/cobra"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

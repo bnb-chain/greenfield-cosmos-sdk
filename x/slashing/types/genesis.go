@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 )
 
 // NewGenesisState creates a new GenesisState object

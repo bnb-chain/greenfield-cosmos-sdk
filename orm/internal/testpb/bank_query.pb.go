@@ -9,11 +9,13 @@
 package testpb
 
 import (
-	v1beta1 "cosmossdk.io/api/cosmos/base/query/v1beta1"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/base/query/v1beta1"
 )
 
 const (

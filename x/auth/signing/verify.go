@@ -6,13 +6,14 @@ import (
 
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 
-	errorsmod "cosmossdk.io/errors"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes

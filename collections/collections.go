@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 )
 
 var (

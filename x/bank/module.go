@@ -6,14 +6,17 @@ import (
 	"fmt"
 	"time"
 
-	modulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/depinject"
 	abci "github.com/cometbft/cometbft/abci/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	store "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/depinject"
+
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/bank/module/v1"
+
+	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

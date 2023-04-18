@@ -1,6 +1,6 @@
 package signing
 
-import txv1beta1 "cosmossdk.io/api/cosmos/tx/v1beta1"
+import txv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/v1beta1"
 
 // TxData is the data about a transaction that is necessary to generate sign bytes.
 type TxData struct {

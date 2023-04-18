@@ -233,7 +233,7 @@ ifneq (,$(shell which tparse 2>/dev/null))
 	for module in $(SUB_MODULES); do \
 		cd ${CURRENT_DIR}/$$module; \
 		echo "Running unit tests for module $$module"; \
-		go test -mod=readonly -json $(ARGS) $(TEST_PACKAGES) ./... | tparse; \
+		go test -json $(ARGS) $(TEST_PACKAGES) ./... | tparse; \
 		ec=$$?; \
 		if [ "$$ec" -ne '0' ]; then finalec=$$ec; fi; \
 	done; \
@@ -244,7 +244,7 @@ else
 	for module in $(SUB_MODULES); do \
 		cd ${CURRENT_DIR}/$$module; \
 		echo "Running unit tests for module $$module"; \
-		go test -mod=readonly $(ARGS) $(TEST_PACKAGES) ./... ; \
+		go test $(ARGS) $(TEST_PACKAGES) ./... ; \
 		ec=$$?; \
 		if [ "$$ec" -ne '0' ]; then finalec=$$ec; fi; \
 	done; \
@@ -255,7 +255,7 @@ endif
 
 test-sim-nondeterminism:
 	@echo "Running non-determinism test..."
-	@cd ${CURRENT_DIR}/simapp && go test -mod=readonly -run TestAppStateDeterminism -Enabled=true \
+	@cd ${CURRENT_DIR}/simapp && go test -run TestAppStateDeterminism -Enabled=true \
 		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
 
 # Requires an exported plugin. See store/streaming/README.md for documentation.

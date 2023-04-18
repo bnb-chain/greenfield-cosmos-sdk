@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/log"
 	db "github.com/cosmos/cosmos-db"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/store/mock"
-	"cosmossdk.io/store/pruning"
-	"cosmossdk.io/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/log"
+
+	"github.com/cosmos/cosmos-sdk/store/mock"
+	"github.com/cosmos/cosmos-sdk/store/pruning"
+	"github.com/cosmos/cosmos-sdk/store/pruning/types"
 )
 
 const dbErr = "db error"

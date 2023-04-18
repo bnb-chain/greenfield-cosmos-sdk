@@ -9,7 +9,7 @@ import (
 	"github.com/cometbft/cometbft/crypto"
 	"golang.org/x/crypto/openpgp/armor" //nolint:staticcheck
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/bcrypt"

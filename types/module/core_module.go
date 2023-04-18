@@ -3,13 +3,14 @@ package module
 import (
 	"encoding/json"
 
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/genesis"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/genesis"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

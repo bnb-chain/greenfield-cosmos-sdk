@@ -3,10 +3,11 @@ package v1beta1
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
 
-	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/math"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

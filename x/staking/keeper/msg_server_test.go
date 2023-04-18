@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 

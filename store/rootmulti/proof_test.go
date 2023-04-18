@@ -3,14 +3,15 @@ package rootmulti
 import (
 	"testing"
 
-	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/store/iavl"
-	"cosmossdk.io/store/metrics"
-	"cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/log"
+
+	"github.com/cosmos/cosmos-sdk/store/iavl"
+	"github.com/cosmos/cosmos-sdk/store/metrics"
+	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
 func TestVerifyIAVLStoreQueryProof(t *testing.T) {

@@ -3,8 +3,9 @@ package feegrant
 import (
 	"time"
 
-	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/gogoproto/proto"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

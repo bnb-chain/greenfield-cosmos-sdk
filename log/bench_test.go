@@ -7,8 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/log"
 	"github.com/rs/zerolog"
+
+	"github.com/cosmos/cosmos-sdk/log"
 )
 
 const message = "test message"

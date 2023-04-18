@@ -3,9 +3,10 @@ package types
 import (
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net"
 
-	"cosmossdk.io/log"
 	"google.golang.org/grpc"
+
+	"github.com/cosmos/cosmos-sdk/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

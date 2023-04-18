@@ -7,8 +7,6 @@ import (
 	"os"
 	"path"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"github.com/cockroachdb/errors"
 	"github.com/hashicorp/go-multierror"
 	"google.golang.org/grpc"
@@ -18,6 +16,9 @@ import (
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
+
+	autocliv1 "github.com/cosmos/cosmos-sdk/api/cosmos/autocli/v1"
+	reflectionv1 "github.com/cosmos/cosmos-sdk/api/cosmos/reflection/v1"
 )
 
 const DefaultConfigDirName = ".hubl"

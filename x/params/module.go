@@ -8,10 +8,12 @@ import (
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	modulev1 "cosmossdk.io/api/cosmos/params/module/v1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/depinject"
-	store "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/depinject"
+	store "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/params/module/v1"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

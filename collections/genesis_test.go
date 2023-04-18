@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"cosmossdk.io/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
 	"github.com/stretchr/testify/require"
 )
 

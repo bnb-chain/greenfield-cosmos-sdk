@@ -9,16 +9,17 @@ import (
 	json "encoding/json"
 	reflect "reflect"
 
-	appmodule "cosmossdk.io/core/appmodule"
 	types "github.com/cometbft/cometbft/abci/types"
-	client "github.com/cosmos/cosmos-sdk/client"
-	codec "github.com/cosmos/cosmos-sdk/codec"
-	types0 "github.com/cosmos/cosmos-sdk/codec/types"
-	types1 "github.com/cosmos/cosmos-sdk/types"
-	module "github.com/cosmos/cosmos-sdk/types/module"
 	gomock "github.com/golang/mock/gomock"
 	runtime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	cobra "github.com/spf13/cobra"
+
+	client "github.com/cosmos/cosmos-sdk/client"
+	codec "github.com/cosmos/cosmos-sdk/codec"
+	types0 "github.com/cosmos/cosmos-sdk/codec/types"
+	appmodule "github.com/cosmos/cosmos-sdk/core/appmodule"
+	types1 "github.com/cosmos/cosmos-sdk/types"
+	module "github.com/cosmos/cosmos-sdk/types/module"
 )
 
 // MockAppModuleWithAllExtensions is a mock of AppModuleWithAllExtensions interface.

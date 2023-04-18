@@ -10,14 +10,17 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
-	modulev1 "cosmossdk.io/api/cosmos/upgrade/module/v1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
 
-	store "cosmossdk.io/store/types"
-	"cosmossdk.io/x/upgrade/client/cli"
-	"cosmossdk.io/x/upgrade/keeper"
-	"cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/upgrade/module/v1"
+
+	store "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"

@@ -7,14 +7,15 @@ import (
 	"strings"
 	"testing"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/testing/protocmp"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/golden"
 
-	"cosmossdk.io/client/v2/internal/testpb"
+	autocliv1 "github.com/cosmos/cosmos-sdk/api/cosmos/autocli/v1"
+
+	"github.com/cosmos/cosmos-sdk/client/v2/internal/testpb"
 )
 
 var buildModuleQueryCommand = func(moduleName string, b *Builder) (*cobra.Command, error) {

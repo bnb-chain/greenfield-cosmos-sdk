@@ -5,13 +5,14 @@ import (
 	"sync"
 	"testing"
 
-	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/log"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/depinject"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	testdata_pulsar "github.com/cosmos/cosmos-sdk/testutil/testdata/testpb"

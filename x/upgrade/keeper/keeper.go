@@ -9,11 +9,12 @@ import (
 	"path/filepath"
 	"sort"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/prefix"
-	storetypes "cosmossdk.io/store/types"
-	xp "cosmossdk.io/x/upgrade/exported"
-	"cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/log"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
+	xp "github.com/cosmos/cosmos-sdk/x/upgrade/exported"
+	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"

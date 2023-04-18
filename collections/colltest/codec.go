@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 
-	"cosmossdk.io/collections"
+	"github.com/cosmos/cosmos-sdk/collections"
 
 	"github.com/stretchr/testify/require"
 )

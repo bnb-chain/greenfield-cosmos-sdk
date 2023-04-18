@@ -1,8 +1,8 @@
 package auth
 
 import (
-	authv1beta1 "cosmossdk.io/api/cosmos/auth/v1beta1"
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	authv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/auth/v1beta1"
+	autocliv1 "github.com/cosmos/cosmos-sdk/api/cosmos/autocli/v1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

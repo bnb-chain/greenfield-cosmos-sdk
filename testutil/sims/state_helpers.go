@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"

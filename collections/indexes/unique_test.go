@@ -3,8 +3,9 @@ package indexes
 import (
 	"testing"
 
-	"cosmossdk.io/collections"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/collections"
 )
 
 func TestUniqueIndex(t *testing.T) {

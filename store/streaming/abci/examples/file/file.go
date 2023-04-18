@@ -9,8 +9,8 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/hashicorp/go-plugin"
 
-	streamingabci "cosmossdk.io/store/streaming/abci"
-	store "cosmossdk.io/store/types"
+	streamingabci "github.com/cosmos/cosmos-sdk/store/streaming/abci"
+	store "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 // FilePlugin is the implementation of the baseapp.ABCIListener interface

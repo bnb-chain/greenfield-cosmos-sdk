@@ -3,7 +3,7 @@ package testutil
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

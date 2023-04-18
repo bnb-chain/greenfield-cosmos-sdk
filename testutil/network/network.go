@@ -18,10 +18,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/log"
-	sdkmath "cosmossdk.io/math"
-	pruningtypes "cosmossdk.io/store/pruning/types"
 	"github.com/cometbft/cometbft/node"
 	cmtclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
@@ -29,6 +25,11 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+
+	"github.com/cosmos/cosmos-sdk/depinject"
+	"github.com/cosmos/cosmos-sdk/log"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"

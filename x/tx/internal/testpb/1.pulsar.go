@@ -2,9 +2,14 @@
 package testpb
 
 import (
-	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
 	binary "encoding/binary"
 	fmt "fmt"
+	io "io"
+	math "math"
+	reflect "reflect"
+	sort "sort"
+	sync "sync"
+
 	_ "github.com/cosmos/cosmos-proto"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -14,11 +19,8 @@ import (
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	reflect "reflect"
-	sort "sort"
-	sync "sync"
+
+	v1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/base/v1beta1"
 )
 
 var _ protoreflect.List = (*_A_8_list)(nil)

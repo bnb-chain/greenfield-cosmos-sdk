@@ -23,7 +23,7 @@ For backward compatibility, the `**/tendermint/**` gRPC services are still suppo
 
 Additionally, the SDK is starting its abstraction from CometBFT Go types thorought the codebase:
 
-* The usage of CometBFT have been replaced to use the Cosmos SDK logger interface (`cosmossdk.io/log.Logger`).
+* The usage of CometBFT have been replaced to use the Cosmos SDK logger interface (`github.com/cosmos/cosmos-sdk/log.Logger`).
 * The usage of `github.com/cometbft/cometbft/libs/bytes.HexByte` have been replaced by `[]byte`.
 
 ### Configuration
@@ -91,7 +91,7 @@ References to `types/store.go` which contained aliases for store types have been
 ##### Extract Store to a standalone module
 
 The `store` module is extracted to have a separate go.mod file which allows it be a standalone module. 
-All the store imports are now renamed to use `cosmossdk.io/store` instead of `github.com/cosmos/cosmos-sdk/store` across the SDK.
+All the store imports are now renamed to use `github.com/cosmos/cosmos-sdk/store` instead of `github.com/cosmos/cosmos-sdk/store` across the SDK.
 
 ### Modules
 
@@ -125,7 +125,7 @@ By default, the new `ProposalCancelRatio` parameter is set to 0.5 during migrati
 ##### Extract evidence to a standalone module
 
 The `x/evidence` module is extracted to have a separate go.mod file which allows it be a standalone module. 
-All the evidence imports are now renamed to use `cosmossdk.io/x/evidence` instead of `github.com/cosmos/cosmos-sdk/x/evidence` across the SDK.
+All the evidence imports are now renamed to use `github.com/cosmos/cosmos-sdk/x/evidence` instead of `github.com/cosmos/cosmos-sdk/x/evidence` across the SDK.
 
 #### `x/nft`
 
@@ -138,14 +138,14 @@ The `x/nft` module is extracted to have a separate go.mod file which allows it t
 ##### Extract feegrant to a standalone module
 
 The `x/feegrant` module is extracted to have a separate go.mod file which allows it to be a standalone module.
-All the feegrant imports are now renamed to use `cosmossdk.io/x/feegrant` instead of `github.com/cosmos/cosmos-sdk/x/feegrant` across the SDK.
+All the feegrant imports are now renamed to use `github.com/cosmos/cosmos-sdk/x/feegrant` instead of `github.com/cosmos/cosmos-sdk/x/feegrant` across the SDK.
 
 #### `x/upgrade`
 
 ##### Extract upgrade to a standalone module
 
 The `x/upgrade` module is extracted to have a separate go.mod file which allows it to be a standalone module. 
-All the upgrade imports are now renamed to use `cosmossdk.io/x/upgrade` instead of `github.com/cosmos/cosmos-sdk/x/upgrade` across the SDK.
+All the upgrade imports are now renamed to use `github.com/cosmos/cosmos-sdk/x/upgrade` instead of `github.com/cosmos/cosmos-sdk/x/upgrade` across the SDK.
 
 ## [v0.47.x](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.0)
 
@@ -188,7 +188,7 @@ interface. This removes and fully deprecates all legacy queriers. All modules no
 known as the LCD, and the `sdk.Msg#Route` method won't be used anymore.
 
 Most other existing `AppModule` methods have been moved to extension interfaces in preparation for the migration
-to the `cosmossdk.io/core/appmodule` API in the next release. Most `AppModule` implementations should not be broken
+to the `github.com/cosmos/cosmos-sdk/core/appmodule` API in the next release. Most `AppModule` implementations should not be broken
 by this change.
 
 ### SimApp

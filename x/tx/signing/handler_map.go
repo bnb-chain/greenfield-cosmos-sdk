@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
+	signingv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/signing/v1beta1"
 )
 
 // HandlerMap aggregates several sign mode handlers together for convenient generation of sign bytes

@@ -6,13 +6,14 @@ import (
 	"testing"
 	"time"
 
-	storetypes "cosmossdk.io/store/types"
 	"github.com/golang/mock/gomock"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/prysmaticlabs/prysm/crypto/bls/blst"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/willf/bitset"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	otestutil "github.com/cosmos/cosmos-sdk/x/oracle/testutil"
 

@@ -3,16 +3,16 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/collections"
+	"github.com/cosmos/cosmos-sdk/collections"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/log"
+	"github.com/cosmos/cosmos-sdk/math"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/store/prefix"
-	storetypes "cosmossdk.io/store/types"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

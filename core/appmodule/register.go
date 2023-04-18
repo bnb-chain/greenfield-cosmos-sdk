@@ -5,7 +5,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"cosmossdk.io/core/internal"
+	"github.com/cosmos/cosmos-sdk/core/internal"
 )
 
 // Register registers a module with the global module registry. The provided

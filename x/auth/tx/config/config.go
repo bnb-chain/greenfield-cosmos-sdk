@@ -3,9 +3,11 @@ package tx
 import (
 	"fmt"
 
-	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
+
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	txconfigv1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/config/v1"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

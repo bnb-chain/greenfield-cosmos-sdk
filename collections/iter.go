@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 
-	"cosmossdk.io/core/store"
+	"github.com/cosmos/cosmos-sdk/core/store"
 )
 
 // ErrInvalidIterator is returned when an Iterate call resulted in an invalid iterator.

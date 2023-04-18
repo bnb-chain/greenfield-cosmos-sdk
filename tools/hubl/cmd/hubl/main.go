@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cosmossdk.io/tools/hubl/internal"
+	"github.com/cosmos/cosmos-sdk/tools/hubl/internal"
 )
 
 func main() {

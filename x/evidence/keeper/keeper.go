@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/x/evidence/exported"
-	"cosmossdk.io/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/log"
 
-	"cosmossdk.io/errors"
-	"cosmossdk.io/store/prefix"
-	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/x/evidence/exported"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
+
+	"github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

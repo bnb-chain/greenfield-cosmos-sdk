@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"testing"
 
-	"cosmossdk.io/simapp"
 	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/simapp"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"

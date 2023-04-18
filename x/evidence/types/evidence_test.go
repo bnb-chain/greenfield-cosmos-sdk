@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/x/evidence/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

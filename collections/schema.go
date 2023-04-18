@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"cosmossdk.io/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
 
-	"cosmossdk.io/core/store"
+	"github.com/cosmos/cosmos-sdk/core/store"
 )
 
 // SchemaBuilder is used for building schemas. The Build method should always
@@ -148,7 +148,7 @@ func NewMemoryStoreSchema(service store.MemoryStoreService) Schema {
 
 // NewSchemaFromAccessor creates a new schema for the provided store accessor
 // function. Modules built against versions of the SDK which do not support
-// the cosmossdk.io/core/appmodule APIs should use this method.
+// the github.com/cosmos/cosmos-sdk/core/appmodule APIs should use this method.
 // Ex:
 
 //	NewSchemaFromAccessor(func(ctx context.Context) store.KVStore {

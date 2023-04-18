@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"sync"
 
-	"cosmossdk.io/log"
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/log"
+
+	"github.com/cosmos/cosmos-sdk/store/pruning/types"
 )
 
 // Manager is an abstraction to handle the logic needed for

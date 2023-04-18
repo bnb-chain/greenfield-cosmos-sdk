@@ -7,7 +7,7 @@ package simulation_test
 // 	"testing"
 // 	"time"
 //
-// 	"cosmossdk.io/math"
+// 	"github.com/cosmos/cosmos-sdk/math"
 // 	"github.com/stretchr/testify/require"
 // 	"github.com/stretchr/testify/suite"
 //

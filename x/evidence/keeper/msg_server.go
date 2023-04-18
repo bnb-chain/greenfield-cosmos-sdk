@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

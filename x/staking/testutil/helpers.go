@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/hex"
 
-	sdkerrors "cosmossdk.io/errors"
-	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/willf/bitset"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/log"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

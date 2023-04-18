@@ -8,9 +8,10 @@ import (
 	context "context"
 	reflect "reflect"
 
-	math "cosmossdk.io/math"
-	types "github.com/cosmos/cosmos-sdk/types"
 	gomock "github.com/golang/mock/gomock"
+
+	math "github.com/cosmos/cosmos-sdk/math"
+	types "github.com/cosmos/cosmos-sdk/types"
 )
 
 // MockStakingKeeper is a mock of StakingKeeper interface.

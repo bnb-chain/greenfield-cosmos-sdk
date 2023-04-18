@@ -3,7 +3,7 @@ package tx
 import (
 	"fmt"
 
-	"cosmossdk.io/x/tx/signing/textual"
+	"github.com/cosmos/cosmos-sdk/x/tx/signing/textual"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

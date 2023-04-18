@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"cosmossdk.io/collections/colltest"
+	"github.com/cosmos/cosmos-sdk/collections/colltest"
 )
 
 func TestCollectionsCorrectness(t *testing.T) {

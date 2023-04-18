@@ -7,13 +7,15 @@
 package testpb
 
 import (
-	_ "cosmossdk.io/api/cosmos/app/v1alpha1"
-	_ "cosmossdk.io/api/cosmos/orm/v1"
-	_ "cosmossdk.io/api/cosmos/orm/v1alpha1"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/app/v1alpha1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/orm/v1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/orm/v1alpha1"
 )
 
 const (

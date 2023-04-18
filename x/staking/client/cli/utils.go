@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"

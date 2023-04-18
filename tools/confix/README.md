@@ -17,7 +17,7 @@ To add the confix tool, it's required to add the `ConfigCommand` to your applica
 Import the `confixCmd` package:
 
 ```go
-import "cosmossdk.io/tools/confix/cmd"
+import "github.com/cosmos/cosmos-sdk/tools/confix/cmd"
 ```
 
 Find the following line:
@@ -34,7 +34,7 @@ rootCmd.AddCommand(
 )
 ```
 
-The `ConfixCommand` function builds the `config` root command and is defined in the `confixCmd` package (`cosmossdk.io/tools/confix/cmd`).
+The `ConfixCommand` function builds the `config` root command and is defined in the `confixCmd` package (`github.com/cosmos/cosmos-sdk/tools/confix/cmd`).
 An implementation example can be found in `simapp`.
 
 The command will be available as `simd config`.
@@ -44,7 +44,7 @@ The command will be available as `simd config`.
 To use Confix standalone, without having to add it in your application, install it with the following command:
 
 ```bash
-go install cosmossdk.io/tools/confix/cmd/confix@latest
+go install github.com/cosmos/cosmos-sdk/tools/confix/cmd/confix@latest
 ```
 
 :::warning

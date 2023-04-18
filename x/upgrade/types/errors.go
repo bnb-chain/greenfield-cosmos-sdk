@@ -1,7 +1,7 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/errors"
 )
 
 // x/upgrade module sentinel errors

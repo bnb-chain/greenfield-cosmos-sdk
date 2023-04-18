@@ -3,8 +3,8 @@ package indexes
 import (
 	"context"
 
-	"cosmossdk.io/collections"
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 )
 
 // Multi defines the most common index. It can be used to create a reference between

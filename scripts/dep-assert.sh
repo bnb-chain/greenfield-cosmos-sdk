@@ -2,7 +2,7 @@
 
 set -o errexit
 
-SIMAPP_REGEX="cosmossdk.io/simapp"
+SIMAPP_REGEX="github.com/cosmos/cosmos-sdk/simapp"
 CWD=$(pwd)
 
 

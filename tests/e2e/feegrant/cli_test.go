@@ -6,7 +6,7 @@ package feegrant
 import (
 	"testing"
 
-	"cosmossdk.io/simapp"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 
 	"github.com/stretchr/testify/suite"

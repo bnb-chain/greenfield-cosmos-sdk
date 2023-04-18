@@ -10,16 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	_ "cosmossdk.io/api/cosmos/auth/v1beta1"
-	_ "cosmossdk.io/api/cosmos/authz/v1beta1"
-	_ "cosmossdk.io/api/cosmos/crypto/ed25519"
-	_ "cosmossdk.io/api/cosmos/crypto/multisig"
-	_ "cosmossdk.io/api/cosmos/crypto/secp256k1"
-	_ "cosmossdk.io/api/cosmos/gov/v1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/auth/v1beta1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/authz/v1beta1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/crypto/ed25519"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/crypto/multisig"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/crypto/secp256k1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/gov/v1"
 
-	"cosmossdk.io/x/tx/signing"
-	"cosmossdk.io/x/tx/signing/textual"
-	"cosmossdk.io/x/tx/signing/textual/internal/textualpb"
+	"github.com/cosmos/cosmos-sdk/x/tx/signing"
+	"github.com/cosmos/cosmos-sdk/x/tx/signing/textual"
+	"github.com/cosmos/cosmos-sdk/x/tx/signing/textual/internal/textualpb"
 )
 
 type e2eJsonTest struct {

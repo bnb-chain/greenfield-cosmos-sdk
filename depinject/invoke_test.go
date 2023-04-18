@@ -6,7 +6,7 @@ import (
 	"github.com/regen-network/gocuke"
 	"gotest.tools/v3/assert"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
 )
 
 func TestInvoke(t *testing.T) {

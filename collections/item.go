@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 )
 
 // Item is a type declaration based on Map

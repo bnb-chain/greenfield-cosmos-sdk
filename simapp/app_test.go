@@ -5,20 +5,25 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/x/evidence"
-	"cosmossdk.io/x/upgrade"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/cosmos-sdk/x/crosschain"
-	"github.com/cosmos/cosmos-sdk/x/oracle"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/log"
-	feegrantmodule "cosmossdk.io/x/feegrant/module"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+
+	"github.com/cosmos/cosmos-sdk/x/crosschain"
+	"github.com/cosmos/cosmos-sdk/x/oracle"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+
+	"github.com/cosmos/cosmos-sdk/log"
+
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"

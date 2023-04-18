@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"sigs.k8s.io/yaml"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 )
 
 type decimalTestSuite struct {

@@ -708,14 +708,11 @@ jobs:
         with:
           go-version: 1.20.2
           cache: true
-          cache-dependency-path: x/feegrant/go.sum
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:
           PATTERNS: |
             x/feegrant/**/*.go
-            x/feegrant/go.mod
-            x/feegrant/go.sum
       - name: tests
         if: env.GIT_DIFF
         run: |
@@ -742,14 +739,11 @@ jobs:
         with:
           go-version: 1.20.2
           cache: true
-          cache-dependency-path: x/evidence/go.sum
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:
           PATTERNS: |
             x/evidence/**/*.go
-            x/evidence/go.mod
-            x/evidence/go.sum
       - name: tests
         if: env.GIT_DIFF
         run: |
@@ -781,8 +775,6 @@ jobs:
         with:
           PATTERNS: |
             x/upgrade/**/*.go
-            x/upgrade/go.mod
-            x/upgrade/go.sum
       - name: tests
         if: env.GIT_DIFF
         run: |

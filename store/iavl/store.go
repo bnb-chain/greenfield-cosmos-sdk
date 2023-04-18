@@ -11,14 +11,14 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/iavl"
 
-	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/log"
-	"cosmossdk.io/store/cachekv"
-	"cosmossdk.io/store/internal/kv"
-	"cosmossdk.io/store/metrics"
-	pruningtypes "cosmossdk.io/store/pruning/types"
-	"cosmossdk.io/store/tracekv"
-	"cosmossdk.io/store/types"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/log"
+	"github.com/cosmos/cosmos-sdk/store/cachekv"
+	"github.com/cosmos/cosmos-sdk/store/internal/kv"
+	"github.com/cosmos/cosmos-sdk/store/metrics"
+	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/store/tracekv"
+	"github.com/cosmos/cosmos-sdk/store/types"
 )
 
 const (

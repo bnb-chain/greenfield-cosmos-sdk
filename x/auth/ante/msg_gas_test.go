@@ -3,15 +3,17 @@ package ante_test
 import (
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
+	"github.com/golang/mock/gomock"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	gashubtypes "github.com/cosmos/cosmos-sdk/x/gashub/types"
-	"github.com/golang/mock/gomock"
 )
 
 func TestMsgGas(t *testing.T) {

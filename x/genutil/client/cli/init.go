@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 
-	errorsmod "cosmossdk.io/errors"
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/go-bip39"
@@ -17,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"

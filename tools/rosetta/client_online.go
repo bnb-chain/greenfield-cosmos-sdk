@@ -22,8 +22,8 @@ import (
 	"github.com/cometbft/cometbft/rpc/client/http"
 	"google.golang.org/grpc"
 
-	crgerrs "cosmossdk.io/tools/rosetta/lib/errors"
-	crgtypes "cosmossdk.io/tools/rosetta/lib/types"
+	crgerrs "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/errors"
+	crgtypes "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
@@ -32,6 +32,7 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	tmrpc "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 )
 

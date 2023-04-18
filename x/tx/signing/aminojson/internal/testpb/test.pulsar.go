@@ -2,9 +2,13 @@
 package testpb
 
 import (
-	_ "cosmossdk.io/api/amino"
 	binary "encoding/binary"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sort "sort"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
@@ -16,10 +20,8 @@ import (
 	_ "google.golang.org/protobuf/types/known/structpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
-	io "io"
-	reflect "reflect"
-	sort "sort"
-	sync "sync"
+
+	_ "github.com/cosmos/cosmos-sdk/api/amino"
 )
 
 var _ protoreflect.Map = (*_WithAMap_1_map)(nil)

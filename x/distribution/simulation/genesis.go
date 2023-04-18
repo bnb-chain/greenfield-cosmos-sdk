@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"

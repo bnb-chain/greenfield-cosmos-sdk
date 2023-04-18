@@ -6,13 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/x/evidence/exported"
-	"cosmossdk.io/x/evidence/keeper"
-	"cosmossdk.io/x/evidence/testutil"
-	"cosmossdk.io/x/evidence/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/x/evidence/exported"
+	"github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	"github.com/cosmos/cosmos-sdk/x/evidence/testutil"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 

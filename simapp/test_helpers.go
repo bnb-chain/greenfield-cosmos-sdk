@@ -6,9 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"cosmossdk.io/log"
-	sdkmath "cosmossdk.io/math"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -16,7 +13,12 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
-	pruningtypes "cosmossdk.io/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/log"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"

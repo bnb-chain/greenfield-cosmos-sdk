@@ -5,18 +5,19 @@ import (
 	"math"
 	"testing"
 
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/log"
-	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
+	"github.com/cosmos/cosmos-sdk/depinject"
+	"github.com/cosmos/cosmos-sdk/log"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
-	store "cosmossdk.io/store/types"
+	store "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	baseapptestutil "github.com/cosmos/cosmos-sdk/baseapp/testutil"

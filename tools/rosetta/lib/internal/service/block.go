@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 
-	"cosmossdk.io/tools/rosetta/lib/errors"
-	crgtypes "cosmossdk.io/tools/rosetta/lib/types"
 	"github.com/coinbase/rosetta-sdk-go/types"
+
+	"github.com/cosmos/cosmos-sdk/tools/rosetta/lib/errors"
+	crgtypes "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/types"
 )
 
 // Block gets the transactions in the given block

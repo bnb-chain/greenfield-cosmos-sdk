@@ -3,8 +3,8 @@ package indexes
 import (
 	"context"
 
-	"cosmossdk.io/collections"
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 )
 
 // MultiPair is an index that is used with collections.Pair keys. It indexes objects by their second part of the key.

@@ -3,9 +3,9 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/log"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"

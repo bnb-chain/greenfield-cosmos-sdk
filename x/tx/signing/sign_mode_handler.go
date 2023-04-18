@@ -3,7 +3,7 @@ package signing
 import (
 	"context"
 
-	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
+	signingv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/signing/v1beta1"
 )
 
 // SignModeHandler is the interface that handlers for each sign mode should implement to generate sign bytes.

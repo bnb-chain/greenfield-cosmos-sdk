@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/log"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"

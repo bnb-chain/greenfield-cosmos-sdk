@@ -5,9 +5,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/collections/colltest"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	gogotypes "github.com/cosmos/gogoproto/types"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/collections/colltest"
 )
 
 func TestCollectionsCorrectness(t *testing.T) {

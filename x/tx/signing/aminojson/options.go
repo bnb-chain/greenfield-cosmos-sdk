@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"cosmossdk.io/api/amino"
+	"github.com/cosmos/cosmos-sdk/api/amino"
 )
 
 // getMessageAminoName returns the amino name of a message if it has been set by the `amino.name` option.

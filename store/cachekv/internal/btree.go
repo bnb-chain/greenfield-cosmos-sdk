@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 
-	"cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/tidwall/btree"
 )
 

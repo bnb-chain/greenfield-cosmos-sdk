@@ -1,6 +1,6 @@
 package errors
 
-import "cosmossdk.io/errors"
+import "github.com/cosmos/cosmos-sdk/errors"
 
 // mathCodespace is the codespace for all errors defined in orm package
 const ormCodespace = "orm"

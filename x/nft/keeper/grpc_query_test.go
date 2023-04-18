@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"cosmossdk.io/x/nft"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 )
 
 func TestGRPCQuery(t *testing.T) {

@@ -8,16 +8,18 @@ import (
 	"strings"
 	"testing"
 
-	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	ormmodulev1alpha1 "cosmossdk.io/api/cosmos/orm/module/v1alpha1"
-	ormv1alpha1 "cosmossdk.io/api/cosmos/orm/v1alpha1"
-	"cosmossdk.io/core/appconfig"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/genesis"
-	"cosmossdk.io/core/store"
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/core/appconfig"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/genesis"
+	"github.com/cosmos/cosmos-sdk/core/store"
+
+	appv1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/app/v1alpha1"
+	ormmodulev1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/orm/module/v1alpha1"
+	ormv1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/orm/v1alpha1"
+
+	"github.com/cosmos/cosmos-sdk/depinject"
 
 	"github.com/golang/mock/gomock"
 

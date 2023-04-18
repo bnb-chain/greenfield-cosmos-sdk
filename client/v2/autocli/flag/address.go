@@ -3,9 +3,10 @@ package flag
 import (
 	"context"
 
-	reflectionv2alpha1 "cosmossdk.io/api/cosmos/base/reflection/v2alpha1"
-	"github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	reflectionv2alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/base/reflection/v2alpha1"
+	"github.com/cosmos/cosmos-sdk/types"
 )
 
 type addressStringType struct{}

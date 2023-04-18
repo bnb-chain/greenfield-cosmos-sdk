@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/log"
 	gogotypes "github.com/cosmos/gogoproto/types"
 
-	"cosmossdk.io/core/address"
-	"cosmossdk.io/core/store"
-	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/log"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+
+	"github.com/cosmos/cosmos-sdk/core/address"
+	"github.com/cosmos/cosmos-sdk/core/store"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"

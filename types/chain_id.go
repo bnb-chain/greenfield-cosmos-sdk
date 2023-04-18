@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/errors"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )

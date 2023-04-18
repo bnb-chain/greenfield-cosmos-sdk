@@ -9,7 +9,7 @@ import (
 
 	cmtcrypto "github.com/cometbft/cometbft/crypto"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/types/errors"

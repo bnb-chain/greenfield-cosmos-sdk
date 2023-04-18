@@ -3,11 +3,11 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/collections"
-	storetypes "cosmossdk.io/core/store"
-	"cosmossdk.io/errors"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
+	"github.com/cosmos/cosmos-sdk/collections"
+	storetypes "github.com/cosmos/cosmos-sdk/core/store"
+	"github.com/cosmos/cosmos-sdk/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

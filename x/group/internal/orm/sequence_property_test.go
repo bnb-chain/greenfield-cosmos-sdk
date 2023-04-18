@@ -3,7 +3,7 @@ package orm
 import (
 	"testing"
 
-	storetypes "cosmossdk.io/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/stretchr/testify/require"
 	"pgregory.net/rapid"

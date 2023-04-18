@@ -4,12 +4,13 @@ import (
 	"errors"
 	"time"
 
-	"cosmossdk.io/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+
+	"github.com/golang/mock/gomock"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/golang/mock/gomock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 func (suite *KeeperTestSuite) TestGrantAllowance() {

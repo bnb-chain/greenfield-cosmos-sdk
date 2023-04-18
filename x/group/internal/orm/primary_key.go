@@ -1,8 +1,9 @@
 package orm
 
 import (
-	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/gogoproto/proto"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 )

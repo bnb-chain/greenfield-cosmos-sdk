@@ -8,8 +8,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"cosmossdk.io/store/prefix"
-	"cosmossdk.io/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

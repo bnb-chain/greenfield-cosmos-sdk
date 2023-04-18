@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"cosmossdk.io/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 )
 
 // flag for feegrant module

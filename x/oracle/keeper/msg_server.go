@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	sdkerrors "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	proto "github.com/cosmos/gogoproto/proto"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/errors"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
 	sdk "github.com/cosmos/cosmos-sdk/types"

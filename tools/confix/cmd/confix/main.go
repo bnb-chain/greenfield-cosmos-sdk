@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	confixcmd "cosmossdk.io/tools/confix/cmd"
+	confixcmd "github.com/cosmos/cosmos-sdk/tools/confix/cmd"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 
 	"sigs.k8s.io/yaml"
 
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/legacy"

@@ -6,13 +6,15 @@ import (
 	"net"
 	"testing"
 
-	reflectionv2alpha1 "cosmossdk.io/api/cosmos/base/reflection/v2alpha1"
-	"cosmossdk.io/client/v2/autocli/flag"
-	"cosmossdk.io/client/v2/internal/testpb"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/client/v2/autocli/flag"
+	"github.com/cosmos/cosmos-sdk/client/v2/internal/testpb"
+
+	reflectionv2alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/base/reflection/v2alpha1"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"google.golang.org/grpc/credentials/insecure"
 )

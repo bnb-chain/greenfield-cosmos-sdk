@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math"
-	"cosmossdk.io/simapp"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/math"
+	"github.com/cosmos/cosmos-sdk/simapp"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"

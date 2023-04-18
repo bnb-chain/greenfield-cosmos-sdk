@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/simapp"
+	"github.com/cosmos/gogoproto/proto"
+	"gotest.tools/v3/assert"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis/client/cli"
-	"github.com/cosmos/gogoproto/proto"
-	"gotest.tools/v3/assert"
 )
 
 type fixture struct {

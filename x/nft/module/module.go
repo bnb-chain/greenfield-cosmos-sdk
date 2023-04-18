@@ -9,10 +9,11 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/store"
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/depinject"
+	"github.com/cosmos/cosmos-sdk/errors"
+
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/store"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -21,12 +22,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	modulev1 "cosmossdk.io/api/cosmos/nft/module/v1"
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/nft/module/v1"
 
-	"cosmossdk.io/x/nft"
-	"cosmossdk.io/x/nft/client/cli"
-	"cosmossdk.io/x/nft/keeper"
-	"cosmossdk.io/x/nft/simulation"
+	"github.com/cosmos/cosmos-sdk/x/nft"
+	"github.com/cosmos/cosmos-sdk/x/nft/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/nft/keeper"
+	"github.com/cosmos/cosmos-sdk/x/nft/simulation"
 )
 
 var (

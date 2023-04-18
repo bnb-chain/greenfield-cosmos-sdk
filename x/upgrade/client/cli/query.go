@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/x/upgrade/types"
+	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

@@ -3,16 +3,18 @@ package orm
 import (
 	"fmt"
 
-	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	modulev1alpha1 "cosmossdk.io/api/cosmos/orm/module/v1alpha1"
-	ormv1alpha1 "cosmossdk.io/api/cosmos/orm/v1alpha1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/core/store"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protodesc"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+	"github.com/cosmos/cosmos-sdk/core/store"
+
+	appv1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/app/v1alpha1"
+	modulev1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/orm/module/v1alpha1"
+	ormv1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/orm/v1alpha1"
+
+	"github.com/cosmos/cosmos-sdk/depinject"
 
 	"github.com/cosmos/cosmos-sdk/orm/model/ormdb"
 	"github.com/cosmos/cosmos-sdk/orm/model/ormtable"

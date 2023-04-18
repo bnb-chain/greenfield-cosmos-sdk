@@ -3,11 +3,12 @@ package direct
 import (
 	"context"
 
-	signingv1beta1 "cosmossdk.io/api/cosmos/tx/signing/v1beta1"
-	txv1beta1 "cosmossdk.io/api/cosmos/tx/v1beta1"
 	"google.golang.org/protobuf/proto"
 
-	"cosmossdk.io/x/tx/signing"
+	signingv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/signing/v1beta1"
+	txv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/tx/v1beta1"
+
+	"github.com/cosmos/cosmos-sdk/x/tx/signing"
 )
 
 // SignModeHandler is the SIGN_MODE_DIRECT implementation of signing.SignModeHandler.

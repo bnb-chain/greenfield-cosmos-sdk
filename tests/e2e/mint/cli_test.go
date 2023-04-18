@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"cosmossdk.io/math"
-	"cosmossdk.io/simapp"
+	"github.com/cosmos/cosmos-sdk/math"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	crosschaintypes "github.com/cosmos/cosmos-sdk/x/crosschain/types"
 )

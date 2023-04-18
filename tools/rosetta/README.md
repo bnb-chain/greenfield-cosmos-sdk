@@ -15,7 +15,7 @@ To enable Rosetta API support, it's required to add the `RosettaCommand` to your
 Import the `rosettaCmd` package:
 
 ```go
-import "cosmossdk.io/tools/rosetta/cmd"
+import "github.com/cosmos/cosmos-sdk/tools/rosetta/cmd"
 ```
 
 Find the following line:
@@ -32,7 +32,7 @@ rootCmd.AddCommand(
 )
 ```
 
-The `RosettaCommand` function builds the `rosetta` root command and is defined in the `rosettaCmd` package (`cosmossdk.io/tools/rosetta/cmd`).
+The `RosettaCommand` function builds the `rosetta` root command and is defined in the `rosettaCmd` package (`github.com/cosmos/cosmos-sdk/tools/rosetta/cmd`).
 
 Since we’ve updated the Cosmos SDK to work with the Rosetta API, updating the application's root command file is all you need to do.
 
@@ -62,7 +62,7 @@ simd rosetta
 To use Rosetta standalone, without having to add it in your application, install it with the following command:
 
 ```bash
-go install cosmossdk.io/tools/rosetta/cmd/rosetta
+go install github.com/cosmos/cosmos-sdk/tools/rosetta/cmd/rosetta
 ```
 
 Alternatively, for building from source, simply run `make rosetta`. The binary will be located in `tools/rosetta`.
@@ -87,7 +87,7 @@ import (
 
 "context"
 "github.com/coinbase/rosetta-sdk-go/types"
-"cosmossdk.io/tools/rosetta/lib"
+"github.com/cosmos/cosmos-sdk/tools/rosetta/lib"
 )
 
 // CustomClient embeds the standard cosmos client
@@ -113,7 +113,7 @@ Example:
 
 ```go
 package custom_errors
-import crgerrs "cosmossdk.io/tools/rosetta/lib/errors"
+import crgerrs "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/errors"
 
 var customErrRetriable = true
 var CustomError = crgerrs.RegisterError(100, "custom message", customErrRetriable, "description")

@@ -9,13 +9,14 @@ import (
 	big "math/big"
 	reflect "reflect"
 
-	math "cosmossdk.io/math"
+	gomock "github.com/golang/mock/gomock"
+
+	math "github.com/cosmos/cosmos-sdk/math"
 	types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	keeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	types0 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockAccountKeeper is a mock of AccountKeeper interface.

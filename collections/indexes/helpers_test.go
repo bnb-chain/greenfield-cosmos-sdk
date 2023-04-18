@@ -3,7 +3,7 @@ package indexes
 import (
 	"testing"
 
-	"cosmossdk.io/collections"
+	"github.com/cosmos/cosmos-sdk/collections"
 	"github.com/stretchr/testify/require"
 )
 

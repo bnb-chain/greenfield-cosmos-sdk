@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"reflect"
 
-	sdkmath "cosmossdk.io/math"
-	crgerrs "cosmossdk.io/tools/rosetta/lib/errors"
-	crgtypes "cosmossdk.io/tools/rosetta/lib/types"
 	rosettatypes "github.com/coinbase/rosetta-sdk-go/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto"
 	tmcoretypes "github.com/cometbft/cometbft/rpc/core/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	secp "github.com/decred/dcrd/dcrec/secp256k1/v4"
+
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+	crgerrs "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/errors"
+	crgtypes "github.com/cosmos/cosmos-sdk/tools/rosetta/lib/types"
 
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

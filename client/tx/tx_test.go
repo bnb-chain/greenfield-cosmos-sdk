@@ -6,9 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"

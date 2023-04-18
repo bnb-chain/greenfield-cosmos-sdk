@@ -6,8 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"cosmossdk.io/math"
 	"github.com/spf13/pflag"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/go-bip39"
 

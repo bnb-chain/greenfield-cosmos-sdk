@@ -13,17 +13,20 @@ import (
 	"testing"
 	"unsafe"
 
-	runtimev1alpha1 "cosmossdk.io/api/cosmos/app/runtime/v1alpha1"
-	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
-	"cosmossdk.io/core/appconfig"
-	"cosmossdk.io/depinject"
-	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
-	storetypes "cosmossdk.io/store/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/depinject"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
+	"github.com/cosmos/cosmos-sdk/core/appconfig"
+
+	runtimev1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/app/runtime/v1alpha1"
+	appv1alpha1 "github.com/cosmos/cosmos-sdk/api/cosmos/app/v1alpha1"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	baseapptestutil "github.com/cosmos/cosmos-sdk/baseapp/testutil"

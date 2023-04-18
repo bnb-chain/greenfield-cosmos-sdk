@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"sigs.k8s.io/yaml"
 
-	"cosmossdk.io/client/v2/internal/util"
+	autocliv1 "github.com/cosmos/cosmos-sdk/api/cosmos/autocli/v1"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	"github.com/cosmos/cosmos-sdk/client/v2/internal/util"
 )
 
 func (b *Builder) buildMethodCommandCommon(descriptor protoreflect.MethodDescriptor, options *autocliv1.RpcCommandOptions, exec func(cmd *cobra.Command, input protoreflect.Message) error) (*cobra.Command, error) {

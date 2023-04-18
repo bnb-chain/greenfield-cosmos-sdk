@@ -7,10 +7,12 @@ import (
 
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	bankv1beta1 "cosmossdk.io/api/cosmos/bank/v1beta1"
-	basev1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
-	corecoins "cosmossdk.io/core/coins"
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
+
+	corecoins "github.com/cosmos/cosmos-sdk/core/coins"
+
+	bankv1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/bank/v1beta1"
+	basev1beta1 "github.com/cosmos/cosmos-sdk/api/cosmos/base/v1beta1"
 )
 
 const emptyCoins = "zero"

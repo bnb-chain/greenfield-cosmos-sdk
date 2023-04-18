@@ -1,6 +1,6 @@
 package types
 
-import "cosmossdk.io/errors"
+import "github.com/cosmos/cosmos-sdk/errors"
 
 var (
 	ErrChannelNotRegistered   = errors.Register(ModuleName, 1, "channel is not registered")

@@ -15,7 +15,7 @@ import (
 
 	"github.com/cosmos/go-bip39"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"golang.org/x/crypto/bcrypt"
 

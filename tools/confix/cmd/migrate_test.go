@@ -5,10 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"cosmossdk.io/tools/confix/cmd"
+	"gotest.tools/v3/assert"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
-	"gotest.tools/v3/assert"
+	"github.com/cosmos/cosmos-sdk/tools/confix/cmd"
 )
 
 func TestMigradeCmd(t *testing.T) {

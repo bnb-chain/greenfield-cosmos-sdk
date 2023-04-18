@@ -3,9 +3,10 @@ package types_test
 import (
 	"testing"
 
-	"cosmossdk.io/x/evidence/exported"
-	"cosmossdk.io/x/evidence/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cosmos/cosmos-sdk/x/evidence/exported"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

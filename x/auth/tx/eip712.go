@@ -9,14 +9,17 @@ import (
 	"strings"
 	"time"
 
-	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
+	sdkmath "github.com/cosmos/cosmos-sdk/math"
+
+	"github.com/cosmos/gogoproto/jsonpb"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -27,7 +30,6 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/gogoproto/jsonpb"
 )
 
 var domain = &apitypes.TypedDataDomain{

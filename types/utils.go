@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/log"
 
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )

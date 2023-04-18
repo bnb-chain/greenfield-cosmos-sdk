@@ -10,16 +10,19 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 
-	modulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
-	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/depinject"
 
-	store "cosmossdk.io/store/types"
-	eviclient "cosmossdk.io/x/evidence/client"
-	"cosmossdk.io/x/evidence/client/cli"
-	"cosmossdk.io/x/evidence/keeper"
-	"cosmossdk.io/x/evidence/simulation"
-	"cosmossdk.io/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/core/appmodule"
+
+	modulev1 "github.com/cosmos/cosmos-sdk/api/cosmos/evidence/module/v1"
+
+	store "github.com/cosmos/cosmos-sdk/store/types"
+
+	eviclient "github.com/cosmos/cosmos-sdk/x/evidence/client"
+	"github.com/cosmos/cosmos-sdk/x/evidence/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	"github.com/cosmos/cosmos-sdk/x/evidence/simulation"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"

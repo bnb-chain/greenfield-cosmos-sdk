@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/errors"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	cmtcrypto "github.com/cometbft/cometbft/crypto"
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var (

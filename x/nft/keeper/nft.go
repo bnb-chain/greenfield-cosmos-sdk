@@ -3,9 +3,9 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
-	"cosmossdk.io/store/prefix"
-	"cosmossdk.io/x/nft"
+	"github.com/cosmos/cosmos-sdk/errors"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/x/nft"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"

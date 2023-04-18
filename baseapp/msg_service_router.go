@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/grpc"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

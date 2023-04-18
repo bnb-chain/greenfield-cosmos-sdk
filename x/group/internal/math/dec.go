@@ -6,7 +6,7 @@ import (
 
 	"github.com/cockroachdb/apd/v2"
 
-	errorsmod "cosmossdk.io/errors"
+	errorsmod "github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/x/group/errors"
 )

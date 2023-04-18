@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/x/evidence"
-	"cosmossdk.io/x/evidence/exported"
-	"cosmossdk.io/x/evidence/keeper"
-	evidencetestutil "cosmossdk.io/x/evidence/testutil"
-	"cosmossdk.io/x/evidence/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+	"github.com/cosmos/cosmos-sdk/x/evidence/exported"
+	"github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	evidencetestutil "github.com/cosmos/cosmos-sdk/x/evidence/testutil"
+	"github.com/cosmos/cosmos-sdk/x/evidence/types"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"

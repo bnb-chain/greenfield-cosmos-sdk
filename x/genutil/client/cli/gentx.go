@@ -9,8 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"cosmossdk.io/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

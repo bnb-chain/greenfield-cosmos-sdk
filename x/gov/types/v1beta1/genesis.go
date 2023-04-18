@@ -3,7 +3,7 @@ package v1beta1
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 )

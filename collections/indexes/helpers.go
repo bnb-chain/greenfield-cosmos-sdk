@@ -3,7 +3,7 @@ package indexes
 import (
 	"context"
 
-	"cosmossdk.io/collections"
+	"github.com/cosmos/cosmos-sdk/collections"
 )
 
 // iterator defines the minimum set of methods of an index iterator

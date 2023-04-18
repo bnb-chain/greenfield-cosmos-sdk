@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 
-	"cosmossdk.io/core/store"
+	"github.com/cosmos/cosmos-sdk/core/store"
 )
 
 // Map represents the basic collections object.

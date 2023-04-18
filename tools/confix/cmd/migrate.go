@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/tools/confix"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/maps"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/tools/confix"
 )
 
 var (

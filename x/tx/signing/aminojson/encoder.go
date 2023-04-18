@@ -9,9 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	authapi "cosmossdk.io/api/cosmos/auth/v1beta1"
-	"cosmossdk.io/api/cosmos/crypto/multisig"
-	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/math"
+
+	authapi "github.com/cosmos/cosmos-sdk/api/cosmos/auth/v1beta1"
+	"github.com/cosmos/cosmos-sdk/api/cosmos/crypto/multisig"
 )
 
 // cosmosIntEncoder provides legacy compatible encoding for cosmos.Int types. In gogo messages these are sometimes

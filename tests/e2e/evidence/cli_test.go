@@ -7,11 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"cosmossdk.io/simapp"
-	"cosmossdk.io/x/evidence/client/cli"
+	"gotest.tools/v3/assert"
+
+	"github.com/cosmos/cosmos-sdk/simapp"
+
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	"gotest.tools/v3/assert"
+	"github.com/cosmos/cosmos-sdk/x/evidence/client/cli"
 )
 
 type fixture struct {

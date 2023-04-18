@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
+
+	"github.com/cosmos/cosmos-sdk/math"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"

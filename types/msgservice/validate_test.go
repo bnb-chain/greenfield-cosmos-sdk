@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	_ "cosmossdk.io/api/cosmos/bank/v1beta1"
+	_ "github.com/cosmos/cosmos-sdk/api/cosmos/bank/v1beta1"
 )
 
 func TestValidateServiceAnnotations(t *testing.T) {

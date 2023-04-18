@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"cosmossdk.io/collections/codec"
+	"github.com/cosmos/cosmos-sdk/collections/codec"
 )
 
 // KeySet builds on top of a Map and represents a collection retaining only a set
