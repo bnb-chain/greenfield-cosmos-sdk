@@ -25,6 +25,7 @@ import (
 	"cosmossdk.io/x/nft/client/cli"
 	nftmodule "cosmossdk.io/x/nft/module"
 	nfttestutil "cosmossdk.io/x/nft/testutil"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 const (
@@ -91,7 +92,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	s.ctx = svrcmd.CreateExecuteContext(context.Background())
 	var outBuf bytes.Buffer

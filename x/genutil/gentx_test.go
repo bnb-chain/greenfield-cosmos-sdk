@@ -16,7 +16,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,14 +30,14 @@ import (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	priv2 = secp256k1.GenPrivKey()
-	pk1   = priv1.PubKey()
-	pk2   = priv2.PubKey()
-	addr1 = sdk.AccAddress(pk1.Address())
-	addr2 = sdk.AccAddress(pk2.Address())
-	desc  = stakingtypes.NewDescription("testname", "", "", "", "")
-	comm  = stakingtypes.CommissionRates{}
+	priv1, _ = ethsecp256k1.GenPrivKey()
+	priv2, _ = ethsecp256k1.GenPrivKey()
+	pk1      = priv1.PubKey()
+	pk2      = priv2.PubKey()
+	addr1    = sdk.AccAddress(pk1.Address())
+	addr2    = sdk.AccAddress(pk2.Address())
+	desc     = stakingtypes.NewDescription("testname", "", "", "", "")
+	comm     = stakingtypes.CommissionRates{}
 )
 
 // GenTxTestSuite is a test suite to be used with gentx tests.

@@ -52,7 +52,7 @@ func TestSetPubKey(t *testing.T) {
 	suite.txBuilder.SetGasLimit(testdata.NewTestGasLimit())
 
 	privs, accNums, accSeqs := []cryptotypes.PrivKey{priv1, priv2, priv3}, []uint64{0, 1, 2}, []uint64{0, 0, 0}
-	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_DIRECT)
+	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_EIP_712)
 	require.NoError(t, err)
 
 	spkd := ante.NewSetPubKeyDecorator(suite.accountKeeper)
@@ -128,7 +128,7 @@ func TestSigVerification(t *testing.T) {
 	suite := SetupTestSuite(t, true)
 	suite.txBankKeeper.EXPECT().DenomMetadata(suite.ctx, gomock.Any()).Return(&banktypes.QueryDenomMetadataResponse{}, nil).AnyTimes()
 
-	enabledSignModes := []signing.SignMode{signing.SignMode_SIGN_MODE_DIRECT, signing.SignMode_SIGN_MODE_TEXTUAL, signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON}
+	enabledSignModes := []signing.SignMode{signing.SignMode_SIGN_MODE_DIRECT, signing.SignMode_SIGN_MODE_TEXTUAL, signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON, signing.SignMode_SIGN_MODE_EIP_712}
 	// Since TEXTUAL is not enabled by default, we create a custom TxConfig
 	// here which includes it.
 	txt, err := txmodule.NewTextualWithGRPCConn(suite.clientCtx)
@@ -144,9 +144,9 @@ func TestSigVerification(t *testing.T) {
 	suite.ctx = suite.ctx.WithBlockHeight(1)
 
 	// keys and addresses
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
-	priv2, _, addr2 := testdata.KeyTestPubAddr()
-	priv3, _, addr3 := testdata.KeyTestPubAddr()
+	priv1, _, addr1 := testdata.KeyTestPubAddrEthSecp256k1()
+	priv2, _, addr2 := testdata.KeyTestPubAddrEthSecp256k1()
+	priv3, _, addr3 := testdata.KeyTestPubAddrEthSecp256k1()
 
 	addrs := []sdk.AccAddress{addr1, addr2, addr3}
 
@@ -233,10 +233,10 @@ func TestSigVerification(t *testing.T) {
 
 func TestSigIntegration(t *testing.T) {
 	// generate private keys
-	privs := []cryptotypes.PrivKey{
-		secp256k1.GenPrivKey(),
-		secp256k1.GenPrivKey(),
-		secp256k1.GenPrivKey(),
+	var privs []cryptotypes.PrivKey
+	for i := 0; i < 3; i++ {
+		priv, _, _ := testdata.KeyTestPubAddrEthSecp256k1()
+		privs = append(privs, priv)
 	}
 
 	params := types.DefaultParams()
@@ -280,7 +280,7 @@ func runSigDecorators(t *testing.T, params types.Params, _ bool, privs ...crypto
 	suite.txBuilder.SetFeeAmount(feeAmount)
 	suite.txBuilder.SetGasLimit(gasLimit)
 
-	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_DIRECT)
+	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_EIP_712)
 	require.NoError(t, err)
 
 	spkd := ante.NewSetPubKeyDecorator(suite.accountKeeper)
@@ -315,7 +315,7 @@ func TestIncrementSequenceDecorator(t *testing.T) {
 	suite.txBuilder.SetFeeAmount(feeAmount)
 	suite.txBuilder.SetGasLimit(gasLimit)
 
-	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_DIRECT)
+	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_EIP_712)
 	require.NoError(t, err)
 
 	isd := ante.NewIncrementSequenceDecorator(suite.accountKeeper)

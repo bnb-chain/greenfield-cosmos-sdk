@@ -79,6 +79,7 @@ func (s *E2ETestSuite) SetupSuite() {
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 		fmt.Sprintf("--gas=%d", flags.DefaultGasLimit),
 		fmt.Sprintf("--%s=foobar", flags.FlagNote),
+		// fmt.Sprintf("--%s=%s", flags.FlagChainID, testutil.DefaultChainId),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &s.txRes))
@@ -561,10 +562,10 @@ func (s *E2ETestSuite) TestSimMultiSigTx() {
 
 	kr := val1.ClientCtx.Keyring
 
-	account1, _, err := kr.NewMnemonic("newAccount1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	account1, _, err := kr.NewMnemonic("newAccount1", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
-	account2, _, err := kr.NewMnemonic("newAccount2", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	account2, _, err := kr.NewMnemonic("newAccount2", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pub1, err := account1.GetPubKey()

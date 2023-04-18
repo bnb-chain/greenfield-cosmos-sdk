@@ -30,7 +30,7 @@ func TestSetup(t *testing.T) {
 	suite.txBuilder.SetGasLimit(gasLimit)
 
 	privs, accNums, accSeqs := []cryptotypes.PrivKey{priv1}, []uint64{0}, []uint64{0}
-	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_DIRECT)
+	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_EIP_712)
 	require.NoError(t, err)
 
 	sud := ante.NewSetUpContextDecorator()
@@ -65,7 +65,7 @@ func TestRecoverPanic(t *testing.T) {
 	suite.txBuilder.SetGasLimit(gasLimit)
 
 	privs, accNums, accSeqs := []cryptotypes.PrivKey{priv1}, []uint64{0}, []uint64{0}
-	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_DIRECT)
+	tx, err := suite.CreateTestTx(suite.ctx, privs, accNums, accSeqs, suite.ctx.ChainID(), signing.SignMode_SIGN_MODE_EIP_712)
 	require.NoError(t, err)
 
 	sud := ante.NewSetUpContextDecorator()

@@ -13,6 +13,7 @@ import (
 
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestRollback(t *testing.T) {
@@ -28,6 +29,7 @@ func TestRollback(t *testing.T) {
 	// commit 10 blocks
 	for i := int64(1); i <= 10; i++ {
 		header := cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
 			Height:  ver0 + i,
 			AppHash: app.LastCommitID().Hash,
 		}
@@ -48,13 +50,14 @@ func TestRollback(t *testing.T) {
 	assert.Equal(t, target, app.LastBlockHeight())
 
 	// recreate app to have clean check state
-	app = simapp.NewSimApp(options.Logger, options.DB, nil, true, "", serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(t.TempDir()))
+	app = simapp.NewSimApp(options.Logger, options.DB, nil, true, sdktestutil.DefaultChainId, serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(t.TempDir()))
 	store = app.NewContext(true, cmtproto.Header{}).KVStore(app.GetKey("bank"))
 	assert.DeepEqual(t, []byte("value5"), store.Get([]byte("key")))
 
 	// commit another 5 blocks with different values
 	for i := int64(6); i <= 10; i++ {
 		header := cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
 			Height:  ver0 + i,
 			AppHash: app.LastCommitID().Hash,
 		}

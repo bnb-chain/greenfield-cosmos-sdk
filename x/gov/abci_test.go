@@ -11,6 +11,7 @@ import (
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -27,10 +28,10 @@ import (
 func TestTickExpiredDepositPeriod(t *testing.T) {
 	suite := createTestSuite(t)
 	app := suite.App
-	ctx := app.BaseApp.NewContext(false, cmtproto.Header{})
+	ctx := app.BaseApp.NewContext(false, cmtproto.Header{ChainID: sdktestutil.DefaultChainId})
 	addrs := simtestutil.AddTestAddrs(suite.BankKeeper, suite.StakingKeeper, ctx, 10, valTokens)
 
-	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+	header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
@@ -84,10 +85,10 @@ func TestTickExpiredDepositPeriod(t *testing.T) {
 func TestTickMultipleExpiredDepositPeriod(t *testing.T) {
 	suite := createTestSuite(t)
 	app := suite.App
-	ctx := app.BaseApp.NewContext(false, cmtproto.Header{})
+	ctx := app.BaseApp.NewContext(false, cmtproto.Header{ChainID: sdktestutil.DefaultChainId})
 	addrs := simtestutil.AddTestAddrs(suite.BankKeeper, suite.StakingKeeper, ctx, 10, valTokens)
 
-	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+	header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
@@ -173,7 +174,7 @@ func TestTickPassedDepositPeriod(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, cmtproto.Header{})
 	addrs := simtestutil.AddTestAddrs(suite.BankKeeper, suite.StakingKeeper, ctx, 10, valTokens)
 
-	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+	header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
@@ -249,7 +250,7 @@ func TestTickPassedVotingPeriod(t *testing.T) {
 
 			SortAddresses(addrs)
 
-			header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+			header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 			app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 			govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
@@ -356,7 +357,7 @@ func TestProposalPassedEndblocker(t *testing.T) {
 			govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
 			stakingMsgSvr := stakingkeeper.NewMsgServerImpl(suite.StakingKeeper)
 
-			header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+			header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 			app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 			valAddr := sdk.ValAddress(addrs[0])
@@ -411,7 +412,7 @@ func TestEndBlockerProposalHandlerFailed(t *testing.T) {
 	SortAddresses(addrs)
 
 	stakingMsgSvr := stakingkeeper.NewMsgServerImpl(suite.StakingKeeper)
-	header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+	header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	valAddr := sdk.ValAddress(addrs[0])
@@ -491,7 +492,7 @@ func TestExpeditedProposal_PassAndConversionToRegular(t *testing.T) {
 			govMsgSvr := keeper.NewMsgServerImpl(suite.GovKeeper)
 			stakingMsgSvr := stakingkeeper.NewMsgServerImpl(suite.StakingKeeper)
 
-			header := cmtproto.Header{Height: app.LastBlockHeight() + 1}
+			header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 			app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 			valAddr := sdk.ValAddress(addrs[0])

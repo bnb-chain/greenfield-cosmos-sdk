@@ -31,7 +31,7 @@ func TestNewMsgVerifyInvariantTxCmd(t *testing.T) {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(testutil.DefaultChainId)
 
 	accounts := testutil.CreateKeyringAccounts(t, kr, 1)
 	testCases := []struct {

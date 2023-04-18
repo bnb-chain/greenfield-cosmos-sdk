@@ -52,7 +52,7 @@ func (s *WithdrawAllTestSuite) TestNewWithdrawAllRewardsGenerateOnly() {
 	val1 := s.network.Validators[1]
 	clientCtx := val.ClientCtx
 
-	info, _, err := val.ClientCtx.Keyring.NewMnemonic("newAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	info, _, err := val.ClientCtx.Keyring.NewMnemonic("newAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	require.NoError(err)
 
 	pubkey, err := info.GetPubKey()

@@ -263,6 +263,7 @@ func NewSimApp(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
+	baseAppOptions = append(baseAppOptions, baseapp.SetChainID(chainID))
 	bApp := baseapp.NewBaseApp(appName, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
@@ -374,7 +375,7 @@ func NewSimApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// register the governance hooks
+			// register the governance hooks
 		),
 	)
 

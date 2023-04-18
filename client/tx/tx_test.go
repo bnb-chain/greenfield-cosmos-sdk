@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -80,7 +81,7 @@ func TestCalculateGas(t *testing.T) {
 		txCfg, _ := newTestTxConfig(t)
 
 		txf := tx.Factory{}.
-			WithChainID("test-chain").
+			WithChainID(sdktestutil.DefaultChainId).
 			WithTxConfig(txCfg).WithSignMode(txCfg.SignModeHandler().DefaultMode())
 
 		t.Run(stc.name, func(t *testing.T) {
@@ -118,7 +119,7 @@ func TestBuildSimTx(t *testing.T) {
 		WithSequence(23).
 		WithFees("50stake").
 		WithMemo("memo").
-		WithChainID("test-chain").
+		WithChainID(sdktestutil.DefaultChainId).
 		WithSignMode(txCfg.SignModeHandler().DefaultMode()).
 		WithKeybase(kb)
 
@@ -144,7 +145,7 @@ func TestBuildUnsignedTx(t *testing.T) {
 		WithSequence(23).
 		WithFees("50stake").
 		WithMemo("memo").
-		WithChainID("test-chain").
+		WithChainID(sdktestutil.DefaultChainId).
 		WithKeybase(kb)
 
 	msg := banktypes.NewMsgSend(sdk.AccAddress("from"), sdk.AccAddress("to"), nil)
@@ -189,7 +190,7 @@ func TestMnemonicInMemo(t *testing.T) {
 				WithSequence(23).
 				WithFees("50stake").
 				WithMemo(tc.memo).
-				WithChainID("test-chain").
+				WithChainID(sdktestutil.DefaultChainId).
 				WithKeybase(kb)
 
 			msg := banktypes.NewMsgSend(sdk.AccAddress("from"), sdk.AccAddress("to"), nil)
@@ -239,7 +240,7 @@ func TestSign(t *testing.T) {
 		WithSequence(23).
 		WithFees("50stake").
 		WithMemo("memo").
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 	txfDirect := txfNoKeybase.
 		WithKeybase(kb).
 		WithSignMode(signingtypes.SignMode_SIGN_MODE_DIRECT)
@@ -406,7 +407,7 @@ func TestPreprocessHook(t *testing.T) {
 		WithSequence(23).
 		WithFees("50stake").
 		WithMemo("memo").
-		WithChainID("test-chain").
+		WithChainID(sdktestutil.DefaultChainId).
 		WithKeybase(kb).
 		WithSignMode(signingtypes.SignMode_SIGN_MODE_DIRECT).
 		WithPreprocessTxHook(preprocessHook)

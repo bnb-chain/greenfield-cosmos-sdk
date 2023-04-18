@@ -105,7 +105,7 @@ func (c Context) Err() error {
 
 // NewContext create a new context
 func NewContext(ms storetypes.MultiStore, header cmtproto.Header, isCheckTx bool, upgradeChecker func(Context, string) bool, logger log.Logger) Context {
-	// https://github.com/gogo/protobuf/issues/519
+	// https://github.com/cosmos/gogoproto/issues/519
 	header.Time = header.Time.UTC()
 	return Context{
 		baseCtx:              context.Background(),
@@ -137,7 +137,7 @@ func (c Context) WithMultiStore(ms storetypes.MultiStore) Context {
 
 // WithBlockHeader returns a Context with an updated CometBFT block header in UTC time.
 func (c Context) WithBlockHeader(header cmtproto.Header) Context {
-	// https://github.com/gogo/protobuf/issues/519
+	// https://github.com/cosmos/gogoproto/issues/519
 	header.Time = header.Time.UTC()
 	c.header = header
 	return c
@@ -156,7 +156,7 @@ func (c Context) WithHeaderHash(hash []byte) Context {
 // Stripping the monotonic component is for time equality.
 func (c Context) WithBlockTime(newTime time.Time) Context {
 	newHeader := c.BlockHeader()
-	// https://github.com/gogo/protobuf/issues/519
+	// https://github.com/cosmos/gogoproto/issues/519
 	newHeader.Time = newTime.Round(0).UTC()
 	return c.WithBlockHeader(newHeader)
 }

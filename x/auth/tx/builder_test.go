@@ -297,6 +297,7 @@ func TestBuilderFeePayer(t *testing.T) {
 func TestBuilderFeeGranter(t *testing.T) {
 	// keys and addresses
 	_, _, addr1 := testdata.KeyTestPubAddr()
+	_, _, addr2 := testdata.KeyTestPubAddr()
 
 	// msg and signatures
 	msg1 := testdata.NewTestMsg(addr1, addr2)

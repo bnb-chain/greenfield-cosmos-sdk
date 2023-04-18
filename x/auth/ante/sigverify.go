@@ -292,14 +292,7 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		if !simulate && !ctx.IsReCheckTx() {
 			err := authsigning.VerifySignature(ctx, pubKey, signerData, sig.Data, svd.signModeHandler, tx)
 			if err != nil {
-				var errMsg string
-				if OnlyLegacyAminoSigners(sig.Data) {
-					// If all signers are using SIGN_MODE_LEGACY_AMINO, we rely on VerifySignature to check account sequence number,
-					// and therefore communicate sequence number as a potential cause of error.
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d), sequence (%d) and chain-id (%s)", accNum, acc.GetSequence(), chainID)
-				} else {
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
-				}
+				errMsg := fmt.Sprintf("signature verification failed; please verify account (%s) and chain-id (%s)", pubKey.Address(), chainID)
 				return ctx, errorsmod.Wrap(sdkerrors.ErrUnauthorized, errMsg)
 
 			}

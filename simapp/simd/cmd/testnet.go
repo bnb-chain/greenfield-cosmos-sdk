@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"cosmossdk.io/math/unsafe"
 	"cosmossdk.io/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -78,7 +77,7 @@ type startArgs struct {
 func addTestnetFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
 	cmd.Flags().StringP(flagOutputDir, "o", "./.testnets", "Directory to store initialization data for the testnet")
-	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
+	cmd.Flags().String(flags.FlagChainID, testutil.DefaultChainId, "genesis file chain-id, if left blank will be the default chainID")
 	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyType, string(hd.Secp256k1Type), "Key signing algorithm to generate keys for")
 
@@ -208,7 +207,7 @@ func initTestnetFiles(
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = "chain-" + unsafe.Str(6)
+		args.chainID = testutil.DefaultChainId
 	}
 	nodeIDs := make([]string, args.numValidators)
 	valPubKeys := make([]cryptotypes.PubKey, args.numValidators)
@@ -479,7 +478,7 @@ func writeFile(name, dir string, contents []byte) error {
 		return fmt.Errorf("could not create directory %q: %w", dir, err)
 	}
 
-	if err := os.WriteFile(file, contents, 0o644); err != nil { //nolint: gosec
+	if err := os.WriteFile(file, contents, 0o644); err != nil { // nolint: gosec
 		return err
 	}
 

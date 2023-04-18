@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -51,7 +52,7 @@ func (suite *SimTestSuite) SetupTest() {
 	)
 	suite.Require().NoError(err)
 	suite.app = app
-	suite.ctx = app.BaseApp.NewContext(false, cmtproto.Header{})
+	suite.ctx = app.BaseApp.NewContext(false, cmtproto.Header{ChainID: sdktestutil.DefaultChainId})
 }
 
 func (suite *SimTestSuite) TestWeightedOperations() {
@@ -78,7 +79,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 
 	require := suite.Require()
 	for i, w := range weightedOps {
-		op, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		op, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, sdktestutil.DefaultChainId)
 		require.NoError(err)
 
 		// the following checks are very much dependent from the ordering of the output given
@@ -116,6 +117,7 @@ func (suite *SimTestSuite) TestSimulateGrant() {
 	// begin a new block
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
 			Height:  suite.app.LastBlockHeight() + 1,
 			AppHash: suite.app.LastCommitID().Hash,
 		},
@@ -126,7 +128,7 @@ func (suite *SimTestSuite) TestSimulateGrant() {
 
 	// execute operation
 	op := simulation.SimulateMsgGrant(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.authzKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgGrant
@@ -146,6 +148,7 @@ func (suite *SimTestSuite) TestSimulateRevoke() {
 	// begin a new block
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
 			Height:  suite.app.LastBlockHeight() + 1,
 			AppHash: suite.app.LastCommitID().Hash,
 		},
@@ -164,7 +167,7 @@ func (suite *SimTestSuite) TestSimulateRevoke() {
 
 	// execute operation
 	op := simulation.SimulateMsgRevoke(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.authzKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgRevoke
@@ -184,7 +187,13 @@ func (suite *SimTestSuite) TestSimulateExec() {
 	accounts := suite.getTestingAccounts(r, 3)
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: cmtproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+		},
+	})
 
 	initAmt := sdk.TokensFromConsensusPower(200000, sdk.DefaultPowerReduction)
 	initCoins := sdk.NewCoins(sdk.NewCoin("stake", initAmt))
@@ -199,7 +208,7 @@ func (suite *SimTestSuite) TestSimulateExec() {
 
 	// execute operation
 	op := simulation.SimulateMsgExec(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.authzKeeper, suite.codec)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, suite.ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg authz.MsgExec

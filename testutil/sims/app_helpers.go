@@ -15,13 +15,15 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 
 	"cosmossdk.io/log"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -83,7 +85,7 @@ type StartupConfig struct {
 }
 
 func DefaultStartUpConfig() StartupConfig {
-	priv := secp256k1.GenPrivKey()
+	priv, _ := ethsecp256k1.GenPrivKey()
 	ba := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 	ga := GenesisAccount{ba, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000000000)))}
 	return StartupConfig{
@@ -91,6 +93,7 @@ func DefaultStartUpConfig() StartupConfig {
 		AtGenesis:       false,
 		GenesisAccounts: []GenesisAccount{ga},
 		DB:              dbm.NewMemDB(),
+		BaseAppOption:   baseapp.SetChainID(testutil.DefaultChainId),
 	}
 }
 
@@ -170,6 +173,7 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         testutil.DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -180,6 +184,7 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	if !startupConfig.AtGenesis {
 		app.Commit()
 		app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{
+			ChainID:            testutil.DefaultChainId,
 			Height:             app.LastBlockHeight() + 1,
 			AppHash:            app.LastCommitID().Hash,
 			ValidatorsHash:     valSet.Hash(),

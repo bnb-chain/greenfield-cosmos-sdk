@@ -21,6 +21,7 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestGetQueryCmd(t *testing.T) {
@@ -33,7 +34,7 @@ func TestGetQueryCmd(t *testing.T) {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := map[string]struct {
 		args           []string

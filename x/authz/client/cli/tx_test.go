@@ -32,9 +32,8 @@ import (
 )
 
 var (
-	typeMsgSend           = banktypes.SendAuthorization{}.MsgTypeURL()
-	typeMsgVote           = sdk.MsgTypeURL(&govv1.MsgVote{})
-	typeMsgSubmitProposal = sdk.MsgTypeURL(&govv1.MsgSubmitProposal{})
+	typeMsgSend = banktypes.SendAuthorization{}.MsgTypeURL()
+	typeMsgVote = sdk.MsgTypeURL(&govv1.MsgVote{})
 )
 
 type CLITestSuite struct {
@@ -62,7 +61,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(testutil.DefaultChainId)
 
 	var outBuf bytes.Buffer
 	ctxGen := func() client.Context {
@@ -405,22 +404,6 @@ func (s *CLITestSuite) TestCLITxGrantAuthorization() {
 			true,
 			"grantee and granter should be different",
 		},
-		{
-			"Valid tx with amino",
-			[]string{
-				grantee.String(),
-				"generic",
-				fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgVote),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			false,
-			"",
-		},
 	}
 
 	for _, tc := range testCases {
@@ -476,21 +459,6 @@ func (s *CLITestSuite) TestCmdRevokeAuthorizations() {
 	)
 	s.Require().NoError(err)
 
-	// generic-authorization used for amino testing
-	_, err = authzclitestutil.CreateGrant(s.clientCtx,
-		[]string{
-			grantee.String(),
-			"generic",
-			fmt.Sprintf("--%s=%s", cli.FlagMsgType, typeMsgSubmitProposal),
-			fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-			fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address),
-			fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-			fmt.Sprintf("--%s=%d", cli.FlagExpiration, twoHours),
-			fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-			fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-		},
-	)
-	s.Require().NoError(err)
 	testCases := []struct {
 		name      string
 		args      []string
@@ -541,20 +509,6 @@ func (s *CLITestSuite) TestCmdRevokeAuthorizations() {
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-			},
-			&sdk.TxResponse{},
-			false,
-		},
-		{
-			"Valid tx with amino",
-			[]string{
-				grantee.String(),
-				typeMsgSubmitProposal,
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 			},
 			&sdk.TxResponse{},
 			false,
@@ -676,19 +630,6 @@ func (s *CLITestSuite) TestNewExecGenericAuthorized() {
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-			},
-			&sdk.TxResponse{},
-			false,
-		},
-		{
-			"valid tx with amino",
-			[]string{
-				execMsg.Name(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, grantee.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 			},
 			&sdk.TxResponse{},
 			false,

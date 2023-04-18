@@ -18,6 +18,7 @@ import (
 
 	store "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	baseapptestutil "github.com/cosmos/cosmos-sdk/baseapp/testutil"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -25,6 +26,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -105,7 +107,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 			&appBuilder)
 		require.NoError(t, err)
 
-		bapp := appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil)
+		bapp := appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil, baseapp.SetChainID(testutil.DefaultChainId))
 		err = bapp.Load(true)
 		require.NoError(t, err)
 
@@ -121,19 +123,20 @@ func TestBaseApp_BlockGas(t *testing.T) {
 			stateBytes, err := cmtjson.MarshalIndent(genState, "", " ")
 			require.NoError(t, err)
 			bapp.InitChain(abci.RequestInitChain{
+				ChainId:         testutil.DefaultChainId,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simtestutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			})
 
-			ctx := bapp.NewContext(false, cmtproto.Header{})
+			ctx := bapp.NewContext(false, cmtproto.Header{ChainID: testutil.DefaultChainId})
 
 			// tx fee
 			feeCoin := sdk.NewCoin("atom", sdkmath.NewInt(150))
 			feeAmount := sdk.NewCoins(feeCoin)
 
 			// test account and fund
-			priv1, _, addr1 := testdata.KeyTestPubAddr()
+			priv1, _, addr1 := testdata.KeyTestPubAddrEthSecp256k1()
 			err = bankKeeper.MintCoins(ctx, minttypes.ModuleName, feeAmount)
 			require.NoError(t, err)
 			err = bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr1, feeAmount)
@@ -160,7 +163,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 			_, txBytes, err := createTestTx(txConfig, txBuilder, privs, accNums, accSeqs, ctx.ChainID())
 			require.NoError(t, err)
 
-			bapp.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: 1}})
+			bapp.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: testutil.DefaultChainId, Height: 1}})
 			rsp := bapp.DeliverTx(abci.RequestDeliverTx{Tx: txBytes})
 
 			// check result
@@ -179,7 +182,7 @@ func TestBaseApp_BlockGas(t *testing.T) {
 				require.Equal(t, []byte("ok"), okValue)
 			}
 			// check block gas is always consumed
-			baseGas := uint64(3450) // baseGas is the gas consumed before tx msg
+			baseGas := uint64(3530) // baseGas is the gas consumed before tx msg
 			expGasConsumed := addUint64Saturating(tc.gasToConsume, baseGas)
 			if expGasConsumed > txtypes.MaxGasWanted {
 				// capped by gasLimit

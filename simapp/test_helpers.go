@@ -24,6 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -48,7 +49,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*SimApp, GenesisState) {
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewSimApp(log.NewNopLogger(), db, nil, true, "", serverconfig.DefaultConfig(), appOptions)
+	app := NewSimApp(log.NewNopLogger(), db, nil, true, sdktestutil.DefaultChainId, serverconfig.DefaultConfig(), appOptions)
 	// enable delegation in tests
 	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
 		return upgradetypes.EnablePublicDelegationUpgrade == s
@@ -78,7 +79,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(100000000000000))),
 	}
 
-	app := NewSimApp(options.Logger, options.DB, nil, true, "", serverconfig.DefaultConfig(), options.AppOpts)
+	app := NewSimApp(options.Logger, options.DB, nil, true, sdktestutil.DefaultChainId, serverconfig.DefaultConfig(), options.AppOpts)
 	genesisState := app.DefaultGenesis()
 	genesisState, err = simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 	require.NoError(t, err)
@@ -91,6 +92,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
+				ChainId:         sdktestutil.DefaultChainId,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: simtestutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -144,6 +146,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         sdktestutil.DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -153,6 +156,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{
+		ChainID:            sdktestutil.DefaultChainId,
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
@@ -230,14 +234,13 @@ func NewTestNetworkFixture() network.TestFixture {
 	}
 	defer os.RemoveAll(dir)
 
-	app := NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(dir))
+	app := NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, sdktestutil.DefaultChainId, serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(dir))
 	appCtr := func(val network.ValidatorI) servertypes.Application {
 		return NewSimApp(
-			val.GetCtx().Logger, dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(),
+			val.GetCtx().Logger, dbm.NewMemDB(), nil, true, sdktestutil.DefaultChainId, serverconfig.DefaultConfig(),
 			simtestutil.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir),
 			bam.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
 			bam.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
-			bam.SetChainID(val.GetCtx().Viper.GetString(flags.FlagChainID)),
 		)
 	}
 

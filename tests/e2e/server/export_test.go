@@ -29,6 +29,7 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestExportCmd_ConsensusParams(t *testing.T) {
@@ -95,9 +96,9 @@ func TestExportCmd_Height(t *testing.T) {
 			tempDir := t.TempDir()
 			app, ctx, _, cmd := setupApp(t, tempDir)
 
-			// Fast forward to block `tc.fastForward`.
+			// Fast-forward to block `tc.fastForward`.
 			for i := int64(2); i <= tc.fastForward; i++ {
-				app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{Height: i}})
+				app.BeginBlock(abci.RequestBeginBlock{Header: cmtproto.Header{ChainID: testutil.DefaultChainId, Height: i}})
 				app.Commit()
 			}
 
@@ -154,7 +155,7 @@ func TestExportCmd_Output(t *testing.T) {
 
 func setupApp(t *testing.T, tempDir string) (*simapp.SimApp, context.Context, genutiltypes.AppGenesis, *cobra.Command) {
 	t.Helper()
-	chainID := "theChainId"
+	chainID := testutil.DefaultChainId
 	logger := log.NewTestLogger(t)
 	err := createConfigFolder(tempDir)
 	assert.NilError(t, err)
@@ -184,6 +185,7 @@ func setupApp(t *testing.T, tempDir string) (*simapp.SimApp, context.Context, ge
 
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   appGenesis.AppState,

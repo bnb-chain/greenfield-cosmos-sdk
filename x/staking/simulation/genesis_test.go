@@ -53,11 +53,11 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Len(t, stakingGenesis.Delegations, 3)
 	require.Len(t, stakingGenesis.Validators, 3)
 	// check Delegations
-	require.Equal(t, "0x5cEEa0528c3b88442d6580c548753DD89b99a213", stakingGenesis.Delegations[0].DelegatorAddress)
-	require.Equal(t, "0x5cEEa0528c3b88442d6580c548753DD89b99a213", stakingGenesis.Delegations[0].ValidatorAddress)
+	require.Equal(t, "0x520ecc4903A9F355246c1FF384E694b6dFFcE2Ec", stakingGenesis.Delegations[0].DelegatorAddress)
+	require.Equal(t, "0x520ecc4903A9F355246c1FF384E694b6dFFcE2Ec", stakingGenesis.Delegations[0].ValidatorAddress)
 	require.Equal(t, "1000.000000000000000000", stakingGenesis.Delegations[0].Shares.String())
 	// check validators
-	require.Equal(t, "0x45f3624b98fCfc4D7A6b37B0957b656878636773", stakingGenesis.Validators[2].GetOperator().String())
+	require.Equal(t, "0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a", stakingGenesis.Validators[2].GetOperator().String())
 	require.Equal(t, []byte{0xa, 0x20, 0x51, 0xde, 0xbd, 0xe8, 0xfa, 0xdf, 0x4e, 0xfc, 0x33, 0xa5, 0x16, 0x94, 0xf6, 0xee, 0xd3, 0x69, 0x7a, 0x7a, 0x1c, 0x2d, 0x50, 0xb6, 0x2, 0xf7, 0x16, 0x4e, 0x66, 0x9f, 0xff, 0x38, 0x91, 0x9b}, stakingGenesis.Validators[2].ConsensusPubkey.Value)
 	require.Equal(t, false, stakingGenesis.Validators[2].Jailed)
 	require.Equal(t, "BOND_STATUS_UNBONDED", stakingGenesis.Validators[2].Status.String())
