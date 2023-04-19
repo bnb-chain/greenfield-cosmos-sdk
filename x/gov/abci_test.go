@@ -360,10 +360,10 @@ func TestProposalPassedEndblocker(t *testing.T) {
 			header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 			app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-			valAddr := sdk.ValAddress(addrs[0])
+			valAddr := addrs[0]
 			proposer := addrs[0]
 
-			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+			createValidators(t, stakingMsgSvr, ctx, []sdk.AccAddress{valAddr}, []int64{10})
 			staking.EndBlocker(ctx, suite.StakingKeeper)
 
 			macc := suite.GovKeeper.GetGovernanceAccount(ctx)
@@ -415,10 +415,10 @@ func TestEndBlockerProposalHandlerFailed(t *testing.T) {
 	header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	valAddr := sdk.ValAddress(addrs[0])
+	valAddr := addrs[0]
 	proposer := addrs[0]
 
-	createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+	createValidators(t, stakingMsgSvr, ctx, []sdk.AccAddress{valAddr}, []int64{10})
 	staking.EndBlocker(ctx, suite.StakingKeeper)
 
 	msg := banktypes.NewMsgSend(authtypes.NewModuleAddress(types.ModuleName), addrs[0], sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000))))
@@ -495,11 +495,11 @@ func TestExpeditedProposal_PassAndConversionToRegular(t *testing.T) {
 			header := cmtproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 			app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-			valAddr := sdk.ValAddress(addrs[0])
+			valAddr := addrs[0]
 			proposer := addrs[0]
 
 			// Create a validator so that able to vote on proposal.
-			createValidators(t, stakingMsgSvr, ctx, []sdk.ValAddress{valAddr}, []int64{10})
+			createValidators(t, stakingMsgSvr, ctx, []sdk.AccAddress{valAddr}, []int64{10})
 			staking.EndBlocker(ctx, suite.StakingKeeper)
 
 			inactiveQueue := suite.GovKeeper.InactiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
@@ -661,7 +661,7 @@ func TestExpeditedProposal_PassAndConversionToRegular(t *testing.T) {
 	}
 }
 
-func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sdk.Context, addrs []sdk.ValAddress, powerAmt []int64) {
+func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sdk.Context, addrs []sdk.AccAddress, powerAmt []int64) {
 	require.True(t, len(addrs) <= len(pubkeys), "Not enough pubkeys specified at top of file.")
 
 	for i := 0; i < len(addrs); i++ {
@@ -671,8 +671,8 @@ func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sd
 		valCreateMsg, err := stakingtypes.NewMsgCreateValidator(
 			addrs[i], pubkeys[i], sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			TestDescription, TestCommissionRates, sdk.OneInt(),
-			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]),
-			sdk.AccAddress(addrs[i]), sdk.AccAddress(addrs[i]), blsPk)
+			addrs[i], addrs[i],
+			addrs[i], addrs[i], blsPk)
 		require.NoError(t, err)
 		res, err := stakingMsgSvr.CreateValidator(ctx, valCreateMsg)
 		require.NoError(t, err)

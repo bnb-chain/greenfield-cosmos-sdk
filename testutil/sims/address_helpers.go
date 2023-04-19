@@ -121,15 +121,12 @@ func TestAddr(addr, bech string) (sdk.AccAddress, error) {
 	return res, nil
 }
 
-// ConvertAddrsToValAddrs converts the provided addresses to ValAddress.
-func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
-	valAddrs := make([]sdk.ValAddress, len(addrs))
+// CopyAddrs copies a slice of sdk.AccAddress.
+func CopyAddrs(addrs []sdk.AccAddress) []sdk.AccAddress {
+	newAddrs := make([]sdk.AccAddress, len(addrs))
+	copy(newAddrs, addrs)
 
-	for i, addr := range addrs {
-		valAddrs[i] = sdk.ValAddress(addr)
-	}
-
-	return valAddrs
+	return newAddrs
 }
 
 // CreateTestPubKeys returns a total of numPubKeys public keys in ascending order.

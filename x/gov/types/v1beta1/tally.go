@@ -8,7 +8,7 @@ import (
 
 // ValidatorGovInfo used for tallying
 type ValidatorGovInfo struct {
-	Address             sdk.ValAddress      // address of the validator operator
+	Address             sdk.AccAddress      // address of the validator operator
 	BondedTokens        math.Int            // Power of a Validator
 	DelegatorShares     math.LegacyDec      // Total outstanding delegator shares
 	DelegatorDeductions math.LegacyDec      // Delegator deductions from validator's delegators voting independently
@@ -16,7 +16,7 @@ type ValidatorGovInfo struct {
 }
 
 // NewValidatorGovInfo creates a ValidatorGovInfo instance
-func NewValidatorGovInfo(address sdk.ValAddress, bondedTokens math.Int, delegatorShares,
+func NewValidatorGovInfo(address sdk.AccAddress, bondedTokens math.Int, delegatorShares,
 	delegatorDeductions sdk.Dec, options WeightedVoteOptions,
 ) ValidatorGovInfo {
 	return ValidatorGovInfo{

@@ -59,7 +59,7 @@ func MkValKeyOutput(k *keyring.Record) (KeyOutput, error) {
 		return KeyOutput{}, err
 	}
 
-	addr := sdk.ValAddress(pk.Address())
+	addr := sdk.AccAddress(pk.Address())
 
 	return NewKeyOutput(k.Name, k.GetType(), addr, pk)
 }

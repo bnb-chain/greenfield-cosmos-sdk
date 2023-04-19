@@ -21,7 +21,7 @@ var (
 // NewMsgUnjail creates a new MsgUnjail instance
 //
 //nolint:interfacer
-func NewMsgUnjail(validatorAddr sdk.ValAddress) *MsgUnjail {
+func NewMsgUnjail(validatorAddr sdk.AccAddress) *MsgUnjail {
 	return &MsgUnjail{
 		ValidatorAddr: validatorAddr.String(),
 	}
@@ -29,8 +29,8 @@ func NewMsgUnjail(validatorAddr sdk.ValAddress) *MsgUnjail {
 
 // GetSigners returns the expected signers for MsgUnjail.
 func (msg MsgUnjail) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromHex(msg.ValidatorAddr)
-	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
+	valAddr, _ := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddr)
+	return []sdk.AccAddress{valAddr}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -41,7 +41,7 @@ func (msg MsgUnjail) GetSignBytes() []byte {
 
 // ValidateBasic does a sanity check on the provided message.
 func (msg MsgUnjail) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddr); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddr); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("validator input address: %s", err)
 	}
 	return nil
@@ -72,7 +72,7 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 }
 
 // NewMsgImpeach creates a new MsgImpeach instance
-func NewMsgImpeach(valAddr sdk.ValAddress, from sdk.AccAddress) *MsgImpeach {
+func NewMsgImpeach(valAddr, from sdk.AccAddress) *MsgImpeach {
 	return &MsgImpeach{
 		ValidatorAddress: valAddr.String(),
 		From:             from.String(),
@@ -97,7 +97,7 @@ func (msg MsgImpeach) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 

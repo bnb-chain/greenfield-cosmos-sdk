@@ -129,7 +129,7 @@ func (k Keeper) GetValidatorByUnbondingID(ctx sdk.Context, id uint64) (val types
 func (k Keeper) SetUnbondingDelegationByUnbondingID(ctx sdk.Context, ubd types.UnbondingDelegation, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 	delAddr := sdk.MustAccAddressFromHex(ubd.DelegatorAddress)
-	valAddr, err := sdk.ValAddressFromHex(ubd.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -148,12 +148,12 @@ func (k Keeper) SetRedelegationByUnbondingID(ctx sdk.Context, red types.Redelega
 
 	delAddr := sdk.MustAccAddressFromHex(red.DelegatorAddress)
 
-	valSrcAddr, err := sdk.ValAddressFromHex(red.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorSrcAddress)
 	if err != nil {
 		panic(err)
 	}
 
-	valDstAddr, err := sdk.ValAddressFromHex(red.ValidatorDstAddress)
+	valDstAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorDstAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -170,7 +170,7 @@ func (k Keeper) SetRedelegationByUnbondingID(ctx sdk.Context, red types.Redelega
 func (k Keeper) SetValidatorByUnbondingID(ctx sdk.Context, val types.Validator, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 
-	valAddr, err := sdk.ValAddressFromHex(val.OperatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(val.OperatorAddress)
 	if err != nil {
 		panic(err)
 	}

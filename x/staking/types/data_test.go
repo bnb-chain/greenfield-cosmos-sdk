@@ -14,11 +14,11 @@ var (
 	pk1Any   *codectypes.Any
 	pk2      = ed25519.GenPrivKey().PubKey()
 	pk3      = ed25519.GenPrivKey().PubKey()
-	valAddr1 = sdk.ValAddress(pk1.Address())
-	valAddr2 = sdk.ValAddress(pk2.Address())
-	valAddr3 = sdk.ValAddress(pk3.Address())
+	valAddr1 = sdk.AccAddress(pk1.Address())
+	valAddr2 = sdk.AccAddress(pk2.Address())
+	valAddr3 = sdk.AccAddress(pk3.Address())
 
-	emptyAddr   sdk.ValAddress
+	emptyAddr   sdk.AccAddress
 	emptyPubkey cryptotypes.PubKey
 )
 

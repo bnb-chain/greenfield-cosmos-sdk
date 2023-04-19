@@ -81,7 +81,7 @@ func TestSlashingMsgs(t *testing.T) {
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(),
+		addr1, valKey.PubKey(),
 		bondCoin, description, commission, sdk.OneInt(),
 		addr1, addr1, addr1, addr1, blsPk,
 	)
@@ -97,12 +97,12 @@ func TestSlashingMsgs(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	ctxCheck = baseApp.NewContext(true, cmtproto.Header{})
-	validator, found := stakingKeeper.GetValidator(ctxCheck, sdk.ValAddress(addr1))
+	validator, found := stakingKeeper.GetValidator(ctxCheck, addr1)
 	require.True(t, found)
-	require.Equal(t, sdk.ValAddress(addr1).String(), validator.OperatorAddress)
+	require.Equal(t, addr1.String(), validator.OperatorAddress)
 	require.Equal(t, stakingtypes.Bonded, validator.Status)
 	require.True(math.IntEq(t, bondTokens, validator.BondedTokens()))
-	unjailMsg := &types.MsgUnjail{ValidatorAddr: sdk.ValAddress(addr1).String()}
+	unjailMsg := &types.MsgUnjail{ValidatorAddr: addr1.String()}
 
 	ctxCheck = app.BaseApp.NewContext(true, cmtproto.Header{})
 	_, found = slashingKeeper.GetValidatorSigningInfo(ctxCheck, sdk.ConsAddress(valAddr))

@@ -85,7 +85,7 @@ func (k Keeper) SetPreviousProposerConsAddr(ctx sdk.Context, consAddr sdk.ConsAd
 }
 
 // get the starting info associated with a delegator
-func (k Keeper) GetDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress) (period types.DelegatorStartingInfo) {
+func (k Keeper) GetDelegatorStartingInfo(ctx sdk.Context, val, del sdk.AccAddress) (period types.DelegatorStartingInfo) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetDelegatorStartingInfoKey(val, del))
 	k.cdc.MustUnmarshal(b, &period)
@@ -93,26 +93,26 @@ func (k Keeper) GetDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, de
 }
 
 // set the starting info associated with a delegator
-func (k Keeper) SetDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress, period types.DelegatorStartingInfo) {
+func (k Keeper) SetDelegatorStartingInfo(ctx sdk.Context, val, del sdk.AccAddress, period types.DelegatorStartingInfo) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&period)
 	store.Set(types.GetDelegatorStartingInfoKey(val, del), b)
 }
 
 // check existence of the starting info associated with a delegator
-func (k Keeper) HasDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress) bool {
+func (k Keeper) HasDelegatorStartingInfo(ctx sdk.Context, val, del sdk.AccAddress) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has(types.GetDelegatorStartingInfoKey(val, del))
 }
 
 // delete the starting info associated with a delegator
-func (k Keeper) DeleteDelegatorStartingInfo(ctx sdk.Context, val sdk.ValAddress, del sdk.AccAddress) {
+func (k Keeper) DeleteDelegatorStartingInfo(ctx sdk.Context, val, del sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetDelegatorStartingInfoKey(val, del))
 }
 
 // iterate over delegator starting infos
-func (k Keeper) IterateDelegatorStartingInfos(ctx sdk.Context, handler func(val sdk.ValAddress, del sdk.AccAddress, info types.DelegatorStartingInfo) (stop bool)) {
+func (k Keeper) IterateDelegatorStartingInfos(ctx sdk.Context, handler func(val, del sdk.AccAddress, info types.DelegatorStartingInfo) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.DelegatorStartingInfoPrefix)
 	defer iter.Close()
@@ -127,7 +127,7 @@ func (k Keeper) IterateDelegatorStartingInfos(ctx sdk.Context, handler func(val 
 }
 
 // get historical rewards for a particular period
-func (k Keeper) GetValidatorHistoricalRewards(ctx sdk.Context, val sdk.ValAddress, period uint64) (rewards types.ValidatorHistoricalRewards) {
+func (k Keeper) GetValidatorHistoricalRewards(ctx sdk.Context, val sdk.AccAddress, period uint64) (rewards types.ValidatorHistoricalRewards) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetValidatorHistoricalRewardsKey(val, period))
 	k.cdc.MustUnmarshal(b, &rewards)
@@ -135,14 +135,14 @@ func (k Keeper) GetValidatorHistoricalRewards(ctx sdk.Context, val sdk.ValAddres
 }
 
 // set historical rewards for a particular period
-func (k Keeper) SetValidatorHistoricalRewards(ctx sdk.Context, val sdk.ValAddress, period uint64, rewards types.ValidatorHistoricalRewards) {
+func (k Keeper) SetValidatorHistoricalRewards(ctx sdk.Context, val sdk.AccAddress, period uint64, rewards types.ValidatorHistoricalRewards) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&rewards)
 	store.Set(types.GetValidatorHistoricalRewardsKey(val, period), b)
 }
 
 // iterate over historical rewards
-func (k Keeper) IterateValidatorHistoricalRewards(ctx sdk.Context, handler func(val sdk.ValAddress, period uint64, rewards types.ValidatorHistoricalRewards) (stop bool)) {
+func (k Keeper) IterateValidatorHistoricalRewards(ctx sdk.Context, handler func(val sdk.AccAddress, period uint64, rewards types.ValidatorHistoricalRewards) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.ValidatorHistoricalRewardsPrefix)
 	defer iter.Close()
@@ -157,13 +157,13 @@ func (k Keeper) IterateValidatorHistoricalRewards(ctx sdk.Context, handler func(
 }
 
 // delete a historical reward
-func (k Keeper) DeleteValidatorHistoricalReward(ctx sdk.Context, val sdk.ValAddress, period uint64) {
+func (k Keeper) DeleteValidatorHistoricalReward(ctx sdk.Context, val sdk.AccAddress, period uint64) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorHistoricalRewardsKey(val, period))
 }
 
 // delete historical rewards for a validator
-func (k Keeper) DeleteValidatorHistoricalRewards(ctx sdk.Context, val sdk.ValAddress) {
+func (k Keeper) DeleteValidatorHistoricalRewards(ctx sdk.Context, val sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.GetValidatorHistoricalRewardsPrefix(val))
 	defer iter.Close()
@@ -196,7 +196,7 @@ func (k Keeper) GetValidatorHistoricalReferenceCount(ctx sdk.Context) (count uin
 }
 
 // get current rewards for a validator
-func (k Keeper) GetValidatorCurrentRewards(ctx sdk.Context, val sdk.ValAddress) (rewards types.ValidatorCurrentRewards) {
+func (k Keeper) GetValidatorCurrentRewards(ctx sdk.Context, val sdk.AccAddress) (rewards types.ValidatorCurrentRewards) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetValidatorCurrentRewardsKey(val))
 	k.cdc.MustUnmarshal(b, &rewards)
@@ -204,20 +204,20 @@ func (k Keeper) GetValidatorCurrentRewards(ctx sdk.Context, val sdk.ValAddress) 
 }
 
 // set current rewards for a validator
-func (k Keeper) SetValidatorCurrentRewards(ctx sdk.Context, val sdk.ValAddress, rewards types.ValidatorCurrentRewards) {
+func (k Keeper) SetValidatorCurrentRewards(ctx sdk.Context, val sdk.AccAddress, rewards types.ValidatorCurrentRewards) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&rewards)
 	store.Set(types.GetValidatorCurrentRewardsKey(val), b)
 }
 
 // delete current rewards for a validator
-func (k Keeper) DeleteValidatorCurrentRewards(ctx sdk.Context, val sdk.ValAddress) {
+func (k Keeper) DeleteValidatorCurrentRewards(ctx sdk.Context, val sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorCurrentRewardsKey(val))
 }
 
 // iterate over current rewards
-func (k Keeper) IterateValidatorCurrentRewards(ctx sdk.Context, handler func(val sdk.ValAddress, rewards types.ValidatorCurrentRewards) (stop bool)) {
+func (k Keeper) IterateValidatorCurrentRewards(ctx sdk.Context, handler func(val sdk.AccAddress, rewards types.ValidatorCurrentRewards) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.ValidatorCurrentRewardsPrefix)
 	defer iter.Close()
@@ -232,7 +232,7 @@ func (k Keeper) IterateValidatorCurrentRewards(ctx sdk.Context, handler func(val
 }
 
 // get accumulated commission for a validator
-func (k Keeper) GetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAddress) (commission types.ValidatorAccumulatedCommission) {
+func (k Keeper) GetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.AccAddress) (commission types.ValidatorAccumulatedCommission) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetValidatorAccumulatedCommissionKey(val))
 	if b == nil {
@@ -243,7 +243,7 @@ func (k Keeper) GetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAd
 }
 
 // set accumulated commission for a validator
-func (k Keeper) SetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAddress, commission types.ValidatorAccumulatedCommission) {
+func (k Keeper) SetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.AccAddress, commission types.ValidatorAccumulatedCommission) {
 	var bz []byte
 
 	store := ctx.KVStore(k.storeKey)
@@ -257,13 +257,13 @@ func (k Keeper) SetValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAd
 }
 
 // delete accumulated commission for a validator
-func (k Keeper) DeleteValidatorAccumulatedCommission(ctx sdk.Context, val sdk.ValAddress) {
+func (k Keeper) DeleteValidatorAccumulatedCommission(ctx sdk.Context, val sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorAccumulatedCommissionKey(val))
 }
 
 // iterate over accumulated commissions
-func (k Keeper) IterateValidatorAccumulatedCommissions(ctx sdk.Context, handler func(val sdk.ValAddress, commission types.ValidatorAccumulatedCommission) (stop bool)) {
+func (k Keeper) IterateValidatorAccumulatedCommissions(ctx sdk.Context, handler func(val sdk.AccAddress, commission types.ValidatorAccumulatedCommission) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.ValidatorAccumulatedCommissionPrefix)
 	defer iter.Close()
@@ -278,7 +278,7 @@ func (k Keeper) IterateValidatorAccumulatedCommissions(ctx sdk.Context, handler 
 }
 
 // get validator outstanding rewards
-func (k Keeper) GetValidatorOutstandingRewards(ctx sdk.Context, val sdk.ValAddress) (rewards types.ValidatorOutstandingRewards) {
+func (k Keeper) GetValidatorOutstandingRewards(ctx sdk.Context, val sdk.AccAddress) (rewards types.ValidatorOutstandingRewards) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetValidatorOutstandingRewardsKey(val))
 	k.cdc.MustUnmarshal(bz, &rewards)
@@ -286,20 +286,20 @@ func (k Keeper) GetValidatorOutstandingRewards(ctx sdk.Context, val sdk.ValAddre
 }
 
 // set validator outstanding rewards
-func (k Keeper) SetValidatorOutstandingRewards(ctx sdk.Context, val sdk.ValAddress, rewards types.ValidatorOutstandingRewards) {
+func (k Keeper) SetValidatorOutstandingRewards(ctx sdk.Context, val sdk.AccAddress, rewards types.ValidatorOutstandingRewards) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&rewards)
 	store.Set(types.GetValidatorOutstandingRewardsKey(val), b)
 }
 
 // delete validator outstanding rewards
-func (k Keeper) DeleteValidatorOutstandingRewards(ctx sdk.Context, val sdk.ValAddress) {
+func (k Keeper) DeleteValidatorOutstandingRewards(ctx sdk.Context, val sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorOutstandingRewardsKey(val))
 }
 
 // iterate validator outstanding rewards
-func (k Keeper) IterateValidatorOutstandingRewards(ctx sdk.Context, handler func(val sdk.ValAddress, rewards types.ValidatorOutstandingRewards) (stop bool)) {
+func (k Keeper) IterateValidatorOutstandingRewards(ctx sdk.Context, handler func(val sdk.AccAddress, rewards types.ValidatorOutstandingRewards) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.ValidatorOutstandingRewardsPrefix)
 	defer iter.Close()
@@ -314,7 +314,7 @@ func (k Keeper) IterateValidatorOutstandingRewards(ctx sdk.Context, handler func
 }
 
 // get slash event for height
-func (k Keeper) GetValidatorSlashEvent(ctx sdk.Context, val sdk.ValAddress, height, period uint64) (event types.ValidatorSlashEvent, found bool) {
+func (k Keeper) GetValidatorSlashEvent(ctx sdk.Context, val sdk.AccAddress, height, period uint64) (event types.ValidatorSlashEvent, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetValidatorSlashEventKey(val, height, period))
 	if b == nil {
@@ -325,14 +325,14 @@ func (k Keeper) GetValidatorSlashEvent(ctx sdk.Context, val sdk.ValAddress, heig
 }
 
 // set slash event for height
-func (k Keeper) SetValidatorSlashEvent(ctx sdk.Context, val sdk.ValAddress, height, period uint64, event types.ValidatorSlashEvent) {
+func (k Keeper) SetValidatorSlashEvent(ctx sdk.Context, val sdk.AccAddress, height, period uint64, event types.ValidatorSlashEvent) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&event)
 	store.Set(types.GetValidatorSlashEventKey(val, height, period), b)
 }
 
 // iterate over slash events between heights, inclusive
-func (k Keeper) IterateValidatorSlashEventsBetween(ctx sdk.Context, val sdk.ValAddress, startingHeight, endingHeight uint64,
+func (k Keeper) IterateValidatorSlashEventsBetween(ctx sdk.Context, val sdk.AccAddress, startingHeight, endingHeight uint64,
 	handler func(height uint64, event types.ValidatorSlashEvent) (stop bool),
 ) {
 	store := ctx.KVStore(k.storeKey)
@@ -352,7 +352,7 @@ func (k Keeper) IterateValidatorSlashEventsBetween(ctx sdk.Context, val sdk.ValA
 }
 
 // iterate over all slash events
-func (k Keeper) IterateValidatorSlashEvents(ctx sdk.Context, handler func(val sdk.ValAddress, height uint64, event types.ValidatorSlashEvent) (stop bool)) {
+func (k Keeper) IterateValidatorSlashEvents(ctx sdk.Context, handler func(val sdk.AccAddress, height uint64, event types.ValidatorSlashEvent) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.ValidatorSlashEventPrefix)
 	defer iter.Close()
@@ -367,7 +367,7 @@ func (k Keeper) IterateValidatorSlashEvents(ctx sdk.Context, handler func(val sd
 }
 
 // delete slash events for a particular validator
-func (k Keeper) DeleteValidatorSlashEvents(ctx sdk.Context, val sdk.ValAddress) {
+func (k Keeper) DeleteValidatorSlashEvents(ctx sdk.Context, val sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	iter := storetypes.KVStorePrefixIterator(store, types.GetValidatorSlashEventPrefix(val))
 	defer iter.Close()

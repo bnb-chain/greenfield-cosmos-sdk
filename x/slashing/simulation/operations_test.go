@@ -166,7 +166,7 @@ func (suite *SimTestSuite) TestSimulateMsgUnjail() {
 	// setup self delegation
 	delTokens := suite.stakingKeeper.TokensFromConsensusPower(ctx, 2)
 	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
-	val0AccAddress, err := sdk.ValAddressFromHex(validator0.OperatorAddress)
+	val0AccAddress, err := sdk.AccAddressFromHexUnsafe(validator0.OperatorAddress)
 	suite.Require().NoError(err)
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddress.Bytes(), validator0.GetOperator(), issuedShares)
 	suite.stakingKeeper.SetDelegation(ctx, selfDelegation)
@@ -203,7 +203,7 @@ func getTestingValidator0(ctx sdk.Context, stakingKeeper *stakingkeeper.Keeper, 
 func getTestingValidator(ctx sdk.Context, stakingKeeper *stakingkeeper.Keeper, accounts []simtypes.Account, commission stakingtypes.Commission, n int) (stakingtypes.Validator, error) {
 	account := accounts[n]
 	valPubKey := account.ConsKey.PubKey()
-	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
 	validator, err := stakingtypes.NewSimpleValidator(valAddr, valPubKey, stakingtypes.Description{})
 	if err != nil {
 		return stakingtypes.Validator{}, fmt.Errorf("failed to create validator: %w", err)

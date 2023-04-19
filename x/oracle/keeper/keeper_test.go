@@ -269,14 +269,14 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 
 // Creates a new validators and asserts the error check.
 func newValidator(t *testing.T, operator sdk.AccAddress, pubKey cryptotypes.PubKey) stakingtypes.Validator {
-	v, err := stakingtypes.NewSimpleValidator(sdk.ValAddress(operator), pubKey, stakingtypes.Description{})
+	v, err := stakingtypes.NewSimpleValidator(operator, pubKey, stakingtypes.Description{})
 	require.NoError(t, err)
 	return v
 }
 
 func createValidators(t *testing.T) ([]stakingtypes.Validator, []bls.SecretKey) {
 	addrs := simtestutil.CreateIncrementalAccounts(5)
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	pks := simtestutil.CreateTestPubKeys(5)
 
 	privKey1, _ := blst.RandKey()
@@ -285,13 +285,13 @@ func createValidators(t *testing.T) ([]stakingtypes.Validator, []bls.SecretKey) 
 
 	blsKeys := []bls.SecretKey{privKey1, privKey2, privKey3}
 
-	val1 := newValidator(t, sdk.AccAddress(valAddrs[0]), pks[0])
+	val1 := newValidator(t, valAddrs[0], pks[0])
 	val1.BlsKey = privKey1.PublicKey().Marshal()
 
-	val2 := newValidator(t, sdk.AccAddress(valAddrs[1]), pks[1])
+	val2 := newValidator(t, valAddrs[1], pks[1])
 	val2.BlsKey = privKey2.PublicKey().Marshal()
 
-	val3 := newValidator(t, sdk.AccAddress(valAddrs[2]), pks[2])
+	val3 := newValidator(t, valAddrs[2], pks[2])
 	val3.BlsKey = privKey3.PublicKey().Marshal()
 
 	vals := []stakingtypes.Validator{val1, val2, val3}

@@ -132,12 +132,12 @@ func CollectTxs(cdc codec.JSONCodec, txJSONDecoder sdk.TxDecoder, moniker, genTx
 		msg := msgs[0].(*stakingtypes.MsgCreateValidator)
 
 		// validate validator addresses and funds against the accounts in the state
-		valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+		valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 		if err != nil {
 			return appGenTxs, persistentPeers, err
 		}
 
-		valAccAddr := sdk.AccAddress(valAddr).String()
+		valAccAddr := valAddr.String()
 
 		delBal, delOk := balancesMap[valAccAddr]
 		if !delOk {
@@ -149,7 +149,7 @@ func CollectTxs(cdc codec.JSONCodec, txJSONDecoder sdk.TxDecoder, moniker, genTx
 			return appGenTxs, persistentPeers, fmt.Errorf("account %s balance not in genesis state: %+v", valAccAddr, balancesMap)
 		}
 
-		_, valOk := balancesMap[sdk.AccAddress(valAddr).String()]
+		_, valOk := balancesMap[valAddr.String()]
 		if !valOk {
 			_, file, no, ok := runtime.Caller(1)
 			if ok {

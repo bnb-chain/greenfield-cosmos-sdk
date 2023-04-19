@@ -42,11 +42,11 @@ func NewQueryDelegatorParams(delegatorAddr sdk.AccAddress) QueryDelegatorParams 
 // - 'custom/staking/validatorDelegations'
 // - 'custom/staking/validatorUnbondingDelegations'
 type QueryValidatorParams struct {
-	ValidatorAddr sdk.ValAddress
+	ValidatorAddr sdk.AccAddress
 	Page, Limit   int
 }
 
-func NewQueryValidatorParams(validatorAddr sdk.ValAddress, page, limit int) QueryValidatorParams {
+func NewQueryValidatorParams(validatorAddr sdk.AccAddress, page, limit int) QueryValidatorParams {
 	return QueryValidatorParams{
 		ValidatorAddr: validatorAddr,
 		Page:          page,
@@ -58,11 +58,11 @@ func NewQueryValidatorParams(validatorAddr sdk.ValAddress, page, limit int) Quer
 // - 'custom/staking/redelegation'
 type QueryRedelegationParams struct {
 	DelegatorAddr    sdk.AccAddress
-	SrcValidatorAddr sdk.ValAddress
-	DstValidatorAddr sdk.ValAddress
+	SrcValidatorAddr sdk.AccAddress
+	DstValidatorAddr sdk.AccAddress
 }
 
-func NewQueryRedelegationParams(delegatorAddr sdk.AccAddress, srcValidatorAddr, dstValidatorAddr sdk.ValAddress) QueryRedelegationParams {
+func NewQueryRedelegationParams(delegatorAddr, srcValidatorAddr, dstValidatorAddr sdk.AccAddress) QueryRedelegationParams {
 	return QueryRedelegationParams{
 		DelegatorAddr:    delegatorAddr,
 		SrcValidatorAddr: srcValidatorAddr,

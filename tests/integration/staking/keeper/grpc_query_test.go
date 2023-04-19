@@ -213,7 +213,7 @@ func TestGRPCQueryDelegation(t *testing.T) {
 	app, ctx, queryClient, addrs, vals := f.app, f.ctx, f.queryClient, f.addrs, f.vals
 	addrAcc, addrAcc1 := addrs[0], addrs[1]
 	addrVal := vals[0].OperatorAddress
-	valAddr, err := sdk.ValAddressFromHex(addrVal)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(addrVal)
 	assert.NilError(t, err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	assert.Assert(t, found)
@@ -277,7 +277,7 @@ func TestGRPCQueryDelegatorDelegations(t *testing.T) {
 	app, ctx, queryClient, addrs, vals := f.app, f.ctx, f.queryClient, f.addrs, f.vals
 	addrAcc := addrs[0]
 	addrVal1 := vals[0].OperatorAddress
-	valAddr, err := sdk.ValAddressFromHex(addrVal1)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(addrVal1)
 	assert.NilError(t, err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	assert.Assert(t, found)
@@ -350,9 +350,9 @@ func TestGRPCQueryValidatorDelegations(t *testing.T) {
 	app, ctx, queryClient, addrs, vals := f.app, f.ctx, f.queryClient, f.addrs, f.vals
 	addrAcc := addrs[0]
 	addrVal1 := vals[1].OperatorAddress
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	addrVal2 := valAddrs[4]
-	valAddr, err := sdk.ValAddressFromHex(addrVal1)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(addrVal1)
 	assert.NilError(t, err)
 	delegation, found := app.StakingKeeper.GetDelegation(ctx, addrAcc, valAddr)
 	assert.Assert(t, found)
@@ -428,7 +428,7 @@ func TestGRPCQueryUnbondingDelegation(t *testing.T) {
 	addrVal2 := vals[1].OperatorAddress
 
 	unbondingTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
-	valAddr, err1 := sdk.ValAddressFromHex(addrVal2)
+	valAddr, err1 := sdk.AccAddressFromHexUnsafe(addrVal2)
 	assert.NilError(t, err1)
 	_, _, err := app.StakingKeeper.Undelegate(ctx, addrAcc2, valAddr, sdk.NewDecFromInt(unbondingTokens))
 	assert.NilError(t, err)
@@ -494,11 +494,11 @@ func TestGRPCQueryDelegatorUnbondingDelegations(t *testing.T) {
 	addrVal, addrVal2 := vals[0].OperatorAddress, vals[1].OperatorAddress
 
 	unbondingTokens := app.StakingKeeper.TokensFromConsensusPower(ctx, 2)
-	valAddr1, err1 := sdk.ValAddressFromHex(addrVal)
+	valAddr1, err1 := sdk.AccAddressFromHexUnsafe(addrVal)
 	assert.NilError(t, err1)
 	_, _, err := app.StakingKeeper.Undelegate(ctx, addrAcc, valAddr1, sdk.NewDecFromInt(unbondingTokens))
 	assert.NilError(t, err)
-	valAddr2, err1 := sdk.ValAddressFromHex(addrVal2)
+	valAddr2, err1 := sdk.AccAddressFromHexUnsafe(addrVal2)
 	assert.NilError(t, err1)
 	_, _, err = app.StakingKeeper.Undelegate(ctx, addrAcc, valAddr2, sdk.NewDecFromInt(unbondingTokens))
 	assert.NilError(t, err)
@@ -660,7 +660,7 @@ func TestGRPCQueryRedelegations(t *testing.T) {
 	app, ctx, queryClient, addrs, vals := f.app, f.ctx, f.queryClient, f.addrs, f.vals
 
 	addrAcc, addrAcc1 := addrs[0], addrs[1]
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	val1, val2, val3, val4 := vals[0], vals[1], valAddrs[3], valAddrs[4]
 	delAmount := app.StakingKeeper.TokensFromConsensusPower(ctx, 1)
 	_, err := app.StakingKeeper.Delegate(ctx, addrAcc1, delAmount, types.Unbonded, val1, true)

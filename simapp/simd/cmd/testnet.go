@@ -300,7 +300,7 @@ func initTestnetFiles(
 		blsSecretKey, _ := bls.RandKey()
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+			sdk.AccAddress(addr),
 			valPubKeys[i],
 			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),

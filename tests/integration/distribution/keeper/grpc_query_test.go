@@ -29,7 +29,7 @@ type fixture struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	addrs       []sdk.AccAddress
-	valAddrs    []sdk.ValAddress
+	valAddrs    []sdk.AccAddress
 
 	interfaceRegistry codectypes.InterfaceRegistry
 	bankKeeper        bankkeeper.Keeper
@@ -60,7 +60,7 @@ func initFixture(t assert.TestingT) *fixture {
 	f.queryClient = queryClient
 
 	f.addrs = simtestutil.AddTestAddrs(f.bankKeeper, f.stakingKeeper, ctx, 2, sdk.NewInt(1000000000))
-	f.valAddrs = simtestutil.ConvertAddrsToValAddrs(f.addrs)
+	f.valAddrs = simtestutil.CopyAddrs(f.addrs)
 	f.msgServer = keeper.NewMsgServerImpl(f.distrKeeper)
 
 	return f

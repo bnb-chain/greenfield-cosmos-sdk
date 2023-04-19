@@ -173,7 +173,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				sdk.AccAddress(val.Address).String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -184,7 +184,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				sdk.AccAddress(val.Address).String(),
 			},
 			false,
 			`rewards:
@@ -236,7 +236,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorCommission() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				sdk.AccAddress(val.Address).String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -247,7 +247,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorCommission() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(),
+				sdk.AccAddress(val.Address).String(),
 			},
 			false,
 			`commission:
@@ -299,7 +299,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid start height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "-1", "3",
+				sdk.AccAddress(val.Address).String(), "-1", "3",
 			},
 			true,
 			"",
@@ -308,7 +308,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid end height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "-3",
+				sdk.AccAddress(val.Address).String(), "1", "-3",
 			},
 			true,
 			"",
@@ -317,7 +317,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorSlashes() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "3",
+				sdk.AccAddress(val.Address).String(), "1", "3",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -328,7 +328,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorSlashes() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val.Address).String(), "1", "3",
+				sdk.AccAddress(val.Address).String(), "1", "3",
 			},
 			false,
 			"pagination:\n  next_key: null\n  total: \"0\"\nslashes: []",
@@ -356,7 +356,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidatorSlashes() {
 func (s *E2ETestSuite) TestGetCmdQueryDelegatorRewards() {
 	val := s.network.Validators[0]
 	addr := val.Address
-	valAddr := sdk.ValAddress(addr)
+	valAddr := addr
 
 	_, err := s.network.WaitForHeightWithTimeout(11, time.Minute)
 	s.Require().NoError(err)
@@ -507,7 +507,7 @@ func (s *E2ETestSuite) TestNewWithdrawRewardsCmd() {
 	}{
 		{
 			"valid transaction",
-			sdk.ValAddress(val.Address),
+			sdk.AccAddress(val.Address),
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -577,7 +577,7 @@ func (s *E2ETestSuite) TestNewWithdrawCommissionCmd() {
 	}{
 		{
 			"valid transaction",
-			sdk.ValAddress(val.Address),
+			sdk.AccAddress(val.Address),
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),

@@ -37,7 +37,7 @@ func (k Keeper) GetDelegatorValidators(
 
 // return a validator that a delegator is bonded to
 func (k Keeper) GetDelegatorValidator(
-	ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
+	ctx sdk.Context, delegatorAddr, validatorAddr sdk.AccAddress,
 ) (validator types.Validator, err error) {
 	delegation, found := k.GetDelegation(ctx, delegatorAddr, validatorAddr)
 	if !found {
@@ -94,7 +94,7 @@ func (k Keeper) GetAllUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAdd
 
 // return all redelegations for a delegator
 func (k Keeper) GetAllRedelegations(
-	ctx sdk.Context, delegator sdk.AccAddress, srcValAddress, dstValAddress sdk.ValAddress,
+	ctx sdk.Context, delegator, srcValAddress, dstValAddress sdk.AccAddress,
 ) []types.Redelegation {
 	store := ctx.KVStore(k.storeKey)
 	delegatorPrefixKey := types.GetREDsKey(delegator)
@@ -109,11 +109,11 @@ func (k Keeper) GetAllRedelegations(
 
 	for ; iterator.Valid(); iterator.Next() {
 		redelegation := types.MustUnmarshalRED(k.cdc, iterator.Value())
-		valSrcAddr, err := sdk.ValAddressFromHex(redelegation.ValidatorSrcAddress)
+		valSrcAddr, err := sdk.AccAddressFromHexUnsafe(redelegation.ValidatorSrcAddress)
 		if err != nil {
 			panic(err)
 		}
-		valDstAddr, err := sdk.ValAddressFromHex(redelegation.ValidatorDstAddress)
+		valDstAddr, err := sdk.AccAddressFromHexUnsafe(redelegation.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}

@@ -13,9 +13,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-func createValAddrs(count int) ([]sdk.AccAddress, []sdk.ValAddress) {
+func createValAddrs(count int) ([]sdk.AccAddress, []sdk.AccAddress) {
 	addrs := simtestutil.CreateIncrementalAccounts(count)
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 
 	return addrs, valAddrs
 }
@@ -313,7 +313,7 @@ func (s *KeeperTestSuite) TestUndelegateFromUnbondingValidator() {
 	ctx = ctx.WithBlockHeader(header)
 
 	// unbond the all self-delegation to put validator in unbonding state
-	val0AccAddr := sdk.AccAddress(addrVals[0])
+	val0AccAddr := addrVals[0]
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, gomock.Any())
 	_, amount, err := keeper.Undelegate(ctx, val0AccAddr, addrVals[0], sdk.NewDecFromInt(delTokens))
 	require.NoError(err)
@@ -367,7 +367,7 @@ func (s *KeeperTestSuite) TestUndelegateFromUnbondedValidator() {
 	validator = stakingkeeper.TestingUpdateValidator(keeper, ctx, validator, true)
 	require.True(validator.IsBonded())
 
-	val0AccAddr := sdk.AccAddress(addrVals[0])
+	val0AccAddr := addrVals[0]
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddr, addrVals[0], issuedShares)
 	keeper.SetDelegation(ctx, selfDelegation)
 
@@ -674,7 +674,7 @@ func (s *KeeperTestSuite) TestRedelegateSelfDelegation() {
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), stakingtypes.NotBondedPoolName, stakingtypes.BondedPoolName, gomock.Any())
 	validator = stakingkeeper.TestingUpdateValidator(keeper, ctx, validator, true)
 
-	val0AccAddr := sdk.AccAddress(addrVals[0])
+	val0AccAddr := addrVals[0]
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddr, addrVals[0], issuedShares)
 	keeper.SetDelegation(ctx, selfDelegation)
 
