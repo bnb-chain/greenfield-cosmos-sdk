@@ -46,7 +46,7 @@ func NonNegativeOutstandingInvariant(k Keeper) sdk.Invariant {
 		var count int
 		var outstanding sdk.DecCoins
 
-		k.IterateValidatorOutstandingRewards(ctx, func(addr sdk.ValAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
+		k.IterateValidatorOutstandingRewards(ctx, func(addr sdk.AccAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
 			outstanding = rewards.GetRewards()
 			if outstanding.IsAnyNegative() {
 				count++
@@ -113,7 +113,7 @@ func ReferenceCountInvariant(k Keeper) sdk.Invariant {
 		dels := k.stakingKeeper.GetAllSDKDelegations(ctx)
 		slashCount := uint64(0)
 		k.IterateValidatorSlashEvents(ctx,
-			func(_ sdk.ValAddress, _ uint64, _ types.ValidatorSlashEvent) (stop bool) {
+			func(_ sdk.AccAddress, _ uint64, _ types.ValidatorSlashEvent) (stop bool) {
 				slashCount++
 				return false
 			})
@@ -136,7 +136,7 @@ func ReferenceCountInvariant(k Keeper) sdk.Invariant {
 func ModuleAccountInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		var expectedCoins sdk.DecCoins
-		k.IterateValidatorOutstandingRewards(ctx, func(_ sdk.ValAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
+		k.IterateValidatorOutstandingRewards(ctx, func(_ sdk.AccAddress, rewards types.ValidatorOutstandingRewards) (stop bool) {
 			expectedCoins = expectedCoins.Add(rewards.Rewards...)
 			return false
 		})

@@ -27,9 +27,9 @@ import (
 
 var (
 	validator1        = "0xEe10332A13816795560dd96a0D922A193Bd08F59"
-	validatorAddr1, _ = sdk.ValAddressFromHex(validator1)
+	validatorAddr1, _ = sdk.AccAddressFromHexUnsafe(validator1)
 	validator2        = "0x5953EB5998DED52EaC0121F37dFE032B65AADbcB"
-	validatorAddr2, _ = sdk.ValAddressFromHex(validator2)
+	validatorAddr2, _ = sdk.AccAddressFromHexUnsafe(validator2)
 	delegator1        = "0x3E8E9A2E68cA57c5e8b7B37678677C474Eb6Bbea"
 	delegatorAddr1    = sdk.MustAccAddressFromHex(delegator1)
 	delegator2        = "0x319D057ce294319bA1fa5487134608727e1F3e29"
@@ -104,7 +104,7 @@ func (suite *DeterministicTestSuite) createValidator(t *rapid.T) stakingtypes.Va
 	pubkeyAny, err := codectypes.NewAnyWithValue(&pubkey)
 	suite.Require().NoError(err)
 	return stakingtypes.Validator{
-		OperatorAddress: sdk.ValAddress(testdata.AddressGenerator(t).Draw(t, "address")).String(),
+		OperatorAddress: sdk.AccAddress(testdata.AddressGenerator(t).Draw(t, "address")).String(),
 		ConsensusPubkey: pubkeyAny,
 		Jailed:          rapid.Bool().Draw(t, "jailed"),
 		Status:          bondTypeGenerator().Draw(t, "bond-status"),
@@ -629,11 +629,11 @@ func (suite *DeterministicTestSuite) TestGRPCPool() {
 func (suite *DeterministicTestSuite) TestGRPCRedelegations() {
 	rapid.Check(suite.T(), func(t *rapid.T) {
 		validator := suite.createAndSetValidatorWithStatus(t, stakingtypes.Bonded)
-		srcValAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
+		srcValAddr, err := sdk.AccAddressFromHexUnsafe(validator.OperatorAddress)
 		suite.Require().NoError(err)
 
 		validator2 := suite.createAndSetValidatorWithStatus(t, stakingtypes.Bonded)
-		dstValAddr, err := sdk.ValAddressFromHex(validator2.OperatorAddress)
+		dstValAddr, err := sdk.AccAddressFromHexUnsafe(validator2.OperatorAddress)
 		suite.Require().NoError(err)
 
 		numDels := rapid.IntRange(1, 5).Draw(t, "num-dels")

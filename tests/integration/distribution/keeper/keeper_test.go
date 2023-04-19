@@ -76,7 +76,7 @@ func TestWithdrawValidatorCommission(t *testing.T) {
 	}
 
 	addr := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 1, sdk.NewInt(1000000000))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addr)
+	valAddrs := simtestutil.CopyAddrs(addr)
 
 	// set module account coins
 	distrAcc := distrKeeper.GetDistributionAccount(ctx)
@@ -140,7 +140,7 @@ func TestGetTotalRewards(t *testing.T) {
 	}
 
 	addr := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 2, sdk.NewInt(1000000000))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addr)
+	valAddrs := simtestutil.CopyAddrs(addr)
 
 	distrKeeper.SetValidatorOutstandingRewards(ctx, valAddrs[0], types.ValidatorOutstandingRewards{Rewards: valCommission})
 	distrKeeper.SetValidatorOutstandingRewards(ctx, valAddrs[1], types.ValidatorOutstandingRewards{Rewards: valCommission})

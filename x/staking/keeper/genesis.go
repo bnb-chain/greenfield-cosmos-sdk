@@ -144,7 +144,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) (res []ab
 	// don't need to run Tendermint updates if we exported
 	if data.Exported {
 		for _, lv := range data.LastValidatorPowers {
-			valAddr, err := sdk.ValAddressFromHex(lv.Address)
+			valAddr, err := sdk.AccAddressFromHexUnsafe(lv.Address)
 			if err != nil {
 				panic(err)
 			}
@@ -192,7 +192,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 
 	var lastValidatorPowers []types.LastValidatorPower
 
-	k.IterateLastValidatorPowers(ctx, func(addr sdk.ValAddress, power int64) (stop bool) {
+	k.IterateLastValidatorPowers(ctx, func(addr sdk.AccAddress, power int64) (stop bool) {
 		lastValidatorPowers = append(lastValidatorPowers, types.LastValidatorPower{Address: addr.String(), Power: power})
 		return false
 	})

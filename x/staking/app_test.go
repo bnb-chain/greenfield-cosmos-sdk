@@ -71,7 +71,7 @@ func TestStakingMsgs(t *testing.T) {
 	blsSecretKey, _ := bls.RandKey()
 	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
-		sdk.ValAddress(addr1), valKey.PubKey(),
+		addr1, valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
 		addr1, addr1, addr1, addr1, blsPubKey,
 	)
@@ -86,9 +86,9 @@ func TestStakingMsgs(t *testing.T) {
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 	ctxCheck = app.BaseApp.NewContext(true, tmproto.Header{})
-	validator, found := stakingKeeper.GetValidator(ctxCheck, sdk.ValAddress(addr1))
+	validator, found := stakingKeeper.GetValidator(ctxCheck, addr1)
 	require.True(t, found)
-	require.Equal(t, sdk.ValAddress(addr1).String(), validator.OperatorAddress)
+	require.Equal(t, addr1.String(), validator.OperatorAddress)
 	require.Equal(t, types.Bonded, validator.Status)
 	require.True(math.IntEq(t, bondTokens, validator.BondedTokens()))
 
@@ -98,7 +98,7 @@ func TestStakingMsgs(t *testing.T) {
 	// edit the validator
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
-		sdk.ValAddress(addr1), description, nil, nil,
+		addr1, description, nil, nil,
 		sdk.AccAddress(""), sdk.AccAddress(""), "",
 	)
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
@@ -106,13 +106,13 @@ func TestStakingMsgs(t *testing.T) {
 	require.NoError(t, err)
 
 	ctxCheck = app.BaseApp.NewContext(true, tmproto.Header{})
-	validator, found = stakingKeeper.GetValidator(ctxCheck, sdk.ValAddress(addr1))
+	validator, found = stakingKeeper.GetValidator(ctxCheck, addr1)
 	require.True(t, found)
 	require.Equal(t, description, validator.Description)
 
 	// delegate
 	require.True(t, sdk.Coins{genCoin}.IsEqual(bankKeeper.GetAllBalances(ctxCheck, addr2)))
-	delegateMsg := types.NewMsgDelegate(addr2, sdk.ValAddress(addr1), bondCoin)
+	delegateMsg := types.NewMsgDelegate(addr2, addr1, bondCoin)
 
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{delegateMsg}, sdktestutil.DefaultChainId, []uint64{1}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv2})
@@ -120,18 +120,18 @@ func TestStakingMsgs(t *testing.T) {
 
 	ctxCheck = app.BaseApp.NewContext(true, tmproto.Header{})
 	require.True(t, sdk.Coins{genCoin.Sub(bondCoin)}.IsEqual(bankKeeper.GetAllBalances(ctxCheck, addr2)))
-	_, found = stakingKeeper.GetDelegation(ctxCheck, addr2, sdk.ValAddress(addr1))
+	_, found = stakingKeeper.GetDelegation(ctxCheck, addr2, addr1)
 	require.True(t, found)
 
 	// begin unbonding
-	beginUnbondingMsg := types.NewMsgUndelegate(addr2, sdk.ValAddress(addr1), bondCoin)
+	beginUnbondingMsg := types.NewMsgUndelegate(addr2, addr1, bondCoin)
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{beginUnbondingMsg}, sdktestutil.DefaultChainId, []uint64{1}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv2})
 	require.NoError(t, err)
 
 	// delegation should exist anymore
 	ctxCheck = app.BaseApp.NewContext(true, tmproto.Header{})
-	_, found = stakingKeeper.GetDelegation(ctxCheck, addr2, sdk.ValAddress(addr1))
+	_, found = stakingKeeper.GetDelegation(ctxCheck, addr2, addr1)
 	require.False(t, found)
 
 	// balance should be the same because bonding not yet complete

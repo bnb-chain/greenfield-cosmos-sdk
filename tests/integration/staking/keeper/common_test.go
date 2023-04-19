@@ -48,16 +48,16 @@ func ValEq(t *testing.T, exp, got types.Validator) (*testing.T, bool, string, ty
 }
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
-func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.ValAddress) {
+func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.AccAddress) {
 	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
-	addrVals := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	addrVals := simtestutil.CopyAddrs(addrDels)
 
 	return addrDels, addrVals
 }
 
-func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.ValAddress, []types.Validator) {
+func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.AccAddress, []types.Validator) {
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 5, app.StakingKeeper.TokensFromConsensusPower(ctx, 300))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	pks := simtestutil.CreateTestPubKeys(5)
 	cdc := moduletestutil.MakeTestEncodingConfig().Codec
 	app.StakingKeeper = keeper.NewKeeper(

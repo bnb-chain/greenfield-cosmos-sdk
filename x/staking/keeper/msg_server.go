@@ -35,7 +35,7 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValidator) (*types.MsgEditValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +324,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, valErr := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, valErr := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if valErr != nil {
 		return nil, valErr
 	}
@@ -389,7 +389,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, types.ErrRedelegationNotAllowed
 	}
 
-	valSrcAddr, err := sdk.ValAddressFromHex(msg.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorSrcAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -413,7 +413,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		)
 	}
 
-	valDstAddr, err := sdk.ValAddressFromHex(msg.ValidatorDstAddress)
+	valDstAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorDstAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +455,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	addr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -512,7 +512,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

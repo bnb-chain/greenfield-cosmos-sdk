@@ -89,7 +89,7 @@ func setUBDToStore(ctx sdk.Context, store storetypes.KVStore, cdc codec.BinaryCo
 
 	bz := types.MustMarshalUBD(cdc, ubd)
 
-	addr, err := sdk.ValAddressFromHex(ubd.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}

@@ -221,7 +221,7 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 }
 
 // Delegation mocks base method.
-func (m *MockStakingKeeper) Delegation(arg0 types.Context, arg1 types.AccAddress, arg2 types.ValAddress) types1.DelegationI {
+func (m *MockStakingKeeper) Delegation(arg0 types.Context, arg1, arg2 types.AccAddress) types1.DelegationI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delegation", arg0, arg1, arg2)
 	ret0, _ := ret[0].(types1.DelegationI)
@@ -301,7 +301,7 @@ func (mr *MockStakingKeeperMockRecorder) IterateValidators(arg0, arg1 interface{
 }
 
 // Validator mocks base method.
-func (m *MockStakingKeeper) Validator(arg0 types.Context, arg1 types.ValAddress) types1.ValidatorI {
+func (m *MockStakingKeeper) Validator(arg0 types.Context, arg1 types.AccAddress) types1.ValidatorI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Validator", arg0, arg1)
 	ret0, _ := ret[0].(types1.ValidatorI)
@@ -352,7 +352,7 @@ func (m *MockStakingHooks) EXPECT() *MockStakingHooksMockRecorder {
 }
 
 // AfterDelegationModified mocks base method.
-func (m *MockStakingHooks) AfterDelegationModified(ctx types.Context, delAddr types.AccAddress, valAddr types.ValAddress) {
+func (m *MockStakingHooks) AfterDelegationModified(ctx types.Context, delAddr, valAddr types.AccAddress) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "AfterDelegationModified", ctx, delAddr, valAddr)
 }
@@ -364,7 +364,7 @@ func (mr *MockStakingHooksMockRecorder) AfterDelegationModified(ctx, delAddr, va
 }
 
 // AfterValidatorCreated mocks base method.
-func (m *MockStakingHooks) AfterValidatorCreated(ctx types.Context, valAddr types.ValAddress) {
+func (m *MockStakingHooks) AfterValidatorCreated(ctx types.Context, valAddr types.AccAddress) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "AfterValidatorCreated", ctx, valAddr)
 }

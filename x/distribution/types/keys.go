@@ -57,7 +57,7 @@ var (
 )
 
 // GetValidatorOutstandingRewardsAddress creates an address from a validator's outstanding rewards key.
-func GetValidatorOutstandingRewardsAddress(key []byte) (valAddr sdk.ValAddress) {
+func GetValidatorOutstandingRewardsAddress(key []byte) (valAddr sdk.AccAddress) {
 	// key is in the format:
 	// 0x02<valAddrLen (1 Byte)><valAddr_Bytes>
 
@@ -66,7 +66,7 @@ func GetValidatorOutstandingRewardsAddress(key []byte) (valAddr sdk.ValAddress) 
 	addr := key[2:]
 	kv.AssertKeyLength(addr, int(key[1]))
 
-	return sdk.ValAddress(addr)
+	return sdk.AccAddress(addr)
 }
 
 // GetDelegatorWithdrawInfoAddress creates an address from a delegator's withdraw info key.
@@ -83,13 +83,13 @@ func GetDelegatorWithdrawInfoAddress(key []byte) (delAddr sdk.AccAddress) {
 }
 
 // GetDelegatorStartingInfoAddresses creates the addresses from a delegator starting info key.
-func GetDelegatorStartingInfoAddresses(key []byte) (valAddr sdk.ValAddress, delAddr sdk.AccAddress) {
+func GetDelegatorStartingInfoAddresses(key []byte) (valAddr, delAddr sdk.AccAddress) {
 	// key is in the format:
 	// 0x04<valAddrLen (1 Byte)><valAddr_Bytes><accAddrLen (1 Byte)><accAddr_Bytes>
 	kv.AssertKeyAtLeastLength(key, 2)
 	valAddrLen := int(key[1])
 	kv.AssertKeyAtLeastLength(key, 3+valAddrLen)
-	valAddr = sdk.ValAddress(key[2 : 2+valAddrLen])
+	valAddr = sdk.AccAddress(key[2 : 2+valAddrLen])
 	delAddrLen := int(key[2+valAddrLen])
 	kv.AssertKeyAtLeastLength(key, 4+valAddrLen)
 	delAddr = sdk.AccAddress(key[3+valAddrLen:])
@@ -99,13 +99,13 @@ func GetDelegatorStartingInfoAddresses(key []byte) (valAddr sdk.ValAddress, delA
 }
 
 // GetValidatorHistoricalRewardsAddressPeriod creates the address & period from a validator's historical rewards key.
-func GetValidatorHistoricalRewardsAddressPeriod(key []byte) (valAddr sdk.ValAddress, period uint64) {
+func GetValidatorHistoricalRewardsAddressPeriod(key []byte) (valAddr sdk.AccAddress, period uint64) {
 	// key is in the format:
 	// 0x05<valAddrLen (1 Byte)><valAddr_Bytes><period_Bytes>
 	kv.AssertKeyAtLeastLength(key, 2)
 	valAddrLen := int(key[1])
 	kv.AssertKeyAtLeastLength(key, 3+valAddrLen)
-	valAddr = sdk.ValAddress(key[2 : 2+valAddrLen])
+	valAddr = sdk.AccAddress(key[2 : 2+valAddrLen])
 	b := key[2+valAddrLen:]
 	kv.AssertKeyLength(b, 8)
 	period = binary.LittleEndian.Uint64(b)
@@ -113,7 +113,7 @@ func GetValidatorHistoricalRewardsAddressPeriod(key []byte) (valAddr sdk.ValAddr
 }
 
 // GetValidatorCurrentRewardsAddress creates the address from a validator's current rewards key.
-func GetValidatorCurrentRewardsAddress(key []byte) (valAddr sdk.ValAddress) {
+func GetValidatorCurrentRewardsAddress(key []byte) (valAddr sdk.AccAddress) {
 	// key is in the format:
 	// 0x06<valAddrLen (1 Byte)><valAddr_Bytes>: ValidatorCurrentRewards
 
@@ -122,11 +122,11 @@ func GetValidatorCurrentRewardsAddress(key []byte) (valAddr sdk.ValAddress) {
 	addr := key[2:]
 	kv.AssertKeyLength(addr, int(key[1]))
 
-	return sdk.ValAddress(addr)
+	return sdk.AccAddress(addr)
 }
 
 // GetValidatorAccumulatedCommissionAddress creates the address from a validator's accumulated commission key.
-func GetValidatorAccumulatedCommissionAddress(key []byte) (valAddr sdk.ValAddress) {
+func GetValidatorAccumulatedCommissionAddress(key []byte) (valAddr sdk.AccAddress) {
 	// key is in the format:
 	// 0x07<valAddrLen (1 Byte)><valAddr_Bytes>: ValidatorCurrentRewards
 
@@ -135,11 +135,11 @@ func GetValidatorAccumulatedCommissionAddress(key []byte) (valAddr sdk.ValAddres
 	addr := key[2:]
 	kv.AssertKeyLength(addr, int(key[1]))
 
-	return sdk.ValAddress(addr)
+	return sdk.AccAddress(addr)
 }
 
 // GetValidatorSlashEventAddressHeight creates the height from a validator's slash event key.
-func GetValidatorSlashEventAddressHeight(key []byte) (valAddr sdk.ValAddress, height uint64) {
+func GetValidatorSlashEventAddressHeight(key []byte) (valAddr sdk.AccAddress, height uint64) {
 	// key is in the format:
 	// 0x08<valAddrLen (1 Byte)><valAddr_Bytes><height>: ValidatorSlashEvent
 	kv.AssertKeyAtLeastLength(key, 2)
@@ -154,7 +154,7 @@ func GetValidatorSlashEventAddressHeight(key []byte) (valAddr sdk.ValAddress, he
 }
 
 // GetValidatorOutstandingRewardsKey creates the outstanding rewards key for a validator.
-func GetValidatorOutstandingRewardsKey(valAddr sdk.ValAddress) []byte {
+func GetValidatorOutstandingRewardsKey(valAddr sdk.AccAddress) []byte {
 	return append(ValidatorOutstandingRewardsPrefix, address.MustLengthPrefix(valAddr.Bytes())...)
 }
 
@@ -164,39 +164,39 @@ func GetDelegatorWithdrawAddrKey(delAddr sdk.AccAddress) []byte {
 }
 
 // GetDelegatorStartingInfoKey creates the key for a delegator's starting info.
-func GetDelegatorStartingInfoKey(v sdk.ValAddress, d sdk.AccAddress) []byte {
+func GetDelegatorStartingInfoKey(v, d sdk.AccAddress) []byte {
 	return append(append(DelegatorStartingInfoPrefix, address.MustLengthPrefix(v.Bytes())...), address.MustLengthPrefix(d.Bytes())...)
 }
 
 // GetValidatorHistoricalRewardsPrefix creates the prefix key for a validator's historical rewards.
-func GetValidatorHistoricalRewardsPrefix(v sdk.ValAddress) []byte {
+func GetValidatorHistoricalRewardsPrefix(v sdk.AccAddress) []byte {
 	return append(ValidatorHistoricalRewardsPrefix, address.MustLengthPrefix(v.Bytes())...)
 }
 
 // GetValidatorHistoricalRewardsKey creates the key for a validator's historical rewards.
-func GetValidatorHistoricalRewardsKey(v sdk.ValAddress, k uint64) []byte {
+func GetValidatorHistoricalRewardsKey(v sdk.AccAddress, k uint64) []byte {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, k)
 	return append(append(ValidatorHistoricalRewardsPrefix, address.MustLengthPrefix(v.Bytes())...), b...)
 }
 
 // GetValidatorCurrentRewardsKey creates the key for a validator's current rewards.
-func GetValidatorCurrentRewardsKey(v sdk.ValAddress) []byte {
+func GetValidatorCurrentRewardsKey(v sdk.AccAddress) []byte {
 	return append(ValidatorCurrentRewardsPrefix, address.MustLengthPrefix(v.Bytes())...)
 }
 
 // GetValidatorAccumulatedCommissionKey creates the key for a validator's current commission.
-func GetValidatorAccumulatedCommissionKey(v sdk.ValAddress) []byte {
+func GetValidatorAccumulatedCommissionKey(v sdk.AccAddress) []byte {
 	return append(ValidatorAccumulatedCommissionPrefix, address.MustLengthPrefix(v.Bytes())...)
 }
 
 // GetValidatorSlashEventPrefix creates the prefix key for a validator's slash fractions.
-func GetValidatorSlashEventPrefix(v sdk.ValAddress) []byte {
+func GetValidatorSlashEventPrefix(v sdk.AccAddress) []byte {
 	return append(ValidatorSlashEventPrefix, address.MustLengthPrefix(v.Bytes())...)
 }
 
 // GetValidatorSlashEventKeyPrefix creates the prefix key for a validator's slash fraction (ValidatorSlashEventPrefix + height).
-func GetValidatorSlashEventKeyPrefix(v sdk.ValAddress, height uint64) []byte {
+func GetValidatorSlashEventKeyPrefix(v sdk.AccAddress, height uint64) []byte {
 	heightBz := make([]byte, 8)
 	binary.BigEndian.PutUint64(heightBz, height)
 
@@ -207,7 +207,7 @@ func GetValidatorSlashEventKeyPrefix(v sdk.ValAddress, height uint64) []byte {
 }
 
 // GetValidatorSlashEventKey creates the key for a validator's slash fraction.
-func GetValidatorSlashEventKey(v sdk.ValAddress, height, period uint64) []byte {
+func GetValidatorSlashEventKey(v sdk.AccAddress, height, period uint64) []byte {
 	periodBz := make([]byte, 8)
 	binary.BigEndian.PutUint64(periodBz, period)
 	prefix := GetValidatorSlashEventKeyPrefix(v, height)

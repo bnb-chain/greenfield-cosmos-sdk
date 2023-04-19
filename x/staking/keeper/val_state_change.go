@@ -37,7 +37,7 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context) []abci.ValidatorUpdate {
 	// Remove all mature unbonding delegations from the ubd queue.
 	matureUnbonds := k.DequeueAllMatureUBDQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvPair := range matureUnbonds {
-		addr, err := sdk.ValAddressFromHex(dvPair.ValidatorAddress)
+		addr, err := sdk.AccAddressFromHexUnsafe(dvPair.ValidatorAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -61,11 +61,11 @@ func (k Keeper) BlockValidatorUpdates(ctx sdk.Context) []abci.ValidatorUpdate {
 	// Remove all mature redelegations from the red queue.
 	matureRedelegations := k.DequeueAllMatureRedelegationQueue(ctx, ctx.BlockHeader().Time)
 	for _, dvvTriplet := range matureRedelegations {
-		valSrcAddr, err := sdk.ValAddressFromHex(dvvTriplet.ValidatorSrcAddress)
+		valSrcAddr, err := sdk.AccAddressFromHexUnsafe(dvvTriplet.ValidatorSrcAddress)
 		if err != nil {
 			panic(err)
 		}
-		valDstAddr, err := sdk.ValAddressFromHex(dvvTriplet.ValidatorDstAddress)
+		valDstAddr, err := sdk.AccAddressFromHexUnsafe(dvvTriplet.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}
@@ -129,7 +129,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 	for count := 0; iterator.Valid() && count < int(maxValidators); iterator.Next() {
 		// everything that is iterated in this loop is becoming or already a
 		// part of the bonded validator set
-		valAddr := sdk.ValAddress(iterator.Value())
+		valAddr := sdk.AccAddress(iterator.Value())
 		validator := k.mustGetValidator(ctx, valAddr)
 
 		if validator.Jailed {
@@ -163,7 +163,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		}
 
 		// fetch the old power bytes
-		valAddrStr := sdk.AccAddress(valAddr).String()
+		valAddrStr := valAddr.String()
 		oldPowerBytes, found := last[valAddrStr]
 		newPower := validator.ConsensusPower(powerReduction)
 		newPowerBytes := k.cdc.MustMarshal(&gogotypes.Int64Value{Value: newPower})
@@ -187,7 +187,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 	}
 
 	for _, valAddrBytes := range noLongerBonded {
-		validator := k.mustGetValidator(ctx, sdk.ValAddress(valAddrBytes))
+		validator := k.mustGetValidator(ctx, sdk.AccAddress(valAddrBytes))
 		validator, err = k.bondedToUnbonding(ctx, validator)
 		if err != nil {
 			return
@@ -395,7 +395,7 @@ func sortNoLongerBonded(last validatorsByAddr) ([][]byte, error) {
 	index := 0
 
 	for valAddrStr := range last {
-		valAddrBytes, err := sdk.ValAddressFromHex(valAddrStr)
+		valAddrBytes, err := sdk.AccAddressFromHexUnsafe(valAddrStr)
 		if err != nil {
 			return nil, err
 		}

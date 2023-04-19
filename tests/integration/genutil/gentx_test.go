@@ -89,14 +89,14 @@ func (suite *GenTxTestSuite) SetupTest() {
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
 
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
+		sdk.AccAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	suite.NoError(err)
 
 	blsSecretKey2, _ := bls.RandKey()
 	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
 
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
+		sdk.AccAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
 	suite.NoError(err)
 }
 

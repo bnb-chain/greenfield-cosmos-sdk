@@ -540,7 +540,7 @@ func TestMigrateVestingAccounts(t *testing.T) {
 
 				ctx = ctx.WithBlockTime(ctx.BlockTime().AddDate(1, 0, 0))
 
-				valAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
+				valAddr, err := sdk.AccAddressFromHexUnsafe(validator.OperatorAddress)
 				require.NoError(t, err)
 
 				// un-delegation of the original vesting
@@ -694,10 +694,10 @@ func dirtyTrackingFields(ctx sdk.Context, vesting exported.VestingAccount, accou
 	return nil
 }
 
-func createValidator(t *testing.T, ctx sdk.Context, bankKeeper bankkeeper.Keeper, stakingKeeper *stakingkeeper.Keeper, powers int64) (sdk.AccAddress, sdk.ValAddress) {
+func createValidator(t *testing.T, ctx sdk.Context, bankKeeper bankkeeper.Keeper, stakingKeeper *stakingkeeper.Keeper, powers int64) (sdk.AccAddress, sdk.AccAddress) {
 	valTokens := sdk.TokensFromConsensusPower(powers, sdk.DefaultPowerReduction)
 	addrs := simtestutil.AddTestAddrsIncremental(bankKeeper, stakingKeeper, ctx, 1, valTokens)
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	pks := simtestutil.CreateTestPubKeys(1)
 
 	val1, err := stakingtypes.NewSimpleValidator(valAddrs[0], pks[0], stakingtypes.Description{})

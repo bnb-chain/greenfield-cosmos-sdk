@@ -42,7 +42,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 func (k msgServer) Unjail(goCtx context.Context, msg *types.MsgUnjail) (*types.MsgUnjailResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, valErr := sdk.ValAddressFromHex(msg.ValidatorAddr)
+	valAddr, valErr := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddr)
 	if valErr != nil {
 		return nil, valErr
 	}
@@ -63,7 +63,7 @@ func (k msgServer) Impeach(goCtx context.Context, msg *types.MsgImpeach) (*types
 		return nil, types.ErrSignerNotGovModule
 	}
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

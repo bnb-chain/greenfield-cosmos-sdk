@@ -8,7 +8,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -26,7 +25,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidator() {
 		},
 		{
 			"happy case",
-			[]string{sdk.ValAddress(s.addrs[0]).String(), fmt.Sprintf("--%s=json", flags.FlagOutput)},
+			[]string{s.addrs[0].String(), fmt.Sprintf("--%s=json", flags.FlagOutput)},
 			false,
 		},
 	}
@@ -113,7 +112,7 @@ func (s *CLITestSuite) TestGetCmdQueryDelegation() {
 			"with json output",
 			[]string{
 				s.addrs[0].String(),
-				sdk.ValAddress(s.addrs[1]).String(),
+				s.addrs[1].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -301,7 +300,7 @@ func (s *CLITestSuite) TestGetCmdQueryUnbondingDelegation() {
 			"valid request",
 			[]string{
 				s.addrs[0].String(),
-				sdk.ValAddress(s.addrs[1]).String(),
+				s.addrs[1].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -345,7 +344,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorUnbondingDelegations() {
 		{
 			"valid request",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -424,8 +423,8 @@ func (s *CLITestSuite) TestGetCmdQueryRedelegation() {
 			"wrong delegator address",
 			[]string{
 				"wrongdeladdr",
-				sdk.ValAddress(s.addrs[0]).String(),
-				sdk.ValAddress(s.addrs[1]).String(),
+				s.addrs[0].String(),
+				s.addrs[1].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
@@ -435,7 +434,7 @@ func (s *CLITestSuite) TestGetCmdQueryRedelegation() {
 			[]string{
 				s.addrs[0].String(),
 				"wrongSrcValAddress",
-				sdk.ValAddress(s.addrs[1]).String(),
+				s.addrs[1].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			true,
@@ -444,7 +443,7 @@ func (s *CLITestSuite) TestGetCmdQueryRedelegation() {
 			"wrong destination validator address address",
 			[]string{
 				s.addrs[0].String(),
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				"wrongDestValAddress",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
@@ -454,8 +453,8 @@ func (s *CLITestSuite) TestGetCmdQueryRedelegation() {
 			"valid request",
 			[]string{
 				s.addrs[0].String(),
-				sdk.ValAddress(s.addrs[0]).String(),
-				sdk.ValAddress(s.addrs[1]).String(),
+				s.addrs[0].String(),
+				s.addrs[1].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -499,7 +498,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorRedelegations() {
 		{
 			"valid request",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,

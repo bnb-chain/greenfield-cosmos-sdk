@@ -40,7 +40,7 @@ func TestBeginBlocker(t *testing.T) {
 
 	pks := simtestutil.CreateTestPubKeys(1)
 	simtestutil.AddTestAddrsFromPubKeys(bankKeeper, stakingKeeper, ctx, pks, stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	addr, pk := sdk.ValAddress(pks[0].Address()), pks[0]
+	addr, pk := sdk.AccAddress(pks[0].Address()), pks[0]
 	tstaking := stakingtestutil.NewHelper(t, ctx, stakingKeeper)
 
 	// bond the validator
@@ -48,7 +48,7 @@ func TestBeginBlocker(t *testing.T) {
 	amt := tstaking.CreateValidatorWithValPower(addr, pk, power, true)
 	staking.EndBlocker(ctx, stakingKeeper)
 	require.Equal(
-		t, bankKeeper.GetAllBalances(ctx, sdk.AccAddress(addr)),
+		t, bankKeeper.GetAllBalances(ctx, addr),
 		sdk.NewCoins(sdk.NewCoin(stakingKeeper.GetParams(ctx).BondDenom, InitTokens.Sub(amt))),
 	)
 	require.Equal(t, amt, stakingKeeper.Validator(ctx, addr).GetBondedTokens())

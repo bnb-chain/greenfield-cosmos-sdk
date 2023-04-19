@@ -44,7 +44,7 @@ func (k Querier) ValidatorDistributionInfo(c context.Context, req *types.QueryVa
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (k Querier) ValidatorDistributionInfo(c context.Context, req *types.QueryVa
 		return nil, sdkerrors.Wrap(types.ErrNoValidatorExists, req.ValidatorAddress)
 	}
 
-	delAdr := sdk.AccAddress(valAdr)
+	delAdr := valAdr
 
 	del := k.stakingKeeper.Delegation(ctx, delAdr, valAdr)
 	if del == nil {
@@ -87,7 +87,7 @@ func (k Querier) ValidatorOutstandingRewards(c context.Context, req *types.Query
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (k Querier) ValidatorCommission(c context.Context, req *types.QueryValidato
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (k Querier) ValidatorSlashes(c context.Context, req *types.QueryValidatorSl
 
 	ctx := sdk.UnwrapSDKContext(c)
 	store := ctx.KVStore(k.storeKey)
-	valAddr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid validator address")
 	}
@@ -176,7 +176,7 @@ func (k Querier) DelegationRewards(c context.Context, req *types.QueryDelegation
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	valAdr, err := sdk.ValAddressFromHex(req.ValidatorAddress)
+	valAdr, err := sdk.AccAddressFromHexUnsafe(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

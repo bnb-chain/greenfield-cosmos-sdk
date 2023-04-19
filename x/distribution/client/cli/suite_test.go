@@ -117,7 +117,7 @@ withdraw_addr_enabled: false`,
 
 func (s *CLITestSuite) TestGetCmdQueryValidatorDistributionInfo() {
 	addr := testutil.CreateKeyringAccounts(s.T(), s.kr, 1)
-	val := sdk.ValAddress(addr[0].Address.String())
+	val := sdk.AccAddress(addr[0].Address.String())
 
 	testCases := []struct {
 		name   string
@@ -179,7 +179,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(),
+				val[0].Address.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -190,7 +190,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorOutstandingRewards() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(),
+				val[0].Address.String(),
 			},
 			false,
 			`rewards: []`,
@@ -236,7 +236,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorCommission() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(),
+				val[0].Address.String(),
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -247,7 +247,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorCommission() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(),
+				val[0].Address.String(),
 			},
 			false,
 			`commission: []`,
@@ -293,7 +293,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid start height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(), "-1", "3",
+				val[0].Address.String(), "-1", "3",
 			},
 			true,
 			"",
@@ -302,7 +302,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorSlashes() {
 			"invalid end height",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(), "1", "-3",
+				val[0].Address.String(), "1", "-3",
 			},
 			true,
 			"",
@@ -311,7 +311,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorSlashes() {
 			"json output",
 			[]string{
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(), "1", "3",
+				val[0].Address.String(), "1", "3",
 				fmt.Sprintf("--%s=json", flags.FlagOutput),
 			},
 			false,
@@ -322,7 +322,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorSlashes() {
 			[]string{
 				fmt.Sprintf("--%s=text", flags.FlagOutput),
 				fmt.Sprintf("--%s=3", flags.FlagHeight),
-				sdk.ValAddress(val[0].Address).String(), "1", "3",
+				val[0].Address.String(), "1", "3",
 			},
 			false,
 			"pagination: null\nslashes: []",
@@ -349,7 +349,7 @@ func (s *CLITestSuite) TestGetCmdQueryValidatorSlashes() {
 func (s *CLITestSuite) TestGetCmdQueryDelegatorRewards() {
 	val := testutil.CreateKeyringAccounts(s.T(), s.kr, 1)
 	addr := val[0].Address
-	valAddr := sdk.ValAddress(addr)
+	valAddr := addr
 
 	testCases := []struct {
 		name           string
@@ -478,7 +478,7 @@ func (s *CLITestSuite) TestNewWithdrawRewardsCmd() {
 	}{
 		{
 			"valid transaction",
-			sdk.ValAddress(val[0].Address),
+			val[0].Address,
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -516,7 +516,7 @@ func (s *CLITestSuite) TestNewWithdrawCommissionCmd() {
 	}{
 		{
 			"valid transaction",
-			sdk.ValAddress(val[0].Address),
+			val[0].Address,
 			[]string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),

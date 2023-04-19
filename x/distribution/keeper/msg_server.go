@@ -46,7 +46,7 @@ func (k msgServer) SetWithdrawAddress(goCtx context.Context, msg *types.MsgSetWi
 func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.MsgWithdrawDelegatorReward) (*types.MsgWithdrawDelegatorRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (k msgServer) WithdrawDelegatorReward(goCtx context.Context, msg *types.Msg
 func (k msgServer) WithdrawValidatorCommission(goCtx context.Context, msg *types.MsgWithdrawValidatorCommission) (*types.MsgWithdrawValidatorCommissionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

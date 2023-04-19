@@ -140,7 +140,7 @@ func SimulateMsgWithdrawDelegatorReward(txConfig client.TxConfig, ak types.Accou
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgWithdrawDelegatorReward(simAccount.Address, sdk.AccAddress(validator.GetOperator()))
+		msg := types.NewMsgWithdrawDelegatorReward(simAccount.Address, validator.GetOperator())
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -176,7 +176,7 @@ func SimulateMsgWithdrawValidatorCommission(txConfig client.TxConfig, ak types.A
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawValidatorCommission, "validator commission is zero"), nil, nil
 		}
 
-		simAccount, found := simtypes.FindAccount(accs, sdk.AccAddress(validator.GetOperator()))
+		simAccount, found := simtypes.FindAccount(accs, validator.GetOperator())
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawValidatorCommission, "could not find account"), nil, fmt.Errorf("validator %s not found", validator.GetOperator())
 		}
@@ -184,7 +184,7 @@ func SimulateMsgWithdrawValidatorCommission(txConfig client.TxConfig, ak types.A
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgWithdrawValidatorCommission(sdk.AccAddress(validator.GetOperator()))
+		msg := types.NewMsgWithdrawValidatorCommission(validator.GetOperator())
 
 		txCtx := simulation.OperationInput{
 			R:               r,
