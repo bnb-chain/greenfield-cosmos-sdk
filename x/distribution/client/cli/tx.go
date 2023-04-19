@@ -303,7 +303,7 @@ func NewDepositValidatorRewardsPoolCmd() *cobra.Command {
 
 			depositorAddr := clientCtx.GetFromAddress()
 
-			valAddr, err := sdk.ValAddressFromHex(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

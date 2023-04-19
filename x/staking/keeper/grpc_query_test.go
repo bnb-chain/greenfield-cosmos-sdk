@@ -13,7 +13,7 @@ func (s *KeeperTestSuite) TestGRPCQueryValidator() {
 	ctx, keeper, queryClient := s.ctx, s.stakingKeeper, s.queryClient
 	require := s.Require()
 
-	validator := testutil.NewValidator(s.T(), sdk.ValAddress(PKs[0].Address().Bytes()), PKs[0])
+	validator := testutil.NewValidator(s.T(), sdk.AccAddress(PKs[0].Address().Bytes()), PKs[0])
 	keeper.SetValidator(ctx, validator)
 	var req *types.QueryValidatorRequest
 	testCases := []struct {

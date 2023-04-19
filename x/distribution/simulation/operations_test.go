@@ -302,7 +302,7 @@ func (suite *SimTestSuite) getTestingValidator(accounts []simtypes.Account, comm
 	require := suite.Require()
 	account := accounts[n]
 	valPubKey := account.PubKey
-	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
 	validator, err := stakingtypes.NewSimpleValidator(valAddr, valPubKey, stakingtypes.Description{})
 	require.NoError(err)
 	validator, err = validator.SetInitialCommission(commission)
@@ -315,7 +315,7 @@ func (suite *SimTestSuite) getTestingValidator(accounts []simtypes.Account, comm
 	return validator
 }
 
-func (suite *SimTestSuite) setupValidatorRewards(valAddress sdk.ValAddress) {
+func (suite *SimTestSuite) setupValidatorRewards(valAddress sdk.AccAddress) {
 	decCoins := sdk.DecCoins{sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, math.LegacyOneDec())}
 	historicalRewards := types.NewValidatorHistoricalRewards(decCoins, 2)
 	suite.distrKeeper.SetValidatorHistoricalRewards(suite.ctx, valAddress, 2, historicalRewards)

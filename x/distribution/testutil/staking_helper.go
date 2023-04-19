@@ -13,13 +13,13 @@ import (
 
 func CreateValidator(pk cryptotypes.PubKey, stake math.Int) (stakingtypes.Validator, error) {
 	valConsAddr := sdk.GetConsAddress(pk)
-	val, err := stakingtypes.NewSimpleValidator(sdk.ValAddress(valConsAddr), pk, stakingtypes.Description{})
+	val, err := stakingtypes.NewSimpleValidator(sdk.AccAddress(valConsAddr), pk, stakingtypes.Description{})
 	val.Tokens = stake
 	val.DelegatorShares = math.LegacyNewDecFromInt(val.Tokens)
 	return val, err
 }
 
-func CallCreateValidatorHooks(ctx sdk.Context, k keeper.Keeper, addr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func CallCreateValidatorHooks(ctx sdk.Context, k keeper.Keeper, addr, valAddr sdk.AccAddress) error {
 	err := k.Hooks().AfterValidatorCreated(ctx, valAddr)
 	if err != nil {
 		return err

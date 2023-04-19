@@ -49,8 +49,8 @@ func TestCalculateRewardsBasic(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, sdk.NewInt(1000))
 	require.NoError(t, err)
 	val.Commission = stakingtypes.NewCommission(sdk.NewDecWithPrec(5, 1), sdk.NewDecWithPrec(5, 1), math.LegacyNewDec(0))
@@ -127,8 +127,8 @@ func TestCalculateRewardsAfterSlash(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	valPower := int64(100)
 	stake := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 	val, err := distrtestutil.CreateValidator(valConsPk0, stake)
@@ -222,8 +222,8 @@ func TestCalculateRewardsAfterManySlashes(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	valPower := int64(100)
 	stake := sdk.TokensFromConsensusPower(valPower, sdk.DefaultPowerReduction)
 	val, err := distrtestutil.CreateValidator(valConsPk0, stake)
@@ -337,8 +337,8 @@ func TestCalculateRewardsMultiDelegator(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr0 := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr0 := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
 	require.NoError(t, err)
 
@@ -427,8 +427,8 @@ func TestWithdrawDelegationRewardsBasic(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
 	require.NoError(t, err)
 
@@ -458,7 +458,7 @@ func TestWithdrawDelegationRewardsBasic(t *testing.T) {
 	// withdraw rewards (the bank keeper should be called with the right amount of tokens to transfer)
 	expRewards := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, initial.QuoRaw(2))}
 	bankKeeper.EXPECT().SendCoinsFromModuleToAccount(ctx, disttypes.ModuleName, addr, expRewards)
-	_, err = distrKeeper.WithdrawDelegationRewards(ctx, sdk.AccAddress(valAddr), valAddr)
+	_, err = distrKeeper.WithdrawDelegationRewards(ctx, valAddr, valAddr)
 	require.Nil(t, err)
 
 	// historical count should still be 2 (added one record, cleared one)
@@ -499,8 +499,8 @@ func TestCalculateRewardsAfterManySlashesInSameBlock(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, math.NewInt(100))
 	require.NoError(t, err)
 
@@ -608,8 +608,8 @@ func TestCalculateRewardsMultiDelegatorMultiSlash(t *testing.T) {
 	valPower := int64(100)
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, sdk.TokensFromConsensusPower(valPower, sdk.DefaultPowerReduction))
 	require.NoError(t, err)
 	val.Commission = stakingtypes.NewCommission(sdk.NewDecWithPrec(5, 1), sdk.NewDecWithPrec(5, 1), math.LegacyNewDec(0))
@@ -733,8 +733,8 @@ func TestCalculateRewardsMultiDelegatorMultWithdraw(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, sdk.NewInt(100))
 	require.NoError(t, err)
 	val.Commission = stakingtypes.NewCommission(sdk.NewDecWithPrec(5, 1), sdk.NewDecWithPrec(5, 1), math.LegacyNewDec(0))
@@ -916,8 +916,8 @@ func Test100PercentCommissionReward(t *testing.T) {
 	distrKeeper.SetParams(ctx, disttypes.DefaultParams())
 
 	// create validator with 50% commission
-	valAddr := sdk.ValAddress(valConsAddr0)
-	addr := sdk.AccAddress(valAddr)
+	valAddr := sdk.AccAddress(valConsAddr0)
+	addr := valAddr
 	val, err := distrtestutil.CreateValidator(valConsPk0, sdk.NewInt(100))
 	require.NoError(t, err)
 	val.Commission = stakingtypes.NewCommission(sdk.NewDecWithPrec(10, 1), sdk.NewDecWithPrec(10, 1), math.LegacyNewDec(0))

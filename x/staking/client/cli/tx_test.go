@@ -286,7 +286,7 @@ func (s *CLITestSuite) TestNewDelegateCmd() {
 		{
 			"without delegate amount",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -308,7 +308,7 @@ func (s *CLITestSuite) TestNewDelegateCmd() {
 		{
 			"valid transaction of delegate",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(150)).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -350,8 +350,8 @@ func (s *CLITestSuite) TestNewRedelegateCmd() {
 		{
 			"without amount",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(), // src-validator-addr
-				sdk.ValAddress(s.addrs[1]).String(), // dst-validator-addr
+				s.addrs[0].String(), // src-validator-addr
+				s.addrs[1].String(), // dst-validator-addr
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -362,8 +362,8 @@ func (s *CLITestSuite) TestNewRedelegateCmd() {
 		{
 			"valid transaction of delegate",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),                         // src-validator-addr
-				sdk.ValAddress(s.addrs[1]).String(),                         // dst-validator-addr
+				s.addrs[0].String(), // src-validator-addr
+				s.addrs[1].String(), // dst-validator-addr
 				sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(150)).String(), // amount
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=%d", flags.FlagGas, 300000),
@@ -406,7 +406,7 @@ func (s *CLITestSuite) TestNewUnbondCmd() {
 		{
 			"Without unbond amount",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -428,7 +428,7 @@ func (s *CLITestSuite) TestNewUnbondCmd() {
 		{
 			"valid transaction of unbond",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(150)).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -480,7 +480,7 @@ func (s *CLITestSuite) TestNewCancelUnbondingDelegationCmd() {
 		{
 			"Without canceling unbond delegation amount",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
@@ -491,7 +491,7 @@ func (s *CLITestSuite) TestNewCancelUnbondingDelegationCmd() {
 		{
 			"Without unbond creation height",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(150)).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -503,7 +503,7 @@ func (s *CLITestSuite) TestNewCancelUnbondingDelegationCmd() {
 		{
 			"valid transaction of canceling unbonding delegation",
 			[]string{
-				sdk.ValAddress(s.addrs[0]).String(),
+				s.addrs[0].String(),
 				sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(5)).String(),
 				sdk.NewInt(10000).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, s.addrs[0]),

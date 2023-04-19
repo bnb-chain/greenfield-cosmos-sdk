@@ -10,7 +10,7 @@ import (
 
 func TestMsgUnjailGetSignBytes(t *testing.T) {
 	addr := sdk.AccAddress("abcd")
-	msg := NewMsgUnjail(sdk.ValAddress(addr))
+	msg := NewMsgUnjail(addr)
 	bytes := msg.GetSignBytes()
 	require.Equal(
 		t,

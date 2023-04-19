@@ -26,9 +26,9 @@ import (
 
 var (
 	validator1        = "0xEe10332A13816795560dd96a0D922A193Bd08F59"
-	validatorAddr1, _ = sdk.ValAddressFromHex(validator1)
+	validatorAddr1, _ = sdk.AccAddressFromHexUnsafe(validator1)
 	validator2        = "0x5953EB5998DED52EaC0121F37dFE032B65AADbcB"
-	validatorAddr2, _ = sdk.ValAddressFromHex(validator2)
+	validatorAddr2, _ = sdk.AccAddressFromHexUnsafe(validator2)
 	delegator1        = "0x3E8E9A2E68cA57c5e8b7B37678677C474Eb6Bbea"
 	delegatorAddr1    = sdk.MustAccAddressFromHex(delegator1)
 	delegator2        = "0x319D057ce294319bA1fa5487134608727e1F3e29"
@@ -100,7 +100,7 @@ func createValidator(rt *rapid.T, f *deterministicFixture, t *testing.T) staking
 	pubkeyAny, err := codectypes.NewAnyWithValue(&pubkey)
 	assert.NilError(t, err)
 	return stakingtypes.Validator{
-		OperatorAddress: sdk.ValAddress(testdata.AddressGenerator(rt).Draw(rt, "address")).String(),
+		OperatorAddress: sdk.AccAddress(testdata.AddressGenerator(rt).Draw(rt, "address")).String(),
 		ConsensusPubkey: pubkeyAny,
 		Jailed:          rapid.Bool().Draw(rt, "jailed"),
 		Status:          bondTypeGenerator().Draw(rt, "bond-status"),
@@ -665,11 +665,11 @@ func TestGRPCRedelegations(t *testing.T) {
 
 	rapid.Check(t, func(rt *rapid.T) {
 		validator := createAndSetValidatorWithStatus(rt, f, t, stakingtypes.Bonded)
-		srcValAddr, err := sdk.ValAddressFromHex(validator.OperatorAddress)
+		srcValAddr, err := sdk.AccAddressFromHexUnsafe(validator.OperatorAddress)
 		assert.NilError(t, err)
 
 		validator2 := createAndSetValidatorWithStatus(rt, f, t, stakingtypes.Bonded)
-		dstValAddr, err := sdk.ValAddressFromHex(validator2.OperatorAddress)
+		dstValAddr, err := sdk.AccAddressFromHexUnsafe(validator2.OperatorAddress)
 		assert.NilError(t, err)
 
 		numDels := rapid.IntRange(1, 5).Draw(rt, "num-dels")

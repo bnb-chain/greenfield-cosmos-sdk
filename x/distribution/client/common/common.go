@@ -16,7 +16,7 @@ func QueryDelegationRewards(clientCtx client.Context, delAddr, valAddr string) (
 		return nil, 0, err
 	}
 
-	validatorAddr, err := sdk.ValAddressFromHex(valAddr)
+	validatorAddr, err := sdk.AccAddressFromHexUnsafe(valAddr)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -16,7 +16,7 @@ import (
 func TestValidateGenesis(t *testing.T) {
 	genValidators1 := make([]types.Validator, 1, 5)
 	pk := ed25519.GenPrivKey().PubKey()
-	genValidators1[0] = testutil.NewValidator(t, sdk.ValAddress(pk.Address()), pk)
+	genValidators1[0] = testutil.NewValidator(t, sdk.AccAddress(pk.Address()), pk)
 	genValidators1[0].Tokens = math.OneInt()
 	genValidators1[0].DelegatorShares = math.LegacyOneDec()
 

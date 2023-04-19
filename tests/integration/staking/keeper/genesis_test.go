@@ -44,7 +44,7 @@ func TestInitGenesis(t *testing.T) {
 
 	// initialize the validators
 	bondedVal1 := types.Validator{
-		OperatorAddress: sdk.ValAddress(addrs[0]).String(),
+		OperatorAddress: sdk.AccAddress(addrs[0]).String(),
 		ConsensusPubkey: pk0,
 		Status:          types.Bonded,
 		Tokens:          valTokens,
@@ -52,7 +52,7 @@ func TestInitGenesis(t *testing.T) {
 		Description:     types.NewDescription("hoop", "", "", "", ""),
 	}
 	bondedVal2 := types.Validator{
-		OperatorAddress: sdk.ValAddress(addrs[1]).String(),
+		OperatorAddress: sdk.AccAddress(addrs[1]).String(),
 		ConsensusPubkey: pk1,
 		Status:          types.Bonded,
 		Tokens:          valTokens,
@@ -96,11 +96,11 @@ func TestInitGenesis(t *testing.T) {
 	}
 
 	// now make sure the validators are bonded and intra-tx counters are correct
-	resVal, found := app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(addrs[0]))
+	resVal, found := app.StakingKeeper.GetValidator(ctx, sdk.AccAddress(addrs[0]))
 	assert.Assert(t, found)
 	assert.Equal(t, types.Bonded, resVal.Status)
 
-	resVal, found = app.StakingKeeper.GetValidator(ctx, sdk.ValAddress(addrs[1]))
+	resVal, found = app.StakingKeeper.GetValidator(ctx, sdk.AccAddress(addrs[1]))
 	assert.Assert(t, found)
 	assert.Equal(t, types.Bonded, resVal.Status)
 
@@ -122,7 +122,7 @@ func TestInitGenesis_PoolsBalanceMismatch(t *testing.T) {
 	assert.NilError(t, err)
 
 	validator := types.Validator{
-		OperatorAddress: sdk.ValAddress("12345678901234567890").String(),
+		OperatorAddress: sdk.AccAddress("12345678901234567890").String(),
 		ConsensusPubkey: consPub,
 		Jailed:          false,
 		Tokens:          sdk.NewInt(10),
@@ -145,7 +145,7 @@ func TestInitGenesis_PoolsBalanceMismatch(t *testing.T) {
 			Validators: []types.Validator{validator},
 		})
 	},
-	// "should panic because bonded pool balance is different from bonded pool coins",
+		// "should panic because bonded pool balance is different from bonded pool coins",
 	)
 
 	sdktestutil.AssertPanics(t, func() {
@@ -156,7 +156,7 @@ func TestInitGenesis_PoolsBalanceMismatch(t *testing.T) {
 			Validators: []types.Validator{validator},
 		})
 	},
-	// "should panic because not bonded pool balance is different from not bonded pool coins",
+		// "should panic because not bonded pool balance is different from not bonded pool coins",
 	)
 }
 
@@ -176,7 +176,7 @@ func TestInitGenesisLargeValidatorSet(t *testing.T) {
 	bondedPoolAmt := math.ZeroInt()
 	for i := range validators {
 		validators[i], err = types.NewSimpleValidator(
-			sdk.ValAddress(addrs[i]),
+			sdk.AccAddress(addrs[i]),
 			PKs[i],
 			types.NewDescription(fmt.Sprintf("#%d", i), "", "", "", ""),
 		)

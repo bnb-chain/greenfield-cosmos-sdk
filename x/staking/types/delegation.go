@@ -16,7 +16,7 @@ var _ DelegationI = Delegation{}
 // NewDelegation creates a new delegation object
 //
 //nolint:interfacer
-func NewDelegation(delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress, shares sdk.Dec) Delegation {
+func NewDelegation(delegatorAddr, validatorAddr sdk.AccAddress, shares sdk.Dec) Delegation {
 	return Delegation{
 		DelegatorAddress: delegatorAddr.String(),
 		ValidatorAddress: validatorAddr.String(),
@@ -52,8 +52,8 @@ func (d Delegation) GetDelegatorAddr() sdk.AccAddress {
 	return delAddr
 }
 
-func (d Delegation) GetValidatorAddr() sdk.ValAddress {
-	addr, err := sdk.ValAddressFromHex(d.ValidatorAddress)
+func (d Delegation) GetValidatorAddr() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromHexUnsafe(d.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -118,7 +118,7 @@ func UnmarshalUBDE(cdc codec.BinaryCodec, value []byte) (ubd UnbondingDelegation
 //
 //nolint:interfacer
 func NewUnbondingDelegation(
-	delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
+	delegatorAddr, validatorAddr sdk.AccAddress,
 	creationHeight int64, minTime time.Time, balance math.Int, id uint64,
 ) UnbondingDelegation {
 	return UnbondingDelegation{
@@ -215,7 +215,7 @@ func (e RedelegationEntry) OnHold() bool {
 
 //nolint:interfacer
 func NewRedelegation(
-	delegatorAddr sdk.AccAddress, validatorSrcAddr, validatorDstAddr sdk.ValAddress,
+	delegatorAddr, validatorSrcAddr, validatorDstAddr sdk.AccAddress,
 	creationHeight int64, minTime time.Time, balance math.Int, sharesDst sdk.Dec, id uint64,
 ) Redelegation {
 	return Redelegation{
@@ -276,7 +276,7 @@ func (d Redelegations) String() (out string) {
 
 // NewDelegationResp creates a new DelegationResponse instance
 func NewDelegationResp(
-	delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress, shares sdk.Dec, balance sdk.Coin,
+	delegatorAddr, validatorAddr sdk.AccAddress, shares sdk.Dec, balance sdk.Coin,
 ) DelegationResponse {
 	return DelegationResponse{
 		Delegation: NewDelegation(delegatorAddr, validatorAddr, shares),
@@ -314,7 +314,7 @@ func (d DelegationResponses) String() (out string) {
 //
 //nolint:interfacer
 func NewRedelegationResponse(
-	delegatorAddr sdk.AccAddress, validatorSrc, validatorDst sdk.ValAddress, entries []RedelegationEntryResponse,
+	delegatorAddr, validatorSrc, validatorDst sdk.AccAddress, entries []RedelegationEntryResponse,
 ) RedelegationResponse {
 	return RedelegationResponse{
 		Redelegation: Redelegation{

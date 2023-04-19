@@ -228,7 +228,7 @@ func TestMsgDepositValidatorRewardsPool(t *testing.T) {
 			name: "invalid validator",
 			input: &types.MsgDepositValidatorRewardsPool{
 				Authority:        f.addrs[0].String(),
-				ValidatorAddress: sdk.ValAddress([]byte("addr1_______________")).String(),
+				ValidatorAddress: sdk.AccAddress([]byte("addr1_______________")).String(),
 				Amount:           sdk.NewCoins(sdk.NewCoin(f.stakingKeeper.BondDenom(f.ctx), sdk.NewInt(100))),
 			},
 			expErr:    true,
@@ -246,7 +246,7 @@ func TestMsgDepositValidatorRewardsPool(t *testing.T) {
 			} else {
 				assert.NilError(t, err)
 
-				valAddr, err := sdk.ValAddressFromHex(tc.input.ValidatorAddress)
+				valAddr, err := sdk.AccAddressFromHexUnsafe(tc.input.ValidatorAddress)
 				assert.NilError(t, err)
 
 				// check validator outstanding rewards

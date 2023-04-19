@@ -44,7 +44,7 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 	blsSecretKey1, _ := bls.RandKey()
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
 	msg1, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1,
+		sdk.AccAddress(pk1.Address()), pk1,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
@@ -53,7 +53,7 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 	blsSecretKey2, _ := bls.RandKey()
 	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
 	msg2, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk2,
+		sdk.AccAddress(pk2.Address()), pk2,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
@@ -76,7 +76,7 @@ func TestValidateGenesisBadMessage(t *testing.T) {
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
 
 	msg1 := stakingtypes.NewMsgEditValidator(
-		sdk.ValAddress(pk1.Address()), desc, nil, nil,
+		sdk.AccAddress(pk1.Address()), desc, nil, nil,
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1,
 	)
 

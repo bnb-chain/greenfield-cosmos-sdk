@@ -37,13 +37,13 @@ func TestSanitize(t *testing.T) {
 var (
 	pk1   = ed25519.GenPrivKey().PubKey()
 	pk2   = ed25519.GenPrivKey().PubKey()
-	addr1 = sdk.ValAddress(pk1.Address())
-	addr2 = sdk.ValAddress(pk2.Address())
+	addr1 = sdk.AccAddress(pk1.Address())
+	addr2 = sdk.AccAddress(pk2.Address())
 )
 
 // require duplicate accounts fails validation
 func TestValidateGenesisDuplicateAccounts(t *testing.T) {
-	acc1 := types.NewBaseAccountWithAddress(sdk.AccAddress(addr1))
+	acc1 := types.NewBaseAccountWithAddress(addr1)
 
 	genAccs := make(types.GenesisAccounts, 2)
 	genAccs[0] = acc1
@@ -56,8 +56,8 @@ func TestGenesisAccountIterator(t *testing.T) {
 	encodingConfig := moduletestutil.MakeTestEncodingConfig(auth.AppModuleBasic{})
 	cdc := encodingConfig.Codec
 
-	acc1 := types.NewBaseAccountWithAddress(sdk.AccAddress(addr1))
-	acc2 := types.NewBaseAccountWithAddress(sdk.AccAddress(addr2))
+	acc1 := types.NewBaseAccountWithAddress(addr1)
+	acc2 := types.NewBaseAccountWithAddress(addr2)
 
 	genAccounts := types.GenesisAccounts{acc1, acc2}
 

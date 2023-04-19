@@ -174,7 +174,7 @@ package simulation_test
 //
 // 	require.True(operationMsg.OK)
 // 	require.Equal(sdk.MsgTypeURL(&types.MsgCreateValidator{}), sdk.MsgTypeURL(&msg))
-// 	valaddr, err := sdk.ValAddressFromHex(msg.ValidatorAddress)
+// 	valaddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 // 	require.NoError(err)
 // 	require.Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", sdk.AccAddress(valaddr).String())
 // 	require.Equal("0x09dD840E43A8652e15E646b85C2014a34cE01e5E", msg.ValidatorAddress)
@@ -408,7 +408,7 @@ package simulation_test
 // func (s *SimTestSuite) getTestingValidator(ctx sdk.Context, commission types.Commission, n int) types.Validator {
 // 	account := s.accounts[n]
 // 	valPubKey := account.PubKey
-// 	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
+// 	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
 // 	validator := testutil.NewValidator(s.T(), valAddr, valPubKey)
 // 	validator, err := validator.SetInitialCommission(commission)
 // 	s.Require().NoError(err)
@@ -421,7 +421,7 @@ package simulation_test
 // 	return validator
 // }
 //
-// func (s *SimTestSuite) setupValidatorRewards(ctx sdk.Context, valAddress sdk.ValAddress) {
+// func (s *SimTestSuite) setupValidatorRewards(ctx sdk.Context, valAddress sdk.AccAddress) {
 // 	decCoins := sdk.DecCoins{sdk.NewDecCoinFromDec(sdk.DefaultBondDenom, math.LegacyOneDec())}
 // 	historicalRewards := distrtypes.NewValidatorHistoricalRewards(decCoins, 2)
 // 	s.distrKeeper.SetValidatorHistoricalRewards(ctx, valAddress, 2, historicalRewards)

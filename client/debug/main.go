@@ -214,7 +214,7 @@ $ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
 				addr, err2 = sdk.AccAddressFromHexUnsafe(addrString)
 				if err2 != nil {
 					var err3 error
-					addr, err3 = sdk.ValAddressFromHex(addrString)
+					addr, err3 = sdk.AccAddressFromHexUnsafe(addrString)
 
 					if err3 != nil {
 						return fmt.Errorf("expected hex or bech32. Got errors: hex: %v, bech32 acc: %v, bech32 val: %v", err, err2, err3)
@@ -224,8 +224,8 @@ $ %s debug addr cosmos1e0jnq2sun3dzjh8p2xq95kk0expwmd7shwjpfg
 
 			cmd.Println("Address:", addr)
 			cmd.Printf("Address (hex): %X\n", addr)
-			cmd.Printf("Bech32 Acc: %s\n", sdk.AccAddress(addr))
-			cmd.Printf("Bech32 Val: %s\n", sdk.ValAddress(addr))
+			cmd.Printf("Hex Acc: %s\n", sdk.AccAddress(addr))
+			cmd.Printf("Hex Val: %s\n", sdk.AccAddress(addr))
 			return nil
 		},
 	}

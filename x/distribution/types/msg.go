@@ -82,7 +82,7 @@ func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil
@@ -108,7 +108,7 @@ func (msg MsgWithdrawValidatorCommission) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgWithdrawValidatorCommission) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromHex(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil
@@ -201,7 +201,7 @@ func (msg MsgCommunityPoolSpend) ValidateBasic() error {
 
 // NewMsgDepositValidatorRewardsPool returns a new MsgDepositValidatorRewardsPool
 // with a sender and a funding amount.
-func NewMsgDepositValidatorRewardsPool(depositor sdk.AccAddress, valAddr sdk.ValAddress, amount sdk.Coins) *MsgDepositValidatorRewardsPool {
+func NewMsgDepositValidatorRewardsPool(depositor, valAddr sdk.AccAddress, amount sdk.Coins) *MsgDepositValidatorRewardsPool {
 	return &MsgDepositValidatorRewardsPool{
 		Amount:           amount,
 		Authority:        depositor.String(),

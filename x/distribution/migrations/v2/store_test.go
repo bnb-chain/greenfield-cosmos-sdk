@@ -10,7 +10,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v1"
 	v2 "github.com/cosmos/cosmos-sdk/x/distribution/migrations/v2"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -22,7 +21,7 @@ func TestStoreMigration(t *testing.T) {
 	store := ctx.KVStore(distributionKey)
 
 	_, _, addr1 := testdata.KeyTestPubAddr()
-	valAddr := sdk.ValAddress(addr1)
+	valAddr := addr1
 	_, _, addr2 := testdata.KeyTestPubAddr()
 	// Use dummy value for all keys.
 	value := []byte("foo")

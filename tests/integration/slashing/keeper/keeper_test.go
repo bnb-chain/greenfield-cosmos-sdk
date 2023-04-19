@@ -92,7 +92,7 @@ func TestUnJailNotBonded(t *testing.T) {
 	f.stakingKeeper.SetParams(ctx, p)
 
 	addrDels := simtestutil.AddTestAddrsIncremental(f.bankKeeper, f.stakingKeeper, ctx, 6, f.stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(6)
 	tstaking := stakingtestutil.NewHelper(t, ctx, f.stakingKeeper)
 
@@ -156,7 +156,7 @@ func TestHandleNewValidator(t *testing.T) {
 	ctx := f.ctx
 
 	addrDels := simtestutil.AddTestAddrsIncremental(f.bankKeeper, f.stakingKeeper, ctx, 1, f.stakingKeeper.TokensFromConsensusPower(ctx, 0))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(1)
 	addr, val := valAddrs[0], pks[0]
 	tstaking := stakingtestutil.NewHelper(t, ctx, f.stakingKeeper)
@@ -204,7 +204,7 @@ func TestHandleAlreadyJailed(t *testing.T) {
 	ctx := f.ctx
 
 	addrDels := simtestutil.AddTestAddrsIncremental(f.bankKeeper, f.stakingKeeper, ctx, 1, f.stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(1)
 	addr, val := valAddrs[0], pks[0]
 	power := int64(100)
@@ -267,7 +267,7 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	addr, val := pks[0].Address(), pks[0]
 	consAddr := sdk.ConsAddress(addr)
 	tstaking := stakingtestutil.NewHelper(t, ctx, f.stakingKeeper)
-	valAddr := sdk.ValAddress(addr)
+	valAddr := sdk.AccAddress(addr)
 
 	tstaking.CreateValidatorWithValPower(valAddr, val, power, true)
 	validatorUpdates := staking.EndBlocker(ctx, f.stakingKeeper)
@@ -282,10 +282,10 @@ func TestValidatorDippingInAndOut(t *testing.T) {
 	}
 
 	// kick first validator out of validator set
-	tstaking.CreateValidatorWithValPower(sdk.ValAddress(pks[1].Address()), pks[1], power+1, true)
+	tstaking.CreateValidatorWithValPower(sdk.AccAddress(pks[1].Address()), pks[1], power+1, true)
 	validatorUpdates = staking.EndBlocker(ctx, f.stakingKeeper)
 	assert.Equal(t, 2, len(validatorUpdates))
-	tstaking.CheckValidator(sdk.ValAddress(pks[1].Address()), stakingtypes.Bonded, false)
+	tstaking.CheckValidator(sdk.AccAddress(pks[1].Address()), stakingtypes.Bonded, false)
 	tstaking.CheckValidator(valAddr, stakingtypes.Unbonding, false)
 
 	// 600 more blocks happened

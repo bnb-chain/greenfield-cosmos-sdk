@@ -87,14 +87,14 @@ func initFixture(t assert.TestingT) *fixture {
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
 
 	f.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()),
+		sdk.AccAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()),
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	assert.NilError(t, err)
 
 	blsSecretKey2, _ := bls.RandKey()
 	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
 	f.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()),
+		sdk.AccAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()),
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk1.Address()), blsPk2)
 	assert.NilError(t, err)
 

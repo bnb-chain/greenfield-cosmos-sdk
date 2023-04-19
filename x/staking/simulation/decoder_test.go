@@ -19,7 +19,7 @@ import (
 var (
 	delPk1   = ed25519.GenPrivKey().PubKey()
 	delAddr1 = sdk.AccAddress(delPk1.Address())
-	valAddr1 = sdk.ValAddress(delPk1.Address())
+	valAddr1 = sdk.AccAddress(delPk1.Address())
 )
 
 func TestDecodeStore(t *testing.T) {
