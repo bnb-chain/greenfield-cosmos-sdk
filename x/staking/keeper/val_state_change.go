@@ -174,7 +174,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		oldPowerBytes, found := last[valAddrStr]
 		newPower := validator.ConsensusPower(powerReduction)
 		newPowerBytes := k.cdc.MustMarshal(&gogotypes.Int64Value{Value: newPower})
-		oldCrossChainBytes, _ := lastCrossChainBytes[valAddrStr]
+		oldCrossChainBytes := lastCrossChainBytes[valAddrStr]
 		newCrossChainBytes := validator.CrossChainBytes()
 
 		// update the validator set if power has changed
