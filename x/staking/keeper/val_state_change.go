@@ -120,6 +120,11 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		return nil, err
 	}
 
+	lastCrossChainBytes, err := k.getLastValidatorsCrossChainBytesByAddr(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Iterate over validators, highest power to lowest.
 	iterator := k.ValidatorsPowerStoreIterator(ctx)
 	defer iterator.Close()
@@ -169,12 +174,20 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		oldPowerBytes, found := last[valAddrStr]
 		newPower := validator.ConsensusPower(powerReduction)
 		newPowerBytes := k.cdc.MustMarshal(&gogotypes.Int64Value{Value: newPower})
+		oldCrossChainBytes := lastCrossChainBytes[valAddrStr]
+		newCrossChainBytes := validator.CrossChainBytes()
 
 		// update the validator set if power has changed
-		if !found || !bytes.Equal(oldPowerBytes, newPowerBytes) {
+		if !found || !bytes.Equal(oldPowerBytes, newPowerBytes) || !bytes.Equal(oldCrossChainBytes, newCrossChainBytes) {
 			updates = append(updates, validator.ABCIValidatorUpdate(powerReduction))
 
-			k.SetLastValidatorPower(ctx, valAddr, newPower)
+			if !bytes.Equal(oldPowerBytes, newPowerBytes) {
+				k.SetLastValidatorPower(ctx, valAddr, newPower)
+			}
+
+			if !bytes.Equal(oldCrossChainBytes, newCrossChainBytes) {
+				k.SetLastValidatorCrossChainBytes(ctx, valAddr, newCrossChainBytes)
+			}
 		}
 
 		delete(last, valAddrStr)
@@ -196,6 +209,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		}
 		amtFromBondedToNotBonded = amtFromBondedToNotBonded.Add(validator.GetTokens())
 		k.DeleteLastValidatorPower(ctx, validator.GetOperator())
+		k.DeleteLastValidatorCrossChainBytes(ctx, validator.GetOperator())
 		updates = append(updates, validator.ABCIValidatorUpdateZero())
 	}
 
@@ -396,4 +410,28 @@ func sortNoLongerBonded(last validatorsByAddr) ([][]byte, error) {
 	})
 
 	return noLongerBonded, nil
+}
+
+// map of operator bech32-addresses to cross-chain bytes
+// We use bech32 strings here, because we can't have slices as keys: map[[]byte][]byte
+type crossChainBytesByAddr map[string][]byte
+
+// get the last validator set
+func (k Keeper) getLastValidatorsCrossChainBytesByAddr(ctx sdk.Context) (crossChainBytesByAddr, error) {
+	last := make(crossChainBytesByAddr)
+
+	iterator := k.LastValidatorsCrossChainBytesIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		// extract the validator address from the key (prefix is 1-byte, addrLen is 1-byte)
+		valAddr := types.AddressFromLastValidatorPowerKey(iterator.Key())
+		valAddrStr := sdk.AccAddress(valAddr).String()
+
+		crossChainBytes := iterator.Value()
+		last[valAddrStr] = make([]byte, len(crossChainBytes))
+		copy(last[valAddrStr], crossChainBytes)
+	}
+
+	return last, nil
 }
