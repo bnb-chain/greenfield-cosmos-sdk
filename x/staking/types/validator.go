@@ -284,26 +284,14 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 
 	var relayer []byte
 	if len(v.RelayerAddress) > 0 {
-		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	var challenger []byte
-	if len(v.ChallengerAddress) > 0 {
-		challenger, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
-		if err != nil {
-			panic(err)
-		}
+		relayer = sdk.MustAccAddressFromHex(v.RelayerAddress)
 	}
 
 	return abci.ValidatorUpdate{
-		PubKey:            tmProtoPk,
-		Power:             v.ConsensusPower(r),
-		RelayerAddress:    relayer,
-		ChallengerAddress: challenger,
-		BlsKey:            v.BlsKey,
+		PubKey:         tmProtoPk,
+		Power:          v.ConsensusPower(r),
+		RelayerAddress: relayer,
+		BlsKey:         v.BlsKey,
 	}
 }
 
@@ -317,26 +305,14 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 
 	var relayer []byte
 	if len(v.RelayerAddress) > 0 {
-		relayer, err = sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	var challenger []byte
-	if len(v.ChallengerAddress) > 0 {
-		challenger, err = sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
-		if err != nil {
-			panic(err)
-		}
+		relayer = sdk.MustAccAddressFromHex(v.RelayerAddress)
 	}
 
 	return abci.ValidatorUpdate{
-		PubKey:            tmProtoPk,
-		Power:             0,
-		RelayerAddress:    relayer,
-		ChallengerAddress: challenger,
-		BlsKey:            v.BlsKey,
+		PubKey:         tmProtoPk,
+		Power:          0,
+		RelayerAddress: relayer,
+		BlsKey:         v.BlsKey,
 	}
 }
 
@@ -412,6 +388,19 @@ func (v Validator) ConsensusPower(r math.Int) int64 {
 	}
 
 	return 0
+}
+
+// CrossChainBytes gets the cross-chain related fields, including the relayer address and bls key.
+// The format of the cross-chain bytes is:
+// |-- Relayer Address--|-- BLS Key --|
+func (v Validator) CrossChainBytes() []byte {
+	var crossChainBytes []byte
+	if len(v.RelayerAddress) > 0 {
+		crossChainBytes = sdk.MustAccAddressFromHex(v.RelayerAddress)
+	}
+
+	crossChainBytes = append(crossChainBytes, v.BlsKey...)
+	return crossChainBytes
 }
 
 // PotentialConsensusPower returns the potential consensus-engine power.
