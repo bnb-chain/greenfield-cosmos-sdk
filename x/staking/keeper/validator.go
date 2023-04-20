@@ -364,10 +364,30 @@ func (k Keeper) DeleteLastValidatorPower(ctx sdk.Context, operator sdk.AccAddres
 	store.Delete(types.GetLastValidatorPowerKey(operator))
 }
 
+// Set the last validator cross-chain bytes.
+func (k Keeper) SetLastValidatorCrossChainBytes(ctx sdk.Context, operator sdk.AccAddress, crossChainBytes []byte) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetLastValidatorCrossChainKey(operator), crossChainBytes)
+}
+
+// Delete the last validator cross-chain bytes.
+func (k Keeper) DeleteLastValidatorCrossChainBytes(ctx sdk.Context, operator sdk.AccAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetLastValidatorCrossChainKey(operator))
+}
+
 // returns an iterator for the consensus validators in the last block
 func (k Keeper) LastValidatorsIterator(ctx sdk.Context) (iterator sdk.Iterator) {
 	store := ctx.KVStore(k.storeKey)
 	iterator = sdk.KVStorePrefixIterator(store, types.LastValidatorPowerKey)
+
+	return iterator
+}
+
+// returns an iterator for the consensus validators in the last block by cross-chain key
+func (k Keeper) LastValidatorsCrossChainBytesIterator(ctx sdk.Context) (iterator sdk.Iterator) {
+	store := ctx.KVStore(k.storeKey)
+	iterator = sdk.KVStorePrefixIterator(store, types.LastValidatorCrossChainKey)
 
 	return iterator
 }
