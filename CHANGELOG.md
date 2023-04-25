@@ -1,4 +1,9 @@
 # Changelog
+## v0.1.1
+This is a maintenance release.
+
+* [\#187](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/187) fix: fix validator update logic
+
 ## v0.1.0
 This is a maintenance release.
 
