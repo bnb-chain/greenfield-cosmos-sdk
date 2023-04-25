@@ -28,8 +28,9 @@ const (
 var (
 	// Keys for store prefixes
 	// Last* values are constant during a block.
-	LastValidatorPowerKey = []byte{0x11} // prefix for each key to a validator index, for bonded validators
-	LastTotalPowerKey     = []byte{0x12} // prefix for the total power
+	LastValidatorPowerKey      = []byte{0x11} // prefix for each key to a validator index, for bonded validators
+	LastTotalPowerKey          = []byte{0x12} // prefix for the total power
+	LastValidatorCrossChainKey = []byte{0x13} // prefix for each key to a validator index, for bonded validators
 
 	ValidatorsKey                 = []byte{0x21} // prefix for each key to a validator
 	ValidatorsByConsAddrKey       = []byte{0x22} // prefix for each key to a validator index, by pubkey
@@ -165,6 +166,11 @@ func GetValidatorsByPowerIndexKey(validator Validator, powerReduction math.Int) 
 // GetLastValidatorPowerKey creates the bonded validator index key for an operator address
 func GetLastValidatorPowerKey(operator sdk.AccAddress) []byte {
 	return append(LastValidatorPowerKey, address.MustLengthPrefix(operator)...)
+}
+
+// GetLastValidatorCrossChainKey creates the bonded validator index key for an operator address
+func GetLastValidatorCrossChainKey(operator sdk.AccAddress) []byte {
+	return append(LastValidatorCrossChainKey, address.MustLengthPrefix(operator)...)
 }
 
 // ParseValidatorPowerRankKey parses the validators operator address from power rank key
