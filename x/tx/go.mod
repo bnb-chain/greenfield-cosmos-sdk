@@ -35,5 +35,5 @@ require (
 replace (
 	cosmossdk.io/api => ../../api
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230407055437-d971cdfb9041
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230426135532-2f353c60f767
 )

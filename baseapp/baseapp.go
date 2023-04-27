@@ -57,6 +57,7 @@ type BaseApp struct { // nolint: maligned
 	qms               storetypes.MultiStore       // Optional alternative multistore for querying only.
 	storeLoader       StoreLoader                 // function to handle store loading, may be overridden with SetStoreLoader()
 	grpcQueryRouter   *GRPCQueryRouter            // router for redirecting gRPC query calls
+	ethQueryRouter    *EthQueryRouter             // router for redirecting eth query calls
 	msgServiceRouter  *MsgServiceRouter           // router for redirecting Msg service messages
 	interfaceRegistry codectypes.InterfaceRegistry
 	txDecoder         sdk.TxDecoder // unmarshal []byte into sdk.Tx
@@ -165,6 +166,7 @@ func NewBaseApp(
 		cms:              store.NewCommitMultiStore(db, logger, storemetrics.NewNoOpMetrics()), // by default we use a no-op metric gather in store
 		storeLoader:      DefaultStoreLoader,
 		grpcQueryRouter:  NewGRPCQueryRouter(),
+		ethQueryRouter:   NewEthQueryRouter(),
 		msgServiceRouter: NewMsgServiceRouter(),
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
@@ -233,6 +235,14 @@ func (app *BaseApp) MsgServiceRouter() *MsgServiceRouter { return app.msgService
 // SetMsgServiceRouter sets the MsgServiceRouter of a BaseApp.
 func (app *BaseApp) SetMsgServiceRouter(msgServiceRouter *MsgServiceRouter) {
 	app.msgServiceRouter = msgServiceRouter
+}
+
+// EthQueryRouter returns the EthQueryRouter of a BaseApp.
+func (app *BaseApp) EthQueryRouter() *EthQueryRouter { return app.ethQueryRouter }
+
+// SetEthQueryRouter sets the EthQueryRouter of a BaseApp.
+func (app *BaseApp) SetEthQueryRouter(ethQueryRouter *EthQueryRouter) {
+	app.ethQueryRouter = ethQueryRouter
 }
 
 // MountStores mounts all IAVL or DB stores to the provided keys in the BaseApp
