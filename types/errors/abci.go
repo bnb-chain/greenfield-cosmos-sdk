@@ -43,3 +43,14 @@ func QueryResult(err error, debug bool) abci.ResponseQuery {
 		Log:       log,
 	}
 }
+
+// EthQueryResult returns a ResponseEthQuery from an error. It will try to parse ABCI
+// info from the error.
+func EthQueryResult(err error, debug bool) abci.ResponseEthQuery {
+	space, code, log := errorsmod.ABCIInfo(err, debug)
+	return abci.ResponseEthQuery{
+		Codespace: space,
+		Code:      code,
+		Log:       log,
+	}
+}

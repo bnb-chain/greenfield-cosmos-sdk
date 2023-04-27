@@ -2,6 +2,7 @@ package baseapp
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -21,6 +22,7 @@ import (
 	snapshottypes "cosmossdk.io/store/snapshots/types"
 	storetypes "cosmossdk.io/store/types"
 
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,6 +35,16 @@ const (
 	QueryPathCustom = "custom"
 	QueryPathP2P    = "p2p"
 	QueryPathStore  = "store"
+)
+
+// Supported EVM json-rpc requests
+const (
+	EthBlockNumber      = "eth_blockNumber"
+	EthGetBlockByNumber = "eth_getBlockByNumber"
+	EthGetBalance       = "eth_getBalance"
+	EthChainID          = "eth_chainId"
+	NetVersion          = "net_version"
+	EthNetworkID        = "eth_networkId"
 )
 
 // InitChain implements the ABCI interface. It runs the initialization logic
@@ -591,6 +603,25 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	return sdkerrors.QueryResult(errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "unknown query path"), app.trace)
 }
 
+func (app *BaseApp) EthQuery(req abci.RequestEthQuery) (res abci.ResponseEthQuery) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = sdkerrors.EthQueryResult(errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r), app.trace)
+		}
+	}()
+
+	var rpcReq cmtrpctypes.RPCRequest
+	if err := json.Unmarshal(req.Request, &rpcReq); err != nil {
+		return sdkerrors.EthQueryResult(errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "failed to unmarshal rpc request: %v", err), app.trace)
+	}
+
+	if ethHandler := app.ethQueryRouter.Route(rpcReq.Method); ethHandler != nil {
+		return app.handleEthQuery(ethHandler, rpcReq)
+	}
+
+	return res
+}
+
 // ListSnapshots implements the ABCI interface. It delegates to app.snapshotManager if set.
 func (app *BaseApp) ListSnapshots(req abci.RequestListSnapshots) abci.ResponseListSnapshots {
 	resp := abci.ResponseListSnapshots{Snapshots: []*abci.Snapshot{}}
@@ -725,6 +756,41 @@ func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQu
 	if err != nil {
 		res = sdkerrors.QueryResult(gRPCErrorToSDKError(err), app.trace)
 		res.Height = req.Height
+		return res
+	}
+
+	return res
+}
+
+func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCRequest) abci.ResponseEthQuery {
+	// use custom query multistore if provided
+	qms := app.qms
+	if qms == nil {
+		qms = app.cms.(storetypes.MultiStore)
+	}
+
+	height := qms.LatestVersion()
+	if height == 0 {
+		err := errorsmod.Wrapf(sdkerrors.ErrInvalidHeight, "%s is not ready; please wait for first block", app.Name())
+		return sdkerrors.EthQueryResult(err, app.trace)
+	}
+
+	cacheMS, err := qms.CacheMultiStoreWithVersion(height)
+	if err != nil {
+		err := errorsmod.Wrapf(
+			sdkerrors.ErrInvalidRequest,
+			"failed to load state at height %d; %s", height, err,
+		)
+		return sdkerrors.EthQueryResult(err, app.trace)
+	}
+
+	// branch the commit-multistore for safety
+	ctx := sdk.NewContext(cacheMS, app.checkState.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
+		WithBlockHeight(height)
+
+	res, err := handler(ctx, req)
+	if err != nil {
+		res = sdkerrors.EthQueryResult(gRPCErrorToSDKError(err), app.trace)
 		return res
 	}
 
