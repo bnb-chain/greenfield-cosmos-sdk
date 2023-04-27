@@ -1,6 +1,7 @@
 package errors
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 )
 
@@ -37,6 +38,17 @@ func ResponseDeliverTxWithEvents(err error, gw, gu uint64, events []abci.Event, 
 func QueryResult(err error, debug bool) abci.ResponseQuery {
 	space, code, log := ABCIInfo(err, debug)
 	return abci.ResponseQuery{
+		Codespace: space,
+		Code:      code,
+		Log:       log,
+	}
+}
+
+// EthQueryResult returns a ResponseEthQuery from an error. It will try to parse ABCI
+// info from the error.
+func EthQueryResult(err error, debug bool) abci.ResponseEthQuery {
+	space, code, log := errorsmod.ABCIInfo(err, debug)
+	return abci.ResponseEthQuery{
 		Codespace: space,
 		Code:      code,
 		Log:       log,
