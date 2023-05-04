@@ -7,6 +7,11 @@ import (
 	"github.com/rs/zerolog"
 )
 
+func init() {
+	// Set the default time format to RFC3339Nano.
+	zerolog.TimeFieldFormat = time.RFC3339Nano
+}
+
 // Defines commons keys for logging.
 const ModuleKey = "module"
 
@@ -56,7 +61,7 @@ func NewNopLogger() Logger {
 // Stderr is the typical destination for logs,
 // so that any output from your application can still be piped to other processes.
 func NewLogger(dst io.Writer) Logger {
-	output := zerolog.ConsoleWriter{Out: dst, TimeFormat: time.Kitchen}
+	output := zerolog.ConsoleWriter{Out: dst, TimeFormat: "2006-01-02T15:04:05.000"}
 	logger := zerolog.New(output).With().Timestamp().Logger()
 	return zeroLogWrapper{&logger}
 }
