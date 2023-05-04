@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -80,7 +81,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	}
 
 	for i, w := range weightedOps {
-		operationMsg, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, "")
+		operationMsg, _, err := w.Op()(r, suite.app.BaseApp, suite.ctx, accs, sdktestutil.DefaultChainId)
 		suite.Require().NoError(err)
 
 		// the following checks are very much dependent from the ordering of the output given
@@ -118,6 +119,7 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 	// begin new block
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: tmproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
 			Height:  suite.app.LastBlockHeight() + 1,
 			AppHash: suite.app.LastCommitID().Hash,
 		},
@@ -126,7 +128,7 @@ func (suite *SimTestSuite) TestSimulateMsgSend() {
 	// execute operation
 	registry := suite.interfaceRegistry
 	op := simulation.SimulateMsgSend(codec.NewProtoCodec(registry), suite.accountKeeper, suite.bankKeeper, suite.nftKeeper)
-	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, suite.app.BaseApp, ctx, accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg nft.MsgSend

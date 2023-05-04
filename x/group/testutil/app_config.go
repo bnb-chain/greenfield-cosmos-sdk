@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
-	_ "github.com/cosmos/cosmos-sdk/x/authz"
 	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -19,7 +18,6 @@ import (
 
 	"cosmossdk.io/core/appconfig"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -39,6 +37,7 @@ import (
 	paramsmodulev1 "cosmossdk.io/api/cosmos/params/module/v1"
 	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 var AppConfig = appconfig.Compose(&appv1alpha1.Config{
@@ -49,7 +48,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				AppName: "GroupApp",
 				BeginBlockers: []string{
 					minttypes.ModuleName,
-					authztypes.ModuleName,
+					authz.ModuleName,
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
 					banktypes.ModuleName,
@@ -61,7 +60,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				EndBlockers: []string{
 					stakingtypes.ModuleName,
 					authtypes.ModuleName,
-					authztypes.ModuleName,
+					authz.ModuleName,
 					banktypes.ModuleName,
 					minttypes.ModuleName,
 					genutiltypes.ModuleName,
@@ -71,7 +70,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 				},
 				InitGenesis: []string{
 					authtypes.ModuleName,
-					authztypes.ModuleName,
+					authz.ModuleName,
 					banktypes.ModuleName,
 					stakingtypes.ModuleName,
 					minttypes.ModuleName,
@@ -126,7 +125,7 @@ var AppConfig = appconfig.Compose(&appv1alpha1.Config{
 			}),
 		},
 		{
-			Name:   authztypes.ModuleName,
+			Name:   authz.ModuleName,
 			Config: appconfig.WrapAny(&authzmodulev1.Module{}),
 		},
 	},

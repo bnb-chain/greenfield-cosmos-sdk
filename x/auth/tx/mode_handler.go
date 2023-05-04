@@ -12,6 +12,9 @@ var DefaultSignModes = []signingtypes.SignMode{
 	signingtypes.SignMode_SIGN_MODE_DIRECT,
 	signingtypes.SignMode_SIGN_MODE_DIRECT_AUX,
 	signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
+
+	// For greenfield, we only enable EIP-712 by default.
+	signingtypes.SignMode_SIGN_MODE_EIP_712,
 }
 
 // makeSignModeHandler returns the default protobuf SignModeHandler supporting
@@ -31,6 +34,8 @@ func makeSignModeHandler(modes []signingtypes.SignMode) signing.SignModeHandler 
 			handlers[i] = signModeLegacyAminoJSONHandler{}
 		case signingtypes.SignMode_SIGN_MODE_DIRECT_AUX:
 			handlers[i] = signModeDirectAuxHandler{}
+		case signingtypes.SignMode_SIGN_MODE_EIP_712:
+			handlers[i] = signModeEip712Handler{}
 		default:
 			panic(fmt.Errorf("unsupported sign mode %+v", mode))
 		}

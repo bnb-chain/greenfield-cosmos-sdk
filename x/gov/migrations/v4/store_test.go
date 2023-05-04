@@ -75,13 +75,13 @@ func TestMigrateStore(t *testing.T) {
 	// Create 2 proposals
 	prop1Content, err := v1.NewLegacyContent(v1beta1.NewTextProposal("Test", "description"), authtypes.NewModuleAddress("gov").String())
 	require.NoError(t, err)
-	proposal1, err := v1.NewProposal([]sdk.Msg{prop1Content}, 1, propTime, propTime, "some metadata for the legacy content", "Test", "description", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	proposal1, err := v1.NewProposal([]sdk.Msg{prop1Content}, 1, propTime, propTime, "some metadata for the legacy content", "Test", "description", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
 	prop1Bz, err := cdc.Marshal(&proposal1)
 	require.NoError(t, err)
 	store.Set(v1gov.ProposalKey(proposal1.Id), prop1Bz)
 
-	proposal2, err := v1.NewProposal(getTestProposal(), 2, propTime, propTime, "some metadata for the legacy content", "Test", "description", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	proposal2, err := v1.NewProposal(getTestProposal(), 2, propTime, propTime, "some metadata for the legacy content", "Test", "description", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	proposal2.Status = v1.StatusVotingPeriod
 	require.NoError(t, err)
 	prop2Bz, err := cdc.Marshal(&proposal2)

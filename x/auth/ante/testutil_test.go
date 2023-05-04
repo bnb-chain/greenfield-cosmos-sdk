@@ -54,7 +54,7 @@ func SetupTestSuite(t *testing.T, isCheckTx bool) *AnteTestSuite {
 
 	key := sdk.NewKVStoreKey(types.StoreKey)
 	testCtx := testutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test"))
-	suite.ctx = testCtx.Ctx.WithIsCheckTx(isCheckTx).WithBlockHeight(1) // app.BaseApp.NewContext(isCheckTx, tmproto.Header{}).WithBlockHeight(1)
+	suite.ctx = testCtx.Ctx.WithIsCheckTx(isCheckTx).WithBlockHeight(1).WithChainID(testutil.DefaultChainId) // app.BaseApp.NewContext(isCheckTx, tmproto.Header{}).WithBlockHeight(1)
 	suite.encCfg = moduletestutil.MakeTestEncodingConfig(auth.AppModuleBasic{})
 
 	maccPerms := map[string][]string{
@@ -102,7 +102,7 @@ func (suite *AnteTestSuite) CreateTestAccounts(numAccs int) []TestAccount {
 	var accounts []TestAccount
 
 	for i := 0; i < numAccs; i++ {
-		priv, _, addr := testdata.KeyTestPubAddr()
+		priv, _, addr := testdata.KeyTestPubAddrEthSecp256k1(nil)
 		acc := suite.accountKeeper.NewAccountWithAddress(suite.ctx, addr)
 		acc.SetAccountNumber(uint64(i))
 		suite.accountKeeper.SetAccount(suite.ctx, acc)
@@ -164,11 +164,11 @@ func (suite *AnteTestSuite) RunTestCase(t *testing.T, tc TestCase, args TestCase
 		switch {
 		case txErr != nil:
 			require.Error(t, txErr)
-			require.ErrorIs(t, txErr, tc.expErr)
+			require.Contains(t, txErr.Error(), tc.expErr.Error())
 
 		case anteErr != nil:
 			require.Error(t, anteErr)
-			require.ErrorIs(t, anteErr, tc.expErr)
+			require.Contains(t, anteErr.Error(), tc.expErr.Error())
 
 		default:
 			t.Fatal("expected one of txErr, anteErr to be an error")

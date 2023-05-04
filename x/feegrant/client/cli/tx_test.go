@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/testutil"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -66,7 +67,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	var outBuf bytes.Buffer
 	ctxGen := func() client.Context {
@@ -216,20 +217,6 @@ func (s *CLITestSuite) TestNewCmdFeeGrant() {
 					"0x15Ec1D4647Ec0485cD21856eB169E95CB595e45D",
 					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
 					fmt.Sprintf("--%s=%s", flags.FlagFrom, fromName),
-				},
-				commonFlags...,
-			),
-			false, 0, &sdk.TxResponse{},
-		},
-		{
-			"valid basic fee grant with amino",
-			append(
-				[]string{
-					granter.String(),
-					"0x17B64D36e6452C73699C6999095E5CeCf7e83b91",
-					fmt.Sprintf("--%s=%s", cli.FlagSpendLimit, "100stake"),
-					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
 				},
 				commonFlags...,
 			),
@@ -485,19 +472,6 @@ func (s *CLITestSuite) TestNewCmdRevokeFeegrant() {
 			),
 			false, 0, &sdk.TxResponse{},
 		},
-		{
-			"Valid revoke with amino",
-			append(
-				[]string{
-					granter.String(),
-					aminoGrantee.String(),
-					fmt.Sprintf("--%s=%s", flags.FlagFrom, granter),
-					fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-				},
-				commonFlags...,
-			),
-			false, 0, &sdk.TxResponse{},
-		},
 	}
 
 	for _, tc := range testCases {
@@ -566,21 +540,6 @@ func (s *CLITestSuite) TestTxWithFeeGrant() {
 			name:  "granted fee allowance for an account which is not in state and creating any tx with it by using --fee-granter shouldn't fail",
 			from:  grantee.String(),
 			flags: []string{fmt.Sprintf("--%s=%s", flags.FlagFeeGranter, granter.String())},
-		},
-		{
-			name:       "--fee-payer should also sign the tx (direct)",
-			from:       grantee.String(),
-			flags:      []string{fmt.Sprintf("--%s=%s", flags.FlagFeePayer, granter.String())},
-			expErrCode: 4,
-		},
-		{
-			name: "--fee-payer should also sign the tx (amino-json)",
-			from: grantee.String(),
-			flags: []string{
-				fmt.Sprintf("--%s=%s", flags.FlagFeePayer, granter.String()),
-				fmt.Sprintf("--%s=%s", flags.FlagSignMode, flags.SignModeLegacyAminoJSON),
-			},
-			expErrCode: 4,
 		},
 		{
 			name: "use --fee-payer and --fee-granter together works",

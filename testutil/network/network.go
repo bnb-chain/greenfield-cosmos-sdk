@@ -17,7 +17,6 @@ import (
 	"time"
 
 	dbm "github.com/cometbft/cometbft-db"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
 	tmclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
@@ -125,7 +124,7 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 		AppConstructor:    fixture.AppConstructor,
 		GenesisState:      fixture.GenesisState,
 		TimeoutCommit:     2 * time.Second,
-		ChainID:           "chain-" + tmrand.Str(6),
+		ChainID:           testutil.DefaultChainId,
 		NumValidators:     4,
 		BondDenom:         sdk.DefaultBondDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),

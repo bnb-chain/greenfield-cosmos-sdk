@@ -359,7 +359,7 @@ func (s *E2ETestSuite) TestGRPCQueryDelegatorDelegations() {
 	baseURL := val.APIAddress
 
 	// Create new account in the keyring for address without delegations.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("test", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("test", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 	newAddr, err := k.GetAddress()
 	s.Require().NoError(err)

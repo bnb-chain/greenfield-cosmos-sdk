@@ -20,7 +20,7 @@ func TestTallyNoOneVotes(t *testing.T) {
 	createValidators(t, ctx, app, []int64{5, 5, 5})
 
 	tp := TestProposal
-	proposal, err := app.GovKeeper.SubmitProposal(ctx, tp, "", "test", "description", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	proposal, err := app.GovKeeper.SubmitProposal(ctx, tp, "", "test", "description", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
 	proposalID := proposal.Id
 	proposal.Status = v1.StatusVotingPeriod

@@ -28,6 +28,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -100,9 +101,9 @@ func TestExportCmd_Height(t *testing.T) {
 			tempDir := t.TempDir()
 			app, ctx, _, cmd := setupApp(t, tempDir)
 
-			// Fast forward to block `tc.fastForward`.
+			// Fast-forward to block `tc.fastForward`.
 			for i := int64(2); i <= tc.fastForward; i++ {
-				app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: i}})
+				app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{ChainID: testutil.DefaultChainId, Height: i}})
 				app.Commit()
 			}
 
@@ -166,7 +167,7 @@ func TestExportCmd_Output(t *testing.T) {
 
 func setupApp(t *testing.T, tempDir string) (*simapp.SimApp, context.Context, *tmtypes.GenesisDoc, *cobra.Command) {
 	t.Helper()
-	chainID := "theChainId"
+	chainID := testutil.DefaultChainId
 
 	if err := createConfigFolder(tempDir); err != nil {
 		t.Fatalf("error creating config folder: %s", err)
@@ -185,13 +186,14 @@ func setupApp(t *testing.T, tempDir string) (*simapp.SimApp, context.Context, *t
 
 	clientCtx := client.Context{}.WithCodec(app.AppCodec())
 	genDoc := &tmtypes.GenesisDoc{}
-	genDoc.ChainID = "theChainId"
+	genDoc.ChainID = testutil.DefaultChainId
 	genDoc.Validators = nil
 	genDoc.AppState = stateBytes
 
 	require.NoError(t, saveGenesisFile(genDoc, serverCtx.Config.GenesisFile()))
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   genDoc.AppState,

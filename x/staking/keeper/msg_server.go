@@ -14,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -48,7 +47,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	// For genesis block, the signer should be the self delegator itself,
 	// for other blocks, the signer should be the gov module account.
-	govModuleAddr := k.authKeeper.GetModuleAddress(gov.ModuleName)
+	govModuleAddr := k.authKeeper.GetModuleAddress(govtypes.ModuleName)
 	if ctx.BlockHeight() == 0 {
 		signers := msg.GetSigners()
 		if len(signers) != 1 || !signers[0].Equals(delAddr) {

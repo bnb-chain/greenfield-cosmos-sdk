@@ -1,8 +1,6 @@
 package ante
 
 import (
-	"fmt"
-
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -116,9 +114,9 @@ func (cmfg ConsumeMsgGasDecorator) getMsgGas(ctx sdk.Context, tx sdk.Tx) (uint64
 	totalGas := uint64(0)
 	for _, msg := range msgs {
 		mgp := cmfg.ghk.GetMsgGasParams(ctx, sdk.MsgTypeURL(msg))
-		feeCalcGen := types.GetGasCalculatorGen(sdk.MsgTypeURL(msg))
-		if feeCalcGen == nil {
-			return 0, fmt.Errorf("failed to find fee calculator")
+		feeCalcGen, err := types.GetGasCalculatorGen(mgp)
+		if err != nil {
+			return 0, errors.Wrapf(err, "unrecognized msg type: %s", sdk.MsgTypeURL(msg))
 		}
 		feeCalc := feeCalcGen(mgp)
 

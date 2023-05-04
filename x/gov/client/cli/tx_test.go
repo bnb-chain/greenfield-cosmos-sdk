@@ -51,7 +51,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(testutil.DefaultChainId)
 
 	var outBuf bytes.Buffer
 	ctxGen := func() client.Context {

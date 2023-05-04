@@ -75,7 +75,7 @@ func newBarCoin(amt int64) sdk.Coin {
 	return sdk.NewInt64Coin(barDenom, amt)
 }
 
-// nolint: interfacer
+//nolint: interfacer
 func getCoinsByName(ctx sdk.Context, bk keeper.Keeper, ak types.AccountKeeper, moduleName string) sdk.Coins {
 	moduleAddress := ak.GetModuleAddress(moduleName)
 	macc := ak.GetAccount(ctx, moduleAddress)
@@ -223,15 +223,15 @@ func (suite *IntegrationTestSuite) TestSupply_SendCoins() {
 	authKeeper.SetAccount(ctx, baseAcc)
 
 	suite.Require().Panics(func() {
-		_ = keeper.SendCoinsFromModuleToModule(ctx, "", holderAcc.GetName(), initCoins) // nolint:errcheck
+		_ = keeper.SendCoinsFromModuleToModule(ctx, "", holderAcc.GetName(), initCoins) //nolint:errcheck
 	})
 
 	suite.Require().Panics(func() {
-		_ = keeper.SendCoinsFromModuleToModule(ctx, authtypes.Burner, "", initCoins) // nolint:errcheck
+		_ = keeper.SendCoinsFromModuleToModule(ctx, authtypes.Burner, "", initCoins) //nolint:errcheck
 	})
 
 	suite.Require().Panics(func() {
-		_ = keeper.SendCoinsFromModuleToAccount(ctx, "", baseAcc.GetAddress(), initCoins) // nolint:errcheck
+		_ = keeper.SendCoinsFromModuleToAccount(ctx, "", baseAcc.GetAddress(), initCoins) //nolint:errcheck
 	})
 
 	suite.Require().Error(
@@ -269,13 +269,13 @@ func (suite *IntegrationTestSuite) TestSupply_MintCoins() {
 	initialSupply, _, err := keeper.GetPaginatedTotalSupply(ctx, &query.PageRequest{})
 	suite.Require().NoError(err)
 
-	suite.Require().Panics(func() { keeper.MintCoins(ctx, "", initCoins) }, "no module account")                // nolint:errcheck
-	suite.Require().Panics(func() { keeper.MintCoins(ctx, authtypes.Burner, initCoins) }, "invalid permission") // nolint:errcheck
+	suite.Require().Panics(func() { keeper.MintCoins(ctx, "", initCoins) }, "no module account")                //nolint:errcheck
+	suite.Require().Panics(func() { keeper.MintCoins(ctx, authtypes.Burner, initCoins) }, "invalid permission") //nolint:errcheck
 
 	err = keeper.MintCoins(ctx, authtypes.Minter, sdk.Coins{sdk.Coin{Denom: "denom", Amount: sdk.NewInt(-10)}})
 	suite.Require().Error(err, "insufficient coins")
 
-	suite.Require().Panics(func() { keeper.MintCoins(ctx, randomPerm, initCoins) }) // nolint:errcheck
+	suite.Require().Panics(func() { keeper.MintCoins(ctx, randomPerm, initCoins) }) //nolint:errcheck
 
 	err = keeper.MintCoins(ctx, authtypes.Minter, initCoins)
 	suite.Require().NoError(err)
@@ -297,7 +297,7 @@ func (suite *IntegrationTestSuite) TestSupply_MintCoins() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(initCoins, getCoinsByName(ctx, keeper, authKeeper, multiPermAcc.GetName()))
 	suite.Require().Equal(initialSupply.Add(initCoins...), totalSupply)
-	suite.Require().Panics(func() { keeper.MintCoins(ctx, authtypes.Burner, initCoins) }) // nolint:errcheck
+	suite.Require().Panics(func() { keeper.MintCoins(ctx, authtypes.Burner, initCoins) }) //nolint:errcheck
 }
 
 func (suite *IntegrationTestSuite) TestSupply_BurnCoins() {
@@ -320,9 +320,9 @@ func (suite *IntegrationTestSuite) TestSupply_BurnCoins() {
 		NoError(keeper.MintCoins(ctx, authtypes.Minter, initCoins))
 	supplyAfterInflation, _, err := keeper.GetPaginatedTotalSupply(ctx, &query.PageRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Panics(func() { keeper.BurnCoins(ctx, "", initCoins) }, "no module account")                    // nolint:errcheck
-	suite.Require().Panics(func() { keeper.BurnCoins(ctx, authtypes.Minter, initCoins) }, "invalid permission")     // nolint:errcheck
-	suite.Require().Panics(func() { keeper.BurnCoins(ctx, randomPerm, supplyAfterInflation) }, "random permission") // nolint:errcheck
+	suite.Require().Panics(func() { keeper.BurnCoins(ctx, "", initCoins) }, "no module account")                    //nolint:errcheck
+	suite.Require().Panics(func() { keeper.BurnCoins(ctx, authtypes.Minter, initCoins) }, "invalid permission")     //nolint:errcheck
+	suite.Require().Panics(func() { keeper.BurnCoins(ctx, randomPerm, supplyAfterInflation) }, "random permission") //nolint:errcheck
 	err = keeper.BurnCoins(ctx, authtypes.Burner, supplyAfterInflation)
 	suite.Require().Error(err, "insufficient coins")
 

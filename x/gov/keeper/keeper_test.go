@@ -76,17 +76,17 @@ func TestIncrementProposalNumber(t *testing.T) {
 	govKeeper, _, _, _, _, _, ctx := setupGovKeeper(t)
 
 	tp := TestProposal
-	_, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	_, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
-	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
-	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
-	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
-	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	_, err = govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
-	proposal6, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	proposal6, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
 
 	require.Equal(t, uint64(6), proposal6.Id)
@@ -97,7 +97,7 @@ func TestProposalQueues(t *testing.T) {
 
 	// create test proposals
 	tp := TestProposal
-	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
+	proposal, err := govKeeper.SubmitProposal(ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	require.NoError(t, err)
 
 	inactiveIterator := govKeeper.InactiveProposalQueueIterator(ctx, *proposal.DepositEndTime)

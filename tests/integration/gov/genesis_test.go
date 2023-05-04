@@ -10,6 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -70,13 +71,13 @@ func TestImportExportQueues(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	ctx := s1.app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx := s1.app.BaseApp.NewContext(false, tmproto.Header{ChainID: testutil.DefaultChainId})
 	addrs := simtestutil.AddTestAddrs(s1.BankKeeper, s1.StakingKeeper, ctx, 1, valTokens)
 
-	header := tmproto.Header{Height: s1.app.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: testutil.DefaultChainId, Height: s1.app.LastBlockHeight() + 1}
 	s1.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	ctx = s1.app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx = s1.app.BaseApp.NewContext(false, tmproto.Header{ChainID: testutil.DefaultChainId})
 	// Create two proposals, put the second into the voting period
 	proposal1, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0])
 	require.NoError(t, err)
@@ -125,6 +126,7 @@ func TestImportExportQueues(t *testing.T) {
 
 	s2.app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         testutil.DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -132,9 +134,9 @@ func TestImportExportQueues(t *testing.T) {
 	)
 
 	s2.app.Commit()
-	s2.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: s2.app.LastBlockHeight() + 1}})
+	s2.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{ChainID: testutil.DefaultChainId, Height: s2.app.LastBlockHeight() + 1}})
 
-	header = tmproto.Header{Height: s2.app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: testutil.DefaultChainId, Height: s2.app.LastBlockHeight() + 1}
 	s2.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	ctx2 := s2.app.BaseApp.NewContext(false, tmproto.Header{})

@@ -64,7 +64,7 @@ func (s *E2ETestSuite) SetupSuite() {
 	val := s.network.Validators[0]
 
 	// create a new account
-	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	info, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pk, err := info.GetPubKey()
@@ -2538,7 +2538,7 @@ func (s *E2ETestSuite) createAccounts(quantity int) []string {
 		memberNumber := uuid.New().String()
 
 		info, _, err := clientCtx.Keyring.NewMnemonic(fmt.Sprintf("member%s", memberNumber), keyring.English, sdk.FullFundraiserPath,
-			keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+			keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 		s.Require().NoError(err)
 
 		pk, err := info.GetPubKey()

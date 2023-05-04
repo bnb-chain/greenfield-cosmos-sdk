@@ -101,9 +101,9 @@ func TestSimulateGasCost(t *testing.T) {
 // Test various error cases in the AnteHandler control flow.
 func TestAnteHandlerSigErrors(t *testing.T) {
 	// This test requires the accounts to not be set, so we create them here
-	priv0, _, addr0 := testdata.KeyTestPubAddr()
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
-	priv2, _, addr2 := testdata.KeyTestPubAddr()
+	priv0, _, addr0 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	priv1, _, addr1 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	priv2, _, addr2 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 	msgs := []sdk.Msg{
 		testdata.NewTestMsg(addr0, addr1),
 		testdata.NewTestMsg(addr0, addr2),
@@ -405,6 +405,7 @@ func TestAnteHandlerAccountNumbersAtBlockHeightZero(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = testdata.NewTestFeeAmount()
 			args.gasLimit = testdata.NewTestGasLimit()
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -614,6 +615,7 @@ func TestAnteHandlerSequences(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = feeAmount
 			args.gasLimit = gasLimit
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -670,6 +672,7 @@ func TestAnteHandlerFees(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = feeAmount
 			args.gasLimit = gasLimit
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -759,6 +762,7 @@ func TestAnteHandlerMemoGas(t *testing.T) {
 			suite := SetupTestSuite(t, false)
 			suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 			args := tc.malleate(suite)
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -926,7 +930,6 @@ func TestAnteHandlerBadSignBytes(t *testing.T) {
 			func(suite *AnteTestSuite) TestCaseArgs {
 				accs := suite.CreateTestAccounts(1)
 				msg0 := testdata.NewTestMsg(accs[0].acc.GetAddress())
-				suite.bankKeeper.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 				return TestCaseArgs{
 					chainID:   "wrong-chain-id",
@@ -940,7 +943,7 @@ func TestAnteHandlerBadSignBytes(t *testing.T) {
 			},
 			false,
 			false,
-			sdkerrors.ErrUnauthorized,
+			fmt.Errorf("failed to parse chainID"),
 		},
 		{
 			"test wrong accSeqs",

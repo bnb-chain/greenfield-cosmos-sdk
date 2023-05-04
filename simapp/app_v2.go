@@ -269,9 +269,12 @@ func NewSimApp(
 	// 	app.SetPrepareProposal(abciPropHandler.PrepareProposalHandler())
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
-	baseAppOptions = append(baseAppOptions, func(ba *baseapp.BaseApp) {
-		ba.SetUpgradeChecker(app.UpgradeKeeper.IsUpgraded)
-	})
+	baseAppOptions = append(baseAppOptions,
+		func(ba *baseapp.BaseApp) {
+			ba.SetUpgradeChecker(app.UpgradeKeeper.IsUpgraded)
+		},
+		baseapp.SetChainID(chainID),
+	)
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
 
 	// load state streaming if enabled

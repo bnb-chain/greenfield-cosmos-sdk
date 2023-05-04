@@ -670,7 +670,9 @@ func GetFromBech32(bech32str, prefix string) ([]byte, error) {
 // cacheAddr is not concurrency safe. Concurrent access to cache causes race condition.
 func cacheAddr(addr []byte, cache *simplelru.LRU, cacheKey string) string {
 	addrString := getETHAddrString(addr)
-	cache.Add(cacheKey, addrString)
+	if IsAddrCacheEnabled() {
+		cache.Add(cacheKey, addrString)
+	}
 	return addrString
 }
 

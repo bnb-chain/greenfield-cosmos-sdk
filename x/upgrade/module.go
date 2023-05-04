@@ -186,9 +186,7 @@ type UpgradeOutputs struct {
 }
 
 func ProvideModule(in UpgradeInputs) UpgradeOutputs {
-	var (
-		homePath string
-	)
+	var homePath string
 
 	if in.AppOpts != nil {
 		homePath = cast.ToString(in.AppOpts.Get(flags.FlagHome))

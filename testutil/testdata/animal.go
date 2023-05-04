@@ -1,7 +1,7 @@
 package testdata
 
 // DONTCOVER
-// nolint
+//nolint
 
 import (
 	"fmt"

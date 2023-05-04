@@ -51,7 +51,7 @@ func (s *CLITestSuite) SetupSuite() {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(testutil.DefaultChainId)
 
 	var outBuf bytes.Buffer
 	ctxGen := func() client.Context {
@@ -476,17 +476,6 @@ func (s *CLITestSuite) TestNewWithdrawRewardsCmd() {
 		expectErr bool
 		respType  proto.Message
 	}{
-		// {
-		// 	"invalid validator address",
-		// 	val[0].Address,
-		// 	[]string{
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
-		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-		// 	},
-		// 	true, nil,
-		// },
 		{
 			"valid transaction",
 			sdk.ValAddress(val[0].Address),
@@ -574,16 +563,6 @@ func (s *CLITestSuite) TestNewWithdrawAllRewardsCmd() {
 			true,
 			"cannot generate tx in offline mode",
 			nil,
-		},
-		{
-			"valid transaction",
-			[]string{
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val[0].Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(10))).String()),
-			},
-			false, "", &sdk.TxResponse{},
 		},
 	}
 

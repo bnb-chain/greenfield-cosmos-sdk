@@ -14,7 +14,7 @@ func TestPrivKey(t *testing.T) {
 	// validate type and equality
 	privKey, err := GenPrivKey()
 	require.NoError(t, err)
-	require.True(t, privKey.Equals(privKey)) // nolint:gocritic
+	require.True(t, privKey.Equals(privKey)) //nolint:gocritic
 	require.Implements(t, (*cryptotypes.PrivKey)(nil), privKey)
 
 	// validate inequality

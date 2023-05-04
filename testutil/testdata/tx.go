@@ -56,7 +56,9 @@ func KeyTestPubAddrSecp256R1(require *require.Assertions) (cryptotypes.PrivKey, 
 // KeyTestPubAddrEthSecp256k1 generates a new eth_secp256k1 keypair.
 func KeyTestPubAddrEthSecp256k1(require *require.Assertions) (cryptotypes.PrivKey, cryptotypes.PubKey, sdk.AccAddress) {
 	key, err := ethsecp256k1.GenPrivKey()
-	require.NoError(err)
+	if require != nil {
+		require.NoError(err)
+	}
 	pub := key.PubKey()
 	addr := sdk.AccAddress(pub.Address())
 	return key, pub, addr
