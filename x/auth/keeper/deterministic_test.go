@@ -113,7 +113,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAccount() {
 
 	req := &types.QueryAccountRequest{Address: acc1.GetAddress().String()}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Account, 1534, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Account, 0, false)
 }
 
 // pubkeyGenerator creates and returns a random pubkey generator using rapid.
@@ -155,7 +155,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAccounts() {
 	suite.accountKeeper.SetAccount(suite.ctx, acc2)
 
 	req := &types.QueryAccountsRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Accounts, 1689, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Accounts, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryAccountAddressByID() {
@@ -181,7 +181,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAccountAddressByID() {
 
 	suite.accountKeeper.SetAccount(suite.ctx, acc1)
 	req := &types.QueryAccountAddressByIDRequest{AccountId: accNum}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AccountAddressByID, 1123, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AccountAddressByID, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryParameters() {
@@ -207,7 +207,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryParameters() {
 	suite.Require().NoError(err)
 
 	req := &types.QueryParamsRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Params, 1042, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Params, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryAccountInfo() {
@@ -227,7 +227,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAccountInfo() {
 
 	suite.accountKeeper.SetAccount(suite.ctx, acc)
 	req := &types.QueryAccountInfoRequest{Address: acc.GetAddress().String()}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AccountInfo, 1534, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AccountInfo, 0, false)
 }
 
 func (suite *DeterministicTestSuite) createAndReturnQueryClient(ak keeper.AccountKeeper) types.QueryClient {
@@ -300,7 +300,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryModuleAccounts() {
 
 	queryClient := suite.createAndReturnQueryClient(suite.accountKeeper)
 	req := &types.QueryModuleAccountsRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, queryClient.ModuleAccounts, 8511, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, queryClient.ModuleAccounts, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryModuleAccountByName() {
@@ -345,5 +345,5 @@ func (suite *DeterministicTestSuite) TestGRPCQueryModuleAccountByName() {
 
 	queryClient := suite.createAndReturnQueryClient(suite.accountKeeper)
 	req := &types.QueryModuleAccountByNameRequest{Name: "mint"}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, queryClient.ModuleAccountByName, 1363, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, queryClient.ModuleAccountByName, 0, false)
 }

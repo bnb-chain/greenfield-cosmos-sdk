@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/cometbft/cometbft/libs/log"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -61,7 +61,7 @@ func TestOutOfOrder(t *testing.T) {
 
 func (s *MempoolTestSuite) TestPriorityNonceTxOrder() {
 	t := s.T()
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	accounts := simtypes.RandomAccounts(rand.New(rand.NewSource(0)), 5)
 	sa := accounts[0].Address
 	sb := accounts[1].Address
@@ -259,7 +259,7 @@ func (s *MempoolTestSuite) TestPriorityNonceTxOrder() {
 }
 
 func (s *MempoolTestSuite) TestPriorityTies() {
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	accounts := simtypes.RandomAccounts(rand.New(rand.NewSource(0)), 3)
 	sa := accounts[0].Address
 	sb := accounts[1].Address
@@ -376,7 +376,7 @@ func (s *MempoolTestSuite) TestRandomGeneratedTxs() {
 		s.iterations++
 	}))
 	t := s.T()
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	seed := time.Now().UnixNano()
 
 	t.Logf("running with seed: %d", seed)
@@ -412,7 +412,7 @@ func (s *MempoolTestSuite) TestRandomWalkTxs() {
 	s.mempool = mempool.NewPriorityMempool()
 
 	t := s.T()
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 
 	seed := time.Now().UnixNano()
 	// interesting failing seeds:
@@ -458,7 +458,7 @@ func (s *MempoolTestSuite) TestRandomWalkTxs() {
 		seed, s.iterations, duration.Milliseconds())
 }
 
-func genRandomTxs(seed int64, countTx int, countAccount int) (res []testTx) {
+func genRandomTxs(seed int64, countTx, countAccount int) (res []testTx) {
 	maxPriority := 100
 	r := rand.New(rand.NewSource(seed))
 	accounts := simtypes.RandomAccounts(r, countAccount)
@@ -485,7 +485,7 @@ func genRandomTxs(seed int64, countTx int, countAccount int) (res []testTx) {
 
 // since there are multiple valid ordered graph traversals for a given set of txs strict
 // validation against the ordered txs generated from this function is not possible as written
-func genOrderedTxs(seed int64, maxTx int, numAcc int) (ordered []testTx, shuffled []testTx) {
+func genOrderedTxs(seed int64, maxTx, numAcc int) (ordered, shuffled []testTx) {
 	r := rand.New(rand.NewSource(seed))
 	accountNonces := make(map[string]uint64)
 	prange := 10
@@ -585,7 +585,7 @@ func TestTxOrderN(t *testing.T) {
 
 func TestPriorityNonceMempool_NextSenderTx(t *testing.T) {
 	accounts := simtypes.RandomAccounts(rand.New(rand.NewSource(0)), 2)
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	accA := accounts[0].Address
 	accB := accounts[1].Address
 
@@ -615,7 +615,7 @@ func TestPriorityNonceMempool_NextSenderTx(t *testing.T) {
 
 func TestNextSenderTx_TxLimit(t *testing.T) {
 	accounts := simtypes.RandomAccounts(rand.New(rand.NewSource(0)), 2)
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	sa := accounts[0].Address
 	sb := accounts[1].Address
 
@@ -672,7 +672,7 @@ func TestNextSenderTx_TxLimit(t *testing.T) {
 
 func TestNextSenderTx_TxReplacement(t *testing.T) {
 	accounts := simtypes.RandomAccounts(rand.New(rand.NewSource(0)), 1)
-	ctx := sdk.NewContext(nil, cmtproto.Header{}, false, nil, log.NewNopLogger())
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, log.NewNopLogger())
 	sa := accounts[0].Address
 
 	txs := []testTx{

@@ -22,4 +22,6 @@ var (
 	ErrAuthorizationNumOfSigners = sdkerrors.Register(ModuleName, 9, "authorization can be given to msg with only one signer")
 	// ErrNegativeMaxTokens error if the max tokens is negative
 	ErrNegativeMaxTokens = sdkerrors.Register(ModuleName, 12, "max tokens should be positive")
+	// ErrTooManyValidators error if the number of stake authorization validators exceeds limit
+	ErrTooManyValidators = sdkerrors.Register(ModuleName, 13, "the number of stake authorization validators cannot exceed the limit")
 )

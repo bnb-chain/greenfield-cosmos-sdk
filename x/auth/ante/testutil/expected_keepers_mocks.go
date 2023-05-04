@@ -9,6 +9,7 @@ import (
 
 	types "github.com/cosmos/cosmos-sdk/types"
 	types0 "github.com/cosmos/cosmos-sdk/x/auth/types"
+	types1 "github.com/cosmos/cosmos-sdk/x/gashub/types"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -124,4 +125,55 @@ func (m *MockFeegrantKeeper) UseGrantedFees(ctx types.Context, granter, grantee 
 func (mr *MockFeegrantKeeperMockRecorder) UseGrantedFees(ctx, granter, grantee, fee, msgs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UseGrantedFees", reflect.TypeOf((*MockFeegrantKeeper)(nil).UseGrantedFees), ctx, granter, grantee, fee, msgs)
+}
+
+// MockGashubKeeper is a mock of GashubKeeper interface.
+type MockGashubKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockGashubKeeperMockRecorder
+}
+
+// MockGashubKeeperMockRecorder is the mock recorder for MockGashubKeeper.
+type MockGashubKeeperMockRecorder struct {
+	mock *MockGashubKeeper
+}
+
+// NewMockGashubKeeper creates a new mock instance.
+func NewMockGashubKeeper(ctrl *gomock.Controller) *MockGashubKeeper {
+	mock := &MockGashubKeeper{ctrl: ctrl}
+	mock.recorder = &MockGashubKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockGashubKeeper) EXPECT() *MockGashubKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetMsgGasParams mocks base method.
+func (m *MockGashubKeeper) GetMsgGasParams(ctx types.Context, msgTypeUrl string) types1.MsgGasParams {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMsgGasParams", ctx, msgTypeUrl)
+	ret0, _ := ret[0].(types1.MsgGasParams)
+	return ret0
+}
+
+// GetMsgGasParams indicates an expected call of GetMsgGasParams.
+func (mr *MockGashubKeeperMockRecorder) GetMsgGasParams(ctx, msgTypeUrl interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMsgGasParams", reflect.TypeOf((*MockGashubKeeper)(nil).GetMsgGasParams), ctx, msgTypeUrl)
+}
+
+// GetParams mocks base method.
+func (m *MockGashubKeeper) GetParams(ctx types.Context) types1.Params {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetParams", ctx)
+	ret0, _ := ret[0].(types1.Params)
+	return ret0
+}
+
+// GetParams indicates an expected call of GetParams.
+func (mr *MockGashubKeeperMockRecorder) GetParams(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParams", reflect.TypeOf((*MockGashubKeeper)(nil).GetParams), ctx)
 }

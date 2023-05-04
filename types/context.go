@@ -10,7 +10,6 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/gogoproto/proto"
 
-	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
@@ -42,6 +41,7 @@ type Context struct {
 	kvGasConfig          storetypes.GasConfig
 	transientKVGasConfig storetypes.GasConfig
 	upgradeChecker       func(ctx Context, name string) bool
+	txSize               uint64 // The tx bytes length
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -65,6 +65,7 @@ func (c Context) EventManager() *EventManager                { return c.eventMan
 func (c Context) Priority() int64                            { return c.priority }
 func (c Context) KVGasConfig() storetypes.GasConfig          { return c.kvGasConfig }
 func (c Context) TransientKVGasConfig() storetypes.GasConfig { return c.transientKVGasConfig }
+func (c Context) TxSize() uint64                             { return c.txSize }
 func (c Context) IsUpgraded(name string) bool {
 	if c.upgradeChecker == nil {
 		return false
@@ -101,7 +102,7 @@ func (c Context) Err() error {
 	return c.baseCtx.Err()
 }
 
-// create a new context
+// NewContext create a new context
 func NewContext(ms MultiStore, header tmproto.Header, isCheckTx bool, upgradeChecker func(Context, string) bool, logger log.Logger) Context {
 	// https://github.com/gogo/protobuf/issues/519
 	header.Time = header.Time.UTC()
@@ -263,6 +264,12 @@ func (c Context) WithPriority(p int64) Context {
 	return c
 }
 
+// WithTxSize returns a Context with an updated tx bytes length
+func (c Context) WithTxSize(s uint64) Context {
+	c.txSize = s
+	return c
+}
+
 // TODO: remove???
 func (c Context) IsZero() bool {
 	return c.ms == nil
@@ -286,13 +293,15 @@ func (c Context) Value(key interface{}) interface{} {
 // ----------------------------------------------------------------------------
 
 // KVStore fetches a KVStore from the MultiStore.
-func (c Context) KVStore(key storetypes.StoreKey) KVStore {
-	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), c.kvGasConfig)
+// Remove gas metering
+func (c Context) KVStore(key storetypes.StoreKey) storetypes.KVStore {
+	return c.MultiStore().GetKVStore(key)
 }
 
 // TransientStore fetches a TransientStore from the MultiStore.
-func (c Context) TransientStore(key storetypes.StoreKey) KVStore {
-	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.GasMeter(), c.transientKVGasConfig)
+// Remove gas metering
+func (c Context) TransientStore(key storetypes.StoreKey) storetypes.KVStore {
+	return c.MultiStore().GetKVStore(key)
 }
 
 // CacheContext returns a new Context with the multi-store cached and a new

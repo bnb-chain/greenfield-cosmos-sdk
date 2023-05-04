@@ -5,7 +5,6 @@ import (
 
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cosmos/cosmos-sdk/store"
-	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -85,8 +84,8 @@ func NewGasCountingMockContext() *GasCountingMockContext {
 	}
 }
 
-func (g GasCountingMockContext) KVStore(store sdk.KVStore) sdk.KVStore {
-	return gaskv.NewStore(store, g.GasMeter, storetypes.KVGasConfig())
+func (g GasCountingMockContext) KVStore(store storetypes.KVStore) storetypes.KVStore {
+	return store
 }
 
 func (g GasCountingMockContext) GasConsumed() storetypes.Gas {

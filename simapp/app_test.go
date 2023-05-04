@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	"github.com/cosmos/cosmos-sdk/x/gashub"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	group "github.com/cosmos/cosmos-sdk/x/group/module"
@@ -198,6 +199,7 @@ func TestRunMigrations(t *testing.T) {
 					"capability":   capability.AppModule{}.ConsensusVersion(),
 					"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
 					"oracle":       oracle.AppModule{}.ConsensusVersion(),
+					"gashub":       gashub.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -251,6 +253,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"capability":   capability.AppModule{}.ConsensusVersion(),
 			"crosschain":   crosschain.AppModule{}.ConsensusVersion(),
 			"oracle":       oracle.AppModule{}.ConsensusVersion(),
+			"gashub":       gashub.AppModule{}.ConsensusVersion(),
 		},
 	)
 	require.NoError(t, err)

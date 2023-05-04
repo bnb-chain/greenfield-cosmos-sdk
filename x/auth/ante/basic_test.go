@@ -4,14 +4,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	"github.com/stretchr/testify/require"
 )
 
 func TestValidateBasic(t *testing.T) {
@@ -110,7 +110,6 @@ func TestConsumeGasForTxSize(t *testing.T) {
 		sigV2 signing.SignatureV2
 	}{
 		{"SingleSignatureData", signing.SignatureV2{PubKey: priv1.PubKey()}},
-		{"MultiSignatureData", signing.SignatureV2{PubKey: priv1.PubKey(), Data: multisig.NewMultisig(2)}},
 	}
 
 	for _, tc := range testCases {
@@ -134,43 +133,13 @@ func TestConsumeGasForTxSize(t *testing.T) {
 			// Set suite.ctx with TxBytes manually
 			suite.ctx = suite.ctx.WithTxBytes(txBytes)
 
-			// track how much gas is necessary to retrieve parameters
 			beforeGas := suite.ctx.GasMeter().GasConsumed()
-			suite.accountKeeper.GetParams(suite.ctx)
-			afterGas := suite.ctx.GasMeter().GasConsumed()
-			expectedGas += afterGas - beforeGas
-
-			beforeGas = suite.ctx.GasMeter().GasConsumed()
 			suite.ctx, err = antehandler(suite.ctx, tx, false)
 			require.Nil(t, err, "ConsumeTxSizeGasDecorator returned error: %v", err)
 
 			// require that decorator consumes expected amount of gas
 			consumedGas := suite.ctx.GasMeter().GasConsumed() - beforeGas
 			require.Equal(t, expectedGas, consumedGas, "Decorator did not consume the correct amount of gas")
-
-			// simulation must not underestimate gas of this decorator even with nil signatures
-			txBuilder, err := suite.clientCtx.TxConfig.WrapTxBuilder(tx)
-			require.NoError(t, err)
-			require.NoError(t, txBuilder.SetSignatures(tc.sigV2))
-			tx = txBuilder.GetTx()
-
-			simTxBytes, err := suite.clientCtx.TxConfig.TxJSONEncoder()(tx)
-			require.Nil(t, err, "Cannot marshal tx: %v", err)
-			// require that simulated tx is smaller than tx with signatures
-			require.True(t, len(simTxBytes) < len(txBytes), "simulated tx still has signatures")
-
-			// Set suite.ctx with smaller simulated TxBytes manually
-			suite.ctx = suite.ctx.WithTxBytes(simTxBytes)
-
-			beforeSimGas := suite.ctx.GasMeter().GasConsumed()
-
-			// run antehandler with simulate=true
-			suite.ctx, err = antehandler(suite.ctx, tx, true)
-			consumedSimGas := suite.ctx.GasMeter().GasConsumed() - beforeSimGas
-
-			// require that antehandler passes and does not underestimate decorator cost
-			require.Nil(t, err, "ConsumeTxSizeGasDecorator returned error: %v", err)
-			require.True(t, consumedSimGas >= expectedGas, "Simulate mode underestimates gas on AnteDecorator. Simulated cost: %d, expected cost: %d", consumedSimGas, expectedGas)
 		})
 	}
 }

@@ -113,7 +113,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryBalance() {
 
 	suite.fundAccount(addr1, coin1)
 	req := banktypes.NewQueryBalanceRequest(addr1, coin1.GetDenom())
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Balance, 1087, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Balance, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryAllBalances() {
@@ -143,7 +143,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAllBalances() {
 	suite.fundAccount(addr1, coins...)
 	req := banktypes.NewQueryAllBalancesRequest(addr1, nil)
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AllBalances, 357, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.AllBalances, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQuerySpendableBalances() {
@@ -178,7 +178,7 @@ func (suite *DeterministicTestSuite) TestGRPCQuerySpendableBalances() {
 	suite.Require().NoError(err)
 
 	req := banktypes.NewQuerySpendableBalancesRequest(addr1, nil)
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SpendableBalances, 2023, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SpendableBalances, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryTotalSupply() {
@@ -220,7 +220,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryTotalSupply() {
 	suite.Require().NoError(suite.bankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, coins))
 
 	req := &banktypes.QueryTotalSupplyRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.TotalSupply, 243, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.TotalSupply, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryTotalSupplyOf() {
@@ -240,7 +240,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryTotalSupplyOf() {
 
 	suite.Require().NoError(suite.bankKeeper.MintCoins(suite.ctx, minttypes.ModuleName, sdk.NewCoins(coin)))
 	req := &banktypes.QuerySupplyOfRequest{Denom: coin.GetDenom()}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SupplyOf, 1021, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SupplyOf, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCQueryParams() {
@@ -274,7 +274,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryParams() {
 	suite.bankKeeper.SetParams(suite.ctx, params)
 
 	req := &banktypes.QueryParamsRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Params, 1003, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Params, 0, false)
 }
 
 func (suite *DeterministicTestSuite) createAndReturnMetadatas(t *rapid.T, count int) []banktypes.Metadata {
@@ -334,7 +334,7 @@ func (suite *DeterministicTestSuite) TestGRPCDenomsMetadata() {
 	suite.bankKeeper.SetDenomMetaData(suite.ctx, metadataAtom)
 
 	req := &banktypes.QueryDenomsMetadataRequest{}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomsMetadata, 660, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomsMetadata, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDenomMetadata() {
@@ -356,7 +356,7 @@ func (suite *DeterministicTestSuite) TestGRPCDenomMetadata() {
 		Denom: metadataAtom.Base,
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomMetadata, 1300, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomMetadata, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCSendEnabled() {
@@ -402,7 +402,7 @@ func (suite *DeterministicTestSuite) TestGRPCSendEnabled() {
 		Denoms: []string{coin1.GetDenom(), coin2.GetDenom()},
 	}
 
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SendEnabled, 4063, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.SendEnabled, 0, false)
 }
 
 func (suite *DeterministicTestSuite) TestGRPCDenomOwners() {
@@ -450,5 +450,5 @@ func (suite *DeterministicTestSuite) TestGRPCDenomOwners() {
 	req := &banktypes.QueryDenomOwnersRequest{
 		Denom: coin1.GetDenom(),
 	}
-	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomOwners, 2525, false)
+	testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.DenomOwners, 0, false)
 }

@@ -52,6 +52,8 @@ import (
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
+	"github.com/cosmos/cosmos-sdk/x/gashub"
+	gashubkeeper "github.com/cosmos/cosmos-sdk/x/gashub/keeper"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -110,6 +112,7 @@ var (
 		consensus.AppModuleBasic{},
 		crosschain.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		gashub.AppModuleBasic{},
 	)
 )
 
@@ -148,6 +151,7 @@ type SimApp struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	CrossChainKeeper      crosschainkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	GashubKeeper          gashubkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -235,6 +239,7 @@ func NewSimApp(
 		&app.ConsensusParamsKeeper,
 		&app.CrossChainKeeper,
 		&app.OracleKeeper,
+		&app.GashubKeeper,
 	); err != nil {
 		panic(err)
 	}

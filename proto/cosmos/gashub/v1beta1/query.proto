@@ -1,0 +1,55 @@
+syntax = "proto3";
+package cosmos.gashub.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/gashub/v1beta1/gashub.proto";
+import "amino/amino.proto";
+import "cosmos/query/v1/query.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params queries the parameters of x/gashub module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get               = "/cosmos/gashub/v1beta1/params";
+  }
+
+  // MsgGasParams queries for MsgGasParams entries.
+  //
+  // This query only returns params that have specific MsgGasParams settings.
+  // Any msg type that does not have a specific setting will not be returned by this query.
+  rpc MsgGasParams(QueryMsgGasParamsRequest) returns (QueryMsgGasParamsResponse) {
+    option (cosmos.query.v1.module_query_safe) = true;
+    option (google.api.http).get               = "/cosmos/bank/v1beta1/msg_gas_params";
+  }
+
+}
+
+// QueryParamsRequest defines the request type for querying x/gashub parameters.
+message QueryParamsRequest {}
+
+// QueryParamsResponse defines the response type for querying x/gashub parameters.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}
+
+// QueryMsgGasParamsRequest defines the RPC request for looking up MsgGasParams entries.
+message QueryMsgGasParamsRequest {
+  // msg_type_urls is the specific type urls you want look up. Leave empty to get all entries.
+  repeated string msg_type_urls = 1;
+  // pagination defines an optional pagination for the request. This field is
+  // only read if the msg_type_urls field is empty.
+  cosmos.base.query.v1beta1.PageRequest pagination = 99;
+}
+
+// QueryMsgGasParamsResponse defines the RPC response of a MsgGasParams query.
+message QueryMsgGasParamsResponse {
+  repeated MsgGasParams msg_gas_params = 1;
+  // pagination defines the pagination in the response. This field is only
+  // populated if the msg_type_urls field in the request is empty.
+  cosmos.base.query.v1beta1.PageResponse pagination = 99;
+}

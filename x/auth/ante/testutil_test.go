@@ -39,6 +39,7 @@ type AnteTestSuite struct {
 	accountKeeper  keeper.AccountKeeper
 	bankKeeper     *authtestutil.MockBankKeeper
 	feeGrantKeeper *antetestutil.MockFeegrantKeeper
+	gashubKeeper   *antetestutil.MockGashubKeeper
 	encCfg         moduletestutil.TestEncodingConfig
 }
 
@@ -49,6 +50,7 @@ func SetupTestSuite(t *testing.T, isCheckTx bool) *AnteTestSuite {
 	suite.bankKeeper = authtestutil.NewMockBankKeeper(ctrl)
 
 	suite.feeGrantKeeper = antetestutil.NewMockFeegrantKeeper(ctrl)
+	suite.gashubKeeper = antetestutil.NewMockGashubKeeper(ctrl)
 
 	key := sdk.NewKVStoreKey(types.StoreKey)
 	testCtx := testutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test"))

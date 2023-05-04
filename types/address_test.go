@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"bytes"
+	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"math/rand"
@@ -90,7 +91,7 @@ func (s *addressTestSuite) TestRandAccAddrConsistency() {
 	pub := &ed25519.PubKey{Key: pubBz}
 
 	for i := 0; i < 1000; i++ {
-		_, err := rand.Read(pub.Key)
+		_, err := cryptorand.Read(pub.Key)
 		if err != nil {
 			s.T().Fatal(err)
 		}
@@ -203,7 +204,7 @@ func (s *addressTestSuite) TestValAddr() {
 	pub := &ed25519.PubKey{Key: pubBz}
 
 	for i := 0; i < 20; i++ {
-		_, err := rand.Read(pub.Key)
+		_, err := cryptorand.Read(pub.Key)
 		if err != nil {
 			s.T().Fatal(err)
 		}
@@ -247,7 +248,7 @@ func (s *addressTestSuite) TestConsAddress() {
 	pub := &ed25519.PubKey{Key: pubBz}
 
 	for i := 0; i < 20; i++ {
-		rand.Read(pub.Key[:])
+		cryptorand.Read(pub.Key[:])
 
 		acc := types.ConsAddress(pub.Address())
 		res := types.ConsAddress{}
@@ -297,7 +298,7 @@ func RandString(n int) string {
 //	pub := &ed25519.PubKey{Key: pubBz}
 //	for length := 1; length < 10; length++ {
 //		for times := 1; times < 20; times++ {
-//			rand.Read(pub.Key[:])
+//			cryptorand.Read(pub.Key[:])
 //			// Test if randomly generated prefix of a given length works
 //			prefix := RandString(length)
 //
@@ -351,7 +352,7 @@ func RandString(n int) string {
 func (s *addressTestSuite) TestAddressInterface() {
 	pubBz := make([]byte, ed25519.PubKeySize)
 	pub := &ed25519.PubKey{Key: pubBz}
-	_, err := rand.Read(pub.Key)
+	_, err := cryptorand.Read(pub.Key)
 	if err != nil {
 		s.T().Fatal(err)
 	}

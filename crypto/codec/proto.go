@@ -24,7 +24,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	var priv *cryptotypes.PrivKey
 	registry.RegisterInterface("cosmos.crypto.PrivKey", priv)
 	registry.RegisterImplementations(priv, &secp256k1.PrivKey{})
-	registry.RegisterImplementations(priv, &ed25519.PrivKey{}) // nolint
+	registry.RegisterImplementations(priv, &ed25519.PrivKey{}) //nolint
 	registry.RegisterImplementations(priv, &ethsecp256k1.PrivKey{})
 	registry.RegisterImplementations(priv, &bls.PrivKey{})
 	secp256r1.RegisterInterfaces(registry)

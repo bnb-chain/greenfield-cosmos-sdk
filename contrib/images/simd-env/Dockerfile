@@ -1,5 +1,7 @@
 FROM golang:1.19-alpine AS build
 
+ARG GH_TOKEN=""
+
 RUN apk add build-base git linux-headers libc-dev
 
 WORKDIR /work
@@ -10,6 +12,11 @@ COPY api/go.mod api/go.sum /work/api/
 COPY core/go.mod core/go.sum /work/core/
 COPY depinject/go.mod depinject/go.sum /work/depinject/
 COPY tools/rosetta/go.mod tools/rosetta/go.sum /work/tools/rosetta/
+COPY tx/go.mod tx/go.sum /work/tx/
+
+RUN go env -w GOPRIVATE="github.com/bnb-chain/*"
+RUN git config --global url."https://${GH_TOKEN}@github.com".insteadOf "https://github.com"
+
 RUN go mod download
 
 COPY ./ /work

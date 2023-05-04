@@ -11,6 +11,7 @@ import (
 	distrmodulev1 "cosmossdk.io/api/cosmos/distribution/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
+	gashubmodulev1 "cosmossdk.io/api/cosmos/gashub/module/v1"
 	genutilmodulev1 "cosmossdk.io/api/cosmos/genutil/module/v1"
 	govmodulev1 "cosmossdk.io/api/cosmos/gov/module/v1"
 	groupmodulev1 "cosmossdk.io/api/cosmos/group/module/v1"
@@ -49,6 +50,7 @@ var beginBlockOrder = []string{
 	"vesting",
 	"crosschain",
 	"oracle",
+	"gashub",
 }
 
 var endBlockersOrder = []string{
@@ -74,6 +76,7 @@ var endBlockersOrder = []string{
 	"vesting",
 	"crosschain",
 	"oracle",
+	"gashub",
 }
 
 var initGenesisOrder = []string{
@@ -81,6 +84,7 @@ var initGenesisOrder = []string{
 	"auth",
 	"authz",
 	"bank",
+	"gashub",
 	"distribution",
 	"staking",
 	"slashing",
@@ -293,6 +297,15 @@ func OracleModule() ModuleOption {
 		config.moduleConfigs["oracle"] = &appv1alpha1.ModuleConfig{
 			Name:   "oracle",
 			Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
+		}
+	}
+}
+
+func GashubModule() ModuleOption {
+	return func(config *appConfig) {
+		config.moduleConfigs["gashub"] = &appv1alpha1.ModuleConfig{
+			Name:   "gashub",
+			Config: appconfig.WrapAny(&gashubmodulev1.Module{}),
 		}
 	}
 }
