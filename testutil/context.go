@@ -13,6 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const DefaultChainId = "greenfield_9000-1"
+
 // DefaultContext creates a sdk.Context with a fresh MemDB that can be used in tests.
 func DefaultContext(key storetypes.StoreKey, tkey storetypes.StoreKey) sdk.Context {
 	db := dbm.NewMemDB()
@@ -23,7 +25,7 @@ func DefaultContext(key storetypes.StoreKey, tkey storetypes.StoreKey) sdk.Conte
 	if err != nil {
 		panic(err)
 	}
-	ctx := sdk.NewContext(cms, tmproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cms, tmproto.Header{ChainID: DefaultChainId}, false, nil, log.NewNopLogger())
 
 	return ctx
 }
@@ -42,7 +44,7 @@ func DefaultContextWithDB(t *testing.T, key storetypes.StoreKey, tkey storetypes
 	err := cms.LoadLatestVersion()
 	assert.NoError(t, err)
 
-	ctx := sdk.NewContext(cms, tmproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cms, tmproto.Header{ChainID: DefaultChainId}, false, nil, log.NewNopLogger())
 
 	return TestContext{ctx, db, cms}
 }

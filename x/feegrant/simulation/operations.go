@@ -125,8 +125,14 @@ func SimulateMsgRevokeAllowance(cdc *codec.ProtoCodec, ak feegrant.AccountKeeper
 		var granterAddr sdk.AccAddress
 		var granteeAddr sdk.AccAddress
 		k.IterateAllFeeAllowances(ctx, func(grant feegrant.Grant) bool {
-			granter := sdk.MustAccAddressFromBech32(grant.Granter)
-			grantee := sdk.MustAccAddressFromBech32(grant.Grantee)
+			granter, err := sdk.AccAddressFromHexUnsafe(grant.Granter)
+			if err != nil {
+				panic(err)
+			}
+			grantee, err := sdk.AccAddressFromHexUnsafe(grant.Grantee)
+			if err != nil {
+				panic(err)
+			}
 			granterAddr = granter
 			granteeAddr = grantee
 			hasGrant = true

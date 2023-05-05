@@ -22,12 +22,13 @@ var _ types.DelegationSet = Keeper{}
 
 // Keeper of the x/staking store
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	authKeeper types.AccountKeeper
-	bankKeeper types.BankKeeper
-	hooks      types.StakingHooks
-	authority  string
+	storeKey    storetypes.StoreKey
+	cdc         codec.BinaryCodec
+	authKeeper  types.AccountKeeper
+	authzKeeper types.AuthzKeeper
+	bankKeeper  types.BankKeeper
+	hooks       types.StakingHooks
+	authority   string
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -35,6 +36,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
 	ak types.AccountKeeper,
+	azk types.AuthzKeeper,
 	bk types.BankKeeper,
 	authority string,
 ) *Keeper {
@@ -48,17 +50,18 @@ func NewKeeper(
 	}
 
 	// ensure that authority is a valid AccAddress
-	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(authority); err != nil {
 		panic("authority is not a valid acc address")
 	}
 
 	return &Keeper{
-		storeKey:   key,
-		cdc:        cdc,
-		authKeeper: ak,
-		bankKeeper: bk,
-		hooks:      nil,
-		authority:  authority,
+		storeKey:    key,
+		cdc:         cdc,
+		authKeeper:  ak,
+		authzKeeper: azk,
+		bankKeeper:  bk,
+		hooks:       nil,
+		authority:   authority,
 	}
 }
 

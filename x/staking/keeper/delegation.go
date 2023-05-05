@@ -12,7 +12,7 @@ import (
 )
 
 // GetDelegation returns a specific delegation.
-func (k Keeper) GetDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (delegation types.Delegation, found bool) {
+func (k Keeper) GetDelegation(ctx sdk.Context, delAddr, valAddr sdk.AccAddress) (delegation types.Delegation, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetDelegationKey(delAddr, valAddr)
 
@@ -53,7 +53,7 @@ func (k Keeper) GetAllDelegations(ctx sdk.Context) (delegations []types.Delegati
 
 // GetValidatorDelegations returns all delegations to a specific validator.
 // Useful for querier.
-func (k Keeper) GetValidatorDelegations(ctx sdk.Context, valAddr sdk.ValAddress) (delegations []types.Delegation) { //nolint:interfacer
+func (k Keeper) GetValidatorDelegations(ctx sdk.Context, valAddr sdk.AccAddress) (delegations []types.Delegation) { //nolint:interfacer
 	store := ctx.KVStore(k.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, types.DelegationKey)
@@ -91,7 +91,7 @@ func (k Keeper) GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddres
 
 // SetDelegation sets a delegation.
 func (k Keeper) SetDelegation(ctx sdk.Context, delegation types.Delegation) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(delegation.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalDelegation(k.cdc, delegation)
@@ -100,7 +100,7 @@ func (k Keeper) SetDelegation(ctx sdk.Context, delegation types.Delegation) {
 
 // RemoveDelegation removes a delegation
 func (k Keeper) RemoveDelegation(ctx sdk.Context, delegation types.Delegation) error {
-	delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(delegation.DelegatorAddress)
 
 	// TODO: Consider calling hooks outside of the store wrapper functions, it's unobvious.
 	if err := k.Hooks().BeforeDelegationRemoved(ctx, delegatorAddress, delegation.GetValidatorAddr()); err != nil {
@@ -133,7 +133,7 @@ func (k Keeper) GetUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAddres
 }
 
 // GetUnbondingDelegation returns a unbonding delegation.
-func (k Keeper) GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (ubd types.UnbondingDelegation, found bool) {
+func (k Keeper) GetUnbondingDelegation(ctx sdk.Context, delAddr, valAddr sdk.AccAddress) (ubd types.UnbondingDelegation, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetUBDKey(delAddr, valAddr)
 	value := store.Get(key)
@@ -149,7 +149,7 @@ func (k Keeper) GetUnbondingDelegation(ctx sdk.Context, delAddr sdk.AccAddress, 
 
 // GetUnbondingDelegationsFromValidator returns all unbonding delegations from a
 // particular validator.
-func (k Keeper) GetUnbondingDelegationsFromValidator(ctx sdk.Context, valAddr sdk.ValAddress) (ubds []types.UnbondingDelegation) {
+func (k Keeper) GetUnbondingDelegationsFromValidator(ctx sdk.Context, valAddr sdk.AccAddress) (ubds []types.UnbondingDelegation) {
 	store := ctx.KVStore(k.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, types.GetUBDsByValIndexKey(valAddr))
@@ -213,7 +213,7 @@ func (k Keeper) GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) ma
 	bonded := math.LegacyZeroDec()
 
 	k.IterateDelegatorDelegations(ctx, delegator, func(delegation types.Delegation) bool {
-		validatorAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
+		validatorAddr, err := sdk.AccAddressFromHexUnsafe(delegation.ValidatorAddress)
 		if err != nil {
 			panic(err) // shouldn't happen
 		}
@@ -260,7 +260,7 @@ func (k Keeper) IterateDelegatorRedelegations(ctx sdk.Context, delegator sdk.Acc
 }
 
 // HasMaxUnbondingDelegationEntries - check if unbonding delegation has maximum number of entries.
-func (k Keeper) HasMaxUnbondingDelegationEntries(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress) bool {
+func (k Keeper) HasMaxUnbondingDelegationEntries(ctx sdk.Context, delegatorAddr, validatorAddr sdk.AccAddress) bool {
 	ubd, found := k.GetUnbondingDelegation(ctx, delegatorAddr, validatorAddr)
 	if !found {
 		return false
@@ -271,11 +271,11 @@ func (k Keeper) HasMaxUnbondingDelegationEntries(ctx sdk.Context, delegatorAddr 
 
 // SetUnbondingDelegation sets the unbonding delegation and associated index.
 func (k Keeper) SetUnbondingDelegation(ctx sdk.Context, ubd types.UnbondingDelegation) {
-	delAddr := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
+	delAddr := sdk.MustAccAddressFromHex(ubd.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
 	bz := types.MustMarshalUBD(k.cdc, ubd)
-	valAddr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -286,10 +286,10 @@ func (k Keeper) SetUnbondingDelegation(ctx sdk.Context, ubd types.UnbondingDeleg
 
 // RemoveUnbondingDelegation removes the unbonding delegation object and associated index.
 func (k Keeper) RemoveUnbondingDelegation(ctx sdk.Context, ubd types.UnbondingDelegation) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(ubd.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
-	addr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -301,7 +301,7 @@ func (k Keeper) RemoveUnbondingDelegation(ctx sdk.Context, ubd types.UnbondingDe
 // SetUnbondingDelegationEntry adds an entry to the unbonding delegation at
 // the given addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetUnbondingDelegationEntry(
-	ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorAddr sdk.ValAddress,
+	ctx sdk.Context, delegatorAddr, validatorAddr sdk.AccAddress,
 	creationHeight int64, minTime time.Time, balance math.Int,
 ) types.UnbondingDelegation {
 	ubd, found := k.GetUnbondingDelegation(ctx, delegatorAddr, validatorAddr)
@@ -414,7 +414,7 @@ func (k Keeper) GetRedelegations(ctx sdk.Context, delegator sdk.AccAddress, maxR
 }
 
 // GetRedelegation returns a redelegation.
-func (k Keeper) GetRedelegation(ctx sdk.Context, delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress) (red types.Redelegation, found bool) {
+func (k Keeper) GetRedelegation(ctx sdk.Context, delAddr, valSrcAddr, valDstAddr sdk.AccAddress) (red types.Redelegation, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetREDKey(delAddr, valSrcAddr, valDstAddr)
 
@@ -430,7 +430,7 @@ func (k Keeper) GetRedelegation(ctx sdk.Context, delAddr sdk.AccAddress, valSrcA
 
 // GetRedelegationsFromSrcValidator returns all redelegations from a particular
 // validator.
-func (k Keeper) GetRedelegationsFromSrcValidator(ctx sdk.Context, valAddr sdk.ValAddress) (reds []types.Redelegation) {
+func (k Keeper) GetRedelegationsFromSrcValidator(ctx sdk.Context, valAddr sdk.AccAddress) (reds []types.Redelegation) {
 	store := ctx.KVStore(k.storeKey)
 
 	iterator := sdk.KVStorePrefixIterator(store, types.GetREDsFromValSrcIndexKey(valAddr))
@@ -447,7 +447,7 @@ func (k Keeper) GetRedelegationsFromSrcValidator(ctx sdk.Context, valAddr sdk.Va
 }
 
 // HasReceivingRedelegation checks if validator is receiving a redelegation.
-func (k Keeper) HasReceivingRedelegation(ctx sdk.Context, delAddr sdk.AccAddress, valDstAddr sdk.ValAddress) bool {
+func (k Keeper) HasReceivingRedelegation(ctx sdk.Context, delAddr, valDstAddr sdk.AccAddress) bool {
 	store := ctx.KVStore(k.storeKey)
 	prefix := types.GetREDsByDelToValDstIndexKey(delAddr, valDstAddr)
 
@@ -458,7 +458,7 @@ func (k Keeper) HasReceivingRedelegation(ctx sdk.Context, delAddr sdk.AccAddress
 }
 
 // HasMaxRedelegationEntries checks if redelegation has maximum number of entries.
-func (k Keeper) HasMaxRedelegationEntries(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorSrcAddr, validatorDstAddr sdk.ValAddress) bool {
+func (k Keeper) HasMaxRedelegationEntries(ctx sdk.Context, delegatorAddr, validatorSrcAddr, validatorDstAddr sdk.AccAddress) bool {
 	red, found := k.GetRedelegation(ctx, delegatorAddr, validatorSrcAddr, validatorDstAddr)
 	if !found {
 		return false
@@ -469,15 +469,15 @@ func (k Keeper) HasMaxRedelegationEntries(ctx sdk.Context, delegatorAddr sdk.Acc
 
 // SetRedelegation set a redelegation and associated index.
 func (k Keeper) SetRedelegation(ctx sdk.Context, red types.Redelegation) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(red.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(red.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
 	bz := types.MustMarshalRED(k.cdc, red)
-	valSrcAddr, err := sdk.ValAddressFromBech32(red.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorSrcAddress)
 	if err != nil {
 		panic(err)
 	}
-	valDestAddr, err := sdk.ValAddressFromBech32(red.ValidatorDstAddress)
+	valDestAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorDstAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -490,8 +490,9 @@ func (k Keeper) SetRedelegation(ctx sdk.Context, red types.Redelegation) {
 // SetRedelegationEntry adds an entry to the unbonding delegation at the given
 // addresses. It creates the unbonding delegation if it does not exist.
 func (k Keeper) SetRedelegationEntry(ctx sdk.Context,
-	delegatorAddr sdk.AccAddress, validatorSrcAddr,
-	validatorDstAddr sdk.ValAddress, creationHeight int64,
+	delegatorAddr, validatorSrcAddr,
+	validatorDstAddr sdk.AccAddress,
+	creationHeight int64,
 	minTime time.Time, balance math.Int,
 	sharesSrc, sharesDst sdk.Dec,
 ) types.Redelegation {
@@ -534,14 +535,14 @@ func (k Keeper) IterateRedelegations(ctx sdk.Context, fn func(index int64, red t
 
 // RemoveRedelegation removes a redelegation object and associated index.
 func (k Keeper) RemoveRedelegation(ctx sdk.Context, red types.Redelegation) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(red.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(red.DelegatorAddress)
 
 	store := ctx.KVStore(k.storeKey)
-	valSrcAddr, err := sdk.ValAddressFromBech32(red.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorSrcAddress)
 	if err != nil {
 		panic(err)
 	}
-	valDestAddr, err := sdk.ValAddressFromBech32(red.ValidatorDstAddress)
+	valDestAddr, err := sdk.AccAddressFromHexUnsafe(red.ValidatorDstAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -655,7 +656,7 @@ func (k Keeper) Delegate(
 		return math.LegacyZeroDec(), err
 	}
 
-	delegatorAddress := sdk.MustAccAddressFromBech32(delegation.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(delegation.DelegatorAddress)
 
 	// if subtractAccount is true then we are
 	// performing a delegation and not a redelegation, thus the source tokens are
@@ -714,7 +715,7 @@ func (k Keeper) Delegate(
 
 // Unbond unbonds a particular delegation and perform associated store operations.
 func (k Keeper) Unbond(
-	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, shares sdk.Dec,
+	ctx sdk.Context, delAddr, valAddr sdk.AccAddress, shares sdk.Dec,
 ) (amount math.Int, err error) {
 	// check if a delegation object exists in the store
 	delegation, found := k.GetDelegation(ctx, delAddr, valAddr)
@@ -741,16 +742,16 @@ func (k Keeper) Unbond(
 	// subtract shares from delegation
 	delegation.Shares = delegation.Shares.Sub(shares)
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(delegation.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(delegation.DelegatorAddress)
 	if err != nil {
 		return amount, err
 	}
 
-	isValidatorOperator := delegatorAddress.Equals(validator.GetOperator())
+	isSelfDelegator := delegatorAddress.Equals(validator.GetSelfDelegator())
 
-	// If the delegation is the operator of the validator and undelegating will decrease the validator's
+	// If the delegation is the self delegator of the validator and undelegating will decrease the validator's
 	// self-delegation below their minimum, we jail the validator.
-	if isValidatorOperator && !validator.Jailed &&
+	if isSelfDelegator && !validator.Jailed &&
 		validator.TokensFromShares(delegation.Shares).TruncateInt().LT(validator.MinSelfDelegation) {
 		k.jailValidator(ctx, validator)
 		validator = k.mustGetValidator(ctx, validator.GetOperator())
@@ -783,7 +784,7 @@ func (k Keeper) Unbond(
 // with a boolean signaling if the redelegation is complete based on the source
 // validator.
 func (k Keeper) getBeginInfo(
-	ctx sdk.Context, valSrcAddr sdk.ValAddress,
+	ctx sdk.Context, valSrcAddr sdk.AccAddress,
 ) (completionTime time.Time, height int64, completeNow bool) {
 	validator, found := k.GetValidator(ctx, valSrcAddr)
 
@@ -813,7 +814,7 @@ func (k Keeper) getBeginInfo(
 // an unbonding object and inserting it into the unbonding queue which will be
 // processed during the staking EndBlocker.
 func (k Keeper) Undelegate(
-	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
+	ctx sdk.Context, delAddr, valAddr sdk.AccAddress, sharesAmount sdk.Dec,
 ) (time.Time, error) {
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
@@ -844,7 +845,7 @@ func (k Keeper) Undelegate(
 // CompleteUnbonding completes the unbonding of all mature entries in the
 // retrieved unbonding delegation object and returns the total unbonding balance
 // or an error upon failure.
-func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error) {
+func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr, valAddr sdk.AccAddress) (sdk.Coins, error) {
 	ubd, found := k.GetUnbondingDelegation(ctx, delAddr, valAddr)
 	if !found {
 		return nil, types.ErrNoUnbondingDelegation
@@ -854,7 +855,7 @@ func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr sdk.AccAddress, valAd
 	balances := sdk.NewCoins()
 	ctxTime := ctx.BlockHeader().Time
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(ubd.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(ubd.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -894,7 +895,7 @@ func (k Keeper) CompleteUnbonding(ctx sdk.Context, delAddr sdk.AccAddress, valAd
 // BeginRedelegation begins unbonding / redelegation and creates a redelegation
 // record.
 func (k Keeper) BeginRedelegation(
-	ctx sdk.Context, delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress, sharesAmount sdk.Dec,
+	ctx sdk.Context, delAddr, valSrcAddr, valDstAddr sdk.AccAddress, sharesAmount sdk.Dec,
 ) (completionTime time.Time, err error) {
 	if bytes.Equal(valSrcAddr, valDstAddr) {
 		return time.Time{}, types.ErrSelfRedelegation
@@ -953,7 +954,7 @@ func (k Keeper) BeginRedelegation(
 // retrieved redelegation object and returns the total redelegation (initial)
 // balance or an error upon failure.
 func (k Keeper) CompleteRedelegation(
-	ctx sdk.Context, delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress,
+	ctx sdk.Context, delAddr, valSrcAddr, valDstAddr sdk.AccAddress,
 ) (sdk.Coins, error) {
 	red, found := k.GetRedelegation(ctx, delAddr, valSrcAddr, valDstAddr)
 	if !found {
@@ -992,7 +993,7 @@ func (k Keeper) CompleteRedelegation(
 // valied based on upon the converted shares. If the amount is valid, the total
 // amount of respective shares is returned, otherwise an error is returned.
 func (k Keeper) ValidateUnbondAmount(
-	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, amt math.Int,
+	ctx sdk.Context, delAddr, valAddr sdk.AccAddress, amt math.Int,
 ) (shares sdk.Dec, err error) {
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
@@ -1028,4 +1029,21 @@ func (k Keeper) ValidateUnbondAmount(
 	}
 
 	return shares, nil
+}
+
+func (k Keeper) GetSelfDelegation(ctx sdk.Context, valAddr sdk.AccAddress) (amount math.Int, err error) {
+	// get validator
+	validator, found := k.GetValidator(ctx, valAddr)
+	if !found {
+		return amount, types.ErrNoValidatorFound
+	}
+
+	delAddr := validator.GetSelfDelegator()
+	// check if a delegation object exists in the store
+	delegation, found := k.GetDelegation(ctx, delAddr, valAddr)
+	if !found {
+		return amount, types.ErrNoDelegatorForAddress
+	}
+
+	return validator.TokensFromShares(delegation.Shares).TruncateInt(), nil
 }

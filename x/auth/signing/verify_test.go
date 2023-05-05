@@ -5,9 +5,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -23,8 +20,7 @@ import (
 )
 
 func TestVerifySignature(t *testing.T) {
-	priv, pubKey, addr := testdata.KeyTestPubAddr()
-	priv1, pubKey1, addr1 := testdata.KeyTestPubAddr()
+	priv, pubKey, addr := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 
 	const (
 		memo    = "testmemo"
@@ -48,7 +44,6 @@ func TestVerifySignature(t *testing.T) {
 		key,
 		types.ProtoBaseAccount,
 		maccPerms,
-		"cosmos",
 		types.NewModuleAddress("gov").String(),
 	)
 
@@ -57,7 +52,6 @@ func TestVerifySignature(t *testing.T) {
 	encCfg.Amino.RegisterConcrete(testdata.TestMsg{}, "cosmos-sdk/Test", nil)
 
 	acc1 := accountKeeper.NewAccountWithAddress(ctx, addr)
-	_ = accountKeeper.NewAccountWithAddress(ctx, addr1)
 	accountKeeper.SetAccount(ctx, acc1)
 	acc, err := ante.GetSignerAcc(ctx, accountKeeper, addr)
 	require.NoError(t, err)
@@ -83,34 +77,5 @@ func TestVerifySignature(t *testing.T) {
 	stdTx := legacytx.NewStdTx(msgs, fee, []legacytx.StdSignature{stdSig}, memo)
 	stdTx.TimeoutHeight = 10
 	err = signing.VerifySignature(pubKey, signerData, sigV2.Data, handler, stdTx)
-	require.NoError(t, err)
-
-	pkSet := []cryptotypes.PubKey{pubKey, pubKey1}
-	multisigKey := kmultisig.NewLegacyAminoPubKey(2, pkSet)
-	multisignature := multisig.NewMultisig(2)
-	msgs = []sdk.Msg{testdata.NewTestMsg(addr, addr1)}
-	multiSignBytes := legacytx.StdSignBytes(signerData.ChainID, signerData.AccountNumber, signerData.Sequence, 10, fee, msgs, memo, nil)
-
-	sig1, err := priv.Sign(multiSignBytes)
-	require.NoError(t, err)
-	stdSig1 := legacytx.StdSignature{PubKey: pubKey, Signature: sig1}
-	sig1V2, err := legacytx.StdSignatureToSignatureV2(encCfg.Amino, stdSig1)
-	require.NoError(t, err)
-
-	sig2, err := priv1.Sign(multiSignBytes)
-	require.NoError(t, err)
-	stdSig2 := legacytx.StdSignature{PubKey: pubKey, Signature: sig2}
-	sig2V2, err := legacytx.StdSignatureToSignatureV2(encCfg.Amino, stdSig2)
-	require.NoError(t, err)
-
-	err = multisig.AddSignatureFromPubKey(multisignature, sig1V2.Data, pkSet[0], pkSet)
-	require.NoError(t, err)
-	err = multisig.AddSignatureFromPubKey(multisignature, sig2V2.Data, pkSet[1], pkSet)
-	require.NoError(t, err)
-
-	stdTx = legacytx.NewStdTx(msgs, fee, []legacytx.StdSignature{stdSig1, stdSig2}, memo)
-	stdTx.TimeoutHeight = 10
-
-	err = signing.VerifySignature(multisigKey, signerData, multisignature, handler, stdTx)
 	require.NoError(t, err)
 }

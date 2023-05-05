@@ -9,6 +9,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"gotest.tools/v3/assert"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -36,10 +38,10 @@ var (
 		newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB52"),
 	}
 
-	valAddresses = []sdk.ValAddress{
-		sdk.ValAddress(pubkeys[0].Address()),
-		sdk.ValAddress(pubkeys[1].Address()),
-		sdk.ValAddress(pubkeys[2].Address()),
+	valAddresses = []sdk.AccAddress{
+		sdk.AccAddress(pubkeys[0].Address()),
+		sdk.AccAddress(pubkeys[1].Address()),
+		sdk.AccAddress(pubkeys[2].Address()),
 	}
 
 	// The default power validators are initialized to have within tests
@@ -54,6 +56,7 @@ type fixture struct {
 	evidenceKeeper    keeper.Keeper
 	bankKeeper        bankkeeper.Keeper
 	accountKeeper     authkeeper.AccountKeeper
+	authzKeeper       authzkeeper.Keeper
 	slashingKeeper    slashingkeeper.Keeper
 	stakingKeeper     *stakingkeeper.Keeper
 	interfaceRegistry codectypes.InterfaceRegistry
@@ -67,6 +70,7 @@ func initFixture(t assert.TestingT) *fixture {
 		&evidenceKeeper,
 		&f.interfaceRegistry,
 		&f.accountKeeper,
+		&f.authzKeeper,
 		&f.bankKeeper,
 		&f.slashingKeeper,
 		&f.stakingKeeper,

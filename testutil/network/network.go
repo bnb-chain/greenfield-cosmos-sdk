@@ -3,6 +3,7 @@ package network
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,9 +17,9 @@ import (
 	"time"
 
 	dbm "github.com/cometbft/cometbft-db"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
 	tmclient "github.com/cometbft/cometbft/rpc/client"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 
@@ -52,6 +53,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module" // import consensus as a blank
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
@@ -122,7 +124,7 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 		AppConstructor:    fixture.AppConstructor,
 		GenesisState:      fixture.GenesisState,
 		TimeoutCommit:     2 * time.Second,
-		ChainID:           "chain-" + tmrand.Str(6),
+		ChainID:           testutil.DefaultChainId,
 		NumValidators:     4,
 		BondDenom:         sdk.DefaultBondDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom),
@@ -131,8 +133,8 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 		BondedTokens:      sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction),
 		PruningStrategy:   pruningtypes.PruningOptionNothing,
 		CleanupDir:        true,
-		SigningAlgo:       string(hd.Secp256k1Type),
-		KeyringOptions:    []keyring.Option{},
+		SigningAlgo:       string(hd.EthSecp256k1Type),
+		KeyringOptions:    []keyring.Option{keyring.ETHAlgoOption()},
 		PrintMnemonic:     false,
 	}
 }
@@ -141,6 +143,7 @@ func DefaultConfig(factory TestFixtureFactory) Config {
 func MinimumAppConfig() depinject.Config {
 	return configurator.NewAppConfig(
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.ParamsModule(),
 		configurator.BankModule(),
 		configurator.GenutilModule(),
@@ -237,7 +240,7 @@ type (
 		RPCAddress string
 		P2PAddress string
 		Address    sdk.AccAddress
-		ValAddress sdk.ValAddress
+		ValAddress sdk.AccAddress
 		RPCClient  tmclient.Client
 
 		tmNode  *node.Node
@@ -490,13 +493,20 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
+		blsSecretKey, err := bls.RandKey()
+		if err != nil {
+			return nil, err
+		}
+		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+			addr,
 			valPubKeys[i],
 			sdk.NewCoin(cfg.BondDenom, cfg.BondedTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
+			addr, addr, addr, addr, blsPubKey,
 		)
 		if err != nil {
 			return nil, err
@@ -566,7 +576,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			P2PAddress: tmCfg.P2P.ListenAddress,
 			APIAddress: apiAddr,
 			Address:    addr,
-			ValAddress: sdk.ValAddress(addr),
+			ValAddress: addr,
 		}
 	}
 

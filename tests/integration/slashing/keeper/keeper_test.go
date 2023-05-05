@@ -7,6 +7,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,6 +37,7 @@ type KeeperTestSuite struct {
 	stakingKeeper     *stakingkeeper.Keeper
 	bankKeeper        bankkeeper.Keeper
 	accountKeeper     authkeeper.AccountKeeper
+	authzKeeper       authzkeeper.Keeper
 	interfaceRegistry codectypes.InterfaceRegistry
 	addrDels          []sdk.AccAddress
 	queryClient       slashingtypes.QueryClient
@@ -46,6 +49,7 @@ func (s *KeeperTestSuite) SetupTest() {
 		testutil.AppConfig,
 		&s.bankKeeper,
 		&s.accountKeeper,
+		&s.authzKeeper,
 		&s.slashingKeeper,
 		&s.stakingKeeper,
 		&s.interfaceRegistry,
@@ -84,7 +88,7 @@ func (s *KeeperTestSuite) TestUnJailNotBonded() {
 	s.stakingKeeper.SetParams(ctx, p)
 
 	addrDels := simtestutil.AddTestAddrsIncremental(s.bankKeeper, s.stakingKeeper, ctx, 6, s.stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(6)
 	tstaking := stakingtestutil.NewHelper(s.T(), ctx, s.stakingKeeper)
 
@@ -93,9 +97,6 @@ func (s *KeeperTestSuite) TestUnJailNotBonded() {
 		addr, val := valAddrs[i], pks[i]
 		tstaking.CreateValidatorWithValPower(addr, val, 100, true)
 	}
-
-	staking.EndBlocker(ctx, s.stakingKeeper)
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 	// create a 6th validator with less power than the cliff validator (won't be bonded)
 	addr, val := valAddrs[5], pks[5]
@@ -145,7 +146,7 @@ func (s *KeeperTestSuite) TestHandleNewValidator() {
 	ctx := s.ctx
 
 	addrDels := simtestutil.AddTestAddrsIncremental(s.bankKeeper, s.stakingKeeper, ctx, 1, s.stakingKeeper.TokensFromConsensusPower(ctx, 0))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(1)
 	addr, val := valAddrs[0], pks[0]
 	tstaking := stakingtestutil.NewHelper(s.T(), ctx, s.stakingKeeper)
@@ -190,7 +191,7 @@ func (s *KeeperTestSuite) TestHandleAlreadyJailed() {
 	ctx := s.ctx
 
 	addrDels := simtestutil.AddTestAddrsIncremental(s.bankKeeper, s.stakingKeeper, ctx, 1, s.stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrDels)
+	valAddrs := simtestutil.CopyAddrs(addrDels)
 	pks := simtestutil.CreateTestPubKeys(1)
 	addr, val := valAddrs[0], pks[0]
 	power := int64(100)
@@ -250,7 +251,7 @@ func (s *KeeperTestSuite) TestValidatorDippingInAndOut() {
 	addr, val := pks[0].Address(), pks[0]
 	consAddr := sdk.ConsAddress(addr)
 	tstaking := stakingtestutil.NewHelper(s.T(), ctx, s.stakingKeeper)
-	valAddr := sdk.ValAddress(addr)
+	valAddr := sdk.AccAddress(addr)
 
 	tstaking.CreateValidatorWithValPower(valAddr, val, power, true)
 	validatorUpdates := staking.EndBlocker(ctx, s.stakingKeeper)
@@ -265,10 +266,10 @@ func (s *KeeperTestSuite) TestValidatorDippingInAndOut() {
 	}
 
 	// kick first validator out of validator set
-	tstaking.CreateValidatorWithValPower(sdk.ValAddress(pks[1].Address()), pks[1], power+1, true)
+	tstaking.CreateValidatorWithValPower(sdk.AccAddress(pks[1].Address()), pks[1], power+1, true)
 	validatorUpdates = staking.EndBlocker(ctx, s.stakingKeeper)
 	s.Require().Equal(2, len(validatorUpdates))
-	tstaking.CheckValidator(sdk.ValAddress(pks[1].Address()), stakingtypes.Bonded, false)
+	tstaking.CheckValidator(sdk.AccAddress(pks[1].Address()), stakingtypes.Bonded, false)
 	tstaking.CheckValidator(valAddr, stakingtypes.Unbonding, false)
 
 	// 600 more blocks happened

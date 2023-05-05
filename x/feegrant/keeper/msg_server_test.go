@@ -5,6 +5,7 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	"github.com/golang/mock/gomock"
@@ -33,7 +34,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				}
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"invalid grantee address",
@@ -47,13 +48,13 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				}
 			},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"valid: grantee account doesn't exist",
 			func() *feegrant.MsgGrantAllowance {
-				grantee := "cosmos139f7kncmglres2nf3h4hc4tade85ekfr8sulz5"
-				granteeAccAddr := types.MustAccAddressFromBech32(grantee)
+				grantee := "0x319D057ce294319bA1fa5487134608727e1F3e29"
+				granteeAccAddr, _ := sdk.AccAddressFromHexUnsafe(grantee)
 				any, err := codectypes.NewAnyWithValue(&feegrant.BasicAllowance{
 					SpendLimit: suite.atom,
 					Expiration: &oneYear,
@@ -62,7 +63,7 @@ func (suite *KeeperTestSuite) TestGrantAllowance() {
 				suite.accountKeeper.EXPECT().GetAccount(gomock.Any(), granteeAccAddr).Return(nil).AnyTimes()
 
 				acc := authtypes.NewBaseAccountWithAddress(granteeAccAddr)
-				suite.accountKeeper.EXPECT().NewAccountWithAddress(gomock.Any(), types.MustAccAddressFromBech32(grantee)).Return(acc).AnyTimes()
+				suite.accountKeeper.EXPECT().NewAccountWithAddress(gomock.Any(), types.MustAccAddressFromHex(grantee)).Return(acc).AnyTimes()
 				suite.accountKeeper.EXPECT().SetAccount(gomock.Any(), acc).Return()
 
 				suite.Require().NoError(err)
@@ -194,7 +195,7 @@ func (suite *KeeperTestSuite) TestRevokeAllowance() {
 			},
 			func() {},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"error: invalid grantee",
@@ -204,7 +205,7 @@ func (suite *KeeperTestSuite) TestRevokeAllowance() {
 			},
 			func() {},
 			true,
-			"decoding bech32 failed",
+			"invalid address hex length",
 		},
 		{
 			"error: fee allowance not found",

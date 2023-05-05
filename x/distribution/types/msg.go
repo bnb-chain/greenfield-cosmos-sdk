@@ -38,7 +38,7 @@ func (msg MsgSetWithdrawAddress) Type() string  { return TypeMsgSetWithdrawAddre
 
 // Return address that must sign over msg.GetSignBytes()
 func (msg MsgSetWithdrawAddress) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -50,17 +50,17 @@ func (msg MsgSetWithdrawAddress) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgSetWithdrawAddress) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.AccAddressFromBech32(msg.WithdrawAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.WithdrawAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid withdraw address: %s", err)
 	}
 
 	return nil
 }
 
-func NewMsgWithdrawDelegatorReward(delAddr sdk.AccAddress, valAddr sdk.ValAddress) *MsgWithdrawDelegatorReward {
+func NewMsgWithdrawDelegatorReward(delAddr, valAddr sdk.AccAddress) *MsgWithdrawDelegatorReward {
 	return &MsgWithdrawDelegatorReward{
 		DelegatorAddress: delAddr.String(),
 		ValidatorAddress: valAddr.String(),
@@ -72,7 +72,7 @@ func (msg MsgWithdrawDelegatorReward) Type() string  { return TypeMsgWithdrawDel
 
 // Return address that must sign over msg.GetSignBytes()
 func (msg MsgWithdrawDelegatorReward) GetSigners() []sdk.AccAddress {
-	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegator, _ := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	return []sdk.AccAddress{delegator}
 }
 
@@ -84,16 +84,16 @@ func (msg MsgWithdrawDelegatorReward) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgWithdrawDelegatorReward) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.DelegatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil
 }
 
-func NewMsgWithdrawValidatorCommission(valAddr sdk.ValAddress) *MsgWithdrawValidatorCommission {
+func NewMsgWithdrawValidatorCommission(valAddr sdk.AccAddress) *MsgWithdrawValidatorCommission {
 	return &MsgWithdrawValidatorCommission{
 		ValidatorAddress: valAddr.String(),
 	}
@@ -104,8 +104,8 @@ func (msg MsgWithdrawValidatorCommission) Type() string  { return TypeMsgWithdra
 
 // Return address that must sign over msg.GetSignBytes()
 func (msg MsgWithdrawValidatorCommission) GetSigners() []sdk.AccAddress {
-	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	return []sdk.AccAddress{sdk.AccAddress(valAddr)}
+	valAddr, _ := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
+	return []sdk.AccAddress{valAddr}
 }
 
 // get the bytes for the message signer to sign on
@@ -116,7 +116,7 @@ func (msg MsgWithdrawValidatorCommission) GetSignBytes() []byte {
 
 // quick validity check
 func (msg MsgWithdrawValidatorCommission) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(msg.ValidatorAddress); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
 	return nil
@@ -140,7 +140,7 @@ func (msg MsgFundCommunityPool) Type() string { return TypeMsgFundCommunityPool 
 // GetSigners returns the signer addresses that are expected to sign the result
 // of GetSignBytes.
 func (msg MsgFundCommunityPool) GetSigners() []sdk.AccAddress {
-	depositor, _ := sdk.AccAddressFromBech32(msg.Depositor)
+	depositor, _ := sdk.AccAddressFromHexUnsafe(msg.Depositor)
 	return []sdk.AccAddress{depositor}
 }
 
@@ -156,7 +156,7 @@ func (msg MsgFundCommunityPool) ValidateBasic() error {
 	if !msg.Amount.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
-	if _, err := sdk.AccAddressFromBech32(msg.Depositor); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Depositor); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid depositor address: %s", err)
 	}
 	return nil
@@ -171,7 +171,7 @@ func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 // GetSigners returns the signer addresses that are expected to sign the result
 // of GetSignBytes.
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	authority, _ := sdk.AccAddressFromBech32(msg.Authority)
+	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{authority}
 }
 
@@ -189,7 +189,7 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 		return errors.New("base and bonus proposer reward are deprecated fields and should not be used")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
@@ -205,7 +205,7 @@ func (msg MsgCommunityPoolSpend) Type() string { return TypeMsgCommunityPoolSpen
 // GetSigners returns the signer addresses that are expected to sign the result
 // of GetSignBytes, which is the authority.
 func (msg MsgCommunityPoolSpend) GetSigners() []sdk.AccAddress {
-	authority, _ := sdk.AccAddressFromBech32(msg.Authority)
+	authority, _ := sdk.AccAddressFromHexUnsafe(msg.Authority)
 	return []sdk.AccAddress{authority}
 }
 
@@ -218,7 +218,7 @@ func (msg MsgCommunityPoolSpend) GetSignBytes() []byte {
 
 // ValidateBasic performs basic MsgCommunityPoolSpend message validation.
 func (msg MsgCommunityPoolSpend) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+	if _, err := sdk.AccAddressFromHexUnsafe(msg.Authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 

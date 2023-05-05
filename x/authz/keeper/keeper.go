@@ -18,11 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-// TODO: Revisit this once we have propoer gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054,
-// https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(20)
-
 type Keeper struct {
 	storeKey   storetypes.StoreKey
 	cdc        codec.BinaryCodec
@@ -56,7 +51,12 @@ func (k Keeper) getGrant(ctx sdk.Context, skey []byte) (grant authz.Grant, found
 	return grant, true
 }
 
-func (k Keeper) update(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, updated authz.Authorization) error {
+func (k Keeper) GetGrant(ctx sdk.Context, grantee, granter sdk.AccAddress, msgType string) (grant authz.Grant, found bool) {
+	skey := grantStoreKey(grantee, granter, msgType)
+	return k.getGrant(ctx, skey)
+}
+
+func (k Keeper) Update(ctx sdk.Context, grantee, granter sdk.AccAddress, updated authz.Authorization) error {
 	skey := grantStoreKey(grantee, granter, updated.MsgTypeURL())
 	grant, found := k.getGrant(ctx, skey)
 	if !found {
@@ -121,7 +121,7 @@ func (k Keeper) DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []
 			if resp.Delete {
 				err = k.DeleteGrant(ctx, grantee, granter, sdk.MsgTypeURL(msg))
 			} else if resp.Updated != nil {
-				err = k.update(ctx, grantee, granter, resp.Updated)
+				err = k.Update(ctx, grantee, granter, resp.Updated)
 			}
 			if err != nil {
 				return nil, err
@@ -355,8 +355,6 @@ func (k Keeper) removeFromGrantQueue(ctx sdk.Context, grantKey []byte, granter, 
 	queueItems := queueItem.MsgTypeUrls
 
 	for index, typeURL := range queueItems {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "grant queue")
-
 		if typeURL == msgType {
 			end := len(queueItem.MsgTypeUrls) - 1
 			queueItems[index] = queueItems[end]

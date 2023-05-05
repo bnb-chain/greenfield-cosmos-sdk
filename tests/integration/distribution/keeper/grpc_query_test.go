@@ -31,7 +31,7 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	addrs       []sdk.AccAddress
-	valAddrs    []sdk.ValAddress
+	valAddrs    []sdk.AccAddress
 
 	interfaceRegistry codectypes.InterfaceRegistry
 	bankKeeper        bankkeeper.Keeper
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.queryClient = queryClient
 
 	suite.addrs = simtestutil.AddTestAddrs(suite.bankKeeper, suite.stakingKeeper, ctx, 2, sdk.NewInt(1000000000))
-	suite.valAddrs = simtestutil.ConvertAddrsToValAddrs(suite.addrs)
+	suite.valAddrs = simtestutil.CopyAddrs(suite.addrs)
 	suite.msgServer = keeper.NewMsgServerImpl(suite.distrKeeper)
 }
 

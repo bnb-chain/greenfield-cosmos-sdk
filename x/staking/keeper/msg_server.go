@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"strconv"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type msgServer struct {
@@ -33,20 +35,41 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateValidator) (*types.MsgCreateValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	delAddr, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// For genesis block, the signer should be the self delegator itself,
+	// for other blocks, the signer should be the gov module account.
+	govModuleAddr := k.authKeeper.GetModuleAddress(govtypes.ModuleName)
+	if ctx.BlockHeight() == 0 {
+		signers := msg.GetSigners()
+		if len(signers) != 1 || !signers[0].Equals(delAddr) {
+			return nil, types.ErrInvalidSigner
+		}
+	} else {
+		signers := msg.GetSigners()
+		if len(signers) != 1 || !signers[0].Equals(govModuleAddr) {
+			return nil, types.ErrInvalidSigner
+		}
 	}
 
 	if msg.Commission.Rate.LT(k.MinCommissionRate(ctx)) {
 		return nil, sdkerrors.Wrapf(types.ErrCommissionLTMinRate, "cannot set validator commission to less than minimum rate of %s", k.MinCommissionRate(ctx))
 	}
 
-	// check to see if the pubkey or sender has been registered before
+	// check to see if the operator address has been registered before
 	if _, found := k.GetValidator(ctx, valAddr); found {
 		return nil, types.ErrValidatorOwnerExists
 	}
 
+	// check to see if the pubkey has been registered before
 	pk, ok := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
 	if !ok {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidType, "Expecting cryptotypes.PubKey, got %T", pk)
@@ -54,6 +77,33 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	if _, found := k.GetValidatorByConsAddr(ctx, sdk.GetConsAddress(pk)); found {
 		return nil, types.ErrValidatorPubKeyExists
+	}
+
+	// check to see if the relayer address has been registered before
+	relayerAddr, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
+	if err != nil {
+		return nil, err
+	}
+	if _, found := k.GetValidatorByRelayerAddr(ctx, relayerAddr); found {
+		return nil, types.ErrValidatorRelayerAddressExists
+	}
+
+	// check to see if the challenger address has been registered before
+	challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+	if err != nil {
+		return nil, err
+	}
+	if _, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
+		return nil, types.ErrValidatorChallengerAddressExists
+	}
+
+	// check to see if the bls pubkey has been registered before
+	blsPk, err := hex.DecodeString(msg.BlsKey)
+	if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+		return nil, types.ErrValidatorInvalidBlsKey
+	}
+	if _, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+		return nil, types.ErrValidatorBlsKeyExists
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -85,7 +135,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		}
 	}
 
-	validator, err := types.NewValidator(valAddr, pk, msg.Description)
+	validator, err := types.NewValidator(valAddr, pk, msg.Description, delAddr, relayerAddr, challengerAddr, blsPk)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +145,11 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		msg.Commission.MaxChangeRate, ctx.BlockHeader().Time,
 	)
 
-	validator, err = validator.SetInitialCommission(commission)
-	if err != nil {
-		return nil, err
+	if msg.MinSelfDelegation.LT(k.MinSelfDelegation(ctx)) {
+		return nil, types.ErrInvalidMinSelfDelegation
 	}
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	validator, err = validator.SetInitialCommission(commission)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +158,10 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 
 	k.SetValidator(ctx, validator)
 	k.SetValidatorByConsAddr(ctx, validator)
+	k.SetValidatorByRelayerAddress(ctx, validator)
+	k.SetValidatorByChallengerAddress(ctx, validator)
+	k.SetValidatorByBlsKey(ctx, validator)
+	k.SetValidatorByConsAddr(ctx, validator)
 	k.SetNewValidatorByPowerIndex(ctx, validator)
 
 	// call the after-creation hook
@@ -116,18 +169,37 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
+	// check the delegate staking authorization from the delegator to the gov module account
+	if ctx.BlockHeight() != 0 {
+		err = k.CheckStakeAuthorization(ctx, govModuleAddr, delAddr, types.NewMsgDelegate(delAddr, valAddr, msg.Value))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// move coins from the msg.Address account to a (self-delegation) delegator account
 	// the validator account and global shares are updated within here
 	// NOTE source will always be from a wallet which are unbonded
-	_, err = k.Keeper.Delegate(ctx, delegatorAddress, msg.Value.Amount, types.Unbonded, validator, true)
+	_, err = k.Keeper.Delegate(ctx, delAddr, msg.Value.Amount, types.Unbonded, validator, true)
 	if err != nil {
 		return nil, err
+	}
+
+	// the validator should self delegate enough coins to be an active validator when creating
+	selfDelAmount, _ := k.GetSelfDelegation(ctx, valAddr)
+	if selfDelAmount.LT(validator.MinSelfDelegation) {
+		return nil, types.ErrNotEnoughDelegationShares
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeCreateValidator,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
+			sdk.NewAttribute(types.AttributeKeySelfDelAddress, validator.SelfDelAddress),
+			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Value.String()),
 		),
 	})
@@ -138,7 +210,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 // EditValidator defines a method for editing an existing validator
 func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValidator) (*types.MsgEditValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -182,6 +254,57 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		validator.MinSelfDelegation = *msg.MinSelfDelegation
 	}
 
+	// replace relayer address
+	if len(msg.RelayerAddress) != 0 {
+		relayerAddr, err := sdk.AccAddressFromHexUnsafe(msg.RelayerAddress)
+		if err != nil {
+			return nil, err
+		}
+		if tmpValidator, found := k.GetValidatorByRelayerAddr(ctx, relayerAddr); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorRelayerAddressExists
+			}
+		} else {
+			k.DeleteValidatorByRelayerAddress(ctx, validator)
+			validator.RelayerAddress = relayerAddr.String()
+			k.SetValidatorByRelayerAddress(ctx, validator)
+		}
+	}
+
+	// replace challenger address
+	if len(msg.ChallengerAddress) != 0 {
+		challengerAddr, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
+		if err != nil {
+			return nil, err
+		}
+		if tmpValidator, found := k.GetValidatorByChallengerAddr(ctx, challengerAddr); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorChallengerAddressExists
+			}
+		} else {
+			k.DeleteValidatorByChallengerAddress(ctx, validator)
+			validator.ChallengerAddress = challengerAddr.String()
+			k.SetValidatorByChallengerAddress(ctx, validator)
+		}
+	}
+
+	// replace bls pubkey
+	if len(msg.BlsKey) != 0 {
+		blsPk, err := hex.DecodeString(msg.BlsKey)
+		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
+			return nil, types.ErrValidatorInvalidBlsKey
+		}
+		if tmpValidator, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
+			if tmpValidator.OperatorAddress != validator.OperatorAddress {
+				return nil, types.ErrValidatorBlsKeyExists
+			}
+		} else {
+			k.DeleteValidatorByBlsKey(ctx, validator)
+			validator.BlsKey = blsPk
+			k.SetValidatorByBlsKey(ctx, validator)
+		}
+	}
+
 	k.SetValidator(ctx, validator)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -189,6 +312,9 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			types.EventTypeEditValidator,
 			sdk.NewAttribute(types.AttributeKeyCommissionRate, validator.Commission.String()),
 			sdk.NewAttribute(types.AttributeKeyMinSelfDelegation, validator.MinSelfDelegation.String()),
+			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
+			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
+			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
 		),
 	})
 
@@ -198,7 +324,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 // Delegate defines a method for performing a delegation of coins from a delegator to a validator
 func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valAddr, valErr := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, valErr := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if valErr != nil {
 		return nil, valErr
 	}
@@ -208,9 +334,16 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		return nil, types.ErrNoValidatorFound
 	}
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
+	}
+
+	if !ctx.IsUpgraded(upgradetypes.EnablePublicDelegationUpgrade) {
+		selfDelAddress := validator.GetSelfDelegator()
+		if delegatorAddress.String() != selfDelAddress.String() {
+			return nil, types.ErrDelegationNotAllowed
+		}
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -252,11 +385,15 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 // BeginRedelegate defines a method for performing a redelegation of coins from a delegator and source validator to a destination validator
 func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRedelegate) (*types.MsgBeginRedelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	valSrcAddr, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
+	if !ctx.IsUpgraded(upgradetypes.EnablePublicDelegationUpgrade) {
+		return nil, types.ErrRedelegationNotAllowed
+	}
+
+	valSrcAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorSrcAddress)
 	if err != nil {
 		return nil, err
 	}
-	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -267,6 +404,8 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		return nil, err
 	}
 
+	// TODO: And a hard fork to allow all redelegations
+
 	bondDenom := k.BondDenom(ctx)
 	if msg.Amount.Denom != bondDenom {
 		return nil, sdkerrors.Wrapf(
@@ -274,7 +413,7 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 		)
 	}
 
-	valDstAddr, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
+	valDstAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorDstAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -316,11 +455,11 @@ func (k msgServer) BeginRedelegate(goCtx context.Context, msg *types.MsgBeginRed
 func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	addr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -373,12 +512,12 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 func (k msgServer) CancelUnbondingDelegation(goCtx context.Context, msg *types.MsgCancelUnbondingDelegation) (*types.MsgCancelUnbondingDelegationResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	delegatorAddress, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	delegatorAddress, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}

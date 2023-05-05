@@ -16,6 +16,7 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintcli "github.com/cosmos/cosmos-sdk/x/mint/client/cli"
@@ -31,7 +32,7 @@ func TestGetCmdQueryParams(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	cmd := mintcli.GetCmdQueryParams()
 
@@ -96,7 +97,7 @@ func TestGetCmdQueryInflation(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	cmd := mintcli.GetCmdQueryInflation()
 
@@ -156,7 +157,7 @@ func TestGetCmdQueryAnnualProvisions(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	cmd := mintcli.GetCmdQueryAnnualProvisions()
 

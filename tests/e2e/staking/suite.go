@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -93,158 +92,6 @@ func (s *E2ETestSuite) TearDownSuite() {
 	s.network.Cleanup()
 }
 
-func (s *E2ETestSuite) TestNewCreateValidatorCmd() {
-	require := s.Require()
-	val := s.network.Validators[0]
-
-	consPrivKey := ed25519.GenPrivKey()
-	consPubKeyBz, err := s.cfg.Codec.MarshalInterfaceJSON(consPrivKey.PubKey())
-	require.NoError(err)
-	require.NotNil(consPubKeyBz)
-
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewValidator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
-	require.NoError(err)
-
-	pub, err := k.GetPubKey()
-	require.NoError(err)
-
-	newAddr := sdk.AccAddress(pub.Address())
-	_, err = clitestutil.MsgSendExec(
-		val.ClientCtx,
-		val.Address,
-		newAddr,
-		sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(200))), fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-	)
-	require.NoError(err)
-	s.Require().NoError(s.network.WaitForNextBlock())
-
-	testCases := []struct {
-		name         string
-		args         []string
-		expectErr    bool
-		expectedCode uint32
-		respType     proto.Message
-	}{
-		{
-			"invalid transaction (missing amount)",
-			[]string{
-				fmt.Sprintf("--%s=AFAF00C4", cli.FlagIdentity),
-				fmt.Sprintf("--%s=https://newvalidator.io", cli.FlagWebsite),
-				fmt.Sprintf("--%s=contact@newvalidator.io", cli.FlagSecurityContact),
-				fmt.Sprintf("--%s='Hey, I am a new validator. Please delegate!'", cli.FlagDetails),
-				fmt.Sprintf("--%s=0.5", cli.FlagCommissionRate),
-				fmt.Sprintf("--%s=1.0", cli.FlagCommissionMaxRate),
-				fmt.Sprintf("--%s=0.1", cli.FlagCommissionMaxChangeRate),
-				fmt.Sprintf("--%s=1", cli.FlagMinSelfDelegation),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"invalid transaction (missing pubkey)",
-			[]string{
-				fmt.Sprintf("--%s=%dstake", cli.FlagAmount, 100),
-				fmt.Sprintf("--%s=AFAF00C4", cli.FlagIdentity),
-				fmt.Sprintf("--%s=https://newvalidator.io", cli.FlagWebsite),
-				fmt.Sprintf("--%s=contact@newvalidator.io", cli.FlagSecurityContact),
-				fmt.Sprintf("--%s='Hey, I am a new validator. Please delegate!'", cli.FlagDetails),
-				fmt.Sprintf("--%s=0.5", cli.FlagCommissionRate),
-				fmt.Sprintf("--%s=1.0", cli.FlagCommissionMaxRate),
-				fmt.Sprintf("--%s=0.1", cli.FlagCommissionMaxChangeRate),
-				fmt.Sprintf("--%s=1", cli.FlagMinSelfDelegation),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"invalid transaction (missing moniker)",
-			[]string{
-				fmt.Sprintf("--%s=%s", cli.FlagPubKey, consPubKeyBz),
-				fmt.Sprintf("--%s=%dstake", cli.FlagAmount, 100),
-				fmt.Sprintf("--%s=AFAF00C4", cli.FlagIdentity),
-				fmt.Sprintf("--%s=https://newvalidator.io", cli.FlagWebsite),
-				fmt.Sprintf("--%s=contact@newvalidator.io", cli.FlagSecurityContact),
-				fmt.Sprintf("--%s='Hey, I am a new validator. Please delegate!'", cli.FlagDetails),
-				fmt.Sprintf("--%s=0.5", cli.FlagCommissionRate),
-				fmt.Sprintf("--%s=1.0", cli.FlagCommissionMaxRate),
-				fmt.Sprintf("--%s=0.1", cli.FlagCommissionMaxChangeRate),
-				fmt.Sprintf("--%s=1", cli.FlagMinSelfDelegation),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, 0, nil,
-		},
-		{
-			"valid transaction",
-			[]string{
-				fmt.Sprintf("--%s=%s", cli.FlagPubKey, consPubKeyBz),
-				fmt.Sprintf("--%s=%dstake", cli.FlagAmount, 100),
-				fmt.Sprintf("--%s=NewValidator", cli.FlagMoniker),
-				fmt.Sprintf("--%s=AFAF00C4", cli.FlagIdentity),
-				fmt.Sprintf("--%s=https://newvalidator.io", cli.FlagWebsite),
-				fmt.Sprintf("--%s=contact@newvalidator.io", cli.FlagSecurityContact),
-				fmt.Sprintf("--%s='Hey, I am a new validator. Please delegate!'", cli.FlagDetails),
-				fmt.Sprintf("--%s=0.5", cli.FlagCommissionRate),
-				fmt.Sprintf("--%s=1.0", cli.FlagCommissionMaxRate),
-				fmt.Sprintf("--%s=0.1", cli.FlagCommissionMaxChangeRate),
-				fmt.Sprintf("--%s=1", cli.FlagMinSelfDelegation),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, newAddr),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, 0, &sdk.TxResponse{},
-		},
-	}
-
-	for _, tc := range testCases {
-		tc := tc
-
-		s.Run(tc.name, func() {
-			cmd := cli.NewCreateValidatorCmd()
-			clientCtx := val.ClientCtx
-
-			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
-			if tc.expectErr {
-				require.Error(err)
-			} else {
-				require.NoError(err, "test: %s\noutput: %s", tc.name, out.String())
-				err = clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType)
-				require.NoError(err, out.String(), "test: %s, output\n:", tc.name, out.String())
-				s.Require().NoError(s.network.WaitForNextBlock())
-
-				txRespHash := tc.respType.(*sdk.TxResponse)
-				txResp, err := clitestutil.GetTxResponse(s.network, clientCtx, txRespHash.TxHash)
-				s.Require().NoError(err)
-				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
-
-				var hadEvent bool
-				events := txResp.Logs[0].GetEvents()
-				for i := 0; i < len(events); i++ {
-					if events[i].GetType() == "create_validator" {
-						attributes := events[i].GetAttributes()
-						require.Equal(attributes[1].Value, "100stake")
-						hadEvent = true
-						break
-					}
-				}
-
-				s.Require().True(hadEvent)
-			}
-		})
-	}
-}
-
 func (s *E2ETestSuite) TestGetCmdQueryValidator() {
 	val := s.network.Validators[0]
 	testCases := []struct {
@@ -259,7 +106,7 @@ func (s *E2ETestSuite) TestGetCmdQueryValidator() {
 		},
 		{
 			"with valid and not existing address",
-			[]string{"cosmosvaloper15jkng8hytwt22lllv6mw4k89qkqehtahd84ptu", fmt.Sprintf("--%s=json", flags.FlagOutput)},
+			[]string{"0x871755eDC6FA6ffC92D4b78B540f01D63e84dcf5", fmt.Sprintf("--%s=json", flags.FlagOutput)},
 			true,
 		},
 		{
@@ -902,12 +749,13 @@ historical_entries: 10000
 max_entries: 7
 max_validators: 100
 min_commission_rate: "0.000000000000000000"
+min_self_delegation: "1"
 unbonding_time: 1814400s`,
 		},
 		{
 			"with json output",
 			[]string{fmt.Sprintf("--%s=json", flags.FlagOutput)},
-			`{"unbonding_time":"1814400s","max_validators":100,"max_entries":7,"historical_entries":10000,"bond_denom":"stake","min_commission_rate":"0.000000000000000000"}`,
+			`{"unbonding_time":"1814400s","max_validators":100,"max_entries":7,"historical_entries":10000,"bond_denom":"stake","min_commission_rate":"0.000000000000000000","min_self_delegation":"1"}`,
 		},
 	}
 	for _, tc := range testCases {
@@ -1078,7 +926,7 @@ func (s *E2ETestSuite) TestNewEditValidatorCmd() {
 func (s *E2ETestSuite) TestNewDelegateCmd() {
 	val := s.network.Validators[0]
 
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewAccount", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	pub, err := k.GetPubKey()
@@ -1187,7 +1035,7 @@ func (s *E2ETestSuite) TestNewRedelegateCmd() {
 		{
 			"with wrong source validator address",
 			[]string{
-				`cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj`, // src-validator-addr
+				`0x80035D039aec57Fb139A050489dCCd3E0c7E4Ab0`,           // src-validator-addr
 				val2.ValAddress.String(),                               // dst-validator-addr
 				sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(150)).String(), // amount
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
@@ -1201,7 +1049,7 @@ func (s *E2ETestSuite) TestNewRedelegateCmd() {
 			"with wrong destination validator address",
 			[]string{
 				val.ValAddress.String(),                                // dst-validator-addr
-				`cosmosvaloper1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj`, // src-validator-addr
+				`0x80035D039aec57Fb139A050489dCCd3E0c7E4Ab0`,           // src-validator-addr
 				sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(150)).String(), // amount
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -1441,7 +1289,7 @@ func (s *E2ETestSuite) TestBlockResults() {
 	val := s.network.Validators[0]
 
 	// Create new account in the keyring.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewDelegator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic("NewDelegator", keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	require.NoError(err)
 	pub, err := k.GetPubKey()
 	require.NoError(err)

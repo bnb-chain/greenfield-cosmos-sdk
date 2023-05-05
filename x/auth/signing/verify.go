@@ -3,10 +3,15 @@ package signing
 import (
 	"fmt"
 
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+
+	errorsmod "cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes
@@ -14,6 +19,43 @@ import (
 func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
+		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
+			sig := data.Signature
+			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+			if err != nil {
+				return err
+			}
+
+			// check signature length
+			if len(sig) != ethcrypto.SignatureLength {
+				return errorsmod.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
+			}
+
+			// remove the recovery offset if needed (ie. Metamask eip712 signature)
+			if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
+				sig[ethcrypto.RecoveryIDOffset] -= 27
+			}
+
+			// recover the pubkey from the signature
+			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, sig)
+			if err != nil {
+				return errorsmod.Wrap(err, "failed to recover fee payer from sig")
+			}
+			ecPubKey, err := ethcrypto.UnmarshalPubkey(feePayerPubkey)
+			if err != nil {
+				return errorsmod.Wrap(err, "failed to unmarshal recovered fee payer pubkey")
+			}
+
+			// check that the recovered pubkey matches the one in the signerData data
+			pk := &ethsecp256k1.PubKey{
+				Key: ethcrypto.CompressPubkey(ecPubKey),
+			}
+			if !pubKey.Equals(pk) {
+				return errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "feePayer's pubkey %s is different from signature's pubkey %s", pubKey, pk)
+			}
+			return nil
+		}
+		// This should never happen, but we add it just for test cases.
 		signBytes, err := handler.GetSignBytes(data.SignMode, signerData, tx)
 		if err != nil {
 			return err
@@ -22,19 +64,8 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 			return fmt.Errorf("unable to verify single signer signature")
 		}
 		return nil
-
 	case *signing.MultiSignatureData:
-		multiPK, ok := pubKey.(multisig.PubKey)
-		if !ok {
-			return fmt.Errorf("expected %T, got %T", (multisig.PubKey)(nil), pubKey)
-		}
-		err := multiPK.VerifyMultisignature(func(mode signing.SignMode) ([]byte, error) {
-			return handler.GetSignBytes(mode, signerData, tx)
-		}, data)
-		if err != nil {
-			return err
-		}
-		return nil
+		return fmt.Errorf("multi signature is not allowed")
 	default:
 		return fmt.Errorf("unexpected SignatureData %T", sigData)
 	}

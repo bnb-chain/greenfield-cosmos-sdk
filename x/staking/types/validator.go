@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
@@ -38,11 +39,16 @@ var (
 
 var _ ValidatorI = Validator{}
 
-// NewValidator constructs a new Validator
+// NewSimpleValidator constructs a new Validator with default self delegation, relayer address, challenger address and nil bls pubkey
 //
-//nolint:interfacer
-func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
+//nolint:interfacerh
+func NewSimpleValidator(operator sdk.AccAddress, pubKey cryptotypes.PubKey, description Description) (Validator, error) {
 	pkAny, err := codectypes.NewAnyWithValue(pubKey)
+	if err != nil {
+		return Validator{}, err
+	}
+
+	blsPk, err := hex.DecodeString(sdk.BLSEmptyPubKey)
 	if err != nil {
 		return Validator{}, err
 	}
@@ -52,14 +58,18 @@ func NewValidator(operator sdk.ValAddress, pubKey cryptotypes.PubKey, descriptio
 		ConsensusPubkey:         pkAny,
 		Jailed:                  false,
 		Status:                  Unbonded,
-		Tokens:                  math.ZeroInt(),
-		DelegatorShares:         math.LegacyZeroDec(),
+		Tokens:                  sdk.ZeroInt(),
+		DelegatorShares:         sdk.ZeroDec(),
 		Description:             description,
 		UnbondingHeight:         int64(0),
 		UnbondingTime:           time.Unix(0, 0).UTC(),
-		Commission:              NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
-		MinSelfDelegation:       math.OneInt(),
+		Commission:              NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+		MinSelfDelegation:       sdk.OneInt(),
 		UnbondingOnHoldRefCount: 0,
+		SelfDelAddress:          operator.String(),
+		RelayerAddress:          operator.String(),
+		ChallengerAddress:       operator.String(),
+		BlsKey:                  blsPk,
 	}, nil
 }
 
@@ -76,6 +86,26 @@ func (v Validator) String() string {
 	}
 
 	return string(out)
+}
+
+// NewValidator constructs a new Validator
+//
+//nolint:interfacerh
+func NewValidator(
+	operator sdk.AccAddress, pubKey cryptotypes.PubKey,
+	description Description, selfDelegator sdk.AccAddress,
+	relayer, challenger sdk.AccAddress, blsKey []byte,
+) (Validator, error) {
+	val, err := NewSimpleValidator(operator, pubKey, description)
+	if err != nil {
+		return val, err
+	}
+
+	val.SelfDelAddress = selfDelegator.String()
+	val.RelayerAddress = relayer.String()
+	val.BlsKey = blsKey
+	val.ChallengerAddress = challenger.String()
+	return val, nil
 }
 
 // Validators is a collection of Validator
@@ -273,9 +303,16 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		panic(err)
 	}
 
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer = sdk.MustAccAddressFromHex(v.RelayerAddress)
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey: tmProtoPk,
-		Power:  v.ConsensusPower(r),
+		PubKey:         tmProtoPk,
+		Power:          v.ConsensusPower(r),
+		RelayerAddress: relayer,
+		BlsKey:         v.BlsKey,
 	}
 }
 
@@ -287,9 +324,16 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 		panic(err)
 	}
 
+	var relayer []byte
+	if len(v.RelayerAddress) > 0 {
+		relayer = sdk.MustAccAddressFromHex(v.RelayerAddress)
+	}
+
 	return abci.ValidatorUpdate{
-		PubKey: tmProtoPk,
-		Power:  0,
+		PubKey:         tmProtoPk,
+		Power:          0,
+		RelayerAddress: relayer,
+		BlsKey:         v.BlsKey,
 	}
 }
 
@@ -365,6 +409,19 @@ func (v Validator) ConsensusPower(r math.Int) int64 {
 	}
 
 	return 0
+}
+
+// CrossChainBytes gets the cross-chain related fields, including the relayer address and bls key.
+// The format of the cross-chain bytes is:
+// |-- Relayer Address--|-- BLS Key --|
+func (v Validator) CrossChainBytes() []byte {
+	var crossChainBytes []byte
+	if len(v.RelayerAddress) > 0 {
+		crossChainBytes = sdk.MustAccAddressFromHex(v.RelayerAddress)
+	}
+
+	crossChainBytes = append(crossChainBytes, v.BlsKey...)
+	return crossChainBytes
 }
 
 // PotentialConsensusPower returns the potential consensus-engine power.
@@ -455,7 +512,10 @@ func (v *Validator) MinEqual(other *Validator) bool {
 		v.Commission.Equal(other.Commission) &&
 		v.Jailed == other.Jailed &&
 		v.MinSelfDelegation.Equal(other.MinSelfDelegation) &&
-		v.ConsensusPubkey.Equal(other.ConsensusPubkey)
+		v.ConsensusPubkey.Equal(other.ConsensusPubkey) &&
+		v.SelfDelAddress == other.SelfDelAddress &&
+		v.RelayerAddress == other.RelayerAddress &&
+		bytes.Equal(v.BlsKey, other.BlsKey)
 }
 
 // Equal checks if the receiver equals the parameter
@@ -468,11 +528,23 @@ func (v *Validator) Equal(v2 *Validator) bool {
 func (v Validator) IsJailed() bool        { return v.Jailed }
 func (v Validator) GetMoniker() string    { return v.Description.Moniker }
 func (v Validator) GetStatus() BondStatus { return v.Status }
-func (v Validator) GetOperator() sdk.ValAddress {
+func (v Validator) GetBlsKey() []byte     { return v.BlsKey }
+func (v Validator) GetOperator() sdk.AccAddress {
 	if v.OperatorAddress == "" {
 		return nil
 	}
-	addr, err := sdk.ValAddressFromBech32(v.OperatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(v.OperatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetChallenger() sdk.AccAddress {
+	if v.ChallengerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.ChallengerAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -527,4 +599,26 @@ func (v Validator) GetDelegatorShares() math.LegacyDec { return v.DelegatorShare
 func (v Validator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	var pk cryptotypes.PubKey
 	return unpacker.UnpackAny(v.ConsensusPubkey, &pk)
+}
+
+func (v Validator) GetSelfDelegator() sdk.AccAddress {
+	if v.SelfDelAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.SelfDelAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+func (v Validator) GetRelayer() sdk.AccAddress {
+	if v.RelayerAddress == "" {
+		return nil
+	}
+	addr, err := sdk.AccAddressFromHexUnsafe(v.RelayerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }

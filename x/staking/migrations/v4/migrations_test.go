@@ -42,7 +42,7 @@ func TestMigrate(t *testing.T) {
 	accAddrs := sims.CreateIncrementalAccounts(1)
 	accAddr := accAddrs[0]
 
-	valAddrs := sims.ConvertAddrsToValAddrs(accAddrs)
+	valAddrs := sims.CopyAddrs(accAddrs)
 	valAddr := valAddrs[0]
 
 	// creating 10 ubdEntries with same height and 10 ubdEntries with different creation height
@@ -96,7 +96,7 @@ func TestMigrate(t *testing.T) {
 
 // createOldStateUnbonding will create the ubd entries with duplicate heights
 // 10 duplicate heights and 10 unique ubd with creation height
-func createOldStateUnbonding(t *testing.T, creationHeight int64, valAddr sdk.ValAddress, accAddr sdk.AccAddress, cdc codec.BinaryCodec, store storetypes.KVStore) error {
+func createOldStateUnbonding(t *testing.T, creationHeight int64, valAddr, accAddr sdk.AccAddress, cdc codec.BinaryCodec, store storetypes.KVStore) error {
 	unbondBalance := sdk.NewInt(100)
 	completionTime := time.Now()
 	ubdEntries := make([]types.UnbondingDelegationEntry, 0, 10)
@@ -128,7 +128,7 @@ func createOldStateUnbonding(t *testing.T, creationHeight int64, valAddr sdk.Val
 	return nil
 }
 
-func getUBD(t *testing.T, accAddr sdk.AccAddress, valAddr sdk.ValAddress, store storetypes.KVStore, cdc codec.BinaryCodec) types.UnbondingDelegation {
+func getUBD(t *testing.T, accAddr, valAddr sdk.AccAddress, store storetypes.KVStore, cdc codec.BinaryCodec) types.UnbondingDelegation {
 	// get the unbonding delegations
 	var ubdRes types.UnbondingDelegation
 	ubdbz := store.Get(getUBDKey(accAddr, valAddr))
@@ -136,6 +136,6 @@ func getUBD(t *testing.T, accAddr sdk.AccAddress, valAddr sdk.ValAddress, store 
 	return ubdRes
 }
 
-func getUBDKey(accAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
+func getUBDKey(accAddr, valAddr sdk.AccAddress) []byte {
 	return types.GetUBDKey(accAddr, valAddr)
 }

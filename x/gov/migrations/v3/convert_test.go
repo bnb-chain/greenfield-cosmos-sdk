@@ -6,18 +6,16 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	v3 "github.com/cosmos/cosmos-sdk/x/gov/migrations/v3"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestConvertToLegacyProposal(t *testing.T) {
 	propTime := time.Unix(1e9, 0)
-	legacyContentMsg, err := v1.NewLegacyContent(v1beta1.NewTextProposal("title", "description"), "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
+	legacyContentMsg, err := v1.NewLegacyContent(v1beta1.NewTextProposal("title", "description"), "0x0Ec700c7b488Bf0326FEF647DafB65684371f024")
 	require.NoError(t, err)
 	msgs := []sdk.Msg{legacyContentMsg}
 	msgsAny, err := tx.SetMsgs(msgs)
@@ -70,37 +68,6 @@ func TestConvertToLegacyProposal(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestConvertToLegacyProposalContent(t *testing.T) {
-	msg := upgradetypes.MsgSoftwareUpgrade{Authority: "gov module", Plan: upgradetypes.Plan{Name: "test upgrade"}}
-	msgsAny, err := tx.SetMsgs([]sdk.Msg{&msg})
-	require.NoError(t, err)
-	tallyResult := v1.EmptyTallyResult()
-	proposal := v1.Proposal{
-		Id:               1,
-		Status:           v1.StatusDepositPeriod,
-		Messages:         msgsAny,
-		Metadata:         "proposal metadata",
-		FinalTallyResult: &tallyResult,
-	}
-
-	legacyP, err := v3.ConvertToLegacyProposal(proposal)
-	require.NoError(t, err)
-	tp, ok := legacyP.Content.GetCachedValue().(*upgradetypes.MsgSoftwareUpgrade)
-	require.Truef(t, ok, "expected *MsgSoftwareUpgrade, got %T", legacyP.Content.GetCachedValue())
-	require.Equal(t, &msg, tp)
-
-	// more than one message is not supported
-	proposal.Messages, err = tx.SetMsgs([]sdk.Msg{&msg, &msg})
-	require.NoError(t, err)
-	_, err = v3.ConvertToLegacyProposal(proposal)
-	require.ErrorIs(t, sdkerrors.ErrInvalidType, err)
-
-	// zero messages is not supported
-	proposal.Messages = nil
-	_, err = v3.ConvertToLegacyProposal(proposal)
-	require.ErrorIs(t, sdkerrors.ErrInvalidType, err)
 }
 
 func TestConvertToLegacyTallyResult(t *testing.T) {
@@ -164,7 +131,7 @@ func TestConvertToLegacyTallyResult(t *testing.T) {
 func TestConvertToLegacyVote(t *testing.T) {
 	vote := v1.Vote{
 		ProposalId: 1,
-		Voter:      "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+		Voter:      "0x0Ec700c7b488Bf0326FEF647DafB65684371f024",
 		Metadata:   "vote metadata",
 	}
 
@@ -201,7 +168,7 @@ func TestConvertToLegacyVote(t *testing.T) {
 func TestConvertToLegacyDeposit(t *testing.T) {
 	deposit := v1.Deposit{
 		ProposalId: 1,
-		Depositor:  "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+		Depositor:  "0x0Ec700c7b488Bf0326FEF647DafB65684371f024",
 		Amount:     sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(1))),
 	}
 

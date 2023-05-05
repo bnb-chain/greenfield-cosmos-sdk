@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 )
 
 // FromTmProtoPublicKey converts a TM's tmprotocrypto.PublicKey into our own PubKey.
@@ -19,7 +20,7 @@ func FromTmProtoPublicKey(protoPk tmprotocrypto.PublicKey) (cryptotypes.PubKey, 
 			Key: protoPk.Ed25519,
 		}, nil
 	case *tmprotocrypto.PublicKey_Secp256K1:
-		return &secp256k1.PubKey{
+		return &ethsecp256k1.PubKey{
 			Key: protoPk.Secp256K1,
 		}, nil
 	default:
@@ -37,6 +38,12 @@ func ToTmProtoPublicKey(pk cryptotypes.PubKey) (tmprotocrypto.PublicKey, error) 
 			},
 		}, nil
 	case *secp256k1.PubKey:
+		return tmprotocrypto.PublicKey{
+			Sum: &tmprotocrypto.PublicKey_Secp256K1{
+				Secp256K1: pk.Key,
+			},
+		}, nil
+	case *ethsecp256k1.PubKey:
 		return tmprotocrypto.PublicKey{
 			Sum: &tmprotocrypto.PublicKey_Secp256K1{
 				Secp256K1: pk.Key,

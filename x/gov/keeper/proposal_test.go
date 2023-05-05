@@ -18,7 +18,7 @@ import (
 
 func (suite *KeeperTestSuite) TestGetSetProposal() {
 	tp := TestProposal
-	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0x45f3624b98fCfc4D7A6b37B0957b656878636773"))
 	suite.Require().NoError(err)
 	proposalID := proposal.Id
 	suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestDeleteProposal() {
 		},
 	)
 	tp := TestProposal
-	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	suite.Require().NoError(err)
 	proposalID := proposal.Id
 	suite.govKeeper.SetProposal(suite.ctx, proposal)
@@ -47,7 +47,7 @@ func (suite *KeeperTestSuite) TestDeleteProposal() {
 
 func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 	tp := TestProposal
-	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	suite.Require().NoError(err)
 
 	suite.Require().Nil(proposal.VotingStartTime)
@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) TestActivateVotingPeriod() {
 func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	suite.reset()
 	tp := TestProposal
-	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+	proposal, err := suite.govKeeper.SubmitProposal(suite.ctx, tp, "", "test", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 	suite.Require().NoError(err)
 	suite.Require().Nil(proposal.VotingStartTime)
 
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 
 	// add vote
 	voteOptions := []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}
-	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"), voteOptions, "")
+	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), voteOptions, "")
 	suite.Require().NoError(err)
 
 	suite.Require().NotPanics(func() {
@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) TestDeleteProposalInVotingPeriod() {
 	}, "")
 
 	// add vote but proposal is deleted along with its VotingPeriodProposalKey
-	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"), voteOptions, "")
+	err = suite.govKeeper.AddVote(suite.ctx, proposal.Id, sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"), voteOptions, "")
 	suite.Require().ErrorContains(err, ": inactive proposal")
 }
 
@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) TestSubmitProposal() {
 	for i, tc := range testCases {
 		prop, err := v1.NewLegacyContent(tc.content, tc.authority)
 		suite.Require().NoError(err)
-		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+		_, err = suite.govKeeper.SubmitProposal(suite.ctx, []sdk.Msg{prop}, tc.metadata, "title", "", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 		suite.Require().True(errors.Is(tc.expectedErr, err), "tc #%d; got: %v, expected: %v", i, err, tc.expectedErr)
 	}
 }
@@ -150,7 +150,7 @@ func (suite *KeeperTestSuite) TestGetProposalsFiltered() {
 
 	for _, s := range status {
 		for i := 0; i < 50; i++ {
-			p, err := v1.NewProposal(TestProposal, proposalID, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("cosmos1ghekyjucln7y67ntx7cf27m9dpuxxemn4c8g4r"))
+			p, err := v1.NewProposal(TestProposal, proposalID, time.Now(), time.Now(), "", "title", "summary", sdk.AccAddress("0xd4BFb1CB895840ca474b0D15abb11Cf0f26bc88a"))
 			suite.Require().NoError(err)
 
 			p.Status = s
@@ -207,4 +207,92 @@ func TestMigrateProposalMessages(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "Test", content.GetTitle())
 	require.Equal(t, "description", content.GetDescription())
+}
+
+func (suite *KeeperTestSuite) TestUpdateCrossChainParams() {
+	testCases := []struct {
+		name      string
+		request   *v1.MsgUpdateCrossChainParams
+		expectErr bool
+	}{
+		{
+			name: "set invalid authority",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9",
+			},
+			expectErr: true,
+		},
+		{
+			name: "parameter change should restrict values and targets only be size 1",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033", "0000000000000000000000000000000000000000000000000000000000000034"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' should all be hex address for contract upgrade",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"not_an_hex_address"},
+					Targets: []string{"not_an_hex_address"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "'values' and 'targets' size not match",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9", "0xeAE67217D95E786a9309A363437066428b97c046"},
+					Targets: []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
+				},
+			},
+			expectErr: true,
+		},
+		{
+			name: "single parameter change should work",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "batchSizeForOracle",
+					Values:  []string{"0000000000000000000000000000000000000000000000000000000000000033"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "upgrade smart contract",
+			request: &v1.MsgUpdateCrossChainParams{
+				Authority: suite.govKeeper.GetAuthority(),
+				Params: v1.CrossChainParamsChange{
+					Key:     "upgrade",
+					Values:  []string{"0xeAE67217D95E786a9309A363437066428b97c046"},
+					Targets: []string{"0x76d244CE05c3De4BbC6fDd7F56379B145709ade9"},
+				},
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run(tc.name, func() {
+			_, err := suite.msgSrvr.UpdateCrossChainParams(suite.ctx, tc.request)
+			if tc.expectErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+			}
+		})
+	}
 }

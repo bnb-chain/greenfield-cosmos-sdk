@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -48,7 +49,7 @@ func (suite *SimTestSuite) SetupTest() {
 	)
 	suite.Require().NoError(err)
 
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId, Time: time.Now()})
 }
 
 func (suite *SimTestSuite) getTestingAccounts(r *rand.Rand, n int) []simtypes.Account {
@@ -68,7 +69,7 @@ func (suite *SimTestSuite) getTestingAccounts(r *rand.Rand, n int) []simtypes.Ac
 func (suite *SimTestSuite) TestWeightedOperations() {
 	require := suite.Require()
 
-	suite.ctx.WithChainID("test-chain")
+	suite.ctx = suite.ctx.WithChainID(sdktestutil.DefaultChainId)
 
 	appParams := make(simtypes.AppParams)
 
@@ -121,11 +122,19 @@ func (suite *SimTestSuite) TestSimulateMsgGrantAllowance() {
 	accounts := suite.getTestingAccounts(r, 3)
 
 	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
+	app.BeginBlock(
+		abci.RequestBeginBlock{
+			Header: tmproto.Header{
+				ChainID: sdktestutil.DefaultChainId,
+				Height:  suite.app.LastBlockHeight() + 1,
+				AppHash: suite.app.LastCommitID().Hash,
+			},
+		},
+	)
 
 	// execute operation
 	op := simulation.SimulateMsgGrantAllowance(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.feegrantKeeper)
-	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, sdktestutil.DefaultChainId)
 	require.NoError(err)
 
 	var msg feegrant.MsgGrantAllowance
@@ -146,7 +155,15 @@ func (suite *SimTestSuite) TestSimulateMsgRevokeAllowance() {
 	accounts := suite.getTestingAccounts(r, 3)
 
 	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash}})
+	app.BeginBlock(
+		abci.RequestBeginBlock{
+			Header: tmproto.Header{
+				ChainID: sdktestutil.DefaultChainId,
+				Height:  suite.app.LastBlockHeight() + 1,
+				AppHash: suite.app.LastCommitID().Hash,
+			},
+		},
+	)
 
 	feeAmt := sdk.TokensFromConsensusPower(200000, sdk.DefaultPowerReduction)
 	feeCoins := sdk.NewCoins(sdk.NewCoin("foo", feeAmt))
@@ -167,7 +184,7 @@ func (suite *SimTestSuite) TestSimulateMsgRevokeAllowance() {
 
 	// execute operation
 	op := simulation.SimulateMsgRevokeAllowance(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.feegrantKeeper)
-	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
+	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, sdktestutil.DefaultChainId)
 	require.NoError(err)
 
 	var msg feegrant.MsgRevokeAllowance

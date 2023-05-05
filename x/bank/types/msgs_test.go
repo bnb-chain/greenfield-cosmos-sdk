@@ -42,8 +42,8 @@ func TestMsgSendValidation(t *testing.T) {
 		{"", NewMsgSend(addr1, addrLong, atom123)},                             // valid send with long addr recipient
 		{": invalid coins", NewMsgSend(addr1, addr2, atom0)},                   // non positive coin
 		{"123atom,0eth: invalid coins", NewMsgSend(addr1, addr2, atom123eth0)}, // non positive coin in multicoins
-		{"invalid from address: empty address string is not allowed: invalid address", NewMsgSend(addrEmpty, addr2, atom123)},
-		{"invalid to address: empty address string is not allowed: invalid address", NewMsgSend(addr1, addrEmpty, atom123)},
+		{"invalid from address: decoding address from hex string failed: empty address: invalid address", NewMsgSend(addrEmpty, addr2, atom123)},
+		{"invalid to address: decoding address from hex string failed: empty address: invalid address", NewMsgSend(addr1, addrEmpty, atom123)},
 	}
 
 	for _, tc := range cases {
@@ -63,7 +63,7 @@ func TestMsgSendGetSignBytes(t *testing.T) {
 	msg := NewMsgSend(addr1, addr2, coins)
 	res := msg.GetSignBytes()
 
-	expected := `{"type":"cosmos-sdk/MsgSend","value":{"amount":[{"amount":"10","denom":"atom"}],"from_address":"cosmos1d9h8qat57ljhcm","to_address":"cosmos1da6hgur4wsmpnjyg"}}`
+	expected := `{"type":"cosmos-sdk/MsgSend","value":{"amount":[{"amount":"10","denom":"atom"}],"from_address":"0x000000000000000000000000000000696e707574","to_address":"0x00000000000000000000000000006F7574707574"}}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -106,7 +106,7 @@ func TestInputValidation(t *testing.T) {
 		{"", NewInput(addr2, multiCoins)},
 		{"", NewInput(addrLong, someCoins)},
 
-		{"invalid input address: empty address string is not allowed: invalid address", NewInput(addrEmpty, someCoins)},
+		{"invalid input address: decoding address from hex string failed: empty address: invalid address", NewInput(addrEmpty, someCoins)},
 		{": invalid coins", NewInput(addr1, emptyCoins)},                // invalid coins
 		{": invalid coins", NewInput(addr1, emptyCoins2)},               // invalid coins
 		{"10eth,0atom: invalid coins", NewInput(addr1, someEmptyCoins)}, // invalid coins
@@ -147,7 +147,7 @@ func TestOutputValidation(t *testing.T) {
 		{"", NewOutput(addr2, multiCoins)},
 		{"", NewOutput(addrLong, someCoins)},
 
-		{"invalid output address: empty address string is not allowed: invalid address", NewOutput(addrEmpty, someCoins)},
+		{"invalid output address: decoding address from hex string failed: empty address: invalid address", NewOutput(addrEmpty, someCoins)},
 		{": invalid coins", NewOutput(addr1, emptyCoins)},                // invalid coins
 		{": invalid coins", NewOutput(addr1, emptyCoins2)},               // invalid coins
 		{"10eth,0atom: invalid coins", NewOutput(addr1, someEmptyCoins)}, // invalid coins
@@ -261,7 +261,7 @@ func TestMsgMultiSendGetSignBytes(t *testing.T) {
 	}
 	res := msg.GetSignBytes()
 
-	expected := `{"type":"cosmos-sdk/MsgMultiSend","value":{"inputs":[{"address":"cosmos1d9h8qat57ljhcm","coins":[{"amount":"10","denom":"atom"}]}],"outputs":[{"address":"cosmos1da6hgur4wsmpnjyg","coins":[{"amount":"10","denom":"atom"}]}]}}`
+	expected := `{"type":"cosmos-sdk/MsgMultiSend","value":{"inputs":[{"address":"0x000000000000000000000000000000696e707574","coins":[{"amount":"10","denom":"atom"}]}],"outputs":[{"address":"0x00000000000000000000000000006F7574707574","coins":[{"amount":"10","denom":"atom"}]}]}}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -358,7 +358,7 @@ func TestMsgSetSendEnabledValidateBasic(t *testing.T) {
 					{"somecoinb", false},
 				},
 			},
-			exp: "invalid authority address: decoding bech32 failed: invalid bech32 string length 5: invalid address",
+			exp: "invalid authority address: invalid address hex length: 5 != 40: invalid address",
 		},
 		{
 			name: "bad first denom name",

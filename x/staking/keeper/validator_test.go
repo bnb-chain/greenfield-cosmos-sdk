@@ -28,7 +28,7 @@ func (s *KeeperTestSuite) TestValidator() {
 	require := s.Require()
 
 	valPubKey := PKs[0]
-	valAddr := sdk.ValAddress(valPubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(valPubKey.Address().Bytes())
 	valTokens := keeper.TokensFromConsensusPower(ctx, 10)
 
 	// test how the validator is set from a purely unbonbed pool
@@ -90,7 +90,7 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	var validators [3]stakingtypes.Validator
 	powers := []int64{9, 8, 7}
 	for i, power := range powers {
-		validators[i] = testutil.NewValidator(s.T(), sdk.ValAddress(PKs[i].Address().Bytes()), PKs[i])
+		validators[i] = testutil.NewValidator(s.T(), sdk.AccAddress(PKs[i].Address().Bytes()), PKs[i])
 		validators[i].Status = stakingtypes.Unbonded
 		validators[i].Tokens = math.ZeroInt()
 		tokens := keeper.TokensFromConsensusPower(ctx, power)
@@ -103,7 +103,7 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	require.Equal(keeper.TokensFromConsensusPower(ctx, 7), validators[2].Tokens)
 
 	// check the empty keeper first
-	_, found := keeper.GetValidator(ctx, sdk.ValAddress(PKs[0].Address().Bytes()))
+	_, found := keeper.GetValidator(ctx, sdk.AccAddress(PKs[0].Address().Bytes()))
 	require.False(found)
 	resVals := keeper.GetLastValidators(ctx)
 	require.Zero(len(resVals))
@@ -115,7 +115,7 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), stakingtypes.NotBondedPoolName, stakingtypes.BondedPoolName, gomock.Any())
 	validators[0] = stakingkeeper.TestingUpdateValidator(keeper, ctx, validators[0], true)
 	keeper.SetValidatorByConsAddr(ctx, validators[0])
-	resVal, found := keeper.GetValidator(ctx, sdk.ValAddress(PKs[0].Address().Bytes()))
+	resVal, found := keeper.GetValidator(ctx, sdk.AccAddress(PKs[0].Address().Bytes()))
 	require.True(found)
 	require.True(validators[0].MinEqual(&resVal))
 
@@ -138,7 +138,7 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	validators[0].Tokens = keeper.TokensFromConsensusPower(ctx, 10)
 	validators[0].DelegatorShares = sdk.NewDecFromInt(validators[0].Tokens)
 	validators[0] = stakingkeeper.TestingUpdateValidator(keeper, ctx, validators[0], true)
-	resVal, found = keeper.GetValidator(ctx, sdk.ValAddress(PKs[0].Address().Bytes()))
+	resVal, found = keeper.GetValidator(ctx, sdk.AccAddress(PKs[0].Address().Bytes()))
 	require.True(found)
 	require.True(validators[0].MinEqual(&resVal))
 
@@ -151,10 +151,10 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	validators[1] = stakingkeeper.TestingUpdateValidator(keeper, ctx, validators[1], true)
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToModule(gomock.Any(), stakingtypes.NotBondedPoolName, stakingtypes.BondedPoolName, gomock.Any())
 	validators[2] = stakingkeeper.TestingUpdateValidator(keeper, ctx, validators[2], true)
-	resVal, found = keeper.GetValidator(ctx, sdk.ValAddress(PKs[1].Address().Bytes()))
+	resVal, found = keeper.GetValidator(ctx, sdk.AccAddress(PKs[1].Address().Bytes()))
 	require.True(found)
 	require.True(validators[1].MinEqual(&resVal))
-	resVal, found = keeper.GetValidator(ctx, sdk.ValAddress(PKs[2].Address().Bytes()))
+	resVal, found = keeper.GetValidator(ctx, sdk.AccAddress(PKs[2].Address().Bytes()))
 	require.True(found)
 	require.True(validators[2].MinEqual(&resVal))
 
@@ -176,7 +176,7 @@ func (s *KeeperTestSuite) TestValidatorBasics() {
 	validators[1].Tokens = math.ZeroInt()                    // ...remove all tokens
 	keeper.SetValidator(ctx, validators[1])                  // ...set the validator
 	keeper.RemoveValidator(ctx, validators[1].GetOperator()) // Now it can be removed.
-	_, found = keeper.GetValidator(ctx, sdk.ValAddress(PKs[1].Address().Bytes()))
+	_, found = keeper.GetValidator(ctx, sdk.AccAddress(PKs[1].Address().Bytes()))
 	require.False(found)
 }
 
@@ -185,7 +185,7 @@ func (s *KeeperTestSuite) TestUpdateValidatorByPowerIndex() {
 	require := s.Require()
 
 	valPubKey := PKs[0]
-	valAddr := sdk.ValAddress(valPubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(valPubKey.Address().Bytes())
 	valTokens := keeper.TokensFromConsensusPower(ctx, 100)
 
 	// add a validator
@@ -231,7 +231,7 @@ func (s *KeeperTestSuite) TestApplyAndReturnValidatorSetUpdatesPowerDecrease() {
 	var validators [2]stakingtypes.Validator
 
 	for i, power := range powers {
-		validators[i] = testutil.NewValidator(s.T(), sdk.ValAddress(PKs[i].Address().Bytes()), PKs[i])
+		validators[i] = testutil.NewValidator(s.T(), sdk.AccAddress(PKs[i].Address().Bytes()), PKs[i])
 		tokens := keeper.TokensFromConsensusPower(ctx, power)
 		validators[i], _ = validators[i].AddTokensFromDel(tokens)
 
@@ -282,8 +282,8 @@ func (s *KeeperTestSuite) TestUpdateValidatorCommission() {
 	)
 	commission2 := stakingtypes.NewCommission(sdk.NewDecWithPrec(1, 1), sdk.NewDecWithPrec(3, 1), sdk.NewDecWithPrec(1, 1))
 
-	val1 := testutil.NewValidator(s.T(), sdk.ValAddress(PKs[0].Address().Bytes()), PKs[0])
-	val2 := testutil.NewValidator(s.T(), sdk.ValAddress(PKs[1].Address().Bytes()), PKs[1])
+	val1 := testutil.NewValidator(s.T(), sdk.AccAddress(PKs[0].Address().Bytes()), PKs[0])
+	val2 := testutil.NewValidator(s.T(), sdk.AccAddress(PKs[1].Address().Bytes()), PKs[1])
 
 	val1, _ = val1.SetInitialCommission(commission1)
 	val2, _ = val2.SetInitialCommission(commission2)
@@ -335,7 +335,7 @@ func (s *KeeperTestSuite) TestValidatorToken() {
 	require := s.Require()
 
 	valPubKey := PKs[0]
-	valAddr := sdk.ValAddress(valPubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(valPubKey.Address().Bytes())
 	addTokens := keeper.TokensFromConsensusPower(ctx, 10)
 	delTokens := keeper.TokensFromConsensusPower(ctx, 5)
 
@@ -360,7 +360,7 @@ func (s *KeeperTestSuite) TestUnbondingValidator() {
 	require := s.Require()
 
 	valPubKey := PKs[0]
-	valAddr := sdk.ValAddress(valPubKey.Address().Bytes())
+	valAddr := sdk.AccAddress(valPubKey.Address().Bytes())
 	validator := testutil.NewValidator(s.T(), valAddr, valPubKey)
 	addTokens := keeper.TokensFromConsensusPower(ctx, 10)
 
@@ -374,7 +374,7 @@ func (s *KeeperTestSuite) TestUnbondingValidator() {
 	require.Equal(valAddr.String(), resVals[0])
 
 	// add another unbonding validator
-	valAddr1 := sdk.ValAddress(PKs[1].Address().Bytes())
+	valAddr1 := sdk.AccAddress(PKs[1].Address().Bytes())
 	validator1 := testutil.NewValidator(s.T(), valAddr1, PKs[1])
 	validator1.UnbondingHeight = endHeight
 	validator1.UnbondingTime = endTime

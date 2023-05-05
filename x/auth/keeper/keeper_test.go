@@ -61,7 +61,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 		key,
 		types.ProtoBaseAccount,
 		maccPerms,
-		"cosmos",
 		types.NewModuleAddress("gov").String(),
 	)
 	suite.msgServer = keeper.NewMsgServerImpl(suite.accountKeeper)

@@ -49,12 +49,8 @@ service Msg {
 
 // MsgCreateValidator defines a SDK message for creating a new validator.
 message MsgCreateValidator {
-  // NOTE(fdymylja): this is a particular case in which
-  // if validator_address == delegator_address then only one
-  // is expected to sign, otherwise both are.
-  option (cosmos.msg.v1.signer) = "delegator_address";
-  option (cosmos.msg.v1.signer) = "validator_address";
-  option (amino.name)           = "cosmos-sdk/MsgCreateValidator";
+  // NOTE: The validator should be created by the gov module account after the proposal passes.
+  option (cosmos.msg.v1.signer) = "from";
 
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -70,6 +66,11 @@ message MsgCreateValidator {
   string                   validator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   google.protobuf.Any      pubkey            = 6 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
   cosmos.base.v1beta1.Coin value             = 7 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+
+  string from               = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string relayer_address    = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string challenger_address = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string bls_key            = 11;
 }
 
 // MsgCreateValidatorResponse defines the Msg/CreateValidator response type.
@@ -94,6 +95,10 @@ message MsgEditValidator {
       [(cosmos_proto.scalar) = "cosmos.Dec", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
   string min_self_delegation = 4
       [(cosmos_proto.scalar) = "cosmos.Int", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+
+  string relayer_address            = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string challenger_address         = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string         bls_key            = 7; // The BLS pubkey for the authorized relayer/challenger
 }
 
 // MsgEditValidatorResponse defines the Msg/EditValidator response type.

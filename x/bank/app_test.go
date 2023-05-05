@@ -8,9 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,10 +19,13 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
+	_ "github.com/cosmos/cosmos-sdk/x/crosschain"
+	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	_ "github.com/cosmos/cosmos-sdk/x/gov"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	_ "github.com/cosmos/cosmos-sdk/x/params"
@@ -48,11 +52,12 @@ type (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	addr1 = sdk.AccAddress(priv1.PubKey().Address())
-	priv2 = secp256k1.GenPrivKey()
-	addr2 = sdk.AccAddress(priv2.PubKey().Address())
-	addr3 = sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
+	priv1, _ = ethsecp256k1.GenPrivKey()
+	addr1    = sdk.AccAddress(priv1.PubKey().Address())
+	priv2, _ = ethsecp256k1.GenPrivKey()
+	addr2    = sdk.AccAddress(priv2.PubKey().Address())
+	priv3, _ = ethsecp256k1.GenPrivKey()
+	addr3    = sdk.AccAddress(priv3.PubKey().Address())
 
 	coins     = sdk.Coins{sdk.NewInt64Coin("foocoin", 10)}
 	halfCoins = sdk.Coins{sdk.NewInt64Coin("foocoin", 5)}
@@ -108,11 +113,13 @@ func createTestSuite(t *testing.T, genesisAccounts []authtypes.GenesisAccount) s
 	app, err := simtestutil.SetupWithConfiguration(configurator.NewAppConfig(
 		configurator.ParamsModule(),
 		configurator.AuthModule(),
+		configurator.AuthzModule(),
 		configurator.StakingModule(),
 		configurator.TxModule(),
 		configurator.ConsensusModule(),
 		configurator.BankModule(),
 		configurator.GovModule(),
+		configurator.CrossChainModule(),
 	),
 		startupCfg, &res.BankKeeper, &res.AccountKeeper)
 
@@ -136,7 +143,7 @@ func TestSendNotEnoughBalance(t *testing.T) {
 	genAccs := []authtypes.GenesisAccount{acc}
 	s := createTestSuite(t, genAccs)
 	baseApp := s.App.BaseApp
-	ctx := baseApp.NewContext(false, tmproto.Header{})
+	ctx := baseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 
 	require.NoError(t, testutil.FundAccount(s.BankKeeper, ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("foocoin", 67))))
 
@@ -150,14 +157,14 @@ func TestSendNotEnoughBalance(t *testing.T) {
 	origSeq := res1.GetSequence()
 
 	sendMsg := types.NewMsgSend(addr1, addr2, sdk.Coins{sdk.NewInt64Coin("foocoin", 100)})
-	header := tmproto.Header{Height: baseApp.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: baseApp.LastBlockHeight() + 1}
 	txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-	_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, []sdk.Msg{sendMsg}, "", []uint64{origAccNum}, []uint64{origSeq}, false, false, priv1)
+	_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, []sdk.Msg{sendMsg}, sdktestutil.DefaultChainId, []uint64{origAccNum}, []uint64{origSeq}, false, false, []cryptotypes.PrivKey{priv1})
 	require.Error(t, err)
 
 	checkBalance(t, baseApp, addr1, sdk.Coins{sdk.NewInt64Coin("foocoin", 67)}, s.BankKeeper)
 
-	ctx2 := baseApp.NewContext(true, tmproto.Header{})
+	ctx2 := baseApp.NewContext(true, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 	res2 := s.AccountKeeper.GetAccount(ctx2, addr1)
 	require.NotNil(t, res2)
 
@@ -173,7 +180,7 @@ func TestMsgMultiSendWithAccounts(t *testing.T) {
 	genAccs := []authtypes.GenesisAccount{acc}
 	s := createTestSuite(t, genAccs)
 	baseApp := s.App.BaseApp
-	ctx := baseApp.NewContext(false, tmproto.Header{})
+	ctx := baseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 
 	require.NoError(t, testutil.FundAccount(s.BankKeeper, ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("foocoin", 67))))
 
@@ -227,9 +234,9 @@ func TestMsgMultiSendWithAccounts(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		header := tmproto.Header{Height: baseApp.LastBlockHeight() + 1}
+		header := tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: baseApp.LastBlockHeight() + 1}
 		txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, "", tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys...)
+		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, sdktestutil.DefaultChainId, tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys)
 		if tc.expPass {
 			require.NoError(t, err)
 		} else {
@@ -253,7 +260,7 @@ func TestMsgMultiSendMultipleOut(t *testing.T) {
 	genAccs := []authtypes.GenesisAccount{acc1, acc2}
 	s := createTestSuite(t, genAccs)
 	baseApp := s.App.BaseApp
-	ctx := baseApp.NewContext(false, tmproto.Header{})
+	ctx := baseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 
 	require.NoError(t, testutil.FundAccount(s.BankKeeper, ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("foocoin", 42))))
 
@@ -278,9 +285,9 @@ func TestMsgMultiSendMultipleOut(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		header := tmproto.Header{Height: baseApp.LastBlockHeight() + 1}
+		header := tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: baseApp.LastBlockHeight() + 1}
 		txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, "", tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys...)
+		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, sdktestutil.DefaultChainId, tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys)
 		require.NoError(t, err)
 
 		for _, eb := range tc.expectedBalances {
@@ -298,7 +305,7 @@ func TestMsgMultiSendDependent(t *testing.T) {
 	genAccs := []authtypes.GenesisAccount{acc1, acc2}
 	s := createTestSuite(t, genAccs)
 	baseApp := s.App.BaseApp
-	ctx := baseApp.NewContext(false, tmproto.Header{})
+	ctx := baseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 
 	require.NoError(t, testutil.FundAccount(s.BankKeeper, ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("foocoin", 42))))
 
@@ -331,9 +338,9 @@ func TestMsgMultiSendDependent(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		header := tmproto.Header{Height: baseApp.LastBlockHeight() + 1}
+		header := tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: baseApp.LastBlockHeight() + 1}
 		txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
-		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, "", tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys...)
+		_, _, err := simtestutil.SignCheckDeliver(t, txConfig, baseApp, header, tc.msgs, sdktestutil.DefaultChainId, tc.accNums, tc.accSeqs, tc.expSimPass, tc.expPass, tc.privKeys)
 		require.NoError(t, err)
 
 		for _, eb := range tc.expectedBalances {
@@ -348,7 +355,7 @@ func TestMsgSetSendEnabled(t *testing.T) {
 	genAccs := []authtypes.GenesisAccount{acc1}
 	s := createTestSuite(t, genAccs)
 
-	ctx := s.App.BaseApp.NewContext(false, tmproto.Header{})
+	ctx := s.App.BaseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 	require.NoError(t, testutil.FundAccount(s.BankKeeper, ctx, addr1, sdk.NewCoins(sdk.NewInt64Coin("foocoin", 101))))
 	addr1Str := addr1.String()
 	govAddr := s.BankKeeper.GetAuthority()
@@ -386,7 +393,7 @@ func TestMsgSetSendEnabled(t *testing.T) {
 			accSeqs: []uint64{0},
 			expInError: []string{
 				"invalid authority",
-				"cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn",
+				govAddr,
 				addr1Str,
 				"expected gov account as only signer for proposal message",
 			},
@@ -433,9 +440,9 @@ func TestMsgSetSendEnabled(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(tt *testing.T) {
-			header := tmproto.Header{Height: s.App.LastBlockHeight() + 1}
+			header := tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: s.App.LastBlockHeight() + 1}
 			txGen := moduletestutil.MakeTestEncodingConfig().TxConfig
-			_, _, err = simtestutil.SignCheckDeliver(tt, txGen, s.App.BaseApp, header, tc.msgs, "", []uint64{0}, tc.accSeqs, tc.expSimPass, tc.expPass, priv1)
+			_, _, err = simtestutil.SignCheckDeliver(tt, txGen, s.App.BaseApp, header, tc.msgs, sdktestutil.DefaultChainId, []uint64{0}, tc.accSeqs, tc.expSimPass, tc.expPass, []cryptotypes.PrivKey{priv1})
 			if len(tc.expInError) > 0 {
 				require.Error(tt, err)
 				for _, exp := range tc.expInError {

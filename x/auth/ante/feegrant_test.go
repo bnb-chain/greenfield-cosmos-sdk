@@ -58,7 +58,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 			err:   sdkerrors.ErrUnknownAddress,
 			malleate: func(suite *AnteTestSuite) (TestAccount, sdk.AccAddress) {
 				// Do not register the account
-				priv, _, addr := testdata.KeyTestPubAddr()
+				priv, _, addr := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 				return TestAccount{
 					acc:  authtypes.NewBaseAccountWithAddress(addr),
 					priv: priv,
@@ -79,7 +79,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 			err:   sdkerrors.ErrUnknownAddress,
 			malleate: func(suite *AnteTestSuite) (TestAccount, sdk.AccAddress) {
 				// Do not register the account
-				priv, _, addr := testdata.KeyTestPubAddr()
+				priv, _, addr := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 				return TestAccount{
 					acc:  authtypes.NewBaseAccountWithAddress(addr),
 					priv: priv,
@@ -143,7 +143,7 @@ func TestDeductFeesNoDelegation(t *testing.T) {
 		tc := stc // to make scopelint happy
 		t.Run(name, func(t *testing.T) {
 			suite := SetupTestSuite(t, false)
-			protoTxCfg := tx.NewTxConfig(codec.NewProtoCodec(suite.encCfg.InterfaceRegistry), tx.DefaultSignModes)
+			protoTxCfg := tx.NewTxConfig(codec.NewProtoCodec(suite.encCfg.InterfaceRegistry), []signing.SignMode{signing.SignMode_SIGN_MODE_EIP_712})
 			// this just tests our handler
 			dfd := ante.NewDeductFeeDecorator(suite.accountKeeper, suite.bankKeeper, suite.feeGrantKeeper, nil)
 			feeAnteHandler := sdk.ChainAnteDecorators(dfd)

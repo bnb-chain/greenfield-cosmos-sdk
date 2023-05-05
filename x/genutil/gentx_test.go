@@ -1,6 +1,7 @@
 package genutil_test
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -8,8 +9,9 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,14 +29,14 @@ import (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	priv2 = secp256k1.GenPrivKey()
-	pk1   = priv1.PubKey()
-	pk2   = priv2.PubKey()
-	addr1 = sdk.AccAddress(pk1.Address())
-	addr2 = sdk.AccAddress(pk2.Address())
-	desc  = stakingtypes.NewDescription("testname", "", "", "", "")
-	comm  = stakingtypes.CommissionRates{}
+	priv1, _ = ethsecp256k1.GenPrivKey()
+	priv2, _ = ethsecp256k1.GenPrivKey()
+	pk1      = priv1.PubKey()
+	pk2      = priv2.PubKey()
+	addr1    = sdk.AccAddress(pk1.Address())
+	addr2    = sdk.AccAddress(pk2.Address())
+	desc     = stakingtypes.NewDescription("testname", "", "", "", "")
+	comm     = stakingtypes.CommissionRates{}
 )
 
 // GenTxTestSuite is a test suite to be used with gentx tests.
@@ -63,11 +65,19 @@ func (suite *GenTxTestSuite) SetupTest() {
 	var err error
 	amount := sdk.NewInt64Coin(sdk.DefaultBondDenom, 50)
 	one := math.OneInt()
+	blsSecretKey, _ := bls.RandKey()
+	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one)
+		sdk.AccAddress(pk1.Address()), pk1,
+		amount, desc, comm, one,
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk)
 	suite.NoError(err)
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one)
+		sdk.AccAddress(pk2.Address()), pk1,
+		amount, desc, comm, one,
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk1.Address()), blsPk)
 	suite.NoError(err)
 }
 
@@ -76,15 +86,15 @@ func (suite *GenTxTestSuite) setAccountBalance(balances []banktypes.Balance) jso
 		Params: banktypes.Params{DefaultSendEnabled: true},
 		Balances: []banktypes.Balance{
 			{
-				Address: "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh",
+				Address: "0x0Ec700c7b488Bf0326FEF647DafB65684371f024",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1000000)},
 			},
 			{
-				Address: "cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl",
+				Address: "0x93354845030274cD4bf1686Abd60AB28EC52e1a7",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 2059726)},
 			},
 			{
-				Address: "cosmos1k5lndq46x9xpejdxq52q3ql3ycrphg4qxlfqn7",
+				Address: "0xEe10332A13816795560dd96a0D922A193Bd08F59",
 				Coins:   sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 100000000000000)},
 			},
 		},

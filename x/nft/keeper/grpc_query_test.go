@@ -41,7 +41,7 @@ func (s *TestSuite) TestBalance() {
 					Owner:   "owner",
 				}
 			},
-			"decoding bech32 failed",
+			"invalid address hex length",
 			0,
 			func(index int, require *require.Assertions, res *nft.QueryBalanceResponse, expBalance uint64) {},
 		},

@@ -1,28 +1,31 @@
 package genutil_test
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 	"testing"
 	"time"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/stretchr/testify/suite"
-
 	"cosmossdk.io/math"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -35,14 +38,14 @@ import (
 )
 
 var (
-	priv1 = secp256k1.GenPrivKey()
-	priv2 = secp256k1.GenPrivKey()
-	pk1   = priv1.PubKey()
-	pk2   = priv2.PubKey()
-	addr1 = sdk.AccAddress(pk1.Address())
-	addr2 = sdk.AccAddress(pk2.Address())
-	desc  = stakingtypes.NewDescription("testname", "", "", "", "")
-	comm  = stakingtypes.CommissionRates{}
+	priv1, _ = ethsecp256k1.GenPrivKey()
+	priv2, _ = ethsecp256k1.GenPrivKey()
+	pk1      = priv1.PubKey()
+	pk2      = priv2.PubKey()
+	addr1    = sdk.AccAddress(pk1.Address())
+	addr2    = sdk.AccAddress(pk2.Address())
+	desc     = stakingtypes.NewDescription("testname", "", "", "", "")
+	comm     = stakingtypes.CommissionRates{}
 )
 
 // GenTxTestSuite is a test suite to be used with gentx tests.
@@ -69,23 +72,31 @@ func (suite *GenTxTestSuite) SetupTest() {
 			configurator.StakingModule(),
 			configurator.ParamsModule(),
 			configurator.ConsensusModule(),
+			configurator.AuthzModule(),
 			configurator.AuthModule()),
 		simtestutil.DefaultStartUpConfig(),
 		&encCfg.InterfaceRegistry, &encCfg.Codec, &encCfg.TxConfig, &encCfg.Amino,
 		&suite.accountKeeper, &suite.bankKeeper, &suite.stakingKeeper)
 	suite.Require().NoError(err)
 
-	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{})
+	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 	suite.encodingConfig = encCfg
 	suite.baseApp = app.BaseApp
 
 	amount := sdk.NewInt64Coin(sdk.DefaultBondDenom, 50)
 	one := math.OneInt()
+	blsSecretKey1, _ := bls.RandKey()
+	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
+
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk1.Address()), pk1, amount, desc, comm, one)
+		sdk.AccAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
 	suite.NoError(err)
+
+	blsSecretKey2, _ := bls.RandKey()
+	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
+
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(pk2.Address()), pk1, amount, desc, comm, one)
+		sdk.AccAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
 	suite.NoError(err)
 }
 

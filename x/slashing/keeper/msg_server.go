@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing/types"
 )
@@ -41,7 +42,7 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 func (k msgServer) Unjail(goCtx context.Context, msg *types.MsgUnjail) (*types.MsgUnjailResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	valAddr, valErr := sdk.ValAddressFromBech32(msg.ValidatorAddr)
+	valAddr, valErr := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddr)
 	if valErr != nil {
 		return nil, valErr
 	}
@@ -51,4 +52,41 @@ func (k msgServer) Unjail(goCtx context.Context, msg *types.MsgUnjail) (*types.M
 	}
 
 	return &types.MsgUnjailResponse{}, nil
+}
+
+// Impeach defines a method for removing an existing validator after gov proposal passes.
+func (k msgServer) Impeach(goCtx context.Context, msg *types.MsgImpeach) (*types.MsgImpeachResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	signers := msg.GetSigners()
+	if len(signers) != 1 || !signers[0].Equals(authtypes.NewModuleAddress(govtypes.ModuleName)) {
+		return nil, types.ErrSignerNotGovModule
+	}
+
+	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// validator must already be registered
+	validator := k.sk.Validator(ctx, valAddr)
+	if validator == nil {
+		return nil, types.ErrNoValidatorForAddress
+	}
+
+	consAddr, err := validator.GetConsAddr()
+	if err != nil {
+		return nil, err
+	}
+
+	// Jail the validator if not already jailed. This will begin unbonding the
+	// validator if not already unbonding (tombstoned).
+	if !validator.IsJailed() {
+		k.Jail(ctx, consAddr)
+	}
+
+	// Jail forever.
+	k.JailForever(ctx, consAddr)
+
+	return &types.MsgImpeachResponse{}, nil
 }

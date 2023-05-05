@@ -96,7 +96,7 @@ func (s *contextTestSuite) TestContextWithCustom() {
 	headerHash := []byte("headerHash")
 	zeroGasCfg := storetypes.GasConfig{}
 
-	ctx = types.NewContext(nil, header, ischeck, logger)
+	ctx = types.NewContext(nil, header, ischeck, nil, logger)
 	s.Require().Equal(header, ctx.BlockHeader())
 
 	ctx = ctx.
@@ -151,7 +151,7 @@ func (s *contextTestSuite) TestContextHeader() {
 	addr := secp256k1.GenPrivKey().PubKey().Address()
 	proposer := types.ConsAddress(addr)
 
-	ctx = types.NewContext(nil, tmproto.Header{}, false, nil)
+	ctx = types.NewContext(nil, tmproto.Header{}, false, nil, nil)
 
 	ctx = ctx.
 		WithBlockHeight(height).
@@ -165,7 +165,7 @@ func (s *contextTestSuite) TestContextHeader() {
 
 func (s *contextTestSuite) TestWithBlockTime() {
 	now := time.Now()
-	ctx := types.NewContext(nil, tmproto.Header{}, false, nil)
+	ctx := types.NewContext(nil, tmproto.Header{}, false, nil, nil)
 	ctx = ctx.WithBlockTime(now)
 	tmtime2 := tmtime.Canonical(now)
 	s.Require().Equal(ctx.BlockTime(), tmtime2)
@@ -214,7 +214,7 @@ func (s *contextTestSuite) TestContextHeaderClone() {
 	for name, tc := range cases {
 		tc := tc
 		s.T().Run(name, func(t *testing.T) {
-			ctx := types.NewContext(nil, tc.h, false, nil)
+			ctx := types.NewContext(nil, tc.h, false, nil, nil)
 			s.Require().Equal(tc.h.Height, ctx.BlockHeight())
 			s.Require().Equal(tc.h.Time.UTC(), ctx.BlockTime())
 
@@ -228,7 +228,7 @@ func (s *contextTestSuite) TestContextHeaderClone() {
 }
 
 func (s *contextTestSuite) TestUnwrapSDKContext() {
-	sdkCtx := types.NewContext(nil, tmproto.Header{}, false, nil)
+	sdkCtx := types.NewContext(nil, tmproto.Header{}, false, nil, nil)
 	ctx := types.WrapSDKContext(sdkCtx)
 	sdkCtx2 := types.UnwrapSDKContext(ctx)
 	s.Require().Equal(sdkCtx, sdkCtx2)

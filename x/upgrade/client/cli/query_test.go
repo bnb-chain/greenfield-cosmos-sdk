@@ -17,6 +17,7 @@ import (
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradecli "github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestGetCurrentPlanCmd(t *testing.T) {
@@ -29,7 +30,7 @@ func TestGetCurrentPlanCmd(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		name         string
@@ -77,7 +78,7 @@ func TestGetAppliedPlanCmd(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		name         string
@@ -125,7 +126,7 @@ func TestGetModuleVersionsCmd(t *testing.T) {
 		WithClient(clitestutil.MockTendermintRPC{Client: rpcclientmock.Client{}}).
 		WithAccountRetriever(client.MockAccountRetriever{}).
 		WithOutput(io.Discard).
-		WithChainID("test-chain")
+		WithChainID(sdktestutil.DefaultChainId)
 
 	testCases := []struct {
 		msg          string

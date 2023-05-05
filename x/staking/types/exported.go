@@ -11,7 +11,7 @@ import (
 // DelegationI delegation bond for a delegated proof of stake system
 type DelegationI interface {
 	GetDelegatorAddr() sdk.AccAddress // delegator sdk.AccAddress for the bond
-	GetValidatorAddr() sdk.ValAddress // validator operator address
+	GetValidatorAddr() sdk.AccAddress // validator operator address
 	GetShares() math.LegacyDec        // amount of validator's shares held in this delegation
 }
 
@@ -23,7 +23,11 @@ type ValidatorI interface {
 	IsBonded() bool                                          // check if has a bonded status
 	IsUnbonded() bool                                        // check if has status unbonded
 	IsUnbonding() bool                                       // check if has status unbonding
-	GetOperator() sdk.ValAddress                             // operator address to receive/return validators coins
+	GetOperator() sdk.AccAddress                             // operator address to receive/return validators coins
+	GetSelfDelegator() sdk.AccAddress                        // validator address used for self delegation
+	GetRelayer() sdk.AccAddress                              // validator authorized relayer/operator address
+	GetChallenger() sdk.AccAddress                           // validator authorized challenger/operator address
+	GetBlsKey() []byte                                       // validator authorized relayer/challenger's bls pubkey
 	ConsPubKey() (cryptotypes.PubKey, error)                 // validation consensus pubkey (cryptotypes.PubKey)
 	TmConsPublicKey() (tmprotocrypto.PublicKey, error)       // validation consensus pubkey (Tendermint)
 	GetConsAddr() (sdk.ConsAddress, error)                   // validation consensus address

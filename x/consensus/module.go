@@ -157,7 +157,7 @@ func ProvideModule(in ConsensusInputs) ConsensusOutputs {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+		authority = authtypes.NewModuleAddressOrHexAddress(in.Config.Authority)
 	}
 
 	k := keeper.NewKeeper(in.Cdc, in.Key, authority.String())

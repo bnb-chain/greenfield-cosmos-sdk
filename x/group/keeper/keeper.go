@@ -93,7 +93,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, router *baseapp.Ms
 		panic(err.Error())
 	}
 	k.groupByAdminIndex, err = orm.NewIndex(groupTable, GroupByAdminIndexPrefix, func(val interface{}) ([]interface{}, error) {
-		addr, err := sdk.AccAddressFromBech32(val.(*group.GroupInfo).Admin)
+		addr, err := sdk.AccAddressFromHexUnsafe(val.(*group.GroupInfo).Admin)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +118,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, router *baseapp.Ms
 	}
 	k.groupMemberByMemberIndex, err = orm.NewIndex(groupMemberTable, GroupMemberByMemberIndexPrefix, func(val interface{}) ([]interface{}, error) {
 		memberAddr := val.(*group.GroupMember).Member.Address
-		addr, err := sdk.AccAddressFromBech32(memberAddr)
+		addr, err := sdk.AccAddressFromHexUnsafe(memberAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +143,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, router *baseapp.Ms
 	}
 	k.groupPolicyByAdminIndex, err = orm.NewIndex(groupPolicyTable, GroupPolicyByAdminIndexPrefix, func(value interface{}) ([]interface{}, error) {
 		admin := value.(*group.GroupPolicyInfo).Admin
-		addr, err := sdk.AccAddressFromBech32(admin)
+		addr, err := sdk.AccAddressFromHexUnsafe(admin)
 		if err != nil {
 			return nil, err
 		}
@@ -161,7 +161,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, router *baseapp.Ms
 	}
 	k.proposalByGroupPolicyIndex, err = orm.NewIndex(proposalTable, ProposalByGroupPolicyIndexPrefix, func(value interface{}) ([]interface{}, error) {
 		account := value.(*group.Proposal).GroupPolicyAddress
-		addr, err := sdk.AccAddressFromBech32(account)
+		addr, err := sdk.AccAddressFromHexUnsafe(account)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +191,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, router *baseapp.Ms
 		panic(err.Error())
 	}
 	k.voteByVoterIndex, err = orm.NewIndex(voteTable, VoteByVoterIndexPrefix, func(value interface{}) ([]interface{}, error) {
-		addr, err := sdk.AccAddressFromBech32(value.(*group.Vote).Voter)
+		addr, err := sdk.AccAddressFromHexUnsafe(value.(*group.Vote).Voter)
 		if err != nil {
 			return nil, err
 		}

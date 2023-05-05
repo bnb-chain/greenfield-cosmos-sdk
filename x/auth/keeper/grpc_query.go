@@ -77,7 +77,7 @@ func (ak AccountKeeper) Account(c context.Context, req *types.QueryAccountReques
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -162,16 +162,6 @@ func (ak AccountKeeper) ModuleAccountByName(c context.Context, req *types.QueryM
 	return &types.QueryModuleAccountByNameResponse{Account: any}, nil
 }
 
-// Bech32Prefix returns the keeper internally stored bech32 prefix.
-func (ak AccountKeeper) Bech32Prefix(ctx context.Context, req *types.Bech32PrefixRequest) (*types.Bech32PrefixResponse, error) {
-	bech32Prefix, err := ak.getBech32Prefix()
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.Bech32PrefixResponse{Bech32Prefix: bech32Prefix}, nil
-}
-
 // AddressBytesToString converts an address from bytes to string, using the
 // keeper's bech32 prefix.
 func (ak AccountKeeper) AddressBytesToString(ctx context.Context, req *types.AddressBytesToStringRequest) (*types.AddressBytesToStringResponse, error) {
@@ -183,10 +173,7 @@ func (ak AccountKeeper) AddressBytesToString(ctx context.Context, req *types.Add
 		return nil, errors.New("empty address bytes is not allowed")
 	}
 
-	text, err := ak.addressCdc.BytesToString(req.AddressBytes)
-	if err != nil {
-		return nil, err
-	}
+	text := sdk.AccAddress(req.AddressBytes).String()
 
 	return &types.AddressBytesToStringResponse{AddressString: text}, nil
 }
@@ -202,7 +189,7 @@ func (ak AccountKeeper) AddressStringToBytes(ctx context.Context, req *types.Add
 		return nil, errors.New("empty address string is not allowed")
 	}
 
-	bz, err := ak.addressCdc.StringToBytes(req.AddressString)
+	bz, err := sdk.AccAddressFromHexUnsafe(req.AddressString)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +208,7 @@ func (ak AccountKeeper) AccountInfo(goCtx context.Context, req *types.QueryAccou
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr, err := sdk.AccAddressFromBech32(req.Address)
+	addr, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, err
 	}

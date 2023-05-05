@@ -5,23 +5,25 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"cosmossdk.io/depinject"
-	"cosmossdk.io/math"
-
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -82,13 +84,14 @@ type StartupConfig struct {
 }
 
 func DefaultStartUpConfig() StartupConfig {
-	priv := secp256k1.GenPrivKey()
+	priv, _ := ethsecp256k1.GenPrivKey()
 	ba := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 	ga := GenesisAccount{ba, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000)))}
 	return StartupConfig{
 		ValidatorSet:    CreateRandomValidatorSet,
 		AtGenesis:       false,
 		GenesisAccounts: []GenesisAccount{ga},
+		BaseAppOption:   baseapp.SetChainID(testutil.DefaultChainId),
 	}
 }
 
@@ -129,9 +132,15 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	} else {
 		app = appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil)
 	}
+
 	if err := app.Load(true); err != nil {
 		return nil, fmt.Errorf("failed to load app: %w", err)
 	}
+
+	// enable delegation in tests
+	app.BaseApp.SetUpgradeChecker(func(ctx sdk.Context, s string) bool {
+		return upgradetypes.EnablePublicDelegationUpgrade == s
+	})
 
 	// create validator set
 	valSet, err := startupConfig.ValidatorSet()
@@ -162,6 +171,7 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         app.ChainID(),
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -172,6 +182,7 @@ func SetupWithConfiguration(appConfig depinject.Config, startupConfig StartupCon
 	if !startupConfig.AtGenesis {
 		app.Commit()
 		app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+			ChainID:            app.ChainID(),
 			Height:             app.LastBlockHeight() + 1,
 			AppHash:            app.LastCommitID().Hash,
 			ValidatorsHash:     valSet.Hash(),
@@ -211,7 +222,7 @@ func GenesisStateWithValSet(
 		}
 
 		validator := stakingtypes.Validator{
-			OperatorAddress:   sdk.ValAddress(val.Address).String(),
+			OperatorAddress:   sdk.AccAddress(val.Address).String(),
 			ConsensusPubkey:   pkAny,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,

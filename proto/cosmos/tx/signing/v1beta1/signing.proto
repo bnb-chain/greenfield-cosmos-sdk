@@ -51,6 +51,10 @@ enum SignMode {
   //
   // Since: cosmos-sdk 0.45.2
   SIGN_MODE_EIP_191 = 191;
+
+  // SIGN_MODE_EIP_712 specifies the sign mode for EIP 712 signing on the Cosmos
+  // SDK. Ref: https://eips.ethereum.org/EIPS/eip-712
+  SIGN_MODE_EIP_712 = 712;
 }
 
 // SignatureDescriptors wraps multiple SignatureDescriptor's.
@@ -76,7 +80,7 @@ message SignatureDescriptor {
 
   // Data represents signature data
   message Data {
-    // sum is the oneof that specifies whether this represents single or multi-signature data
+    // sum is the one of that specifies whether this represents single or multi-signature data
     oneof sum {
       // single represents a single signer
       Single single = 1;

@@ -35,6 +35,7 @@ const (
 	ABCIApplication_ApplySnapshotChunk_FullMethodName = "/tendermint.abci.ABCIApplication/ApplySnapshotChunk"
 	ABCIApplication_PrepareProposal_FullMethodName    = "/tendermint.abci.ABCIApplication/PrepareProposal"
 	ABCIApplication_ProcessProposal_FullMethodName    = "/tendermint.abci.ABCIApplication/ProcessProposal"
+	ABCIApplication_EthQuery_FullMethodName           = "/tendermint.abci.ABCIApplication/EthQuery"
 )
 
 // ABCIApplicationClient is the client API for ABCIApplication service.
@@ -57,6 +58,7 @@ type ABCIApplicationClient interface {
 	ApplySnapshotChunk(ctx context.Context, in *RequestApplySnapshotChunk, opts ...grpc.CallOption) (*ResponseApplySnapshotChunk, error)
 	PrepareProposal(ctx context.Context, in *RequestPrepareProposal, opts ...grpc.CallOption) (*ResponsePrepareProposal, error)
 	ProcessProposal(ctx context.Context, in *RequestProcessProposal, opts ...grpc.CallOption) (*ResponseProcessProposal, error)
+	EthQuery(ctx context.Context, in *RequestEthQuery, opts ...grpc.CallOption) (*ResponseEthQuery, error)
 }
 
 type aBCIApplicationClient struct {
@@ -211,6 +213,15 @@ func (c *aBCIApplicationClient) ProcessProposal(ctx context.Context, in *Request
 	return out, nil
 }
 
+func (c *aBCIApplicationClient) EthQuery(ctx context.Context, in *RequestEthQuery, opts ...grpc.CallOption) (*ResponseEthQuery, error) {
+	out := new(ResponseEthQuery)
+	err := c.cc.Invoke(ctx, ABCIApplication_EthQuery_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ABCIApplicationServer is the server API for ABCIApplication service.
 // All implementations must embed UnimplementedABCIApplicationServer
 // for forward compatibility
@@ -231,6 +242,7 @@ type ABCIApplicationServer interface {
 	ApplySnapshotChunk(context.Context, *RequestApplySnapshotChunk) (*ResponseApplySnapshotChunk, error)
 	PrepareProposal(context.Context, *RequestPrepareProposal) (*ResponsePrepareProposal, error)
 	ProcessProposal(context.Context, *RequestProcessProposal) (*ResponseProcessProposal, error)
+	EthQuery(context.Context, *RequestEthQuery) (*ResponseEthQuery, error)
 	mustEmbedUnimplementedABCIApplicationServer()
 }
 
@@ -285,6 +297,9 @@ func (UnimplementedABCIApplicationServer) PrepareProposal(context.Context, *Requ
 }
 func (UnimplementedABCIApplicationServer) ProcessProposal(context.Context, *RequestProcessProposal) (*ResponseProcessProposal, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProcessProposal not implemented")
+}
+func (UnimplementedABCIApplicationServer) EthQuery(context.Context, *RequestEthQuery) (*ResponseEthQuery, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EthQuery not implemented")
 }
 func (UnimplementedABCIApplicationServer) mustEmbedUnimplementedABCIApplicationServer() {}
 
@@ -587,6 +602,24 @@ func _ABCIApplication_ProcessProposal_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ABCIApplication_EthQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestEthQuery)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ABCIApplicationServer).EthQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ABCIApplication_EthQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ABCIApplicationServer).EthQuery(ctx, req.(*RequestEthQuery))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ABCIApplication_ServiceDesc is the grpc.ServiceDesc for ABCIApplication service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -657,6 +690,10 @@ var ABCIApplication_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProcessProposal",
 			Handler:    _ABCIApplication_ProcessProposal_Handler,
+		},
+		{
+			MethodName: "EthQuery",
+			Handler:    _ABCIApplication_EthQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

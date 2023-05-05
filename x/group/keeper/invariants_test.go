@@ -42,7 +42,7 @@ func (s *invariantTestSuite) SetupSuite() {
 	cms := store.NewCommitMultiStore(db)
 	cms.MountStoreWithDB(key, storetypes.StoreTypeIAVL, db)
 	_ = cms.LoadLatestVersion()
-	sdkCtx := sdk.NewContext(cms, tmproto.Header{}, false, log.NewNopLogger())
+	sdkCtx := sdk.NewContext(cms, tmproto.Header{}, false, nil, log.NewNopLogger())
 
 	s.ctx = sdkCtx
 	s.cdc = cdc

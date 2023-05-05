@@ -74,7 +74,7 @@ func TestWithdrawValidatorCommission(t *testing.T) {
 	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
 	addrs := simtestutil.CreateIncrementalAccounts(1)
 
-	valAddr := sdk.ValAddress(addrs[0])
+	valAddr := addrs[0]
 
 	bankKeeper := distrtestutil.NewMockBankKeeper(ctrl)
 	stakingKeeper := distrtestutil.NewMockStakingKeeper(ctrl)
@@ -129,8 +129,8 @@ func TestGetTotalRewards(t *testing.T) {
 	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now()})
 	addrs := simtestutil.CreateIncrementalAccounts(2)
 
-	valAddr0 := sdk.ValAddress(addrs[0])
-	valAddr1 := sdk.ValAddress(addrs[1])
+	valAddr0 := addrs[0]
+	valAddr1 := addrs[1]
 
 	bankKeeper := distrtestutil.NewMockBankKeeper(ctrl)
 	stakingKeeper := distrtestutil.NewMockStakingKeeper(ctrl)

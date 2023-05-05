@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256r1"
@@ -98,7 +99,7 @@ func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 	// Also emit the following events, so that txs can be indexed by these
 	// indices:
 	// - signature (via `tx.signature='<sig_as_base64>'`),
-	// - concat(address,"/",sequence) (via `tx.acc_seq='cosmos1abc...def/42'`).
+	// - concat(address,"/",sequence) (via `tx.acc_seq='0x3e599c4946ac23b9A6Ff280c76c3d929ebB16AF9...def/42'`).
 	sigs, err := sigTx.GetSignaturesV2()
 	if err != nil {
 		return ctx, err
@@ -291,14 +292,7 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		if !simulate && !ctx.IsReCheckTx() {
 			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx)
 			if err != nil {
-				var errMsg string
-				if OnlyLegacyAminoSigners(sig.Data) {
-					// If all signers are using SIGN_MODE_LEGACY_AMINO, we rely on VerifySignature to check account sequence number,
-					// and therefore communicate sequence number as a potential cause of error.
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d), sequence (%d) and chain-id (%s)", accNum, acc.GetSequence(), chainID)
-				} else {
-					errMsg = fmt.Sprintf("signature verification failed; please verify account number (%d) and chain-id (%s)", accNum, chainID)
-				}
+				errMsg := fmt.Sprintf("signature verification failed; please verify account (%s) and chain-id (%s)", pubKey.Address(), chainID)
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, errMsg)
 
 			}
@@ -402,6 +396,10 @@ func DefaultSigVerificationGasConsumer(
 
 	case *secp256r1.PubKey:
 		meter.ConsumeGas(params.SigVerifyCostSecp256r1(), "ante verify: secp256r1")
+		return nil
+
+	case *ethsecp256k1.PubKey:
+		meter.ConsumeGas(params.SigVerifyCostSecp256k1, "ante verify: eth_secp256k1")
 		return nil
 
 	case multisig.PubKey:

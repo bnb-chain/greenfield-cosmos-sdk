@@ -3,6 +3,8 @@
 package testutil
 
 import (
+	"math/big"
+
 	math "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,4 +34,13 @@ type StakingKeeper interface {
 
 	BondDenom(ctx sdk.Context) string
 	TokensFromConsensusPower(ctx sdk.Context, power int64) math.Int
+}
+
+// CrossChainKeeper defines the expected crossChain keeper
+type CrossChainKeeper interface {
+	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
+
+	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+		packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
+	) (uint64, error)
 }

@@ -12,6 +12,10 @@ concurrency:
   group: ci-${{ github.ref }}-tests
   cancel-in-progress: true
 
+env:
+  CGO_CFLAGS: "-O -D__BLST_PORTABLE__"
+  CGO_CFLAGS_ALLOW: "-O -D__BLST_PORTABLE__"
+
 jobs:
   split-test-files:
     runs-on: ubuntu-latest
@@ -176,12 +180,6 @@ jobs:
         with:
           name: "${{ github.sha }}-e2e-coverage"
         continue-on-error: true
-      - name: sonarcloud
-        if: env.GIT_DIFF
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   liveness-test:
     runs-on: ubuntu-latest
@@ -264,11 +262,3 @@ jobs:
         run: |
           cd simapp
           go test -mod=readonly -timeout 30m -tags='app_v1 norace ledger test_ledger_mock rocksdb_build' ./...
-      - name: sonarcloud
-        if: env.GIT_DIFF
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: simapp/

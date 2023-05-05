@@ -35,11 +35,11 @@ func (s msgServer) CreateVestingAccount(goCtx context.Context, msg *types.MsgCre
 		return nil, err
 	}
 
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		return nil, err
 	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	to, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +95,11 @@ func (s msgServer) CreatePermanentLockedAccount(goCtx context.Context, msg *type
 		return nil, err
 	}
 
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		return nil, err
 	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	to, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -145,11 +145,11 @@ func (s msgServer) CreatePeriodicVestingAccount(goCtx context.Context, msg *type
 	ak := s.AccountKeeper
 	bk := s.BankKeeper
 
-	from, err := sdk.AccAddressFromBech32(msg.FromAddress)
+	from, err := sdk.AccAddressFromHexUnsafe(msg.FromAddress)
 	if err != nil {
 		return nil, err
 	}
-	to, err := sdk.AccAddressFromBech32(msg.ToAddress)
+	to, err := sdk.AccAddressFromHexUnsafe(msg.ToAddress)
 	if err != nil {
 		return nil, err
 	}

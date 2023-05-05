@@ -72,7 +72,7 @@ Examples:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -152,12 +152,12 @@ Examples:
 					delegateLimit = &spendLimit
 				}
 
-				allowed, err := bech32toValAddresses(allowValidators)
+				allowed, err := hexToAccAddresses(allowValidators)
 				if err != nil {
 					return err
 				}
 
-				denied, err := bech32toValAddresses(denyValidators)
+				denied, err := hexToAccAddresses(denyValidators)
 				if err != nil {
 					return err
 				}
@@ -231,7 +231,7 @@ Example:
 				return err
 			}
 
-			grantee, err := sdk.AccAddressFromBech32(args[0])
+			grantee, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -286,24 +286,24 @@ Example:
 	return cmd
 }
 
-// bech32toValAddresses returns []ValAddress from a list of Bech32 string addresses.
-func bech32toValAddresses(validators []string) ([]sdk.ValAddress, error) {
-	vals := make([]sdk.ValAddress, len(validators))
+// hexToAccAddresses returns []AccAddress from a list of string addresses.
+func hexToAccAddresses(validators []string) ([]sdk.AccAddress, error) {
+	accs := make([]sdk.AccAddress, len(validators))
 	for i, validator := range validators {
-		addr, err := sdk.ValAddressFromBech32(validator)
+		addr, err := sdk.AccAddressFromHexUnsafe(validator)
 		if err != nil {
 			return nil, err
 		}
-		vals[i] = addr
+		accs[i] = addr
 	}
-	return vals, nil
+	return accs, nil
 }
 
 // bech32toAccAddresses returns []AccAddress from a list of Bech32 string addresses.
 func bech32toAccAddresses(accAddrs []string) ([]sdk.AccAddress, error) {
 	addrs := make([]sdk.AccAddress, len(accAddrs))
 	for i, addr := range accAddrs {
-		accAddr, err := sdk.AccAddressFromBech32(addr)
+		accAddr, err := sdk.AccAddressFromHexUnsafe(addr)
 		if err != nil {
 			return nil, err
 		}

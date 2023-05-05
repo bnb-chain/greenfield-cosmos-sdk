@@ -218,3 +218,14 @@ message Params {
   // burn deposits if quorum with vote type no_veto is met
   bool burn_vote_veto = 15;
 }
+
+// CrossChainParamsChange defines the parameter change or contract upgrade
+message CrossChainParamsChange {
+  // parameter to be updated or 'upgrade' for contract upgrade
+  string  key  = 1;
+  // values is a new parameter or slice of new contract addresses in hex format
+  repeated string  values  = 2;
+  // targets defines a slice of addresses string in hex format
+  repeated string  targets  = 3;
+}
+

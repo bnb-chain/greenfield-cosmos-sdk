@@ -39,12 +39,12 @@ func TestAllocateTokensToValidatorWithCommission(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	addrs := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 3, sdk.NewInt(1234))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	tstaking := stakingtestutil.NewHelper(t, ctx, stakingKeeper)
 
 	// create validator with 50% commission
 	tstaking.Commission = stakingtypes.NewCommissionRates(sdk.NewDecWithPrec(5, 1), sdk.NewDecWithPrec(5, 1), math.LegacyNewDec(0))
-	tstaking.CreateValidator(sdk.ValAddress(addrs[0]), valConsPk0, sdk.NewInt(100), true)
+	tstaking.CreateValidator(sdk.AccAddress(addrs[0]), valConsPk0, sdk.NewInt(100), true)
 	val := stakingKeeper.Validator(ctx, valAddrs[0])
 
 	// allocate tokens
@@ -85,7 +85,7 @@ func TestAllocateTokensToManyValidators(t *testing.T) {
 	distrKeeper.SetFeePool(ctx, disttypes.InitialFeePool())
 
 	addrs := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 2, sdk.NewInt(1234))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	tstaking := stakingtestutil.NewHelper(t, ctx, stakingKeeper)
 
 	// create validator with 50% commission
@@ -178,7 +178,7 @@ func TestAllocateTokensTruncation(t *testing.T) {
 	distrKeeper.SetFeePool(ctx, disttypes.InitialFeePool())
 
 	addrs := simtestutil.AddTestAddrs(bankKeeper, stakingKeeper, ctx, 3, sdk.NewInt(1234))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	tstaking := stakingtestutil.NewHelper(t, ctx, stakingKeeper)
 
 	// create validator with 10% commission

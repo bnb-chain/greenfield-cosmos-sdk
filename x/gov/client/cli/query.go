@@ -116,14 +116,14 @@ $ %s query gov proposals --page=2 --limit=100
 			var proposalStatus v1.ProposalStatus
 
 			if len(bechDepositorAddr) != 0 {
-				_, err := sdk.AccAddressFromBech32(bechDepositorAddr)
+				_, err := sdk.AccAddressFromHexUnsafe(bechDepositorAddr)
 				if err != nil {
 					return err
 				}
 			}
 
 			if len(bechVoterAddr) != 0 {
-				_, err := sdk.AccAddressFromBech32(bechVoterAddr)
+				_, err := sdk.AccAddressFromHexUnsafe(bechVoterAddr)
 				if err != nil {
 					return err
 				}
@@ -217,7 +217,7 @@ $ %s query gov vote 1 cosmos1skjwj5whet0lpe65qaq4rpq03hjxlwd9nf39lk
 				return fmt.Errorf("failed to fetch proposal-id %d: %s", proposalID, err)
 			}
 
-			voterAddr, err := sdk.AccAddressFromBech32(args[1])
+			voterAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}

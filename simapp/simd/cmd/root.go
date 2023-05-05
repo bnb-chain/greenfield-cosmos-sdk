@@ -6,7 +6,6 @@ import (
 	"os"
 
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
-
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/log"
@@ -39,7 +38,7 @@ import (
 // main function.
 func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
-	tempApp := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(simapp.DefaultNodeHome))
+	tempApp := simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, "", serverconfig.DefaultConfig(), simtestutil.NewAppOptionsWithFlagHome(simapp.DefaultNodeHome))
 	encodingConfig := params.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
@@ -255,13 +254,14 @@ func newApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
+	chainID string,
+	serverCfg *serverconfig.Config,
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
 
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
-
 	return simapp.NewSimApp(
-		logger, db, traceStore, true,
+		logger, db, traceStore, true, chainID, serverCfg,
 		appOpts,
 		baseappOptions...,
 	)
@@ -295,15 +295,19 @@ func appExport(
 	// overwrite the FlagInvCheckPeriod
 	viperAppOpts.Set(server.FlagInvCheckPeriod, 1)
 	appOpts = viperAppOpts
+	serverCfg, err := serverconfig.GetConfig(viperAppOpts)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
 
 	if height != -1 {
-		simApp = simapp.NewSimApp(logger, db, traceStore, false, appOpts)
+		simApp = simapp.NewSimApp(logger, db, traceStore, false, "", &serverCfg, appOpts)
 
 		if err := simApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = simapp.NewSimApp(logger, db, traceStore, true, appOpts)
+		simApp = simapp.NewSimApp(logger, db, traceStore, true, "", &serverCfg, appOpts)
 	}
 
 	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

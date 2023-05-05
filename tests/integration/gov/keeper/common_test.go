@@ -38,9 +38,9 @@ func getTestProposal() []sdk.Msg {
 	}
 }
 
-func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.ValAddress) {
+func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers []int64) ([]sdk.AccAddress, []sdk.AccAddress) {
 	addrs := simapp.AddTestAddrsIncremental(app, ctx, 5, sdk.NewInt(30000000))
-	valAddrs := simtestutil.ConvertAddrsToValAddrs(addrs)
+	valAddrs := simtestutil.CopyAddrs(addrs)
 	pks := simtestutil.CreateTestPubKeys(5)
 	cdc := moduletestutil.MakeTestEncodingConfig().Codec
 
@@ -48,15 +48,16 @@ func createValidators(t *testing.T, ctx sdk.Context, app *simapp.SimApp, powers 
 		cdc,
 		app.GetKey(stakingtypes.StoreKey),
 		app.AccountKeeper,
+		app.AuthzKeeper,
 		app.BankKeeper,
 		authtypes.NewModuleAddress(types.ModuleName).String(),
 	)
 
-	val1, err := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
+	val1, err := stakingtypes.NewSimpleValidator(valAddrs[0], pks[0], stakingtypes.Description{})
 	require.NoError(t, err)
-	val2, err := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
+	val2, err := stakingtypes.NewSimpleValidator(valAddrs[1], pks[1], stakingtypes.Description{})
 	require.NoError(t, err)
-	val3, err := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
+	val3, err := stakingtypes.NewSimpleValidator(valAddrs[2], pks[2], stakingtypes.Description{})
 	require.NoError(t, err)
 
 	app.StakingKeeper.SetValidator(ctx, val1)

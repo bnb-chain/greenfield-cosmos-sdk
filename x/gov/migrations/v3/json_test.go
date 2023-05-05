@@ -20,7 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
-var voter = sdk.MustAccAddressFromBech32("cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh")
+var voter = sdk.MustAccAddressFromHex("0x0Ec700c7b488Bf0326FEF647DafB65684371f024")
 
 func TestMigrateJSON(t *testing.T) {
 	encodingConfig := moduletestutil.MakeTestEncodingConfig(gov.AppModuleBasic{})
@@ -97,7 +97,7 @@ func TestMigrateJSON(t *testing.T) {
 			"messages": [
 				{
 					"@type": "/cosmos.gov.v1.MsgExecLegacyContent",
-					"authority": "cosmos10d07y265gmmuvt4z0w9aw880jnsr700j6zn9kn",
+					"authority": "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
 					"content": {
 						"@type": "/cosmos.gov.v1beta1.TextProposal",
 						"description": "my desc",
@@ -137,7 +137,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "1",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x0Ec700c7b488Bf0326FEF647DafB65684371f024"
 		},
 		{
 			"metadata": "",
@@ -148,7 +148,7 @@ func TestMigrateJSON(t *testing.T) {
 				}
 			],
 			"proposal_id": "2",
-			"voter": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+			"voter": "0x0Ec700c7b488Bf0326FEF647DafB65684371f024"
 		}
 	],
 	"voting_params": {

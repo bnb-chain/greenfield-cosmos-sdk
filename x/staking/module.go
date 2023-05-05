@@ -205,6 +205,7 @@ type StakingInputs struct {
 
 	Config        *modulev1.Module
 	AccountKeeper types.AccountKeeper
+	AuthKeeper    types.AuthzKeeper
 	BankKeeper    types.BankKeeper
 	Cdc           codec.Codec
 	Key           *store.KVStoreKey
@@ -225,13 +226,14 @@ func ProvideModule(in StakingInputs) StakingOutputs {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+		authority = authtypes.NewModuleAddressOrHexAddress(in.Config.Authority)
 	}
 
 	k := keeper.NewKeeper(
 		in.Cdc,
 		in.Key,
 		in.AccountKeeper,
+		in.AuthKeeper,
 		in.BankKeeper,
 		authority.String(),
 	)

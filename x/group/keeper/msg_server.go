@@ -16,10 +16,6 @@ import (
 
 var _ group.MsgServer = Keeper{}
 
-// TODO: Revisit this once we have proper gas fee framework.
-// Tracking issues https://github.com/cosmos/cosmos-sdk/issues/9054, https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(20)
-
 func (k Keeper) CreateGroup(goCtx context.Context, req *group.MsgCreateGroup) (*group.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	metadata := req.Metadata
@@ -261,7 +257,7 @@ func (k Keeper) CreateGroupWithPolicy(goCtx context.Context, req *group.MsgCreat
 	}
 	policyAddr := groupPolicyRes.Address
 
-	groupPolicyAddr, err = sdk.AccAddressFromBech32(policyAddr)
+	groupPolicyAddr, err = sdk.AccAddressFromHexUnsafe(policyAddr)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "group policy address")
 	}
@@ -294,7 +290,7 @@ func (k Keeper) CreateGroupWithPolicy(goCtx context.Context, req *group.MsgCreat
 
 func (k Keeper) CreateGroupPolicy(goCtx context.Context, req *group.MsgCreateGroupPolicy) (*group.MsgCreateGroupPolicyResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	admin, err := sdk.AccAddressFromBech32(req.GetAdmin())
+	admin, err := sdk.AccAddressFromHexUnsafe(req.GetAdmin())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "request admin")
 	}
@@ -313,7 +309,7 @@ func (k Keeper) CreateGroupPolicy(goCtx context.Context, req *group.MsgCreateGro
 	if err != nil {
 		return nil, err
 	}
-	groupAdmin, err := sdk.AccAddressFromBech32(g.Admin)
+	groupAdmin, err := sdk.AccAddressFromHexUnsafe(g.Admin)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "group admin")
 	}
@@ -459,7 +455,7 @@ func (k Keeper) UpdateGroupPolicyMetadata(goCtx context.Context, req *group.MsgU
 
 func (k Keeper) SubmitProposal(goCtx context.Context, req *group.MsgSubmitProposal) (*group.MsgSubmitProposalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	groupPolicyAddr, err := sdk.AccAddressFromBech32(req.GroupPolicyAddress)
+	groupPolicyAddr, err := sdk.AccAddressFromHexUnsafe(req.GroupPolicyAddress)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "request account address of group policy")
 	}
@@ -549,7 +545,6 @@ func (k Keeper) SubmitProposal(goCtx context.Context, req *group.MsgSubmitPropos
 	if req.Exec == group.Exec_EXEC_TRY {
 		// Consider proposers as Yes votes
 		for i := range proposers {
-			ctx.GasMeter().ConsumeGas(gasCostPerIteration, "vote on proposal")
 			_, err = k.Vote(sdk.WrapSDKContext(ctx), &group.MsgVote{
 				ProposalId: id,
 				Voter:      proposers[i],
@@ -759,7 +754,7 @@ func (k Keeper) Exec(goCtx context.Context, req *group.MsgExec) (*group.MsgExecR
 		// Caching context so that we don't update the store in case of failure.
 		cacheCtx, flush := ctx.CacheContext()
 
-		addr, err := sdk.AccAddressFromBech32(policyInfo.Address)
+		addr, err := sdk.AccAddressFromHexUnsafe(policyInfo.Address)
 		if err != nil {
 			return nil, err
 		}
@@ -810,7 +805,7 @@ func (k Keeper) Exec(goCtx context.Context, req *group.MsgExec) (*group.MsgExecR
 // LeaveGroup implements the MsgServer/LeaveGroup method.
 func (k Keeper) LeaveGroup(goCtx context.Context, req *group.MsgLeaveGroup) (*group.MsgLeaveGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	_, err := sdk.AccAddressFromBech32(req.Address)
+	_, err := sdk.AccAddressFromHexUnsafe(req.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -901,12 +896,12 @@ func (k Keeper) doUpdateGroupPolicy(ctx sdk.Context, groupPolicy string, admin s
 		return sdkerrors.Wrap(err, "load group policy")
 	}
 
-	groupPolicyAddr, err := sdk.AccAddressFromBech32(groupPolicy)
+	groupPolicyAddr, err := sdk.AccAddressFromHexUnsafe(groupPolicy)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy address")
 	}
 
-	groupPolicyAdmin, err := sdk.AccAddressFromBech32(admin)
+	groupPolicyAdmin, err := sdk.AccAddressFromHexUnsafe(admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group policy admin")
 	}
@@ -954,11 +949,11 @@ func (k Keeper) doAuthenticated(ctx sdk.Context, req authNGroupReq, action actio
 	if err != nil {
 		return err
 	}
-	admin, err := sdk.AccAddressFromBech32(group.Admin)
+	admin, err := sdk.AccAddressFromHexUnsafe(group.Admin)
 	if err != nil {
 		return sdkerrors.Wrap(err, "group admin")
 	}
-	reqAdmin, err := sdk.AccAddressFromBech32(req.GetAdmin())
+	reqAdmin, err := sdk.AccAddressFromHexUnsafe(req.GetAdmin())
 	if err != nil {
 		return sdkerrors.Wrap(err, "request admin")
 	}

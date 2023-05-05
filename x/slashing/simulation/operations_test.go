@@ -17,6 +17,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -55,11 +56,11 @@ type SimTestSuite struct {
 }
 
 func (suite *SimTestSuite) SetupTest() {
-	s := rand.NewSource(1)
+	s := rand.NewSource(3)
 	suite.r = rand.New(s)
 	accounts := simtypes.RandomAccounts(suite.r, 4)
 
-	// create validator (non random as using a seed)
+	// create validator (non-random as using a seed)
 	createValidator := func() (*tmtypes.ValidatorSet, error) {
 		account := accounts[0]
 		tmPk, err := cryptocodec.ToTmPubKeyInterface(account.PubKey)
@@ -91,7 +92,7 @@ func (suite *SimTestSuite) SetupTest() {
 
 	suite.Require().NoError(err)
 	suite.app = app
-	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{})
+	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: sdktestutil.DefaultChainId})
 
 	// remove genesis validator account
 	suite.accounts = accounts[1:]
@@ -116,7 +117,7 @@ func TestSimTestSuite(t *testing.T) {
 
 // TestWeightedOperations tests the weights of the operations.
 func (suite *SimTestSuite) TestWeightedOperations() {
-	ctx := suite.ctx.WithChainID("test-chain")
+	ctx := suite.ctx.WithChainID(sdktestutil.DefaultChainId)
 	appParams := make(simtypes.AppParams)
 
 	expected := []struct {
@@ -163,18 +164,25 @@ func (suite *SimTestSuite) TestSimulateMsgUnjail() {
 	// setup self delegation
 	delTokens := suite.stakingKeeper.TokensFromConsensusPower(ctx, 2)
 	validator0, issuedShares := validator0.AddTokensFromDel(delTokens)
-	val0AccAddress, err := sdk.ValAddressFromBech32(validator0.OperatorAddress)
+	val0AccAddress, err := sdk.AccAddressFromHexUnsafe(validator0.OperatorAddress)
 	suite.Require().NoError(err)
 	selfDelegation := stakingtypes.NewDelegation(val0AccAddress.Bytes(), validator0.GetOperator(), issuedShares)
 	suite.stakingKeeper.SetDelegation(ctx, selfDelegation)
 	suite.distrKeeper.SetDelegatorStartingInfo(ctx, validator0.GetOperator(), val0AccAddress.Bytes(), distrtypes.NewDelegatorStartingInfo(2, math.LegacyOneDec(), 200))
 
 	// begin a new block
-	suite.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: suite.app.LastBlockHeight() + 1, AppHash: suite.app.LastCommitID().Hash, Time: blockTime}})
+	suite.app.BeginBlock(abci.RequestBeginBlock{
+		Header: tmproto.Header{
+			ChainID: sdktestutil.DefaultChainId,
+			Height:  suite.app.LastBlockHeight() + 1,
+			AppHash: suite.app.LastCommitID().Hash,
+			Time:    blockTime,
+		},
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgUnjail(codec.NewProtoCodec(suite.interfaceRegistry), suite.accountKeeper, suite.bankKeeper, suite.slashingKeeper, suite.stakingKeeper)
-	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, ctx, suite.accounts, "")
+	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, ctx, suite.accounts, sdktestutil.DefaultChainId)
 	suite.Require().NoError(err)
 
 	var msg types.MsgUnjail
@@ -182,7 +190,7 @@ func (suite *SimTestSuite) TestSimulateMsgUnjail() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal(types.TypeMsgUnjail, msg.Type())
-	suite.Require().Equal("cosmosvaloper1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7epjs3u", msg.ValidatorAddr)
+	suite.Require().Equal("0x87C4f0688CB0C0650d819a43F27d9934bd51a2b5", msg.ValidatorAddr)
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -194,8 +202,8 @@ func getTestingValidator0(ctx sdk.Context, stakingKeeper *stakingkeeper.Keeper, 
 func getTestingValidator(ctx sdk.Context, stakingKeeper *stakingkeeper.Keeper, accounts []simtypes.Account, commission stakingtypes.Commission, n int) (stakingtypes.Validator, error) {
 	account := accounts[n]
 	valPubKey := account.ConsKey.PubKey()
-	valAddr := sdk.ValAddress(account.PubKey.Address().Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, valPubKey, stakingtypes.Description{})
+	valAddr := sdk.AccAddress(account.PubKey.Address().Bytes())
+	validator, err := stakingtypes.NewSimpleValidator(valAddr, valPubKey, stakingtypes.Description{})
 	if err != nil {
 		return stakingtypes.Validator{}, fmt.Errorf("failed to create validator: %w", err)
 	}

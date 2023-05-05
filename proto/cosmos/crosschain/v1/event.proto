@@ -1,0 +1,27 @@
+// Since: cosmos-sdk 0.43
+syntax = "proto3";
+package cosmos.crosschain.v1;
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
+
+// EventCrossChain is emitted when there is a cross chain package created
+message EventCrossChain {
+  // Source chain id of the cross chain package
+  uint32 src_chain_id = 1;
+  // Destination chain id of the cross chainpackage
+  uint32 dest_chain_id = 2;
+  // Channel id of the cross chain package
+  uint32 channel_id = 3;
+  // Sequence of the cross chain package
+  uint64 sequence = 4;
+  // Package type of the cross chain package, like SYN, ACK and FAIL_ACK
+  uint32 package_type = 5;
+  // Timestamp of the cross chain package
+  uint64 timestamp = 6;
+  // Payload of the cross chain package
+  string package_load = 7;
+  // Relayer fee for the cross chain package
+  string relayer_fee = 8;
+  // Relayer fee for the ACK or FAIL_ACK package of this cross chain package
+  string ack_relayer_fee = 9;
+}

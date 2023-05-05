@@ -77,22 +77,19 @@ var _ AccountKeeperI = &AccountKeeper{}
 // may use auth.Keeper to access the accounts permissions map.
 func NewAccountKeeper(
 	cdc codec.BinaryCodec, storeKey storetypes.StoreKey, proto func() types.AccountI,
-	maccPerms map[string][]string, bech32Prefix string, authority string,
+	maccPerms map[string][]string, authority string,
 ) AccountKeeper {
 	permAddrs := make(map[string]types.PermissionsForAddress)
 	for name, perms := range maccPerms {
 		permAddrs[name] = types.NewPermissionsForAddress(name, perms)
 	}
 
-	bech32Codec := newBech32Codec(bech32Prefix)
-
 	return AccountKeeper{
-		storeKey:   storeKey,
-		proto:      proto,
-		cdc:        cdc,
-		permAddrs:  permAddrs,
-		addressCdc: bech32Codec,
-		authority:  authority,
+		storeKey:  storeKey,
+		proto:     proto,
+		cdc:       cdc,
+		permAddrs: permAddrs,
+		authority: authority,
 	}
 }
 
@@ -251,13 +248,3 @@ func (ak AccountKeeper) UnmarshalAccount(bz []byte) (types.AccountI, error) {
 
 // GetCodec return codec.Codec object used by the keeper
 func (ak AccountKeeper) GetCodec() codec.BinaryCodec { return ak.cdc }
-
-// add getter for bech32Prefix
-func (ak AccountKeeper) getBech32Prefix() (string, error) {
-	bech32Codec, ok := ak.addressCdc.(bech32Codec)
-	if !ok {
-		return "", fmt.Errorf("unable cast addressCdc to bech32Codec; expected %T got %T", bech32Codec, ak.addressCdc)
-	}
-
-	return bech32Codec.bech32Prefix, nil
-}

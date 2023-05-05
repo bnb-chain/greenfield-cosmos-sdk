@@ -46,7 +46,7 @@ const (
 var _ abci.Application = (*BaseApp)(nil)
 
 // BaseApp reflects the ABCI application implementation.
-type BaseApp struct { //nolint: maligned
+type BaseApp struct { // nolint: maligned
 	// initialized on creation
 	logger            log.Logger
 	name              string               // application name from abci.Info
@@ -55,6 +55,7 @@ type BaseApp struct { //nolint: maligned
 	qms               sdk.MultiStore       // Optional alternative multistore for querying only.
 	storeLoader       StoreLoader          // function to handle store loading, may be overridden with SetStoreLoader()
 	grpcQueryRouter   *GRPCQueryRouter     // router for redirecting gRPC query calls
+	ethQueryRouter    *EthQueryRouter      // router for redirecting eth query calls
 	msgServiceRouter  *MsgServiceRouter    // router for redirecting Msg service messages
 	interfaceRegistry codectypes.InterfaceRegistry
 	txDecoder         sdk.TxDecoder // unmarshal []byte into sdk.Tx
@@ -116,7 +117,7 @@ type BaseApp struct { //nolint: maligned
 	// ResponseCommit.RetainHeight value during ABCI Commit. A value of 0 indicates
 	// that no blocks should be pruned.
 	//
-	// Note: Tendermint block pruning is dependant on this parameter in conunction
+	// Note: Tendermint block pruning is dependent on this parameter in conunction
 	// with the unbonding (safety threshold) period, state pruning and state sync
 	// snapshot parameters to determine the correct minimum value of
 	// ResponseCommit.RetainHeight.
@@ -144,6 +145,9 @@ type BaseApp struct { //nolint: maligned
 	abciListeners []ABCIListener
 
 	chainID string
+
+	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
+	upgradeChecker func(ctx sdk.Context, name string) bool
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -161,6 +165,7 @@ func NewBaseApp(
 		cms:              store.NewCommitMultiStore(db),
 		storeLoader:      DefaultStoreLoader,
 		grpcQueryRouter:  NewGRPCQueryRouter(),
+		ethQueryRouter:   NewEthQueryRouter(),
 		msgServiceRouter: NewMsgServiceRouter(),
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
@@ -191,6 +196,11 @@ func NewBaseApp(
 	app.runTxRecoveryMiddleware = newDefaultRecoveryMiddleware()
 
 	return app
+}
+
+// ChainID returns the chain id.
+func (app *BaseApp) ChainID() string {
+	return app.chainID
 }
 
 // Name returns the name of the BaseApp.
@@ -224,6 +234,14 @@ func (app *BaseApp) MsgServiceRouter() *MsgServiceRouter { return app.msgService
 // SetMsgServiceRouter sets the MsgServiceRouter of a BaseApp.
 func (app *BaseApp) SetMsgServiceRouter(msgServiceRouter *MsgServiceRouter) {
 	app.msgServiceRouter = msgServiceRouter
+}
+
+// EthQueryRouter returns the EthQueryRouter of a BaseApp.
+func (app *BaseApp) EthQueryRouter() *EthQueryRouter { return app.ethQueryRouter }
+
+// SetEthQueryRouter sets the EthQueryRouter of a BaseApp.
+func (app *BaseApp) SetEthQueryRouter(ethQueryRouter *EthQueryRouter) {
+	app.ethQueryRouter = ethQueryRouter
 }
 
 // MountStores mounts all IAVL or DB stores to the provided keys in the BaseApp
@@ -409,7 +427,7 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
 	baseState := &state{
 		ms:  ms,
-		ctx: sdk.NewContext(ms, header, false, app.logger),
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
 	}
 
 	switch mode {
@@ -620,6 +638,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
+	gInfo.MinGasPrice = app.minGasPrices.String()
 
 	// only run the tx if there is block gas remaining
 	if mode == runTxModeDeliver && ctx.BlockGasMeter().IsOutOfGas() {
@@ -632,7 +651,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			err, result = processRecovery(r, recoveryMW), nil
 		}
 
-		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed()}
+		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed(), MinGasPrice: gInfo.MinGasPrice}
 	}()
 
 	blockGasConsumed := false

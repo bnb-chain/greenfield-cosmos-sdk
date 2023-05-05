@@ -16,8 +16,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	"github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -31,7 +29,6 @@ type KeeperTestSuite struct {
 	upgradeKeeper *keeper.Keeper
 	homeDir       string
 	ctx           sdk.Context
-	msgSrvr       types.MsgServer
 	addrs         []sdk.AccAddress
 	encCfg        moduletestutil.TestEncodingConfig
 }
@@ -49,11 +46,8 @@ func (s *KeeperTestSuite) SetupTest() {
 		s.encCfg.TxConfig.TxDecoder(),
 	)
 
-	skipUpgradeHeights := make(map[int64]bool)
-
 	homeDir := filepath.Join(s.T().TempDir(), "x_upgrade_keeper_test")
-	s.upgradeKeeper = keeper.NewKeeper(skipUpgradeHeights, key, s.encCfg.Codec, homeDir, nil, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-	s.upgradeKeeper.SetVersionSetter(s.baseApp)
+	s.upgradeKeeper = keeper.NewKeeper(key, s.encCfg.Codec, homeDir, s.baseApp)
 
 	vs := s.upgradeKeeper.GetVersionSetter()
 	s.Require().Equal(vs, s.baseApp)
@@ -63,7 +57,6 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.homeDir = homeDir
 	s.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now(), Height: 10})
 
-	s.msgSrvr = keeper.NewMsgServerImpl(s.upgradeKeeper)
 	s.addrs = simtestutil.CreateIncrementalAccounts(1)
 }
 
@@ -148,6 +141,7 @@ func (s *KeeperTestSuite) TestScheduleUpgrade() {
 				s.upgradeKeeper.SetUpgradeHandler("all-good", func(ctx sdk.Context, plan types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 					return vm, nil
 				})
+				s.upgradeKeeper.SetUpgradeInitializer("all-good", func() error { return nil })
 				s.upgradeKeeper.ApplyUpgrade(s.ctx, types.Plan{
 					Name:   "all-good",
 					Info:   "some text here",
@@ -179,98 +173,6 @@ func (s *KeeperTestSuite) TestScheduleUpgrade() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSetUpgradedClient() {
-	cs := []byte("IBC client state")
-
-	cases := []struct {
-		name   string
-		height int64
-		setup  func()
-		exists bool
-	}{
-		{
-			name:   "no upgraded client exists",
-			height: 10,
-			setup:  func() {},
-			exists: false,
-		},
-		{
-			name:   "success",
-			height: 10,
-			setup: func() {
-				s.upgradeKeeper.SetUpgradedClient(s.ctx, 10, cs)
-			},
-			exists: true,
-		},
-	}
-
-	for _, tc := range cases {
-		// reset suite
-		s.SetupTest()
-
-		// setup test case
-		tc.setup()
-
-		gotCs, exists := s.upgradeKeeper.GetUpgradedClient(s.ctx, tc.height)
-		if tc.exists {
-			s.Require().Equal(cs, gotCs, "valid case: %s did not retrieve correct client state", tc.name)
-			s.Require().True(exists, "valid case: %s did not retrieve client state", tc.name)
-		} else {
-			s.Require().Nil(gotCs, "invalid case: %s retrieved valid client state", tc.name)
-			s.Require().False(exists, "invalid case: %s retrieved valid client state", tc.name)
-		}
-	}
-}
-
-func (s *KeeperTestSuite) TestIsSkipHeight() {
-	var skipOne int64 = 9
-	ok := s.upgradeKeeper.IsSkipHeight(11)
-	s.Require().False(ok)
-	skip := map[int64]bool{skipOne: true}
-	upgradeKeeper := keeper.NewKeeper(skip, s.key, s.encCfg.Codec, s.T().TempDir(), nil, string(authtypes.NewModuleAddress(govtypes.ModuleName).String()))
-	upgradeKeeper.SetVersionSetter(s.baseApp)
-	s.Require().True(upgradeKeeper.IsSkipHeight(9))
-	s.Require().False(upgradeKeeper.IsSkipHeight(10))
-}
-
-func (s *KeeperTestSuite) TestUpgradedConsensusState() {
-	cs := []byte("IBC consensus state")
-	s.Require().NoError(s.upgradeKeeper.SetUpgradedConsensusState(s.ctx, 10, cs))
-	bz, ok := s.upgradeKeeper.GetUpgradedConsensusState(s.ctx, 10)
-	s.Require().True(ok)
-	s.Require().Equal(cs, bz)
-}
-
-func (s *KeeperTestSuite) TestDowngradeVerified() {
-	s.upgradeKeeper.SetDowngradeVerified(true)
-	ok := s.upgradeKeeper.DowngradeVerified()
-	s.Require().True(ok)
-}
-
-// Test that the protocol version successfully increments after an
-// upgrade and is successfully set on BaseApp's appVersion.
-func (s *KeeperTestSuite) TestIncrementProtocolVersion() {
-	oldProtocolVersion := s.baseApp.AppVersion()
-	res := s.upgradeKeeper.HasHandler("dummy")
-	s.Require().False(res)
-	dummyPlan := types.Plan{
-		Name:   "dummy",
-		Info:   "some text here",
-		Height: 100,
-	}
-	s.Require().PanicsWithValue("ApplyUpgrade should never be called without first checking HasHandler",
-		func() {
-			s.upgradeKeeper.ApplyUpgrade(s.ctx, dummyPlan)
-		},
-	)
-
-	s.upgradeKeeper.SetUpgradeHandler("dummy", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) { return vm, nil })
-	s.upgradeKeeper.ApplyUpgrade(s.ctx, dummyPlan)
-	upgradedProtocolVersion := s.baseApp.AppVersion()
-
-	s.Require().Equal(oldProtocolVersion+1, upgradedProtocolVersion)
-}
-
 // Tests that the underlying state of x/upgrade is set correctly after
 // an upgrade.
 func (s *KeeperTestSuite) TestMigrations() {
@@ -282,6 +184,7 @@ func (s *KeeperTestSuite) TestMigrations() {
 		vm["bank"] = vm["bank"] + 1
 		return vm, nil
 	})
+	s.upgradeKeeper.SetUpgradeInitializer("dummy", func() error { return nil })
 	dummyPlan := types.Plan{
 		Name:   "dummy",
 		Info:   "some text here",
@@ -305,6 +208,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgrade() {
 	keeper.SetUpgradeHandler("test0", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test0", func() error { return nil })
 
 	keeper.ApplyUpgrade(s.ctx, types.Plan{
 		Name:   "test0",
@@ -319,6 +223,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgrade() {
 	keeper.SetUpgradeHandler("test1", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test1", func() error { return nil })
 
 	newCtx := s.ctx.WithBlockHeight(15)
 	keeper.ApplyUpgrade(newCtx, types.Plan{
@@ -342,6 +247,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgradeOrdering() {
 	keeper.SetUpgradeHandler("test-v0.9", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test-v0.9", func() error { return nil })
 
 	keeper.ApplyUpgrade(s.ctx, types.Plan{
 		Name:   "test-v0.9",
@@ -356,6 +262,7 @@ func (s *KeeperTestSuite) TestLastCompletedUpgradeOrdering() {
 	keeper.SetUpgradeHandler("test-v0.10", func(_ sdk.Context, _ types.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		return vm, nil
 	})
+	keeper.SetUpgradeInitializer("test-v0.10", func() error { return nil })
 
 	newCtx := s.ctx.WithBlockHeight(15)
 	keeper.ApplyUpgrade(newCtx, types.Plan{

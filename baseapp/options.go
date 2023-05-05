@@ -293,3 +293,8 @@ func (app *BaseApp) SetPrepareProposal(handler sdk.PrepareProposalHandler) {
 
 	app.prepareProposal = handler
 }
+
+// SetUpgradeChecker is used to set a upgrade checker from the upgrade module
+func (app *BaseApp) SetUpgradeChecker(checker func(sdk.Context, string) bool) {
+	app.upgradeChecker = checker
+}

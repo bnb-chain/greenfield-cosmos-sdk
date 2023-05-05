@@ -68,7 +68,7 @@ $ %s query staking validator %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			addr, err := sdk.ValAddressFromBech32(args[0])
+			addr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -156,7 +156,7 @@ $ %s query staking unbonding-delegations-from %s1gghjut3ccd8ay0zduzj64hwre2fxs9l
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -211,7 +211,7 @@ $ %s query staking redelegations-from %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valSrcAddr, err := sdk.ValAddressFromBech32(args[0])
+			valSrcAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -266,12 +266,12 @@ $ %s query staking delegation %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p %s1gghju
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			delAddr, err := sdk.AccAddressFromBech32(args[0])
+			delAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
 
-			valAddr, err := sdk.ValAddressFromBech32(args[1])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -320,7 +320,7 @@ $ %s query staking delegations %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			delAddr, err := sdk.AccAddressFromBech32(args[0])
+			delAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -375,7 +375,7 @@ $ %s query staking delegations-to %s1gghjut3ccd8ay0zduzj64hwre2fxs9ldmqhffj
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valAddr, err := sdk.ValAddressFromBech32(args[0])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -431,12 +431,12 @@ $ %s query staking unbonding-delegation %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			valAddr, err := sdk.ValAddressFromBech32(args[1])
+			valAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
 
-			delAddr, err := sdk.AccAddressFromBech32(args[0])
+			delAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -485,7 +485,7 @@ $ %s query staking unbonding-delegations %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			delegatorAddr, err := sdk.AccAddressFromBech32(args[0])
+			delegatorAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
@@ -541,17 +541,17 @@ $ %s query staking redelegation %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p %s1l2r
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			delAddr, err := sdk.AccAddressFromBech32(args[0])
+			delAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}
 
-			valSrcAddr, err := sdk.ValAddressFromBech32(args[1])
+			valSrcAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
 
-			valDstAddr, err := sdk.ValAddressFromBech32(args[2])
+			valDstAddr, err := sdk.AccAddressFromHexUnsafe(args[2])
 			if err != nil {
 				return err
 			}
@@ -601,7 +601,7 @@ $ %s query staking redelegation %s1gghjut3ccd8ay0zduzj64hwre2fxs9ld75ru9p
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			delAddr, err := sdk.AccAddressFromBech32(args[0])
+			delAddr, err := sdk.AccAddressFromHexUnsafe(args[0])
 			if err != nil {
 				return err
 			}

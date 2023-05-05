@@ -6,17 +6,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-// TODO: Revisit this once we have proper gas fee framework.
-// Ref: https://github.com/cosmos/cosmos-sdk/issues/9054
-// Ref: https://github.com/cosmos/cosmos-sdk/discussions/9072
-const gasCostPerIteration = uint64(10)
-
 var _ authz.Authorization = &SendAuthorization{}
 
 // NewSendAuthorization creates a new SendAuthorization object.
 func NewSendAuthorization(spendLimit sdk.Coins, allowed []sdk.AccAddress) *SendAuthorization {
 	return &SendAuthorization{
-		AllowList:  toBech32Addresses(allowed),
+		AllowList:  toHexAddresses(allowed),
 		SpendLimit: spendLimit,
 	}
 }
@@ -42,7 +37,6 @@ func (a SendAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptRes
 	toAddr := mSend.ToAddress
 	allowedList := a.GetAllowList()
 	for _, addr := range allowedList {
-		ctx.GasMeter().ConsumeGas(gasCostPerIteration, "send authorization")
 		if addr == toAddr {
 			isAddrExists = true
 			break
@@ -81,7 +75,7 @@ func (a SendAuthorization) ValidateBasic() error {
 	return nil
 }
 
-func toBech32Addresses(allowed []sdk.AccAddress) []string {
+func toHexAddresses(allowed []sdk.AccAddress) []string {
 	if len(allowed) == 0 {
 		return nil
 	}

@@ -36,9 +36,9 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 
 	keeper.IterateVotes(ctx, proposal.Id, func(vote v1.Vote) bool {
 		// if validator, just record it in the map
-		voter := sdk.MustAccAddressFromBech32(vote.Voter)
+		voter := sdk.MustAccAddressFromHex(vote.Voter)
 
-		valAddrStr := sdk.ValAddress(voter.Bytes()).String()
+		valAddrStr := sdk.AccAddress(voter.Bytes()).String()
 		if val, ok := currValidators[valAddrStr]; ok {
 			val.Vote = vote.Options
 			currValidators[valAddrStr] = val

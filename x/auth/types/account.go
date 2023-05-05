@@ -60,7 +60,7 @@ func NewBaseAccountWithAddress(addr sdk.AccAddress) *BaseAccount {
 
 // GetAddress - Implements sdk.AccountI.
 func (acc BaseAccount) GetAddress() sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(acc.Address)
+	addr, _ := sdk.AccAddressFromHexUnsafe(acc.Address)
 	return addr
 }
 
@@ -127,7 +127,7 @@ func (acc BaseAccount) Validate() error {
 		return nil
 	}
 
-	accAddr, err := sdk.AccAddressFromBech32(acc.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(acc.Address)
 	if err != nil {
 		return err
 	}
@@ -160,11 +160,19 @@ func (acc BaseAccount) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return unpacker.UnpackAny(acc.PubKey, &pubKey)
 }
 
-// NewModuleAddressOrAddress gets an input string and returns an AccAddress.
+// NewModuleAddressOrBech32Address gets an input string and returns an AccAddress.
 // If the input is a valid address, it returns the address.
 // If the input is a module name, it returns the module address.
+// Deprecated
 func NewModuleAddressOrBech32Address(input string) sdk.AccAddress {
-	if addr, err := sdk.AccAddressFromBech32(input); err == nil {
+	panic("deprecated")
+}
+
+// NewModuleAddressOrHexAddress gets an input string and returns an AccAddress.
+// If the input is a valid address, it returns the address.
+// If the input is a module name, it returns the module address.
+func NewModuleAddressOrHexAddress(input string) sdk.AccAddress {
+	if addr, err := sdk.AccAddressFromHexUnsafe(input); err == nil {
 		return addr
 	}
 
@@ -254,7 +262,7 @@ type moduleAccountPretty struct {
 
 // MarshalYAML returns the YAML representation of a ModuleAccount.
 func (ma ModuleAccount) MarshalYAML() (interface{}, error) {
-	accAddr, err := sdk.AccAddressFromBech32(ma.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(ma.Address)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +284,7 @@ func (ma ModuleAccount) MarshalYAML() (interface{}, error) {
 
 // MarshalJSON returns the JSON representation of a ModuleAccount.
 func (ma ModuleAccount) MarshalJSON() ([]byte, error) {
-	accAddr, err := sdk.AccAddressFromBech32(ma.Address)
+	accAddr, err := sdk.AccAddressFromHexUnsafe(ma.Address)
 	if err != nil {
 		return nil, err
 	}

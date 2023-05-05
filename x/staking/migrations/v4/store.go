@@ -85,11 +85,11 @@ func migrateUBDEntries(ctx sdk.Context, store storetypes.KVStore, cdc codec.Bina
 }
 
 func setUBDToStore(ctx sdk.Context, store storetypes.KVStore, cdc codec.BinaryCodec, ubd types.UnbondingDelegation) {
-	delegatorAddress := sdk.MustAccAddressFromBech32(ubd.DelegatorAddress)
+	delegatorAddress := sdk.MustAccAddressFromHex(ubd.DelegatorAddress)
 
 	bz := types.MustMarshalUBD(cdc, ubd)
 
-	addr, err := sdk.ValAddressFromBech32(ubd.ValidatorAddress)
+	addr, err := sdk.AccAddressFromHexUnsafe(ubd.ValidatorAddress)
 	if err != nil {
 		panic(err)
 	}

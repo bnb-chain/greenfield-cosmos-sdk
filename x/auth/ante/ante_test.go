@@ -25,7 +25,7 @@ import (
 
 // Test that simulate transaction accurately estimates gas cost
 func TestSimulateGasCost(t *testing.T) {
-	// This test has a test case that uses another's output.
+	// This test has a test case that uses another output.
 	var simulatedGas uint64
 
 	// Same data for every test case
@@ -101,9 +101,9 @@ func TestSimulateGasCost(t *testing.T) {
 // Test various error cases in the AnteHandler control flow.
 func TestAnteHandlerSigErrors(t *testing.T) {
 	// This test requires the accounts to not be set, so we create them here
-	priv0, _, addr0 := testdata.KeyTestPubAddr()
-	priv1, _, addr1 := testdata.KeyTestPubAddr()
-	priv2, _, addr2 := testdata.KeyTestPubAddr()
+	priv0, _, addr0 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	priv1, _, addr1 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	priv2, _, addr2 := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 	msgs := []sdk.Msg{
 		testdata.NewTestMsg(addr0, addr1),
 		testdata.NewTestMsg(addr0, addr2),
@@ -405,6 +405,7 @@ func TestAnteHandlerAccountNumbersAtBlockHeightZero(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = testdata.NewTestFeeAmount()
 			args.gasLimit = testdata.NewTestGasLimit()
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -614,6 +615,7 @@ func TestAnteHandlerSequences(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = feeAmount
 			args.gasLimit = gasLimit
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -670,6 +672,7 @@ func TestAnteHandlerFees(t *testing.T) {
 			args := tc.malleate(suite)
 			args.feeAmount = feeAmount
 			args.gasLimit = gasLimit
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -687,7 +690,7 @@ func TestAnteHandlerMemoGas(t *testing.T) {
 					accNums:   []uint64{0},
 					accSeqs:   []uint64{0},
 					feeAmount: sdk.NewCoins(sdk.NewInt64Coin("atom", 0)),
-					gasLimit:  0,
+					gasLimit:  1,
 					msgs:      []sdk.Msg{testdata.NewTestMsg(accs[0].acc.GetAddress())},
 					privs:     []cryptotypes.PrivKey{accs[0].priv},
 				}
@@ -759,6 +762,7 @@ func TestAnteHandlerMemoGas(t *testing.T) {
 			suite := SetupTestSuite(t, false)
 			suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()
 			args := tc.malleate(suite)
+			args.chainID = suite.ctx.ChainID()
 
 			suite.RunTestCase(t, tc, args)
 		})
@@ -926,7 +930,6 @@ func TestAnteHandlerBadSignBytes(t *testing.T) {
 			func(suite *AnteTestSuite) TestCaseArgs {
 				accs := suite.CreateTestAccounts(1)
 				msg0 := testdata.NewTestMsg(accs[0].acc.GetAddress())
-				suite.bankKeeper.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 				return TestCaseArgs{
 					chainID:   "wrong-chain-id",
@@ -940,7 +943,7 @@ func TestAnteHandlerBadSignBytes(t *testing.T) {
 			},
 			false,
 			false,
-			sdkerrors.ErrUnauthorized,
+			fmt.Errorf("failed to parse chainID"),
 		},
 		{
 			"test wrong accSeqs",
@@ -1253,7 +1256,7 @@ func generatePubKeysAndSignatures(n int, msg []byte, _ bool) (pubkeys []cryptoty
 		//	privkey = ed25519.GenPrivKey()
 		//} else {
 		//	privkey = secp256k1.GenPrivKey()
-		//}
+		// }
 
 		pubkeys[i] = privkey.PubKey()
 		signatures[i], _ = privkey.Sign(msg)
@@ -1449,7 +1452,7 @@ func TestAnteHandlerReCheck(t *testing.T) {
 	tx, err = suite.CreateTestTx(privs, accNums, accSeqs, suite.ctx.ChainID())
 	require.NoError(t, err)
 	txBytes, err := json.Marshal(tx)
-	require.Nil(t, err, "Error marshalling tx: %v", err)
+	require.Nil(t, err, "Error marshaling tx: %v", err)
 	suite.ctx = suite.ctx.WithTxBytes(txBytes)
 
 	// require that state machine param-dependent checking is still run on recheck since parameters can change between check and recheck

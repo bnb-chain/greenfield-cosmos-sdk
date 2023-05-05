@@ -10,16 +10,19 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/configurator"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	_ "github.com/cosmos/cosmos-sdk/x/authz/module"
 	_ "github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus"
+	_ "github.com/cosmos/cosmos-sdk/x/crosschain"
 	_ "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -47,9 +50,11 @@ type suite struct {
 var appConfig = configurator.NewAppConfig(
 	configurator.ParamsModule(),
 	configurator.AuthModule(),
+	configurator.AuthzModule(),
 	configurator.StakingModule(),
 	configurator.BankModule(),
 	configurator.GovModule(),
+	configurator.CrossChainModule(),
 	configurator.DistributionModule(),
 	configurator.MintModule(),
 	configurator.ConsensusModule(),
@@ -66,13 +71,13 @@ func TestImportExportQueues(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	ctx := s1.app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx := s1.app.BaseApp.NewContext(false, tmproto.Header{ChainID: testutil.DefaultChainId})
 	addrs := simtestutil.AddTestAddrs(s1.BankKeeper, s1.StakingKeeper, ctx, 1, valTokens)
 
-	header := tmproto.Header{Height: s1.app.LastBlockHeight() + 1}
+	header := tmproto.Header{ChainID: testutil.DefaultChainId, Height: s1.app.LastBlockHeight() + 1}
 	s1.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
-	ctx = s1.app.BaseApp.NewContext(false, tmproto.Header{})
+	ctx = s1.app.BaseApp.NewContext(false, tmproto.Header{ChainID: testutil.DefaultChainId})
 	// Create two proposals, put the second into the voting period
 	proposal1, err := s1.GovKeeper.SubmitProposal(ctx, []sdk.Msg{mkTestLegacyContent(t)}, "", "test", "description", addrs[0])
 	require.NoError(t, err)
@@ -121,6 +126,7 @@ func TestImportExportQueues(t *testing.T) {
 
 	s2.app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         testutil.DefaultChainId,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -128,9 +134,9 @@ func TestImportExportQueues(t *testing.T) {
 	)
 
 	s2.app.Commit()
-	s2.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: s2.app.LastBlockHeight() + 1}})
+	s2.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{ChainID: testutil.DefaultChainId, Height: s2.app.LastBlockHeight() + 1}})
 
-	header = tmproto.Header{Height: s2.app.LastBlockHeight() + 1}
+	header = tmproto.Header{ChainID: testutil.DefaultChainId, Height: s2.app.LastBlockHeight() + 1}
 	s2.app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	ctx2 := s2.app.BaseApp.NewContext(false, tmproto.Header{})

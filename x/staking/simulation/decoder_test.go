@@ -21,7 +21,7 @@ import (
 var (
 	delPk1   = ed25519.GenPrivKey().PubKey()
 	delAddr1 = sdk.AccAddress(delPk1.Address())
-	valAddr1 = sdk.ValAddress(delPk1.Address())
+	valAddr1 = sdk.AccAddress(delPk1.Address())
 )
 
 func makeTestCodec() (cdc *codec.LegacyAmino) {
@@ -37,7 +37,7 @@ func TestDecodeStore(t *testing.T) {
 	dec := simulation.NewDecodeStore(cdc)
 	bondTime := time.Now().UTC()
 
-	val, err := types.NewValidator(valAddr1, delPk1, types.NewDescription("test", "test", "test", "test", "test"))
+	val, err := types.NewSimpleValidator(valAddr1, delPk1, types.NewDescription("test", "test", "test", "test", "test"))
 	require.NoError(t, err)
 	del := types.NewDelegation(delAddr1, valAddr1, math.LegacyOneDec())
 	ubd := types.NewUnbondingDelegation(delAddr1, valAddr1, 15, bondTime, math.OneInt(), 1)

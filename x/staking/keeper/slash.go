@@ -266,12 +266,12 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 			continue
 		}
 
-		valDstAddr, err := sdk.ValAddressFromBech32(redelegation.ValidatorDstAddress)
+		valDstAddr, err := sdk.AccAddressFromHexUnsafe(redelegation.ValidatorDstAddress)
 		if err != nil {
 			panic(err)
 		}
 
-		delegatorAddress := sdk.MustAccAddressFromBech32(redelegation.DelegatorAddress)
+		delegatorAddress := sdk.MustAccAddressFromHex(redelegation.DelegatorAddress)
 
 		delegation, found := k.GetDelegation(ctx, delegatorAddress, valDstAddr)
 		if !found {

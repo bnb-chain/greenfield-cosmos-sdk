@@ -243,9 +243,18 @@ type (
 	}
 )
 
+// UpgradeConfig defines the upgrading configuration.
+type UpgradeConfig struct {
+	Name   string `mapstructure:"name"`
+	Height int64  `mapstructure:"height"`
+	Info   string `mapstructure:"info"`
+}
+
 // Config defines the server's top level configuration
 type Config struct {
 	BaseConfig `mapstructure:",squash"`
+
+	Upgrade []UpgradeConfig `mapstructure:"upgrade"`
 
 	// Telemetry defines the application telemetry configuration
 	Telemetry telemetry.Config `mapstructure:"telemetry"`

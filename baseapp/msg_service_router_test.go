@@ -11,10 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/depinject"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -79,7 +81,7 @@ func TestRegisterMsgServiceTwice(t *testing.T) {
 }
 
 func TestMsgService(t *testing.T) {
-	priv, _, _ := testdata.KeyTestPubAddr()
+	priv, _, _ := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
 
 	var (
 		appBuilder        *runtime.AppBuilder
@@ -88,7 +90,7 @@ func TestMsgService(t *testing.T) {
 	)
 	err := depinject.Inject(makeMinimalConfig(), &appBuilder, &cdc, &interfaceRegistry)
 	require.NoError(t, err)
-	app := appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil)
+	app := appBuilder.Build(log.NewNopLogger(), dbm.NewMemDB(), nil, baseapp.SetChainID(sdktestutil.DefaultChainId))
 
 	// patch in TxConfig instead of using an output from x/auth/tx
 	txConfig := authtx.NewTxConfig(cdc, authtx.DefaultSignModes)
@@ -100,7 +102,7 @@ func TestMsgService(t *testing.T) {
 		app.MsgServiceRouter(),
 		testdata.MsgServerImpl{},
 	)
-	_ = app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: 1}})
+	_ = app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: 1}})
 
 	msg := testdata.MsgCreateDog{Dog: &testdata.Dog{Name: "Spot"}}
 
@@ -126,7 +128,7 @@ func TestMsgService(t *testing.T) {
 
 	// Second round: all signer infos are set, so each signer can sign.
 	signerData := authsigning.SignerData{
-		ChainID:       "test",
+		ChainID:       sdktestutil.DefaultChainId,
 		AccountNumber: 0,
 		Sequence:      0,
 	}

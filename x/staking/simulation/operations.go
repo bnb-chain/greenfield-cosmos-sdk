@@ -1,10 +1,12 @@
 package simulation
 
 import (
+	"encoding/hex"
 	"fmt"
 	"math/rand"
 
-	"cosmossdk.io/math"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -27,7 +29,6 @@ const (
 	DefaultWeightMsgBeginRedelegate           int = 100
 	DefaultWeightMsgCancelUnbondingDelegation int = 100
 
-	OpWeightMsgCreateValidator           = "op_weight_msg_create_validator"
 	OpWeightMsgEditValidator             = "op_weight_msg_edit_validator"
 	OpWeightMsgDelegate                  = "op_weight_msg_delegate"
 	OpWeightMsgUndelegate                = "op_weight_msg_undelegate"
@@ -41,18 +42,11 @@ func WeightedOperations(
 	bk types.BankKeeper, k *keeper.Keeper,
 ) simulation.WeightedOperations {
 	var (
-		weightMsgCreateValidator           int
 		weightMsgEditValidator             int
 		weightMsgDelegate                  int
 		weightMsgUndelegate                int
 		weightMsgBeginRedelegate           int
 		weightMsgCancelUnbondingDelegation int
-	)
-
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateValidator, &weightMsgCreateValidator, nil,
-		func(_ *rand.Rand) {
-			weightMsgCreateValidator = DefaultWeightMsgCreateValidator
-		},
 	)
 
 	appParams.GetOrGenerate(cdc, OpWeightMsgEditValidator, &weightMsgEditValidator, nil,
@@ -87,10 +81,6 @@ func WeightedOperations(
 
 	return simulation.WeightedOperations{
 		simulation.NewWeightedOperation(
-			weightMsgCreateValidator,
-			SimulateMsgCreateValidator(ak, bk, k),
-		),
-		simulation.NewWeightedOperation(
 			weightMsgEditValidator,
 			SimulateMsgEditValidator(ak, bk, k),
 		),
@@ -119,7 +109,7 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k *
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
-		address := sdk.ValAddress(simAccount.Address)
+		address := simAccount.Address
 
 		// ensure the validator doesn't exist already
 		_, found := k.GetValidator(ctx, address)
@@ -169,7 +159,14 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k *
 			simtypes.RandomDecAmount(r, maxCommission),
 		)
 
-		msg, err := types.NewMsgCreateValidator(address, simAccount.ConsKey.PubKey(), selfDelegation, description, commission, math.OneInt())
+		blsSecretKey, _ := bls.RandKey()
+		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+
+		msg, err := types.NewMsgCreateValidator(
+			address, simAccount.ConsKey.PubKey(),
+			selfDelegation, description, commission, sdk.OneInt(),
+			address, address, address, address, blsPk,
+		)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
 		}
@@ -213,7 +210,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k *ke
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgEditValidator, "invalid commission rate"), nil, nil
 		}
 
-		simAccount, found := simtypes.FindAccount(accs, sdk.AccAddress(val.GetOperator()))
+		simAccount, found := simtypes.FindAccount(accs, val.GetOperator())
 		if !found {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgEditValidator, "unable to find account"), nil, fmt.Errorf("validator %s not found", val.GetOperator())
 		}
@@ -229,7 +226,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k *ke
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil)
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, address, "")
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -495,7 +492,7 @@ func SimulateMsgBeginRedelegate(ak types.AccountKeeper, bk types.BankKeeper, k *
 		delAddr := delegation.GetDelegatorAddr()
 
 		if k.HasReceivingRedelegation(ctx, delAddr, srcAddr) {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgBeginRedelegate, "receveing redelegation is not allowed"), nil, nil // skip
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgBeginRedelegate, "receiving redelegation is not allowed"), nil, nil // skip
 		}
 
 		// get random destination validator

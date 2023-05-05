@@ -130,7 +130,7 @@ func (s *E2ETestSuite) SetupSuite() {
 func (s *E2ETestSuite) createAccount(uid string) sdk.AccAddress {
 	val := s.network.Validators[0]
 	// Create new account in the keyring.
-	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.Secp256k1)
+	k, _, err := val.ClientCtx.Keyring.NewMnemonic(uid, keyring.English, sdk.FullFundraiserPath, keyring.DefaultBIP39Passphrase, hd.EthSecp256k1)
 	s.Require().NoError(err)
 
 	addr, err := k.GetAddress()
@@ -206,7 +206,7 @@ func (s *E2ETestSuite) TestCLITxGrantAuthorization() {
 			},
 			0,
 			true,
-			"invalid separator index",
+			"invalid address hex length",
 		},
 		{
 			"Invalid expiration time",

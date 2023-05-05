@@ -54,7 +54,7 @@ func CustomGRPCHeaderMatcher(key string) (string, bool) {
 
 func New(clientCtx client.Context, logger log.Logger) *Server {
 	// The default JSON marshaller used by the gRPC-Gateway is unable to marshal non-nullable non-scalar fields.
-	// Using the gogo/gateway package with the gRPC-Gateway WithMarshaler option fixes the scalar field marshalling issue.
+	// Using the gogo/gateway package with the gRPC-Gateway WithMarshaler option fixes the scalar field marshaling issue.
 	marshalerOption := &gateway.JSONPb{
 		EmitDefaults: true,
 		Indent:       "  ",
@@ -71,7 +71,7 @@ func New(clientCtx client.Context, logger log.Logger) *Server {
 			runtime.WithMarshalerOption(runtime.MIMEWildcard, marshalerOption),
 
 			// This is necessary to get error details properly
-			// marshalled in unary requests.
+			// marshaled in unary requests.
 			runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
 
 			// Custom header matcher for mapping request headers to

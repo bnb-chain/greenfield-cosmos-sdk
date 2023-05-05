@@ -37,6 +37,7 @@ message Request {
     RequestApplySnapshotChunk apply_snapshot_chunk = 15;
     RequestPrepareProposal    prepare_proposal     = 16;
     RequestProcessProposal    process_proposal     = 17;
+    RequestEthQuery           eth_query            = 18;
   }
   reserved 4;
 }
@@ -149,6 +150,11 @@ message RequestProcessProposal {
   bytes proposer_address = 8;
 }
 
+// Eth json rpc query request
+message RequestEthQuery {
+  bytes request = 1;
+}
+
 //----------------------------------------
 // Response types
 
@@ -171,6 +177,7 @@ message Response {
     ResponseApplySnapshotChunk apply_snapshot_chunk = 16;
     ResponsePrepareProposal    prepare_proposal     = 17;
     ResponseProcessProposal    process_proposal     = 18;
+    ResponseEthQuery           eth_query            = 19;
   }
   reserved 5;
 }
@@ -315,6 +322,13 @@ message ResponseProcessProposal {
   }
 }
 
+message ResponseEthQuery{
+  uint32 code       = 1;
+  string log        = 2;
+  string codespace  = 3;
+  bytes  response   = 4;
+}
+
 //----------------------------------------
 // Misc.
 
@@ -441,4 +455,6 @@ service ABCIApplication {
       returns (ResponseApplySnapshotChunk);
   rpc PrepareProposal(RequestPrepareProposal) returns (ResponsePrepareProposal);
   rpc ProcessProposal(RequestProcessProposal) returns (ResponseProcessProposal);
+
+  rpc EthQuery(RequestEthQuery) returns (ResponseEthQuery);
 }

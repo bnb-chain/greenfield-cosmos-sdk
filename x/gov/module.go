@@ -171,9 +171,10 @@ type GovInputs struct {
 	ModuleKey        depinject.OwnModuleKey
 	MsgServiceRouter *baseapp.MsgServiceRouter
 
-	AccountKeeper govtypes.AccountKeeper
-	BankKeeper    govtypes.BankKeeper
-	StakingKeeper govtypes.StakingKeeper
+	AccountKeeper    govtypes.AccountKeeper
+	BankKeeper       govtypes.BankKeeper
+	StakingKeeper    govtypes.StakingKeeper
+	CrossChainKeeper govtypes.CrossChainKeeper
 
 	// LegacySubspace is used solely for migration of x/params managed parameters
 	LegacySubspace govtypes.ParamSubspace
@@ -196,7 +197,7 @@ func ProvideModule(in GovInputs) GovOutputs {
 	// default to governance authority if not provided
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	if in.Config.Authority != "" {
-		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+		authority = authtypes.NewModuleAddressOrHexAddress(in.Config.Authority)
 	}
 
 	k := keeper.NewKeeper(
@@ -205,6 +206,7 @@ func ProvideModule(in GovInputs) GovOutputs {
 		in.AccountKeeper,
 		in.BankKeeper,
 		in.StakingKeeper,
+		in.CrossChainKeeper,
 		in.MsgServiceRouter,
 		kConfig,
 		authority.String(),

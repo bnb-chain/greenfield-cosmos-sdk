@@ -83,6 +83,9 @@ message GasInfo {
 
   // GasUsed is the amount of gas actually consumed.
   uint64 gas_used = 2;
+
+  // MinGasPrice are the min gas price.
+  string min_gas_price = 3;
 }
 
 // Result is the union of ResponseFormat and ResponseCheckTx.
