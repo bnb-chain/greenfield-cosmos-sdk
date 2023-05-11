@@ -1,4 +1,7 @@
 # Changelog
+## v0.2.0
+This release upgrades cosmos-sdk to v0.47.2.  
+
 ## v0.1.1
 This is a maintenance release.
 
