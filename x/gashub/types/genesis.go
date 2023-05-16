@@ -47,7 +47,7 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/cosmos.distribution.v1beta1.MsgUpdateParams", 0),
 		*NewMsgGasParamsWithFixedGas("/cosmos.gashub.v1beta1.MsgUpdateParams", 0),
 		*NewMsgGasParamsWithFixedGas("/cosmos.gov.v1.MsgUpdateParams", 0),
-		*NewMsgGasParamsWithFixedGas("/cosmos.mint.MsgUpdateParams", 0),
+		*NewMsgGasParamsWithFixedGas("/cosmos.mint.v1beta1.MsgUpdateParams", 0),
 		*NewMsgGasParamsWithFixedGas("/cosmos.oracle.v1.MsgUpdateParams", 0),
 		*NewMsgGasParamsWithFixedGas("/cosmos.slashing.v1beta1.MsgUpdateParams", 0),
 		*NewMsgGasParamsWithFixedGas("/cosmos.staking.v1beta1.MsgUpdateParams", 0),
