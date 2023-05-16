@@ -92,7 +92,11 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 	}
 
 	// construct the signDoc
-	msgAny, _ := codectypes.NewAnyWithValue(protoTx.GetMsgs()[0])
+	msgAnys := make([]*codectypes.Any, 0)
+	for _, msg := range protoTx.GetMsgs() {
+		msgAny, _ := codectypes.NewAnyWithValue(msg)
+		msgAnys = append(msgAnys, msgAny)
+	}
 	signDoc := &types.SignDocEip712{
 		AccountNumber: signerData.AccountNumber,
 		Sequence:      signerData.Sequence,
@@ -106,27 +110,47 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		},
 		Memo: protoTx.GetMemo(),
 		Tip:  protoTx.GetTip(),
-		Msg:  msgAny,
+		Msg:  msgAnys,
 	}
 
 	// extract the msg types
-	msgTypes, err := extractMsgTypes(protoTx.GetMsgs()[0])
-	if err != nil {
-		return nil, nil, err
+	msgTypes := apitypes.Types{}
+	for i, msg := range protoTx.GetMsgs() {
+		tmpMsgTypes, err := extractMsgTypes(msg)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if len(msgTypes) == 0 {
+			msgTypes = tmpMsgTypes
+		}
+
+		for _, t := range tmpMsgTypes["Tx"] {
+			if t.Name == "msg" {
+				if i == 0 {
+					for idx, _ := range msgTypes["Tx"] {
+						if msgTypes["Tx"][idx].Name == "msg" {
+							msgTypes["Tx"][idx] = apitypes.Type{
+								Name: fmt.Sprintf("msg%d", i+1),
+								Type: fmt.Sprintf("Msg%d", i+1),
+							}
+						}
+					}
+				} else {
+					msgTypes["Tx"] = append(msgTypes["Tx"], apitypes.Type{
+						Name: fmt.Sprintf("msg%d", i+1),
+						Type: fmt.Sprintf("Msg%d", i+1),
+					})
+				}
+			}
+		}
+		msgTypes[fmt.Sprintf("Msg%d", i+1)] = tmpMsgTypes["Msg"]
+		delete(msgTypes, "Msg")
 	}
 
 	// patch the msg types to include `Tip` if it's not empty
 	if signDoc.Tip != nil {
-		msgTypes["Tx"] = []apitypes.Type{
-			{Name: "account_number", Type: "uint256"},
-			{Name: "chain_id", Type: "uint256"},
-			{Name: "fee", Type: "Fee"},
-			{Name: "memo", Type: "string"},
-			{Name: "msg", Type: "Msg"},
-			{Name: "sequence", Type: "uint256"},
-			{Name: "timeout_height", Type: "uint256"},
-			{Name: "tip", Type: "Tip"},
-		}
+		msgTypes["Tx"] = append(msgTypes["Tx"], apitypes.Type{Name: "tip", Type: "Tip"})
 		msgTypes["Tip"] = []apitypes.Type{
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "tipper", Type: "string"},
@@ -178,7 +202,12 @@ func WrapTxToTypedData(
 	}
 
 	// filling nil value and do other clean up
-	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
+	msgData := txData["msg"].([]interface{})
+	for i, _ := range signDoc.GetMsg() {
+		txData[fmt.Sprintf("msg%d", i+1)] = msgData[i]
+		cleanTypesAndMsgValue(msgTypes, fmt.Sprintf("Msg%d", i+1), msgData[i].(map[string]interface{}))
+	}
+	delete(txData, "msg")
 
 	tempDomain := *domain
 	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))

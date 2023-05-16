@@ -226,3 +226,105 @@ func TestMoreMsgs(t *testing.T) {
 		require.NotNil(t, signBytes)
 	}
 }
+
+func TestMultiMsgs(t *testing.T) {
+	_, pubkey, addr := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	_, feePayerPubKey, feePayerAddr := testdata.KeyTestPubAddrEthSecp256k1(require.New(t))
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &vesting.MsgCreateVestingAccount{})
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &govtypes.MsgSubmitProposal{})
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &banktypes.MsgSend{})
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &feegrant.MsgGrantAllowance{})
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil), &group.MsgCreateGroup{})
+	interfaceRegistry.RegisterInterface(
+		"cosmos.feegrant.v1beta1.FeeAllowanceI",
+		(*feegrant.FeeAllowanceI)(nil),
+		&feegrant.BasicAllowance{},
+		&feegrant.PeriodicAllowance{},
+		&feegrant.AllowedMsgAllowance{},
+	)
+	marshaler := codec.NewProtoCodec(interfaceRegistry)
+
+	txConfig := NewTxConfig(marshaler, []signingtypes.SignMode{signingtypes.SignMode_SIGN_MODE_EIP_712})
+	txBuilder := txConfig.NewTxBuilder()
+
+	chainID := "greenfield_9000-1"
+	testMemo := "some test memo"
+	accNum, accSeq := uint64(1), uint64(2)
+
+	sigData := &signingtypes.SingleSignatureData{
+		SignMode: signingtypes.SignMode_SIGN_MODE_EIP_712,
+	}
+	sig := signingtypes.SignatureV2{
+		PubKey:   pubkey,
+		Data:     sigData,
+		Sequence: accSeq,
+	}
+	feePayerSig := signingtypes.SignatureV2{
+		PubKey:   feePayerPubKey,
+		Data:     sigData,
+		Sequence: accSeq,
+	}
+
+	fee := txtypes.Fee{Amount: sdk.NewCoins(sdk.NewInt64Coin("atom", 150)), GasLimit: 20000}
+
+	txBuilder.SetMemo(testMemo)
+	txBuilder.SetFeeAmount(fee.Amount)
+	txBuilder.SetFeePayer(feePayerAddr)
+	txBuilder.SetGasLimit(fee.GasLimit)
+
+	err := txBuilder.SetSignatures(sig, feePayerSig)
+	require.NoError(t, err)
+
+	signingData := signing.SignerData{
+		Address:       addr.String(),
+		ChainID:       chainID,
+		AccountNumber: accNum,
+		Sequence:      accSeq,
+		PubKey:        pubkey,
+	}
+	modeHandler := signModeEip712Handler{}
+
+	msgSend := banktypes.NewMsgSend(addr, addr, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))))
+	msgProposal, _ := govtypes.NewMsgSubmitProposal(
+		[]sdk.Msg{msgSend},
+		sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdkmath.NewInt(1))),
+		"test",
+		"test",
+		"test",
+		"test",
+	)
+	expiration := time.Now()
+	basic := feegrant.BasicAllowance{
+		SpendLimit: nil,
+		Expiration: &expiration,
+	}
+	period := feegrant.PeriodicAllowance{
+		Basic:  basic,
+		Period: time.Duration(3600),
+	}
+	msgGrantAllowance1, _ := feegrant.NewMsgGrantAllowance(&basic, addr, addr)
+	msgGrantAllowance2, _ := feegrant.NewMsgGrantAllowance(&period, addr, addr)
+	msgCreateGroup := &group.MsgCreateGroup{
+		Admin: addr.String(),
+		Members: []group.MemberRequest{
+			{
+				Address:  addr.String(),
+				Weight:   "1",
+				Metadata: "metaData",
+			},
+		},
+		Metadata: "metaData",
+	}
+
+	err = txBuilder.SetMsgs(msgProposal,
+		msgSend,
+		msgGrantAllowance1,
+		msgGrantAllowance2,
+		msgCreateGroup)
+	require.NoError(t, err)
+	signBytes, err := modeHandler.GetSignBytes(signingtypes.SignMode_SIGN_MODE_EIP_712, signingData, txBuilder.GetTx())
+	require.NoError(t, err)
+	require.NotNil(t, signBytes)
+
+}
