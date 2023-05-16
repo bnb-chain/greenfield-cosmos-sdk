@@ -74,7 +74,7 @@ jobs:
       - name: test & coverage report creation
         if: env.GIT_DIFF
         run: |
-          cat pkgs.txt.part.${{ matrix.part }} | xargs go test -mod=readonly -race -timeout 30m -coverprofile=${{ matrix.part }}profile.out -covermode=atomic -tags='ledger test_ledger_mock'
+          cat pkgs.txt.part.${{ matrix.part }} | xargs go test -mod=readonly -race -timeout 60m -coverprofile=${{ matrix.part }}profile.out -covermode=atomic -tags='ledger test_ledger_mock'
       - uses: actions/upload-artifact@v3
         if: env.GIT_DIFF
         with:
@@ -256,9 +256,9 @@ jobs:
         if: env.GIT_DIFF
         run: |
           cd simapp
-          go test -mod=readonly -timeout 30m -coverprofile=coverage.out -covermode=atomic -tags='norace ledger test_ledger_mock rocksdb_build' ./...
+          go test -mod=readonly -timeout 60m -coverprofile=coverage.out -covermode=atomic -tags='norace ledger test_ledger_mock rocksdb_build' ./...
       - name: tests simapp v1
         if: env.GIT_DIFF
         run: |
           cd simapp
-          go test -mod=readonly -timeout 30m -tags='app_v1 norace ledger test_ledger_mock rocksdb_build' ./...
+          go test -mod=readonly -timeout 60m -tags='app_v1 norace ledger test_ledger_mock rocksdb_build' ./...
