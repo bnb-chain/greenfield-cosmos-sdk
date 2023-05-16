@@ -92,9 +92,7 @@ func (mgp MsgGasParams) Validate() error {
 
 	switch p := mgp.GasParams.(type) {
 	case *MsgGasParams_FixedType:
-		if p.FixedType.FixedGas == 0 {
-			return fmt.Errorf("invalid gas. cannot be zero")
-		}
+		return nil
 	case *MsgGasParams_GrantType:
 		if p.GrantType.FixedGas == 0 || p.GrantType.GasPerItem == 0 {
 			return fmt.Errorf("invalid gas. cannot be zero")
