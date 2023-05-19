@@ -246,7 +246,11 @@ func WrapTxToTypedData(
 }
 
 func extractMsgTypes(msg sdk.Msg, index int) (apitypes.Types, error) {
-	rootTypes := apitypes.Types{}
+	rootTypes := apitypes.Types{
+		fmt.Sprintf("Msg%d", index): {
+			{Name: "type", Type: "string"},
+		},
+	}
 
 	if err := walkFields(rootTypes, msg, index); err != nil {
 		return nil, err
