@@ -82,6 +82,9 @@ func stripRowID(indexKey []byte, secondaryIndexKey interface{}) (RowID, error) {
 	switch v := secondaryIndexKey.(type) {
 	case []byte:
 		searchableKeyLen := indexKey[0]
+		if 1+int(searchableKeyLen) > len(indexKey) {
+			return nil, fmt.Errorf("searchableKeyLen is out of bounds")
+		}
 		return indexKey[1+searchableKeyLen:], nil
 	case string:
 		searchableKeyLen := 0
@@ -91,8 +94,14 @@ func stripRowID(indexKey []byte, secondaryIndexKey interface{}) (RowID, error) {
 				break
 			}
 		}
+		if 1+searchableKeyLen > len(indexKey) {
+			return nil, fmt.Errorf("searchableKeyLen is out of bounds")
+		}
 		return indexKey[1+searchableKeyLen:], nil
 	case uint64:
+		if EncodedSeqLength > len(indexKey) {
+			return nil, fmt.Errorf("EncodedSeqLength is out of bounds")
+		}
 		return indexKey[EncodedSeqLength:], nil
 	default:
 		return nil, fmt.Errorf("type %T not allowed as index key", v)

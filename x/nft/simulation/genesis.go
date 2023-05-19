@@ -10,6 +10,9 @@ import (
 
 // genClasses returns a slice of nft class.
 func genClasses(r *rand.Rand, accounts []simtypes.Account) []*nft.Class {
+	if len(accounts) < 1 {
+		return make([]*nft.Class, 0)
+	}
 	classes := make([]*nft.Class, len(accounts)-1)
 	for i := 0; i < len(accounts)-1; i++ {
 		classes[i] = &nft.Class{

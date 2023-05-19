@@ -12,6 +12,10 @@ import (
 
 // genFeeGrants returns a slice of randomly generated allowances.
 func genFeeGrants(r *rand.Rand, accounts []simtypes.Account) []feegrant.Grant {
+	// prevent errors if len < 1
+	if len(accounts) < 1 {
+		return make([]feegrant.Grant, 0)
+	}
 	allowances := make([]feegrant.Grant, len(accounts)-1)
 	for i := 0; i < len(accounts)-1; i++ {
 		granter := accounts[i].Address

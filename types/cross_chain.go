@@ -94,6 +94,9 @@ func EncodePackageHeader(header PackageHeader) []byte {
 	copy(packageHeader[PackageTypeLength:PackageTypeLength+TimestampLength], timestampBytes)
 
 	relayerFeeLength := len(header.RelayerFee.Bytes())
+	if relayerFeeLength > 32 {
+		panic(fmt.Sprintf("relayer fee length %d is greater than 32", relayerFeeLength))
+	}
 	copy(packageHeader[AckPackageHeaderLength-relayerFeeLength:AckPackageHeaderLength], header.RelayerFee.Bytes())
 
 	// add ack relayer fee to header for syn package
