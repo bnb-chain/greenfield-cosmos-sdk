@@ -92,7 +92,7 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 	}
 
 	// construct the signDoc
-	msgAnys := make([]*codectypes.Any, 0)
+	msgAnys := make([]*codectypes.Any, 0, len(protoTx.GetMsgs()))
 	for _, msg := range protoTx.GetMsgs() {
 		msgAny, _ := codectypes.NewAnyWithValue(msg)
 		msgAnys = append(msgAnys, msgAny)
@@ -110,7 +110,7 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		},
 		Memo: protoTx.GetMemo(),
 		Tip:  protoTx.GetTip(),
-		Msg:  msgAnys,
+		Msgs: msgAnys,
 	}
 
 	// extract the msg types
@@ -226,12 +226,12 @@ func WrapTxToTypedData(
 	}
 
 	// filling nil value and do the other clean up
-	msgData := txData["msg"].([]interface{})
-	for i := range signDoc.GetMsg() {
+	msgData := txData["msgs"].([]interface{})
+	for i := range signDoc.GetMsgs() {
 		txData[fmt.Sprintf("msg%d", i+1)] = msgData[i]
 		cleanTypesAndMsgValue(msgTypes, fmt.Sprintf("Msg%d", i+1), msgData[i].(map[string]interface{}))
 	}
-	delete(txData, "msg")
+	delete(txData, "msgs")
 
 	tempDomain := *domain
 	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))

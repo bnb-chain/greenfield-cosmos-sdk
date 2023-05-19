@@ -326,5 +326,4 @@ func TestMultiMsgs(t *testing.T) {
 	signBytes, err := modeHandler.GetSignBytes(signingtypes.SignMode_SIGN_MODE_EIP_712, signingData, txBuilder.GetTx())
 	require.NoError(t, err)
 	require.NotNil(t, signBytes)
-
 }

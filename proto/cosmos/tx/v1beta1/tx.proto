@@ -116,7 +116,7 @@ message SignDocEip712 {
   Fee fee = 4 [(gogoproto.nullable) = false];
 
   // msg is the msg in the EIP712 transaction.
-  repeated google.protobuf.Any msg = 5;
+  repeated google.protobuf.Any msgs = 5;
 
   // timeout_height is the transaction's timeout height (if set).
   uint64 timeout_height = 6 [(gogoproto.jsontag) = "timeout_height"];
