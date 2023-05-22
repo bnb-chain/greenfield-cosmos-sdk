@@ -96,8 +96,7 @@ message SignDocDirectAux {
   Tip tip = 6;
 }
 
-// SignDocEIP712 is the type used for generating sign bytes for
-// SIGN_MODE_EIP_712.
+// SignDocEIP712 is the type used for generating sign bytes for SIGN_MODE_EIP_712.
 message SignDocEip712 {
   // chain_id is the identifier of the chain this transaction targets.
   // It prevents signed transactions from being used on another chain by an
@@ -117,7 +116,7 @@ message SignDocEip712 {
   Fee fee = 4 [(gogoproto.nullable) = false];
 
   // msg is the msg in the EIP712 transaction.
-  google.protobuf.Any msg = 5;
+  repeated google.protobuf.Any msgs = 5;
 
   // timeout_height is the transaction's timeout height (if set).
   uint64 timeout_height = 6 [(gogoproto.jsontag) = "timeout_height"];
