@@ -61,13 +61,12 @@ func ParseGrantKey(key []byte) (granterAddr, granteeAddr sdk.AccAddress, msgType
 	// key is of format:
 	// <granterAddressLen (1 Byte)><granterAddress_Bytes><granteeAddressLen (1 Byte)><granteeAddress_Bytes><msgType_Bytes>
 	kv.AssertKeyAtLeastLength(key, 2)
-	// prevent granterAddrLen overflow
-	granterAddrLen := int(key[0])
+	granterAddrLen := key[0]
 	kv.AssertKeyAtLeastLength(key, int(2+granterAddrLen))
 	granterAddr = sdk.AccAddress(key[1 : 1+granterAddrLen])
 	granteeAddrLen := int(key[1+granterAddrLen])
-	kv.AssertKeyAtLeastLength(key, 3+granterAddrLen+granteeAddrLen)
-	granteeAddr = sdk.AccAddress(key[2+granterAddrLen : 2+granterAddrLen+granteeAddrLen])
+	kv.AssertKeyAtLeastLength(key, 3+int(granterAddrLen+byte(granteeAddrLen)))
+	granteeAddr = sdk.AccAddress(key[2+granterAddrLen : 2+granterAddrLen+byte(granteeAddrLen)])
 
-	return granterAddr, granteeAddr, conv.UnsafeBytesToStr(key[2+granterAddrLen+granteeAddrLen:])
+	return granterAddr, granteeAddr, conv.UnsafeBytesToStr(key[2+granterAddrLen+byte(granteeAddrLen):])
 }

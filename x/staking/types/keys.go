@@ -221,18 +221,11 @@ func ParseValidatorQueueKey(bz []byte) (time.Time, int64, error) {
 	}
 
 	timeBzL := sdk.BigEndianToUint64(bz[prefixL : prefixL+8])
-	if prefixL+8+int(timeBzL) > len(bz) {
-		return time.Time{}, 0, fmt.Errorf("ts is out of bounds")
-	}
-
 	ts, err := sdk.ParseTimeBytes(bz[prefixL+8 : prefixL+8+int(timeBzL)])
 	if err != nil {
 		return time.Time{}, 0, err
 	}
 
-	if prefixL+8+int(timeBzL) >= len(bz) {
-		return time.Time{}, 0, fmt.Errorf("height is out of bounds")
-	}
 	height := sdk.BigEndianToUint64(bz[prefixL+8+int(timeBzL):])
 
 	return ts, int64(height), nil
