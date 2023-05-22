@@ -1,4 +1,11 @@
 # Changelog
+
+## v0.2.1
+This release is a hot fix release for v0.2.0.
+
+* [\#203](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/203) fix: update DefaultMaxTxSize and gas simulation logic
+* [\#204](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/204) fix: allow GasParams fixedtype's gas is zero
+
 ## v0.2.0
 This release upgrades the reference cosmos-sdk to v0.47.2. As the cosmos-sdk v0.47.2 is a huge breaking upgrade, 
 we decide to cherry-pick the recent contributed commits and apply to the v0.47.2. The commit history previous 

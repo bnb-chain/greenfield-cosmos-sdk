@@ -63,9 +63,6 @@ func GetGasCalculatorGen(mgp MsgGasParams) (GasCalculatorGenerator, error) {
 
 func FixedGasCalculator(amount uint64) GasCalculator {
 	return func(msg types.Msg) (uint64, error) {
-		if amount == 0 {
-			return 0, errorsmod.Wrapf(errors.ErrInvalidMsgGasParams, "msg type: %s", types.MsgTypeURL(msg))
-		}
 		return amount, nil
 	}
 }
