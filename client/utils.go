@@ -35,6 +35,11 @@ func Paginate(numObjs, page, limit, defLimit int) (start, end int) {
 	start = (page - 1) * limit
 	end = limit + start
 
+	if end < start {
+		// check if this produces negative numbers, resulting in end < start
+		return -1, -1
+	}
+
 	if end >= numObjs {
 		end = numObjs
 	}

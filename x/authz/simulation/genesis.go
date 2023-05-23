@@ -15,6 +15,10 @@ import (
 
 // genGrant returns a slice of authorization grants.
 func genGrant(r *rand.Rand, accounts []simtypes.Account, genT time.Time) []authz.GrantAuthorization {
+	// prevent errors if len < 1
+	if len(accounts) < 1 {
+		return make([]authz.GrantAuthorization, 0)
+	}
 	authorizations := make([]authz.GrantAuthorization, len(accounts)-1)
 	for i := 0; i < len(accounts)-1; i++ {
 		granter := accounts[i]

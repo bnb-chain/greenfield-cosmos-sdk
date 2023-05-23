@@ -92,7 +92,11 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 	}
 
 	// construct the signDoc
-	msgAny, _ := codectypes.NewAnyWithValue(protoTx.GetMsgs()[0])
+	msgAnys := make([]*codectypes.Any, 0, len(protoTx.GetMsgs()))
+	for _, msg := range protoTx.GetMsgs() {
+		msgAny, _ := codectypes.NewAnyWithValue(msg)
+		msgAnys = append(msgAnys, msgAny)
+	}
 	signDoc := &types.SignDocEip712{
 		AccountNumber: signerData.AccountNumber,
 		Sequence:      signerData.Sequence,
@@ -106,27 +110,71 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		},
 		Memo: protoTx.GetMemo(),
 		Tip:  protoTx.GetTip(),
-		Msg:  msgAny,
+		Msgs: msgAnys,
 	}
 
 	// extract the msg types
-	msgTypes, err := extractMsgTypes(protoTx.GetMsgs()[0])
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// patch the msg types to include `Tip` if it's not empty
-	if signDoc.Tip != nil {
-		msgTypes["Tx"] = []apitypes.Type{
+	msgTypes := apitypes.Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "string",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
+		"Tx": {
 			{Name: "account_number", Type: "uint256"},
 			{Name: "chain_id", Type: "uint256"},
 			{Name: "fee", Type: "Fee"},
 			{Name: "memo", Type: "string"},
-			{Name: "msg", Type: "Msg"},
 			{Name: "sequence", Type: "uint256"},
 			{Name: "timeout_height", Type: "uint256"},
-			{Name: "tip", Type: "Tip"},
+		},
+		"Fee": {
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "gas_limit", Type: "uint256"},
+			{Name: "payer", Type: "string"},
+			{Name: "granter", Type: "string"},
+		},
+		"Coin": {
+			{Name: "denom", Type: "string"},
+			{Name: "amount", Type: "uint256"},
+		},
+	}
+	for i, msg := range protoTx.GetMsgs() {
+		tmpMsgTypes, err := extractMsgTypes(msg, i+1)
+		if err != nil {
+			return nil, nil, err
 		}
+
+		msgTypes["Tx"] = append(msgTypes["Tx"], apitypes.Type{
+			Name: fmt.Sprintf("msg%d", i+1),
+			Type: fmt.Sprintf("Msg%d", i+1),
+		})
+
+		for key, field := range tmpMsgTypes {
+			msgTypes[key] = field
+		}
+	}
+
+	// patch the msg types to include `Tip` if it's not empty
+	if signDoc.Tip != nil {
+		msgTypes["Tx"] = append(msgTypes["Tx"], apitypes.Type{Name: "tip", Type: "Tip"})
 		msgTypes["Tip"] = []apitypes.Type{
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "tipper", Type: "string"},
@@ -177,8 +225,13 @@ func WrapTxToTypedData(
 		delete(txData, "tip")
 	}
 
-	// filling nil value and do other clean up
-	cleanTypesAndMsgValue(msgTypes, "Msg", txData["msg"].(map[string]interface{}))
+	// filling nil value and do the other clean up
+	msgData := txData["msgs"].([]interface{})
+	for i := range signDoc.GetMsgs() {
+		txData[fmt.Sprintf("msg%d", i+1)] = msgData[i]
+		cleanTypesAndMsgValue(msgTypes, fmt.Sprintf("Msg%d", i+1), msgData[i].(map[string]interface{}))
+	}
+	delete(txData, "msgs")
 
 	tempDomain := *domain
 	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))
@@ -192,55 +245,14 @@ func WrapTxToTypedData(
 	return typedData, nil
 }
 
-func extractMsgTypes(msg sdk.Msg) (apitypes.Types, error) {
+func extractMsgTypes(msg sdk.Msg, index int) (apitypes.Types, error) {
 	rootTypes := apitypes.Types{
-		"EIP712Domain": {
-			{
-				Name: "name",
-				Type: "string",
-			},
-			{
-				Name: "version",
-				Type: "string",
-			},
-			{
-				Name: "chainId",
-				Type: "uint256",
-			},
-			{
-				Name: "verifyingContract",
-				Type: "string",
-			},
-			{
-				Name: "salt",
-				Type: "string",
-			},
-		},
-		"Tx": {
-			{Name: "account_number", Type: "uint256"},
-			{Name: "chain_id", Type: "uint256"},
-			{Name: "fee", Type: "Fee"},
-			{Name: "memo", Type: "string"},
-			{Name: "msg", Type: "Msg"},
-			{Name: "sequence", Type: "uint256"},
-			{Name: "timeout_height", Type: "uint256"},
-		},
-		"Fee": {
-			{Name: "amount", Type: "Coin[]"},
-			{Name: "gas_limit", Type: "uint256"},
-			{Name: "payer", Type: "string"},
-			{Name: "granter", Type: "string"},
-		},
-		"Coin": {
-			{Name: "denom", Type: "string"},
-			{Name: "amount", Type: "uint256"},
-		},
-		"Msg": {
+		fmt.Sprintf("Msg%d", index): {
 			{Name: "type", Type: "string"},
 		},
 	}
 
-	if err := walkFields(rootTypes, msg); err != nil {
+	if err := walkFields(rootTypes, msg, index); err != nil {
 		return nil, err
 	}
 
@@ -249,7 +261,7 @@ func extractMsgTypes(msg sdk.Msg) (apitypes.Types, error) {
 
 const typeDefPrefix = "_"
 
-func walkFields(typeMap apitypes.Types, in interface{}) (err error) {
+func walkFields(typeMap apitypes.Types, in interface{}, index int) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -267,7 +279,7 @@ func walkFields(typeMap apitypes.Types, in interface{}) (err error) {
 		break
 	}
 
-	return traverseFields(typeMap, typeDefPrefix, t, v)
+	return traverseFields(typeMap, typeDefPrefix, index, t, v)
 }
 
 type anyWrapper struct {
@@ -278,6 +290,7 @@ type anyWrapper struct {
 func traverseFields(
 	typeMap apitypes.Types,
 	prefix string,
+	index int,
 	t reflect.Type,
 	v reflect.Value,
 ) error {
@@ -349,12 +362,13 @@ func traverseFields(
 			}
 
 			if prefix == typeDefPrefix {
-				typeMap["Msg"] = append(typeMap["Msg"], apitypes.Type{
+				tag := fmt.Sprintf("Msg%d", index)
+				typeMap[tag] = append(typeMap[tag], apitypes.Type{
 					Name: fieldName,
 					Type: ethTyp,
 				})
 			} else {
-				typeDef := sanitizeTypedef(prefix)
+				typeDef := sanitizeTypedef(prefix, index)
 				typeMap[typeDef] = append(typeMap[typeDef], apitypes.Type{
 					Name: fieldName,
 					Type: ethTyp,
@@ -368,25 +382,26 @@ func traverseFields(
 			var fieldTypedef string
 
 			if isCollection {
-				fieldTypedef = sanitizeTypedef(fieldPrefix) + "[]"
+				fieldTypedef = sanitizeTypedef(fieldPrefix, index) + "[]"
 			} else {
-				fieldTypedef = sanitizeTypedef(fieldPrefix)
+				fieldTypedef = sanitizeTypedef(fieldPrefix, index)
 			}
 
 			if prefix == typeDefPrefix {
-				typeMap["Msg"] = append(typeMap["Msg"], apitypes.Type{
+				tag := fmt.Sprintf("Msg%d", index)
+				typeMap[tag] = append(typeMap[tag], apitypes.Type{
 					Name: fieldName,
 					Type: fieldTypedef,
 				})
 			} else {
-				typeDef := sanitizeTypedef(prefix)
+				typeDef := sanitizeTypedef(prefix, index)
 				typeMap[typeDef] = append(typeMap[typeDef], apitypes.Type{
 					Name: fieldName,
 					Type: fieldTypedef,
 				})
 			}
 
-			if err := traverseFields(typeMap, fieldPrefix, fieldType, field); err != nil {
+			if err := traverseFields(typeMap, fieldPrefix, index, fieldType, field); err != nil {
 				return err
 			}
 			continue
@@ -443,17 +458,22 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 					newValue["value"] = bz
 					newAnySet[i] = newValue
 				}
-				msgValue[encName] = newAnySet
+				msgValue[encName[:len(encName)-3]] = newAnySet
+				typedData[primaryType][i].Name = encName[:len(encName)-3]
+				typedData[primaryType][i].Type = "TypeAny[]"
+				delete(typedData, encType[:len(encType)-2])
 			} else {
 				anyValue := msgValue[encName[:len(encName)-3]].(map[string]interface{})
 				newValue := make(map[string]interface{})
 				bz, _ := json.Marshal(anyValue)
 				newValue["type"] = anyValue["@type"]
 				newValue["value"] = bz
-				msgValue[encName] = newValue
+				msgValue[encName[:len(encName)-3]] = newValue
+				typedData[primaryType][i].Name = encName[:len(encName)-3]
+				typedData[primaryType][i].Type = "TypeAny"
+				delete(typedData, encType)
 			}
-			typedData[encType] = anyApiTypes
-			delete(msgValue, encName[:len(encName)-3])
+			typedData["TypeAny"] = anyApiTypes
 			continue
 		}
 		encValue := msgValue[encName]
@@ -564,14 +584,14 @@ func unwrapField(fieldType reflect.Type, field reflect.Value, fieldName string) 
 //
 // this is needed for Geth's own signing code which doesn't
 // tolerate complex type names
-func sanitizeTypedef(str string) string {
+func sanitizeTypedef(str string, index int) string {
 	buf := new(bytes.Buffer)
 	parts := strings.Split(str, ".")
 	caser := cases.Title(language.English, cases.NoLower)
 
 	for _, part := range parts {
 		if part == "_" {
-			buf.WriteString("Type")
+			buf.WriteString(fmt.Sprintf("TypeMsg%d", index))
 			continue
 		}
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1-alpha.1
+This release enable the support of multiple messages for EIP712.
+
+* [\#205](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/205) feat: support multiple messages for EIP712
+* [\#206](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/206) fix: fix potential panic in tx simulation
+
 ## v0.2.1
 This release is a hot fix release for v0.2.0.
 
