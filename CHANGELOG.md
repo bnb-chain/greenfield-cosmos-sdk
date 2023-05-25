@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1-alpha.2
+This release adds a new msg type `MsgUpdateGroupExtra`
+
+* [\#210](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/210) feat: add msg in gashub
+
 ## v0.2.1-alpha.1
 This release enable the support of multiple messages for EIP712.
 
