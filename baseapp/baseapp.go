@@ -973,21 +973,11 @@ func (h DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHand
 		// requested from CometBFT, which, by default, should be in FIFO order.
 		_, isNoOp := h.mempool.(mempool.NoOpMempool)
 		if h.mempool == nil || isNoOp {
-			for _, txBz := range req.Txs {
+			for _, txBz := range req.Txs { // req.MaxTxBytes has been ensured
 				bz, err := h.txVerifier.PrepareProposalVerifyTx(nil, txBz)
-				if err != nil {
-					continue
-				} else {
-					txSize := int64(len(bz))
-					if totalTxBytes += txSize; totalTxBytes <= req.MaxTxBytes {
-						selectedTxs = append(selectedTxs, bz)
-					} else {
-						// We've reached capacity per req.MaxTxBytes so we cannot select any
-						// more transactions.
-						break
-					}
+				if err == nil {
+					selectedTxs = append(selectedTxs, bz)
 				}
-
 			}
 			return abci.ResponsePrepareProposal{Txs: selectedTxs}
 		}
