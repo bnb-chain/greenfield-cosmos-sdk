@@ -1,7 +1,7 @@
 # Changelog
 
 ## v0.2.1-alpha.2
-This release adds a new msg type `MsgUpdateGroupExtra`
+This is a maintenance release.
 
 * [\#210](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/210) feat: add msg in gashub
 * [\#211](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/211) fix: fix blockchain stop to produce blocks
