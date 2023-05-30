@@ -47,6 +47,14 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/cosmos/gashub/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "GashubParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmos/gov/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
