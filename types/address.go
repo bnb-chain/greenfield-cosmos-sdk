@@ -326,8 +326,8 @@ func (aa AccAddress) String() string {
 }
 
 // Format implements the fmt.Formatter interface.
-//nolint: errcheck
 func (aa AccAddress) Format(s fmt.State, verb rune) {
+	//nolint: errcheck
 	switch verb {
 	case 's':
 		s.Write([]byte(aa.String()))
@@ -464,8 +464,8 @@ func (va ValAddress) String() string {
 }
 
 // Format implements the fmt.Formatter interface.
-//nolint: errcheck
 func (va ValAddress) Format(s fmt.State, verb rune) {
+	//nolint: errcheck
 	switch verb {
 	case 's':
 		s.Write([]byte(va.String()))
@@ -631,8 +631,8 @@ func MustBech32ifyAddressBytes(prefix string, bs []byte) string {
 }
 
 // Format implements the fmt.Formatter interface.
-//nolint: errcheck
 func (ca ConsAddress) Format(s fmt.State, verb rune) {
+	//nolint: errcheck
 	switch verb {
 	case 's':
 		s.Write([]byte(ca.String()))
