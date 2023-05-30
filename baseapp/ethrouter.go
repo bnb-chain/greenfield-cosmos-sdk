@@ -74,7 +74,7 @@ func blockNumberHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.Respo
 
 func chainIdHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.ResponseEthQuery, error) {
 	var res abci.ResponseEthQuery
-	eip155ChainID, err := sdk.ParseChainID(ctx.ChainID())
+	_, eip155ChainID, _, err := sdk.ParseChainID(ctx.ChainID())
 	if err != nil {
 		return res, errorsmod.Wrap(sdkerrors.ErrInvalidChainID, err.Error())
 	}

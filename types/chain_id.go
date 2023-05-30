@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"cosmossdk.io/errors"
@@ -37,24 +38,29 @@ func IsValidChainID(chainID string) bool {
 	return greenfieldChainID.MatchString(chainID)
 }
 
-// ParseChainID parses a string chain identifier's epoch to an Ethereum-compatible
-// chain-id in *big.Int format. The function returns an error if the chain-id has an invalid format
-func ParseChainID(chainID string) (*big.Int, error) {
+// ParseChainID parses a string chain identifier's epoch to three parts.
+// The function returns an error if the chain-id has an invalid format
+func ParseChainID(chainID string) (string, *big.Int, int64, error) {
 	chainID = strings.TrimSpace(chainID)
 	if len(chainID) > 48 {
-		return nil, errors.Wrapf(ErrInvalidChainID, "chain-id '%s' cannot exceed 48 chars", chainID)
+		return "", nil, 0, errors.Wrapf(ErrInvalidChainID, "chain-id '%s' cannot exceed 48 chars", chainID)
 	}
 
 	matches := greenfieldChainID.FindStringSubmatch(chainID)
 	if matches == nil || len(matches) != 4 || matches[1] == "" {
-		return nil, errors.Wrapf(ErrInvalidChainID, "%s: %v", chainID, matches)
+		return "", nil, 0, errors.Wrapf(ErrInvalidChainID, "%s: %v", chainID, matches)
 	}
 
 	// verify that the chain-id entered is a base 10 integer
 	chainIDInt, ok := new(big.Int).SetString(matches[2], 10)
 	if !ok {
-		return nil, errors.Wrapf(ErrInvalidChainID, "epoch %s must be base-10 integer format", matches[2])
+		return "", nil, 0, errors.Wrapf(ErrInvalidChainID, "EIP155 chain ID %s must be base-10 integer format", matches[2])
 	}
 
-	return chainIDInt, nil
+	epoch, err := strconv.ParseInt(matches[3], 10, 64)
+	if err != nil {
+		return "", nil, 0, errors.Wrapf(ErrInvalidChainID, "epoch %s must be base-10 integer format", matches[2])
+	}
+
+	return matches[1], chainIDInt, epoch, nil
 }

@@ -2,10 +2,13 @@ package tx
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,10 +34,8 @@ import (
 )
 
 var domain = &apitypes.TypedDataDomain{
-	Name:              "Greenfield Tx",
-	Version:           "1.0.0",
-	VerifyingContract: "greenfield",
-	Salt:              "0",
+	Name: "Greenfield Tx",
+	Salt: "0",
 }
 
 // signModeEip712Handler defines the SIGN_MODE_DIRECT SignModeHandler
@@ -59,19 +60,19 @@ func (signModeEip712Handler) GetSignBytes(mode signingtypes.SignMode, signerData
 	}
 
 	// get the EIP155 chainID from the signerData
-	chainID, err := sdk.ParseChainID(signerData.ChainID)
+	gnfdChainName, Eip155ChainID, version, err := sdk.ParseChainID(signerData.ChainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
 	// get the EIP712 types and signDoc from the tx
-	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, chainID)
+	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, Eip155ChainID)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to get msg types")
 	}
 
 	// pack the tx data in EIP712 object
-	typedData, err := WrapTxToTypedData(chainID.Uint64(), signDoc, msgTypes)
+	typedData, err := WrapTxToTypedData(gnfdChainName, Eip155ChainID.Int64(), version, signDoc, msgTypes)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to pack tx data in EIP712 object")
 	}
@@ -100,7 +101,6 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 	signDoc := &types.SignDocEip712{
 		AccountNumber: signerData.AccountNumber,
 		Sequence:      signerData.Sequence,
-		ChainId:       typedChainID.Uint64(),
 		TimeoutHeight: protoTx.GetTimeoutHeight(),
 		Fee: types.Fee{
 			Amount:   protoTx.GetFee(),
@@ -139,7 +139,6 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		},
 		"Tx": {
 			{Name: "account_number", Type: "uint256"},
-			{Name: "chain_id", Type: "uint256"},
 			{Name: "fee", Type: "Fee"},
 			{Name: "memo", Type: "string"},
 			{Name: "sequence", Type: "uint256"},
@@ -203,7 +202,9 @@ func ComputeTypedDataHash(typedData apitypes.TypedData) ([]byte, error) {
 }
 
 func WrapTxToTypedData(
-	chainID uint64,
+	chainName string,
+	chainID int64,
+	version int64,
 	signDoc *types.SignDocEip712,
 	msgTypes apitypes.Types,
 ) (apitypes.TypedData, error) {
@@ -234,7 +235,9 @@ func WrapTxToTypedData(
 	delete(txData, "msgs")
 
 	tempDomain := *domain
-	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))
+	tempDomain.VerifyingContract = chainName
+	tempDomain.ChainId = math.NewHexOrDecimal256(chainID)
+	tempDomain.Version = strconv.FormatInt(version, 10)
 	typedData := apitypes.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
@@ -491,7 +494,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 				}
 				newBytesList := make([]interface{}, len(byteList))
 				for j, item := range byteList {
-					newBytesList[j] = []byte(item.(string))
+					newBytesList[j] = convertStringToByte(item.(string))
 				}
 				msgValue[encName] = newBytesList
 			}
@@ -519,7 +522,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 			}
 		case encType == "bytes":
 			if reflect.TypeOf(encValue).Kind() == reflect.String {
-				msgValue[encName] = []byte(encValue.(string))
+				msgValue[encName] = convertStringToByte(encValue.(string))
 			}
 		}
 	}
@@ -536,6 +539,23 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 			delete(msgValue, key)
 		}
 	}
+}
+
+func convertStringToByte(s string) []byte {
+	if len(s) > 2 && strings.HasPrefix(s, "0x") {
+		bz, err := hex.DecodeString(s[2:])
+		if err != nil {
+			panic(err.Error())
+		}
+		return bz
+	} else if bz, err := base64.StdEncoding.DecodeString(s); err == nil {
+		return bz
+	} else if bz, err := hex.DecodeString(s); err == nil {
+		return bz
+	}
+
+	// If the input string is not a base64 or hex string, return it as-is.
+	return []byte(s)
 }
 
 func unwrapField(fieldType reflect.Type, field reflect.Value, fieldName string) (reflect.Type, reflect.Value, string) {
