@@ -158,6 +158,8 @@ func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signed
 		if err != nil {
 			return err
 		}
+	} else if remainingReward.IsNegative() {
+		panic("remaining reward should not be negative")
 	}
 
 	return nil
