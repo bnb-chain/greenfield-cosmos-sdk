@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.2-alpha.1
+This is a maintenance release.  
+
+* [#214](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/214) chore: fix typo and update swagger 
+
 ## v0.2.1-alpha.2
 This is a maintenance release.
 
