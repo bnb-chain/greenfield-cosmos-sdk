@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -148,12 +149,12 @@ func GetMsgTypes(signerData signing.SignerData, tx sdk.Tx, typedChainID *big.Int
 		"Fee": {
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas_limit", Type: "uint256"},
-			{Name: "payer", Type: "string"},
 			{Name: "granter", Type: "string"},
+			{Name: "payer", Type: "string"},
 		},
 		"Coin": {
-			{Name: "denom", Type: "string"},
 			{Name: "amount", Type: "uint256"},
+			{Name: "denom", Type: "string"},
 		},
 	}
 	for i, msg := range protoTx.GetMsgs() {
@@ -232,6 +233,13 @@ func WrapTxToTypedData(
 		cleanTypesAndMsgValue(msgTypes, fmt.Sprintf("Msg%d", i+1), msgData[i].(map[string]interface{}))
 	}
 	delete(txData, "msgs")
+
+	// sort the msg types
+	for _, val := range msgTypes {
+		sort.Slice(val, func(i, j int) bool {
+			return val[i].Name < val[j].Name
+		})
+	}
 
 	tempDomain := *domain
 	tempDomain.ChainId = math.NewHexOrDecimal256(int64(chainID))
