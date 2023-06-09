@@ -24,9 +24,9 @@ func TestValidatePromptURL(t *testing.T) {
 func TestValidatePromptAddress(t *testing.T) {
 	require := require.New(t)
 
-	require.NoError(client.ValidatePromptAddress("cosmos1huydeevpz37sd9snkgul6070mstupukw00xkw9"))
-	require.NoError(client.ValidatePromptAddress("cosmosvaloper1sjllsnramtg3ewxqwwrwjxfgc4n4ef9u2lcnj0"))
-	require.NoError(client.ValidatePromptAddress("cosmosvalcons1ntk8eualewuprz0gamh8hnvcem2nrcdsgz563h"))
+	require.NoError(client.ValidatePromptAddress("0x319D057ce294319bA1fa5487134608727e1F3e29"))
+	require.NoError(client.ValidatePromptAddress("0x319D057ce294319bA1fa5487134608727e1F3e29"))
+	require.NoError(client.ValidatePromptAddress("0x319D057ce294319bA1fa5487134608727e1F3e29"))
 	require.ErrorContains(client.ValidatePromptAddress("foo"), "invalid address")
 }
 
