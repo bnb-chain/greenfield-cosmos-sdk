@@ -891,13 +891,10 @@ func createEvents(events sdk.Events, msg sdk.Msg) sdk.Events {
 // PrepareProposal state internally will be discarded. <nil, err> will be
 // returned if the transaction cannot be encoded. <bz, nil> will be returned if
 // the transaction is valid, otherwise <bz, err> will be returned.
-func (app *BaseApp) PrepareProposalVerifyTx(tx sdk.Tx, bz []byte) ([]byte, error) {
-	var err error
-	if bz == nil {
-		bz, err = app.txEncoder(tx)
-		if err != nil {
-			return nil, err
-		}
+func (app *BaseApp) PrepareProposalVerifyTx(tx sdk.Tx) ([]byte, error) {
+	bz, err := app.txEncoder(tx)
+	if err != nil {
+		return nil, err
 	}
 
 	_, _, _, _, err = app.runTx(runTxPrepareProposal, bz) //nolint:dogsled
@@ -932,7 +929,7 @@ type (
 	// that any custom ABCI PrepareProposal and ProcessProposal handler can use
 	// to verify a transaction.
 	ProposalTxVerifier interface {
-		PrepareProposalVerifyTx(tx sdk.Tx, txBz []byte) ([]byte, error)
+		PrepareProposalVerifyTx(tx sdk.Tx) ([]byte, error)
 		ProcessProposalVerifyTx(txBz []byte) (sdk.Tx, error)
 	}
 
@@ -973,23 +970,17 @@ func NewDefaultProposalHandler(mp mempool.Mempool, txVerifier ProposalTxVerifier
 // FIFO order.
 func (h DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 	return func(ctx sdk.Context, req abci.RequestPrepareProposal) abci.ResponsePrepareProposal {
-		var (
-			selectedTxs  [][]byte
-			totalTxBytes int64
-		)
-
 		// If the mempool is nil or NoOp we simply return the transactions
 		// requested from CometBFT, which, by default, should be in FIFO order.
 		_, isNoOp := h.mempool.(mempool.NoOpMempool)
 		if h.mempool == nil || isNoOp {
-			for _, txBz := range req.Txs { // req.MaxTxBytes has been ensured
-				bz, err := h.txVerifier.PrepareProposalVerifyTx(nil, txBz)
-				if err == nil {
-					selectedTxs = append(selectedTxs, bz)
-				}
-			}
-			return abci.ResponsePrepareProposal{Txs: selectedTxs}
+			return abci.ResponsePrepareProposal{Txs: req.Txs}
 		}
+
+		var (
+			selectedTxs  [][]byte
+			totalTxBytes int64
+		)
 
 		iterator := h.mempool.Select(ctx, req.Txs)
 
@@ -1000,7 +991,7 @@ func (h DefaultProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHand
 			// which calls mempool.Insert, in theory everything in the pool should be
 			// valid. But some mempool implementations may insert invalid txs, so we
 			// check again.
-			bz, err := h.txVerifier.PrepareProposalVerifyTx(memTx, nil)
+			bz, err := h.txVerifier.PrepareProposalVerifyTx(memTx)
 			if err != nil {
 				err := h.mempool.Remove(memTx)
 				if err != nil && !errors.Is(err, mempool.ErrTxNotFound) {
