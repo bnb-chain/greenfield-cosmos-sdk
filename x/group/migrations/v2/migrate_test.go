@@ -21,11 +21,11 @@ import (
 )
 
 var (
-	policies    = []sdk.AccAddress{policyAddr1, policyAddr2, policyAddr3}
-	policyAddr1 = sdk.MustAccAddressFromHex("0xD8aFf1F72751F657bFc24c105360fECa64ac094f")
-	policyAddr2 = sdk.MustAccAddressFromHex("0x90514cAEdF48799F61d458440771E13D90d68853")
-	policyAddr3 = sdk.MustAccAddressFromHex("0x74B7A089a4f7CF331AF5BB25103E61deDA085E6E")
-	accountAddr = sdk.AccAddress("addr2_______________")
+	policies      = []sdk.AccAddress{policyAddr1, policyAddr2, policyAddr3}
+	policyAddr1   = sdk.MustAccAddressFromHex("0xD8aFf1F72751F657bFc24c105360fECa64ac094f")
+	policyAddr2   = sdk.MustAccAddressFromHex("0x90514cAEdF48799F61d458440771E13D90d68853")
+	policyAddr3   = sdk.MustAccAddressFromHex("0x74B7A089a4f7CF331AF5BB25103E61deDA085E6E")
+	authorityAddr = sdk.AccAddress("authority")
 )
 
 func TestMigrate(t *testing.T) {
@@ -34,24 +34,23 @@ func TestMigrate(t *testing.T) {
 	tKey := sdk.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 
-	accountKeeper := createOldPolicyAccount(ctx, storeKey, cdc)
-	groupPolicyTable, groupPolicySeq, err := createGroupPolicies(ctx, storeKey, cdc)
+	oldAccs, accountKeeper := createOldPolicyAccount(ctx, storeKey, cdc, policies)
+	groupPolicyTable, groupPolicySeq, err := createGroupPolicies(ctx, storeKey, cdc, policies)
 	require.NoError(t, err)
 
-	oldAcc := accountKeeper.GetAccount(ctx, policyAddr1)
-
 	require.NoError(t, v2.Migrate(ctx, storeKey, accountKeeper, groupPolicySeq, groupPolicyTable))
-	newAcc := accountKeeper.GetAccount(ctx, policyAddr1)
-
-	require.NotEqual(t, oldAcc, newAcc)
-	require.True(t, func() bool { _, ok := oldAcc.(*authtypes.ModuleAccount); return ok }())
-	require.True(t, func() bool { _, ok := newAcc.(*authtypes.BaseAccount); return ok }())
-	require.Equal(t, oldAcc.GetAddress(), newAcc.GetAddress())
-	require.Equal(t, oldAcc.GetAccountNumber(), newAcc.GetAccountNumber())
-	require.Equal(t, newAcc.GetPubKey().Address().Bytes(), newAcc.GetAddress().Bytes())
+	for i, policyAddr := range policies {
+		oldAcc := oldAccs[i]
+		newAcc := accountKeeper.GetAccount(ctx, policyAddr)
+		require.NotEqual(t, oldAcc, newAcc)
+		require.True(t, func() bool { _, ok := newAcc.(*authtypes.BaseAccount); return ok }())
+		require.Equal(t, oldAcc.GetAddress(), newAcc.GetAddress())
+		require.Equal(t, int(oldAcc.GetAccountNumber()), int(newAcc.GetAccountNumber()))
+		require.Equal(t, newAcc.GetPubKey().Address().Bytes(), newAcc.GetAddress().Bytes())
+	}
 }
 
-func createGroupPolicies(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Codec) (orm.PrimaryKeyTable, orm.Sequence, error) {
+func createGroupPolicies(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Codec, policies []sdk.AccAddress) (orm.PrimaryKeyTable, orm.Sequence, error) {
 	groupPolicyTable, err := orm.NewPrimaryKeyTable([2]byte{groupkeeper.GroupPolicyTablePrefix}, &group.GroupPolicyInfo{}, cdc)
 	if err != nil {
 		panic(err.Error())
@@ -60,7 +59,7 @@ func createGroupPolicies(ctx sdk.Context, storeKey storetypes.StoreKey, cdc code
 	groupPolicySeq := orm.NewSequence(v2.GroupPolicyTableSeqPrefix)
 
 	for _, policyAddr := range policies {
-		groupPolicyInfo, err := group.NewGroupPolicyInfo(policyAddr, 1, accountAddr, "", 1, group.NewPercentageDecisionPolicy("1", 1, 1), ctx.BlockTime())
+		groupPolicyInfo, err := group.NewGroupPolicyInfo(policyAddr, 1, authorityAddr, "", 1, group.NewPercentageDecisionPolicy("1", 1, 1), ctx.BlockTime())
 		if err != nil {
 			return orm.PrimaryKeyTable{}, orm.Sequence{}, err
 		}
@@ -76,9 +75,11 @@ func createGroupPolicies(ctx sdk.Context, storeKey storetypes.StoreKey, cdc code
 }
 
 // createOldPolicyAccount re-creates the group policy account using a module account
-func createOldPolicyAccount(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Codec) group.AccountKeeper {
-	accountKeeper := authkeeper.NewAccountKeeper(cdc, storeKey, authtypes.ProtoBaseAccount, nil, accountAddr.String())
-	for _, policyAddr := range policies {
+func createOldPolicyAccount(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Codec, policies []sdk.AccAddress) ([]*authtypes.ModuleAccount, group.AccountKeeper) {
+	accountKeeper := authkeeper.NewAccountKeeper(cdc, storeKey, authtypes.ProtoBaseAccount, nil, authorityAddr.String())
+
+	oldPolicyAccounts := make([]*authtypes.ModuleAccount, len(policies))
+	for i, policyAddr := range policies {
 		acc := accountKeeper.NewAccount(ctx, &authtypes.ModuleAccount{
 			BaseAccount: &authtypes.BaseAccount{
 				Address: policyAddr.String(),
@@ -86,7 +87,8 @@ func createOldPolicyAccount(ctx sdk.Context, storeKey storetypes.StoreKey, cdc c
 			Name: policyAddr.String(),
 		})
 		accountKeeper.SetAccount(ctx, acc)
+		oldPolicyAccounts[i] = acc.(*authtypes.ModuleAccount)
 	}
 
-	return accountKeeper
+	return oldPolicyAccounts, accountKeeper
 }
