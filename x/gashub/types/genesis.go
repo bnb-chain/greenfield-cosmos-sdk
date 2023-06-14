@@ -110,6 +110,12 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgDisableRefund", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.challenge.MsgSubmit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.challenge.MsgAttest", 1e2),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgCreateGlobalVirtualGroup", 1e6),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgDeleteGlobalVirtualGroup", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgDeposit", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgWithdraw", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgSwapOut", 2.4e4),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgUpdateParams", 1.2e3),
 		*NewMsgGasParamsWithDynamicGas(
 			"/cosmos.authz.v1beta1.MsgGrant",
 			&MsgGasParams_GrantType{
