@@ -476,9 +476,7 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 		}
 		app.preDeliverStates = append(app.preDeliverStates, baseState)
 
-		gasMeter := app.getBlockGasMeter(app.preDeliverStates[i].ctx)
 		app.preDeliverStates[i].ctx = app.preDeliverStates[i].ctx.
-			WithBlockGasMeter(gasMeter).
 			WithConsensusParams(app.GetConsensusParams(app.preDeliverStates[i].ctx))
 	}
 }
@@ -839,7 +837,7 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 
 	// NOTE: GasWanted is determined by the AnteHandler and GasUsed by the GasMeter.
 	for i, msg := range msgs {
-		if mode != runTxModeDeliver && mode != runTxModeSimulate {
+		if mode != runTxModeDeliver && mode != runTxModeSimulate && mode != runTxModePreDeliver {
 			break
 		}
 
