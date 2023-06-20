@@ -21,6 +21,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 )
 
 type (
@@ -41,6 +42,7 @@ const (
 	runTxModeDeliver                      // Deliver a transaction
 	runTxPrepareProposal                  // Prepare a TM block proposal
 	runTxProcessProposal                  // Process a TM block proposal
+	runTxModePreDeliver                   // Pre-deliver a transaction
 )
 
 var _ abci.Application = (*BaseApp)(nil)
@@ -84,6 +86,8 @@ type BaseApp struct { // nolint: maligned
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
 	prepareProposalState *state // for PrepareProposal
+
+	preDeliverStates []*state // for PreDeliverTx
 
 	// an inter-block write-through cache provided to the context during deliverState
 	interBlockCache sdk.MultiStorePersistentCache
@@ -430,7 +434,7 @@ func (app *BaseApp) Seal() { app.sealed = true }
 func (app *BaseApp) IsSealed() bool { return app.sealed }
 
 // setState sets the BaseApp's state for the corresponding mode with a branched
-// multi-store (i.e. a CacheMultiStore) and a new Context with the same
+// multi-store (i.e., a CacheMultiStore) and a new Context with the same
 // multi-store branch, and provided header.
 func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
@@ -455,6 +459,27 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 		app.processProposalState = baseState
 	default:
 		panic(fmt.Sprintf("invalid runTxMode for setState: %d", mode))
+	}
+}
+
+func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
+	app.preDeliverStates = []*state{} // reset
+
+	for i := int64(0); i < number; i ++ {
+		var ms sdk.CacheMultiStore
+		if _, ok := app.cms.(*rootmulti.Store); ok {
+			ms = app.cms.(*rootmulti.Store).DeepCopyMultiStore()
+		}
+		baseState := &state{
+			ms:  ms,
+			ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
+		}
+		app.preDeliverStates = append(app.preDeliverStates, baseState)
+
+		gasMeter := app.getBlockGasMeter(app.preDeliverStates[i].ctx)
+		app.preDeliverStates[i].ctx = app.preDeliverStates[i].ctx.
+			WithBlockGasMeter(gasMeter).
+			WithConsensusParams(app.GetConsensusParams(app.preDeliverStates[i].ctx))
 	}
 }
 
@@ -640,12 +665,16 @@ func (app *BaseApp) cacheTxContext(ctx sdk.Context, txBytes []byte) (sdk.Context
 // returned if the tx does not run out of gas and if all the messages are valid
 // and execute successfully. An error is returned otherwise.
 func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, result *sdk.Result, anteEvents []abci.Event, priority int64, err error) {
+	ctx := app.getContextForTx(mode, txBytes)
+	return app.runTxOnContext(ctx, mode, txBytes)
+}
+
+func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, result *sdk.Result, anteEvents []abci.Event, priority int64, err error) {
 	// NOTE: GasWanted should be returned by the AnteHandler. GasUsed is
 	// determined by the GasMeter. We need access to the context to get the gas
 	// meter, so we initialize upfront.
 	var gasWanted uint64
 
-	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
 	gInfo.MinGasPrice = app.minGasPrices.String()
 
@@ -667,7 +696,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	// consumeBlockGas makes sure block gas is consumed at most once. It must
 	// happen after tx processing, and must be executed even if tx processing
-	// fails. Hence, it's execution is deferred.
+	// fails. Hence, its execution is deferred.
 	consumeBlockGas := func() {
 		if !blockGasConsumed {
 			blockGasConsumed = true
@@ -678,10 +707,10 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 	}
 
 	// If BlockGasMeter() panics it will be caught by the above recover and will
-	// return an error - in any case BlockGasMeter will consume gas past the limit.
+	// return an error - in any case, BlockGasMeter will consume gas past the limit.
 	//
 	// NOTE: consumeBlockGas must exist in a separate defer function from the
-	// general deferred recovery function to recover from consumeBlockGas as it'll
+	// general deferred recovery function to recover from consumeBlockGas, as it'll
 	// be executed first (deferred statements are executed as stack).
 	if mode == runTxModeDeliver {
 		defer consumeBlockGas()
@@ -782,6 +811,10 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			// When block gas exceeds, it'll panic and won't commit the cached store.
 			consumeBlockGas()
 
+			msCache.Write()
+		}
+
+		if mode == runTxModePreDeliver {
 			msCache.Write()
 		}
 

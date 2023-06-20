@@ -29,6 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/transient"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/store/cache"
 )
 
 const (
@@ -485,6 +486,29 @@ func (rs *Store) CacheMultiStore() types.CacheMultiStore {
 	stores := make(map[types.StoreKey]types.CacheWrapper)
 	for k, v := range rs.stores {
 		store := types.KVStore(v)
+		// Wire the listenkv.Store to allow listeners to observe the writes from the cache store,
+		// set same listeners on cache store will observe duplicated writes.
+		if rs.ListeningEnabled(k) {
+			store = listenkv.NewStore(store, k, rs.listeners[k])
+		}
+		stores[k] = store
+	}
+	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
+}
+
+func (rs *Store) DeepCopyMultiStore() types.CacheMultiStore {
+	stores := make(map[types.StoreKey]types.CacheWrapper)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		}
+		store := types.KVStore(storeCache)
 		// Wire the listenkv.Store to allow listeners to observe the writes from the cache store,
 		// set same listeners on cache store will observe duplicated writes.
 		if rs.ListeningEnabled(k) {

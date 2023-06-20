@@ -171,7 +171,9 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.1
+	github.com/cometbft/cometbft => github.com/Pythonberg1997/greenfield-cometbft v0.0.0-20230620094733-69ff26f72c64
+
+	github.com/cosmos/iavl => github.com/Pythonberg1997/iavl v0.0.0-20230620094434-1dcb46b7c5f0
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134

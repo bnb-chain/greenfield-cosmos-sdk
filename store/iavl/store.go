@@ -414,3 +414,10 @@ func getProofFromTree(tree *iavl.MutableTree, key []byte, exists bool) *tmcrypto
 	op := types.NewIavlCommitmentOp(key, commitmentProof)
 	return &tmcrypto.ProofOps{Ops: []tmcrypto.ProofOp{op.ProofOp()}}
 }
+
+func (st *Store) CloneMutableTree() *iavl.MutableTree {
+	if mutableTree, ok := st.tree.(*iavl.MutableTree); ok {
+		return iavl.CloneMutableTree(mutableTree)
+	}
+	return nil
+}
