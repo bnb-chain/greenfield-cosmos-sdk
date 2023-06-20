@@ -12,6 +12,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/gogoproto/proto"
+	lru "github.com/hashicorp/golang-lru"
 	"golang.org/x/exp/maps"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -43,6 +44,8 @@ const (
 	runTxPrepareProposal                  // Prepare a TM block proposal
 	runTxProcessProposal                  // Process a TM block proposal
 	runTxModePreDeliver                   // Pre-deliver a transaction
+
+	inMemorySignatures = 4096 // Number of recent block signatures to keep in memory
 )
 
 var _ abci.Application = (*BaseApp)(nil)
@@ -152,6 +155,9 @@ type BaseApp struct { // nolint: maligned
 
 	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
 	upgradeChecker func(ctx sdk.Context, name string) bool
+
+	// Signatures of recent blocks to speed up
+	sigCache *lru.ARCCache
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -191,6 +197,14 @@ func NewBaseApp(
 
 	if app.processProposal == nil {
 		app.SetProcessProposal(abciProposalHandler.ProcessProposalHandler())
+	}
+
+	if app.sigCache == nil {
+		sigCache, err := lru.NewARC(inMemorySignatures)
+		if err != nil {
+			panic(err)
+		}
+		app.sigCache = sigCache
 	}
 
 	if app.interBlockCache != nil {
@@ -619,7 +633,8 @@ func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context 
 	}
 	ctx := modeState.ctx.
 		WithTxBytes(txBytes).
-		WithVoteInfos(app.voteInfos)
+		WithVoteInfos(app.voteInfos).
+		WithSigCache(app.sigCache)
 
 	ctx = ctx.WithConsensusParams(app.GetConsensusParams(ctx))
 

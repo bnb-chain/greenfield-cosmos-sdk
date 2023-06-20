@@ -3,44 +3,75 @@ package signing
 import (
 	"fmt"
 
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-
 	errorsmod "cosmossdk.io/errors"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	lru "github.com/hashicorp/golang-lru"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes
 // and single vs multi-signatures.
-func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx) error {
+func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx, sigCache *lru.ARCCache) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
 		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
 			sig := data.Signature
-			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
-			if err != nil {
-				return err
-			}
 
 			// check signature length
 			if len(sig) != ethcrypto.SignatureLength {
 				return errorsmod.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
 			}
 
-			// remove the recovery offset if needed (ie. Metamask eip712 signature)
-			if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
-				sig[ethcrypto.RecoveryIDOffset] -= 27
+			var feePayerPubkey []byte
+			if sigCache != nil {
+				var key [ethcrypto.SignatureLength]byte
+				copy(key[:], sig)
+
+				if pubkey, known := sigCache.Get(key); known {
+					feePayerPubkey = pubkey.([]byte)
+				} else {
+					sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+					if err != nil {
+						return err
+					}
+
+					// remove the recovery offset if needed (ie. Metamask eip712 signature)
+					if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
+						sig[ethcrypto.RecoveryIDOffset] -= 27
+					}
+
+					// recover the pubkey from the signature
+					feePayerPubkey, err = secp256k1.RecoverPubkey(sigHash, sig)
+					if err != nil {
+						return errorsmod.Wrap(err, "failed to recover fee payer from sig")
+					}
+
+					sigCache.Add(key, feePayerPubkey)
+				}
+			} else {
+				sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+				if err != nil {
+					return err
+				}
+
+				// remove the recovery offset if needed (ie. Metamask eip712 signature)
+				if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
+					sig[ethcrypto.RecoveryIDOffset] -= 27
+				}
+
+				// recover the pubkey from the signature
+				feePayerPubkey, err = secp256k1.RecoverPubkey(sigHash, sig)
+				if err != nil {
+					return errorsmod.Wrap(err, "failed to recover fee payer from sig")
+				}
 			}
 
-			// recover the pubkey from the signature
-			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, sig)
-			if err != nil {
-				return errorsmod.Wrap(err, "failed to recover fee payer from sig")
-			}
 			ecPubKey, err := ethcrypto.UnmarshalPubkey(feePayerPubkey)
 			if err != nil {
 				return errorsmod.Wrap(err, "failed to unmarshal recovered fee payer pubkey")

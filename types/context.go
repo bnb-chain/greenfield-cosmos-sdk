@@ -9,6 +9,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/gogoproto/proto"
+	lru "github.com/hashicorp/golang-lru"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
@@ -42,6 +43,7 @@ type Context struct {
 	transientKVGasConfig storetypes.GasConfig
 	upgradeChecker       func(ctx Context, name string) bool
 	txSize               uint64 // The tx bytes length
+	sigCache             *lru.ARCCache
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -66,6 +68,7 @@ func (c Context) Priority() int64                            { return c.priority
 func (c Context) KVGasConfig() storetypes.GasConfig          { return c.kvGasConfig }
 func (c Context) TransientKVGasConfig() storetypes.GasConfig { return c.transientKVGasConfig }
 func (c Context) TxSize() uint64                             { return c.txSize }
+func (c Context) SigCache() *lru.ARCCache                    { return c.sigCache }
 func (c Context) IsUpgraded(name string) bool {
 	if c.upgradeChecker == nil {
 		return false
@@ -267,6 +270,12 @@ func (c Context) WithPriority(p int64) Context {
 // WithTxSize returns a Context with an updated tx bytes length
 func (c Context) WithTxSize(s uint64) Context {
 	c.txSize = s
+	return c
+}
+
+// WithSigCache returns a Context with a signature cache
+func (c Context) WithSigCache(cache *lru.ARCCache) Context {
+	c.sigCache = cache
 	return c
 }
 

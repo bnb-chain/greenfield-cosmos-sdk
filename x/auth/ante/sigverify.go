@@ -290,7 +290,7 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 		// no need to verify signatures on recheck tx
 		if !simulate && !ctx.IsReCheckTx() {
-			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx)
+			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx, ctx.SigCache())
 			if err != nil {
 				errMsg := fmt.Sprintf("signature verification failed; please verify account (%s) and chain-id (%s)", pubKey.Address(), chainID)
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, errMsg)
