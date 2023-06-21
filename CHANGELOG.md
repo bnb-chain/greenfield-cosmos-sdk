@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.2
+This release upgrades the reference cosmos-sdk to v0.47.3.
+Please refer to the [changelogs of cosmos-sdk v0.47.3](https://github.com/cosmos/cosmos-sdk/blob/v0.47.3/CHANGELOG.md) for more details regarding the changes.
+
+* [#220](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/220) feat: upgrade cosmos-sdk to v0.47.3
+* [#214](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/214) chore: fix typo and update swagger
+* [#219](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/219) fix: fix the security issues 
+* [#218](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/218) fix: add sorting of EIP712 msg types
+
 ## v0.2.2-alpha.1
 This is a maintenance release.  
 
