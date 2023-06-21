@@ -104,6 +104,8 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMirrorGroup", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgPutPolicy", 2.4e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgDeletePolicy", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMigrationBucket", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgCompleteMigrationBucket", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgCreatePaymentAccount", 2e5),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgDeposit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgWithdraw", 1.2e3),
@@ -115,6 +117,8 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgDeposit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgWithdraw", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgSwapOut", 2.4e4),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgStorageProviderExit", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgCompleteStorageProviderExit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgUpdateParams", 1.2e3),
 		*NewMsgGasParamsWithDynamicGas(
 			"/cosmos.authz.v1beta1.MsgGrant",
