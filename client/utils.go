@@ -85,10 +85,15 @@ func NewClientFromNode(nodeURI string) (*rpchttp.HTTP, error) {
 	return rpchttp.New(nodeURI, "/websocket")
 }
 
-// NewClientFromNodeWithClient allows for setting a custom http client
+// NewCustomClientFromNode allows for setting a custom http client
 // sets up Client implementation that communicates with a Tendermint node over
 // JSON RPC and WebSockets
-func NewClientFromNodeWithClient(nodeURI string, client *http.Client) (*rpchttp.HTTP, error) {
+func NewCustomClientFromNode(nodeURI string, customDialer func(string) (*http.Client, error)) (*rpchttp.HTTP, error) {
+	client, err := customDialer(nodeURI)
+	if err != nil {
+		return nil, err
+	}
+
 	return rpchttp.NewWithClient(nodeURI, "/websocket", client)
 }
 
