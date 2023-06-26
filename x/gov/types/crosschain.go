@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 const (
@@ -18,4 +19,24 @@ type SyncParamsPackage struct {
 	Value []byte
 	// Target is the smart contract address(es)
 	Target []byte
+}
+
+var (
+	syncParamsPackageType, _ = abi.NewType("tuple", "", []abi.ArgumentMarshaling{
+		{Name: "Key", Type: "string"},
+		{Name: "Value", Type: "bytes"},
+		{Name: "Target", Type: "bytes"},
+	})
+
+	syncParamsPackageArgs = abi.Arguments{
+		{Type: syncParamsPackageType},
+	}
+)
+
+func (p SyncParamsPackage) MustSerialize() []byte {
+	encodedBytes, err := syncParamsPackageArgs.Pack(&p)
+	if err != nil {
+		panic("encode params change sync package error")
+	}
+	return encodedBytes
 }
