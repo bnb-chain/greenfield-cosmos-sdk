@@ -177,7 +177,7 @@ type GovInputs struct {
 	CrossChainKeeper govtypes.CrossChainKeeper
 
 	// LegacySubspace is used solely for migration of x/params managed parameters
-	LegacySubspace govtypes.ParamSubspace
+	LegacySubspace govtypes.ParamSubspace `optional:"true"`
 }
 
 type GovOutputs struct {

@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/base64"
+	"net/http"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/spf13/pflag"
@@ -82,6 +83,18 @@ func ReadPageRequest(flagSet *pflag.FlagSet) (*query.PageRequest, error) {
 // JSON RPC and WebSockets
 func NewClientFromNode(nodeURI string) (*rpchttp.HTTP, error) {
 	return rpchttp.New(nodeURI, "/websocket")
+}
+
+// NewCustomClientFromNode allows for setting a custom http client
+// sets up Client implementation that communicates with a Tendermint node over
+// JSON RPC and WebSockets
+func NewCustomClientFromNode(nodeURI string, customDialer func(string) (*http.Client, error)) (*rpchttp.HTTP, error) {
+	client, err := customDialer(nodeURI)
+	if err != nil {
+		return nil, err
+	}
+
+	return rpchttp.NewWithClient(nodeURI, "/websocket", client)
 }
 
 // FlagSetWithPageKeyDecoded returns the provided flagSet with the page-key value base64 decoded (if it exists).

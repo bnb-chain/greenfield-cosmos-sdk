@@ -29,11 +29,12 @@ func ValidatePromptURL(input string) error {
 
 // ValidatePromptAddress validates that the input is a valid Bech32 address.
 func ValidatePromptAddress(input string) error {
-	if _, err := sdk.AccAddressFromHexUnsafe(input); err != nil {
-		return fmt.Errorf("invalid address: %w", err)
+	_, err := sdk.AccAddressFromHexUnsafe(input)
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	return fmt.Errorf("invalid address: %w", err)
 }
 
 // ValidatePromptYesNo validates that the input is valid sdk.COins

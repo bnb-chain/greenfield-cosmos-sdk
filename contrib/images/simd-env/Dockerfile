@@ -19,6 +19,9 @@ RUN git config --global url."https://${GH_TOKEN}@github.com".insteadOf "https://
 
 RUN go mod download
 
+ENV CGO_CFLAGS="-O -D__BLST_PORTABLE__"
+ENV CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
+
 COPY ./ /work
 RUN LEDGER_ENABLED=false make clean build
 
@@ -31,9 +34,6 @@ CMD ["start", "--log_format", "plain"]
 STOPSIGNAL SIGTERM
 VOLUME /simd
 WORKDIR /simd
-
-ENV CGO_CFLAGS="-O -D__BLST_PORTABLE__"
-ENV CGO_CFLAGS_ALLOW="-O -D__BLST_PORTABLE__"
 
 COPY contrib/images/simd-env/wrapper.sh /usr/bin/wrapper.sh
 COPY --from=build /work/build/simd /simd/

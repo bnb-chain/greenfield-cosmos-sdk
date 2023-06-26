@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.2.3-alpha.1
+This release upgrades the reference cosmos-sdk to v0.47.3.
+Please refer to the [changelogs of cosmos-sdk v0.47.3](https://github.com/cosmos/cosmos-sdk/blob/v0.47.3/CHANGELOG.md) for more details regarding the changes.
+
+* [#220](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/220) feat: upgrade cosmos-sdk to v0.47.3
+* [#214](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/214) chore: fix typo and update swagger
+* [#219](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/219) fix: fix the security issues 
+* [#218](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/218) fix: add sorting of EIP712 msg types
+* [#224](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/224) feat: allows for setting a custom http client when NewClientFromNode 
+* [#228](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/228) feat: optimize NewCustomClientFromNode 
+
+## v0.2.2
+This is a maintenance release. The changelog includes all the changes since v0.2.1.
+
+* [#214](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/214) chore: fix typo and update swagger
+* [\#210](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/210) feat: add msg in gashub
+* [\#211](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/211) fix: fix blockchain stop to produce blocks
+
 ## v0.2.2-alpha.1
 This is a maintenance release.  
 
