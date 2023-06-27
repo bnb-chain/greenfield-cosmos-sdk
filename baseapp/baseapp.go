@@ -179,6 +179,7 @@ func NewBaseApp(
 		msgServiceRouter: NewMsgServiceRouter(),
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
+		preDeliverStates: make([]*state, 0),
 	}
 
 	for _, option := range options {
@@ -477,7 +478,7 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 }
 
 func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
-	app.preDeliverStates = []*state{} // reset
+	app.preDeliverStates = app.preDeliverStates[:0] // reset, keep allocated memory
 
 	for i := int64(0); i < number; i++ {
 		var ms sdk.CacheMultiStore
