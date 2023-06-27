@@ -508,13 +508,7 @@ func (rs *Store) DeepCopyMultiStore() types.CacheMultiStore {
 				}
 			}
 		}
-		store := types.KVStore(storeCache)
-		// Wire the listenkv.Store to allow listeners to observe the writes from the cache store,
-		// set same listeners on cache store will observe duplicated writes.
-		if rs.ListeningEnabled(k) {
-			store = listenkv.NewStore(store, k, rs.listeners[k])
-		}
-		stores[k] = store
+		stores[k] = storeCache
 	}
 	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
 }

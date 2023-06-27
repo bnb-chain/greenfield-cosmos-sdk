@@ -470,14 +470,12 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 		if _, ok := app.cms.(*rootmulti.Store); ok {
 			ms = app.cms.(*rootmulti.Store).DeepCopyMultiStore()
 		}
+
 		baseState := &state{
 			ms:  ms,
 			ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
 		}
 		app.preDeliverStates = append(app.preDeliverStates, baseState)
-
-		app.preDeliverStates[i].ctx = app.preDeliverStates[i].ctx.
-			WithConsensusParams(app.GetConsensusParams(app.preDeliverStates[i].ctx))
 	}
 }
 
