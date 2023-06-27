@@ -11,6 +11,7 @@ import (
 	"runtime/pprof"
 	"time"
 
+	db "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/abci/server"
 	tcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	"github.com/cometbft/cometbft/node"
@@ -19,6 +20,7 @@ import (
 	"github.com/cometbft/cometbft/proxy"
 	"github.com/cometbft/cometbft/rpc/client/local"
 	"github.com/spf13/cobra"
+	"github.com/syndtr/goleveldb/leveldb/opt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -209,7 +211,10 @@ func startStandAlone(ctx *Context, appCreator types.AppCreator) error {
 	transport := ctx.Viper.GetString(flagTransport)
 	home := ctx.Viper.GetString(flags.FlagHome)
 
-	db, err := openDB(home, GetAppDBBackend(ctx.Viper))
+	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
+		Cache:   30 * opt.GiB,
+		Handles: 5120,
+	})
 	if err != nil {
 		return err
 	}
@@ -270,7 +275,10 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 	cfg := ctx.Config
 	home := cfg.RootDir
 
-	db, err := openDB(home, GetAppDBBackend(ctx.Viper))
+	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
+		Cache:   30 * opt.GiB,
+		Handles: 5120,
+	})
 	if err != nil {
 		return err
 	}
