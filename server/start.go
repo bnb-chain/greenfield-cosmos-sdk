@@ -212,7 +212,7 @@ func startStandAlone(ctx *Context, appCreator types.AppCreator) error {
 	home := ctx.Viper.GetString(flags.FlagHome)
 
 	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
-		Cache:   30 * opt.GiB,
+		Cache:   24 * opt.GiB,
 		Handles: 5120,
 	})
 	if err != nil {
@@ -276,7 +276,7 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 	home := cfg.RootDir
 
 	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
-		Cache:   30 * opt.GiB,
+		Cache:   24 * opt.GiB,
 		Handles: 5120,
 	})
 	if err != nil {
