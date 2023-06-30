@@ -38,6 +38,7 @@ var (
 type Store struct {
 	tree   Tree
 	logger log.Logger
+	diff   map[string][]byte
 }
 
 // LoadStore returns an IAVL Store as a CommitKVStore. Internally, it will load the
@@ -190,6 +191,18 @@ func (st *Store) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.Ca
 	return cachekv.NewStore(tracekv.NewStore(st, w, tc))
 }
 
+func (st *Store) EnableDiff() {
+	st.diff = map[string][]byte{}
+}
+
+func (st *Store) GetDiff() map[string][]byte {
+	return st.diff
+}
+
+func (st *Store) ResetDiff() {
+	st.diff = map[string][]byte{}
+}
+
 // Implements types.KVStore.
 func (st *Store) Set(key, value []byte) {
 	types.AssertValidKey(key)
@@ -197,6 +210,9 @@ func (st *Store) Set(key, value []byte) {
 	_, err := st.tree.Set(key, value)
 	if err != nil && st.logger != nil {
 		st.logger.Error("iavl set error", "error", err.Error())
+	}
+	if st.diff != nil {
+		st.diff[string(key)] = value
 	}
 }
 
