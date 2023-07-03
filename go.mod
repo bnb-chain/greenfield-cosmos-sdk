@@ -57,6 +57,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.4
+	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
 	github.com/tendermint/go-amino v0.16.0
 	github.com/tendermint/tendermint v0.35.9
 	github.com/tidwall/btree v1.6.0
@@ -123,6 +124,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
+	github.com/linxGnu/grocksdb v1.7.16 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 // indirect
@@ -147,8 +149,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/supranational/blst v0.3.8-0.20220526154634-513d2456b344 // indirect
-	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
-	github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c // indirect
 	github.com/thomaso-mirodin/intmath v0.0.0-20160323211736-5dc6d854e46e // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	github.com/wealdtech/go-bytesutil v1.1.1 // indirect
@@ -172,6 +172,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 	github.com/cometbft/cometbft => github.com/Pythonberg1997/greenfield-cometbft v0.0.0-20230703062110-4f3525a57bb1
+	github.com/cometbft/cometbft-db => github.com/j75689/cometbft-db v0.0.0-20230628070814-2ca2ef81dec6
 
 	github.com/cosmos/iavl => github.com/Pythonberg1997/greenfield-iavl v0.0.0-20230703060649-e52459a6ddca
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
