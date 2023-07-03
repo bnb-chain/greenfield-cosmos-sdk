@@ -18,11 +18,11 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
-	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 )
 
 type (
@@ -479,7 +479,7 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 	app.preDeliverStates = []*state{} // reset
 
-	for i := int64(0); i < number; i ++ {
+	for i := int64(0); i < number; i++ {
 		var ms sdk.CacheMultiStore
 		if _, ok := app.cms.(*rootmulti.Store); ok {
 			ms = app.cms.(*rootmulti.Store).DeepCopyMultiStore()
@@ -727,9 +727,18 @@ func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []by
 		defer consumeBlockGas()
 	}
 
-	tx, err := app.txDecoder(txBytes)
-	if err != nil {
-		return sdk.GasInfo{}, nil, nil, 0, err
+	var tx sdk.Tx
+	if ctx.SigCache() != nil && ctx.TxBytes() != nil {
+		if txCache, known := ctx.SigCache().Get(string(ctx.TxBytes())); known {
+			tx = txCache.(sdk.Tx)
+		}
+	}
+
+	if tx == nil {
+		tx, err = app.txDecoder(txBytes)
+		if err != nil {
+			return sdk.GasInfo{}, nil, nil, 0, err
+		}
 	}
 
 	msgs := tx.GetMsgs()

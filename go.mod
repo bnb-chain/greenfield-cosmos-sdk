@@ -56,7 +56,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.4
 	github.com/tendermint/go-amino v0.16.0
 	github.com/tendermint/tendermint v0.35.9
 	github.com/tidwall/btree v1.6.0
@@ -65,8 +65,8 @@ require (
 	golang.org/x/crypto v0.8.0
 	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
 	golang.org/x/text v0.9.0
-	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683
-	google.golang.org/grpc v1.55.0
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
+	google.golang.org/grpc v1.56.1
 	google.golang.org/protobuf v1.30.0
 	gotest.tools/v3 v3.4.0
 	pgregory.net/rapid v0.5.5
@@ -171,9 +171,9 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.2-0.20230626021059-4b919e74f49e
+	github.com/cometbft/cometbft => github.com/Pythonberg1997/greenfield-cometbft v0.0.0-20230703062110-4f3525a57bb1
 
-	github.com/cosmos/iavl => github.com/Pythonberg1997/iavl v0.0.0-20230625152557-29e0fb6d5d05
+	github.com/cosmos/iavl => github.com/Pythonberg1997/greenfield-iavl v0.0.0-20230703060649-e52459a6ddca
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134

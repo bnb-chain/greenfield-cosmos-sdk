@@ -17,10 +17,17 @@ import (
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes
 // and single vs multi-signatures.
-func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx, sigCache *lru.ARCCache) error {
+func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx, sigCache *lru.ARCCache, txBytes []byte) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
 		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
+			// skip signature verification if we have a cache and the tx is already in it
+			if sigCache != nil && txBytes != nil {
+				if _, known := sigCache.Get(string(txBytes)); known {
+					return nil
+				}
+			}
+
 			sig := data.Signature
 
 			// check signature length
@@ -28,48 +35,20 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 				return errorsmod.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
 			}
 
-			var feePayerPubkey []byte
-			if sigCache != nil {
-				var key [ethcrypto.SignatureLength]byte
-				copy(key[:], sig)
+			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+			if err != nil {
+				return err
+			}
 
-				if pubkey, known := sigCache.Get(key); known {
-					feePayerPubkey = pubkey.([]byte)
-				} else {
-					sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
-					if err != nil {
-						return err
-					}
+			// remove the recovery offset if needed (ie. Metamask eip712 signature)
+			if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
+				sig[ethcrypto.RecoveryIDOffset] -= 27
+			}
 
-					// remove the recovery offset if needed (ie. Metamask eip712 signature)
-					if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
-						sig[ethcrypto.RecoveryIDOffset] -= 27
-					}
-
-					// recover the pubkey from the signature
-					feePayerPubkey, err = secp256k1.RecoverPubkey(sigHash, sig)
-					if err != nil {
-						return errorsmod.Wrap(err, "failed to recover fee payer from sig")
-					}
-
-					sigCache.Add(key, feePayerPubkey)
-				}
-			} else {
-				sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
-				if err != nil {
-					return err
-				}
-
-				// remove the recovery offset if needed (ie. Metamask eip712 signature)
-				if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
-					sig[ethcrypto.RecoveryIDOffset] -= 27
-				}
-
-				// recover the pubkey from the signature
-				feePayerPubkey, err = secp256k1.RecoverPubkey(sigHash, sig)
-				if err != nil {
-					return errorsmod.Wrap(err, "failed to recover fee payer from sig")
-				}
+			// recover the pubkey from the signature
+			feePayerPubkey, err := secp256k1.RecoverPubkey(sigHash, sig)
+			if err != nil {
+				return errorsmod.Wrap(err, "failed to recover fee payer from sig")
 			}
 
 			ecPubKey, err := ethcrypto.UnmarshalPubkey(feePayerPubkey)
@@ -83,6 +62,11 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 			}
 			if !pubKey.Equals(pk) {
 				return errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "feePayer's pubkey %s is different from signature's pubkey %s", pubKey, pk)
+			}
+
+			// add the tx to the cache if needed
+			if sigCache != nil && txBytes != nil {
+				sigCache.Add(string(txBytes), tx)
 			}
 			return nil
 		}
