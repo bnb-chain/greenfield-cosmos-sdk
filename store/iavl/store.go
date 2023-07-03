@@ -38,7 +38,7 @@ var (
 type Store struct {
 	tree   Tree
 	logger log.Logger
-	diff   map[string][]byte
+	diff   map[string]struct{}
 }
 
 // LoadStore returns an IAVL Store as a CommitKVStore. Internally, it will load the
@@ -192,15 +192,15 @@ func (st *Store) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.Ca
 }
 
 func (st *Store) EnableDiff() {
-	st.diff = map[string][]byte{}
+	st.diff = map[string]struct{}{}
 }
 
-func (st *Store) GetDiff() map[string][]byte {
+func (st *Store) GetDiff() map[string]struct{} {
 	return st.diff
 }
 
 func (st *Store) ResetDiff() {
-	st.diff = map[string][]byte{}
+	st.diff = map[string]struct{}{}
 }
 
 // Implements types.KVStore.
@@ -211,8 +211,9 @@ func (st *Store) Set(key, value []byte) {
 	if err != nil && st.logger != nil {
 		st.logger.Error("iavl set error", "error", err.Error())
 	}
+
 	if st.diff != nil {
-		st.diff[string(key)] = value
+		st.diff[string(key)] = struct{}{}
 	}
 }
 
@@ -240,6 +241,10 @@ func (st *Store) Has(key []byte) (exists bool) {
 func (st *Store) Delete(key []byte) {
 	defer telemetry.MeasureSince(time.Now(), "store", "iavl", "delete")
 	st.tree.Remove(key)
+
+	if st.diff != nil {
+		st.diff[string(key)] = struct{}{}
+	}
 }
 
 // DeleteVersions deletes a series of versions from the MutableTree. An error
