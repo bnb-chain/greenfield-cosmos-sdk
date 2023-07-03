@@ -126,7 +126,7 @@ func flagSetCommissionUpdate() *flag.FlagSet {
 	return fs
 }
 
-func flagSetDescriptionCreate() *flag.FlagSet {
+func flagSetDescriptionCreate() *flag.FlagSet { //nolint:unused
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
 	fs.String(FlagMoniker, "", "The validator's name")

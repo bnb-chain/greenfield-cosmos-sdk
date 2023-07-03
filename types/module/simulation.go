@@ -153,7 +153,7 @@ type SimulationState struct {
 	GenTimestamp      time.Time                      // genesis timestamp
 	UnbondTime        time.Duration                  // staking unbond time stored to use it as the slashing maximum evidence duration
 	LegacyParamChange []simulation.LegacyParamChange // simulated parameter changes from modules
-	//nolint:staticcheck
-	LegacyProposalContents []simulation.WeightedProposalContent // proposal content generator functions with their default weight and app sim key
+
+	LegacyProposalContents []simulation.WeightedProposalContent //nolint:staticcheck // proposal content generator functions with their default weight and app sim key
 	ProposalMsgs           []simulation.WeightedProposalMsg     // proposal msg generator functions with their default weight and app sim key
 }

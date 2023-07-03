@@ -12,7 +12,6 @@ import (
 	"time"
 
 	db "github.com/cometbft/cometbft-db"
-	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/abci/server"
 	tcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	"github.com/cometbft/cometbft/node"
@@ -620,8 +619,8 @@ func wrapCPUProfile(ctx *Context, callback func() error) error {
 //   - state
 //   - tx_index
 //   - evidence
-func makeDBOptions(ctx *Context) map[string]*dbm.NewDatabaseOption {
-	return map[string]*dbm.NewDatabaseOption{
+func makeDBOptions(ctx *Context) map[string]*db.NewDatabaseOption {
+	return map[string]*db.NewDatabaseOption{
 		"blockstore": {
 			Cache:   ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBBlockStorePercentage) / 100 * opt.MiB,
 			Handles: ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBBlockStorePercentage) / 100,
