@@ -118,6 +118,8 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgWithdraw", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgSettle", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgSwapOut", 2.4e4),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgCompleteSwapOut", 2.4e4),
+		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgCancelSwapOut", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgStorageProviderExit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgCompleteStorageProviderExit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.virtualgroup.MsgUpdateParams", 1.2e3),
