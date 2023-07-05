@@ -8,7 +8,7 @@ import (
 
 // An example exported genesis file from a 0.37 chain. Note that evidence
 // parameters only contains `max_age`.
-// In fact, there's no `max_txs` in 0.40.
+// In fact, there's no `max_txs` in 0.37.
 // Just to make sure we don't panic as greenfield migrations are not supported.
 var v037Exported = `{
 	"app_hash": "",
