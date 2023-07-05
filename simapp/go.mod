@@ -166,8 +166,8 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 	// TODO update to official version
-	github.com/cometbft/cometbft => github.com/Pythonberg1997/greenfield-cometbft v0.0.0-20230703062110-4f3525a57bb1
-	github.com/cometbft/cometbft-db => github.com/j75689/cometbft-db v0.0.0-20230628070814-2ca2ef81dec6
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.0-20230705094342-460c09a1e1e0
+	github.com/cometbft/cometbft-db => github.com/bnb-chain/greenfield-cometbft-db v0.0.0-20230704045740-dc62566e0315
 	// Simapp always use the latest version of the cosmos-sdk
 	github.com/cosmos/cosmos-sdk => ../.
 	github.com/cosmos/iavl => github.com/Pythonberg1997/greenfield-iavl v0.0.0-20230703060649-e52459a6ddca
