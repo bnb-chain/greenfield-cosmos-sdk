@@ -8,6 +8,8 @@ import (
 
 // An example exported genesis file from a 0.37 chain. Note that evidence
 // parameters only contains `max_age`.
+// In fact, there's no `max_txs` in 0.40.
+// Just to make sure we don't panic as greenfield migrations are not supported.
 var v037Exported = `{
 	"app_hash": "",
 	"app_state": {},
@@ -16,7 +18,7 @@ var v037Exported = `{
 		"block": {
 		"max_bytes": "22020096",
 		"max_gas": "-1",
-		"time_iota_ms": "1000"
+		"max_txs": "1000"
 		},
 		"evidence": { "max_age": "100000" },
 		"validator": { "pub_key_types": ["ed25519"] }
@@ -29,6 +31,8 @@ var v037Exported = `{
 // We added the following app_state:
 //
 // - x/gov: added votes to test ADR-037 split votes migration.
+// In fact, there's no `max_txs` in 0.40.
+// Just to make sure we don't panic as greenfield migrations are not supported.
 var v040Valid = `{
 	"app_hash": "",
 	"app_state": {
@@ -53,7 +57,7 @@ var v040Valid = `{
 		"block": {
 		"max_bytes": "22020096",
 		"max_gas": "-1",
-		"time_iota_ms": "1000"
+		"max_txs": "1000"
 		},
 		"evidence": {
 			"max_age_num_blocks": "100000",
