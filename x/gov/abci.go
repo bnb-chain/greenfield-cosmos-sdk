@@ -103,12 +103,14 @@ func EndBlocker(ctx sdk.Context, keeper *keeper.Keeper) {
 				ctx.EventManager().EmitEvents(events)
 			} else {
 				proposal.Status = v1.StatusFailed
+				proposal.FailedReason = err.Error()
 				tagValue = types.AttributeValueProposalFailed
 				logMsg = fmt.Sprintf("passed, but msg %d (%s) failed on execution: %s", idx, sdk.MsgTypeURL(msg), err)
 			}
 		} else {
 			proposal.Status = v1.StatusRejected
 			tagValue = types.AttributeValueProposalRejected
+			proposal.FailedReason = "proposal didn't get enough votes to pass"
 			logMsg = "rejected"
 		}
 
