@@ -138,3 +138,10 @@ func DecodePackageHeader(packageHeader []byte) (PackageHeader, error) {
 
 	return header, nil
 }
+
+func CeilDiv(x, y int) int {
+	if y == 0 {
+		return 0
+	}
+	return (x + y - 1) / y
+}

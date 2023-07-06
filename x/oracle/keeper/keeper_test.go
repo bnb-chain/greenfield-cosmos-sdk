@@ -139,7 +139,6 @@ func (s *TestSuite) TestProcessClaim() {
 	// wrong validator set
 	wrongValBitSet = bitset.New(256)
 	wrongValBitSet.Set(uint(validatorMap[newValidators[0].RelayerAddress]))
-	wrongValBitSet.Set(uint(validatorMap[newValidators[1].RelayerAddress]))
 	msgClaim.VoteAddressSet = wrongValBitSet.Bytes()
 	s.ctx = s.ctx.WithBlockTime(time.Unix(int64(msgClaim.Timestamp), 0))
 	_, _, err = s.oracleKeeper.CheckClaim(s.ctx, &msgClaim)

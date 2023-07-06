@@ -161,8 +161,8 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 	}
 
 	// The valid voted validators should be no less than 2/3 validators.
-	if len(votedPubKeys) <= len(validators)*2/3 {
-		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsVotesNotEnough, "not enough validators voted, need: %d, voted: %d", len(validators)*2/3, len(votedPubKeys))
+	if len(votedPubKeys) < sdk.CeilDiv(len(validators)*2, 3) {
+		return sdk.AccAddress{}, nil, sdkerrors.Wrapf(types.ErrBlsVotesNotEnough, "not enough validators voted, need: %d, voted: %d", sdk.CeilDiv(len(validators)*2, 3), len(votedPubKeys))
 	}
 
 	// Verify the aggregated signature.
