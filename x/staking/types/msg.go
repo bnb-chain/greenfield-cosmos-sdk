@@ -84,16 +84,13 @@ func (msg MsgCreateValidator) GetSignBytes() []byte {
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgCreateValidator) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures both non-empty and valid
-	delAddr, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
+	_, err := sdk.AccAddressFromHexUnsafe(msg.DelegatorAddress)
 	if err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid delegator address: %s", err)
 	}
-	valAddr, err := sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
+	_, err = sdk.AccAddressFromHexUnsafe(msg.ValidatorAddress)
 	if err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
-	}
-	if !valAddr.Equals(delAddr) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "validator address is invalid")
 	}
 
 	if msg.Pubkey == nil {

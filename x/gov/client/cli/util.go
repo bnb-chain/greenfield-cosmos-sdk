@@ -89,8 +89,8 @@ type proposal struct {
 	Summary  string            `json:"summary"`
 }
 
-// parseSubmitProposal reads and parses the proposal.
-func parseSubmitProposal(cdc codec.Codec, path string) ([]sdk.Msg, string, string, string, sdk.Coins, error) {
+// ParseSubmitProposal reads and parses the proposal.
+func ParseSubmitProposal(cdc codec.Codec, path string) ([]sdk.Msg, string, string, string, sdk.Coins, error) {
 	var proposal proposal
 
 	contents, err := os.ReadFile(path)

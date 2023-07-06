@@ -132,7 +132,7 @@ metadata example:
 				return err
 			}
 
-			msgs, metadata, title, summary, deposit, err := parseSubmitProposal(clientCtx.Codec, args[0])
+			msgs, metadata, title, summary, deposit, err := ParseSubmitProposal(clientCtx.Codec, args[0])
 			if err != nil {
 				return err
 			}

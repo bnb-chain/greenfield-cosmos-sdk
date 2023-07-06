@@ -18,6 +18,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -42,6 +47,7 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	stakingTxCmd.AddCommand(
+		NewCreateValidatorCmd(),
 		NewEditValidatorCmd(),
 		NewDelegateCmd(),
 
@@ -50,6 +56,116 @@ func NewTxCmd() *cobra.Command {
 	)
 
 	return stakingTxCmd
+}
+
+// NewCreateValidatorCmd returns a CLI command handler for creating a MsgCreateValidator transaction.
+func NewCreateValidatorCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-validator [path/to/create_validator_proposal.json]",
+		Short: "submit a create new validator proposal",
+		Args:  cobra.ExactArgs(1),
+		Long:  `Submit a create new validator proposal by submitting a JSON file with the new validator details, once the proposal has been passed, create a new validator initialized with a self-delegation.`,
+		Example: strings.TrimSpace(
+			fmt.Sprintf(`
+$ %s tx staking create-validator path/to/create_validator_proposal.json --from keyname
+
+Where create_validator_proposal.json contains:
+
+{
+	"messages": [
+		{
+			"@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+			"description": {
+				"moniker": "${NODE_NAME}",
+				"identity": "",
+				"website": "",
+				"security_contact": "",
+				"details": ""
+			},
+			"commission": {
+				"rate": "0.070000000000000000",
+				"max_rate": "1.000000000000000000",
+				"max_change_rate": "0.010000000000000000"
+			},
+			"min_self_delegation": "1000000000000000000000",
+			"delegator_address": "${VALIDATOR_ADDR}",
+			"validator_address": "${VALIDATOR_ADDR}",
+			"pubkey": {
+				"@type": "/cosmos.crypto.ed25519.PubKey",
+				"key": "${VALIDATOR_NODE_PUB_KEY}"
+			},
+			"value": {
+				"denom": "BNB",
+				"amount": "1000000000000000000000"
+			},
+			"from": "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
+			"relayer_address": "${RELAYER_ADDR}",
+			"challenger_address": "${CHALLENGER_ADDR}",
+			"bls_key": "${VALIDATOR_BLS}"
+		}
+	],
+	"metadata": "",
+	"title": "Create ${NODE_NAME} Validator",
+	"summary": "create ${NODE_NAME} validator",
+	"deposit": "1000000000000000000BNB"
+}
+
+modify the related configrations as you need, where you can get the pubkey using "%s tendermint show-validator"
+`, version.AppName, version.AppName)),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msgs, metadata, title, summary, deposit, err := govcli.ParseSubmitProposal(clientCtx.Codec, args[0])
+			if err != nil {
+				return err
+			}
+
+			govMsg, err := v1.NewMsgSubmitProposal(msgs, deposit, clientCtx.GetFromAddress().String(), metadata, title, summary)
+			if err != nil {
+				return fmt.Errorf("invalid message: %w", err)
+			}
+
+			if len(msgs) != 1 {
+				return fmt.Errorf("invalid message length: %d", len(msgs))
+			}
+
+			valMsg, ok := msgs[0].(*types.MsgCreateValidator)
+			if !ok || valMsg.ValidateBasic() != nil {
+				return fmt.Errorf("invalid create validator message")
+			}
+
+			delAddr, err := sdk.AccAddressFromHexUnsafe(valMsg.DelegatorAddress)
+			if err != nil {
+				return err
+			}
+			if !delAddr.Equals(clientCtx.GetFromAddress()) {
+				return fmt.Errorf("the from address should be the self delegator address: %s", delAddr.String())
+			}
+
+			valAddr, err := sdk.AccAddressFromHexUnsafe(valMsg.ValidatorAddress)
+			if err != nil {
+				return err
+			}
+
+			grantee := authtypes.NewModuleAddress(govtypes.ModuleName)
+			authorization, err := types.NewStakeAuthorization([]sdk.AccAddress{valAddr}, nil, types.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, &valMsg.Value)
+			authzMsg, err := authz.NewMsgGrant(clientCtx.GetFromAddress(), grantee, authorization, nil)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), authzMsg, govMsg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	_ = cmd.MarkFlagRequired(flags.FlagFrom)
+
+	return cmd
 }
 
 // NewEditValidatorCmd returns a CLI command handler for creating a MsgEditValidator transaction.
