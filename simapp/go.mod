@@ -165,7 +165,8 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230426135532-2f353c60f767
+	// TODO: bump to official version when pr merged
+	github.com/cometbft/cometbft => github.com/j75689/greenfield-cometbft v0.0.0-20230706002240-7e4d695acccb //github.com/bnb-chain/greenfield-cometbft v0.0.1
 	// Simapp always use the latest version of the cosmos-sdk
 	github.com/cosmos/cosmos-sdk => ../.
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.

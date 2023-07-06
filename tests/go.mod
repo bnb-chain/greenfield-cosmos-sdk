@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/prysmaticlabs/prysm v0.0.0-20220124113610-e26cde5e091b
 	github.com/spf13/cobra v1.6.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.4
 	github.com/willf/bitset v1.1.3 // indirect
 	google.golang.org/protobuf v1.30.0
 	gotest.tools/v3 v3.4.0
@@ -153,8 +153,8 @@ require (
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/genproto v0.0.0-20230320184635-7606e756e683 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
+	google.golang.org/grpc v1.56.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -168,7 +168,8 @@ replace (
 	cosmossdk.io/simapp => ../simapp
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-tendermint v0.0.0-20230426135532-2f353c60f767
+	// TODO: bump to official version when pr merged
+	github.com/cometbft/cometbft => github.com/j75689/greenfield-cometbft v0.0.0-20230706002240-7e4d695acccb //github.com/bnb-chain/greenfield-cometbft v0.0.1
 	// We always want to test against the latest version of the SDK.
 	github.com/cosmos/cosmos-sdk => ../.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0
