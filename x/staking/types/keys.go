@@ -23,6 +23,9 @@ const (
 
 	// RouterKey is the msg router key for the staking module
 	RouterKey = ModuleName
+
+	// RotatePendingRemovedValidatorNumber is the number of validators to be removed after n block
+	RotatePendingRemovedValidatorNumber = 10
 )
 
 var (
@@ -31,6 +34,7 @@ var (
 	LastValidatorPowerKey      = []byte{0x11} // prefix for each key to a validator index, for bonded validators
 	LastTotalPowerKey          = []byte{0x12} // prefix for the total power
 	LastValidatorCrossChainKey = []byte{0x13} // prefix for each key to a validator index, for bonded validators
+	LastValidatorConsKey       = []byte{0x14} // prefix for each key to a validator index, for bonded validators
 
 	ValidatorsKey                 = []byte{0x21} // prefix for each key to a validator
 	ValidatorsByConsAddrKey       = []byte{0x22} // prefix for each key to a validator index, by pubkey
@@ -58,6 +62,8 @@ var (
 	ValidatorUpdatesKey = []byte{0x61} // prefix for the end block validator updates key
 
 	ParamsKey = []byte{0x51} // prefix for parameters for module x/staking
+
+	PendingRemoveValidatorKey = []byte{0x61} // prefix for pending remove validator
 )
 
 // UnbondingType defines the type of unbonding operation
@@ -94,6 +100,12 @@ func GetValidatorKey(operatorAddr sdk.AccAddress) []byte {
 // VALUE: validator operator address ([]byte)
 func GetValidatorByConsAddrKey(addr sdk.ConsAddress) []byte {
 	return append(ValidatorsByConsAddrKey, address.MustLengthPrefix(addr)...)
+}
+
+// GetPendingValidatorQueueKey creates the key for the validator with pubkey
+// VALUE: validator consensus address ([]byte)
+func GetPendingValidatorQueueKey(addr sdk.ConsAddress) []byte {
+	return append(PendingRemoveValidatorKey, address.MustLengthPrefix(addr)...)
 }
 
 // GetValidatorByRelayerAddrKey creates the key for the validator with relayer address
@@ -171,6 +183,11 @@ func GetLastValidatorPowerKey(operator sdk.AccAddress) []byte {
 // GetLastValidatorCrossChainKey creates the bonded validator index key for an operator address
 func GetLastValidatorCrossChainKey(operator sdk.AccAddress) []byte {
 	return append(LastValidatorCrossChainKey, address.MustLengthPrefix(operator)...)
+}
+
+// GetLastValidatorCrossChainKey creates the bonded validator index key for an operator address
+func GetLastValidatorConsKey(operator sdk.AccAddress) []byte {
+	return append(LastValidatorConsKey, address.MustLengthPrefix(operator)...)
 }
 
 // ParseValidatorPowerRankKey parses the validators operator address from power rank key

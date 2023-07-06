@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"bytes"
+
 	"fmt"
 	"sort"
 
@@ -10,6 +11,9 @@ import (
 
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/crypto/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -127,6 +131,11 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		return nil, err
 	}
 
+	lastConsBytes, err := k.getLastValidatorsConsByAddr(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Iterate over validators, highest power to lowest.
 	iterator := k.ValidatorsPowerStoreIterator(ctx)
 	defer iterator.Close()
@@ -174,10 +183,19 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		newPowerBytes := k.cdc.MustMarshal(&gogotypes.Int64Value{Value: newPower})
 		oldCrossChainBytes := lastCrossChainBytes[valAddrStr]
 		newCrossChainBytes := validator.CrossChainBytes()
+		oldConsBytes := lastConsBytes[valAddrStr]
+		newCons, err := validator.ConsPubKey()
+		if err != nil {
+			return nil, err
+		}
+		newConsBytes := newCons.Bytes()
 
 		// update the validator set if power has changed
-		if !found || !bytes.Equal(oldPowerBytes, newPowerBytes) || !bytes.Equal(oldCrossChainBytes, newCrossChainBytes) {
-			updates = append(updates, validator.ABCIValidatorUpdate(powerReduction))
+		if !found || !bytes.Equal(oldPowerBytes, newPowerBytes) ||
+			!bytes.Equal(oldCrossChainBytes, newCrossChainBytes) ||
+			!bytes.Equal(oldConsBytes, newConsBytes) {
+
+			validatorUpdate := validator.ABCIValidatorUpdate(powerReduction)
 
 			if !bytes.Equal(oldPowerBytes, newPowerBytes) {
 				k.SetLastValidatorPower(ctx, valAddr, newPower)
@@ -186,6 +204,33 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 			if !bytes.Equal(oldCrossChainBytes, newCrossChainBytes) {
 				k.SetLastValidatorCrossChainBytes(ctx, valAddr, newCrossChainBytes)
 			}
+
+			if !bytes.Equal(oldConsBytes, newConsBytes) {
+				k.SetLastValidatorConsBytes(ctx, valAddr, newConsBytes)
+
+				if len(oldConsBytes) > 0 && len(newConsBytes) > 0 {
+					// set the previous consensusKey, because the pubKey in consensus layer is primary key.
+					oldConsKey := cryptotypes.PubKey(&ed25519.PubKey{Key: oldConsBytes})
+					newConsKey := cryptotypes.PubKey(&ed25519.PubKey{Key: newConsBytes})
+					oldTmKey, err := codec.ToTmProtoPublicKey(oldConsKey)
+					if err != nil {
+						return nil, err
+					}
+					newTmKey, err := codec.ToTmProtoPublicKey(newConsKey)
+					if err != nil {
+						return nil, err
+					}
+
+					validatorUpdate.PubKey = oldTmKey
+					// set the next consensus key for consensus layer updates.
+					validatorUpdate.NextPubKey = newTmKey
+
+					// set the old consensus key to pending remove validator cons key.
+					// avoid the distribution, slash module missing the validator.
+					k.SetPendingRemovedValidatorConsKey(ctx, oldConsBytes)
+				}
+			}
+			updates = append(updates, validatorUpdate)
 		}
 
 		delete(last, valAddrStr)
@@ -208,6 +253,7 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		amtFromBondedToNotBonded = amtFromBondedToNotBonded.Add(validator.GetTokens())
 		k.DeleteLastValidatorPower(ctx, validator.GetOperator())
 		k.DeleteLastValidatorCrossChainBytes(ctx, validator.GetOperator())
+		k.DeleteLastValidatorConsBytes(ctx, validator.GetOperator())
 		updates = append(updates, validator.ABCIValidatorUpdateZero())
 	}
 
@@ -444,6 +490,30 @@ func (k Keeper) getLastValidatorsCrossChainBytesByAddr(ctx sdk.Context) (crossCh
 		crossChainBytes := iterator.Value()
 		last[valAddrStr] = make([]byte, len(crossChainBytes))
 		copy(last[valAddrStr], crossChainBytes)
+	}
+
+	return last, nil
+}
+
+// map of operator bech32-addresses to serialized power
+// We use bech32 strings here, because we can't have slices as keys: map[[]byte][]byte
+type validatorsConsByAddr map[string][]byte
+
+// get the last validator set
+func (k Keeper) getLastValidatorsConsByAddr(ctx sdk.Context) (validatorsConsByAddr, error) {
+	last := make(validatorsConsByAddr)
+
+	iterator := k.LastValidatorsConsBytesIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		// extract the validator address from the key (prefix is 1-byte, addrLen is 1-byte)
+		valAddr := types.AddressFromLastValidatorPowerKey(iterator.Key())
+		valAddrStr := sdk.AccAddress(valAddr).String()
+
+		consBytes := iterator.Value()
+		last[valAddrStr] = make([]byte, len(consBytes))
+		copy(last[valAddrStr], consBytes)
 	}
 
 	return last, nil

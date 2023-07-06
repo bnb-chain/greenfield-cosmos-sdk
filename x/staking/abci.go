@@ -15,7 +15,7 @@ import (
 // and prune the oldest entry based on the HistoricalEntries parameter
 func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
-
+	k.DeletePendingRemovedValidatorConsKey(ctx)
 	k.TrackHistoricalInfo(ctx)
 }
 

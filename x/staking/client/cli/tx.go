@@ -14,6 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -114,9 +116,28 @@ func NewEditValidatorCmd() *cobra.Command {
 
 			blsPk, _ := cmd.Flags().GetString(FlagBlsKey)
 
+			var (
+				valPubKey cryptotypes.PubKey = &ed25519.PubKey{}
+				pkAny     *codectypes.Any
+			)
+			if pkStr, _ := cmd.Flags().GetString(FlagPubKey); pkStr != "" {
+				if err := clientCtx.Codec.UnmarshalInterfaceJSON([]byte(pkStr), &valPubKey); err != nil {
+					return fmt.Errorf("failed to unmarshal validator public key, %v", err)
+				}
+
+				if valPubKey.Type() != cryptotypes.PubKey(&ed25519.PubKey{}).Type() {
+					return fmt.Errorf("only ed25519 public keys are supported")
+				}
+			}
+
+			pkAny, err = codectypes.NewAnyWithValue(valPubKey)
+			if err != nil {
+				return fmt.Errorf("failed to pack validator public key, %v", err)
+			}
+
 			msg := types.NewMsgEditValidator(
 				valAddr, description, newRate, newMinSelfDelegation,
-				relayer, challenger, blsPk,
+				relayer, challenger, blsPk, pkAny,
 			)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -129,6 +150,7 @@ func NewEditValidatorCmd() *cobra.Command {
 	cmd.Flags().AddFlagSet(FlagSetRelayerAddress())
 	cmd.Flags().AddFlagSet(FlagSetChallengerAddress())
 	cmd.Flags().AddFlagSet(FlagSetBlsKey())
+	cmd.Flags().AddFlagSet(FlagSetPublicKey())
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

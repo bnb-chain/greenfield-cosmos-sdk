@@ -313,6 +313,7 @@ func (v Validator) ABCIValidatorUpdate(r math.Int) abci.ValidatorUpdate {
 		Power:          v.ConsensusPower(r),
 		RelayerAddress: relayer,
 		BlsKey:         v.BlsKey,
+		NextPubKey:     tmProtoPk,
 	}
 }
 
@@ -334,6 +335,7 @@ func (v Validator) ABCIValidatorUpdateZero() abci.ValidatorUpdate {
 		Power:          0,
 		RelayerAddress: relayer,
 		BlsKey:         v.BlsKey,
+		NextPubKey:     tmProtoPk,
 	}
 }
 

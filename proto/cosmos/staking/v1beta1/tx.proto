@@ -98,7 +98,8 @@ message MsgEditValidator {
 
   string relayer_address            = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string challenger_address         = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string         bls_key            = 7; // The BLS pubkey for the authorized relayer/challenger
+  string bls_key                    = 7; // The BLS pubkey for the authorized relayer/challenger
+  google.protobuf.Any      pubkey   = 8 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
 }
 
 // MsgEditValidatorResponse defines the Msg/EditValidator response type.

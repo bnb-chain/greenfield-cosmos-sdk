@@ -28,6 +28,7 @@ type Keeper struct {
 	authzKeeper types.AuthzKeeper
 	bankKeeper  types.BankKeeper
 	hooks       types.StakingHooks
+	slashHooks  types.SlashHooks
 	authority   string
 }
 
@@ -88,6 +89,16 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) {
 	}
 
 	k.hooks = sh
+}
+
+// SetSlashHook Set the slash hooks.  In contrast to other receivers, this method must take a pointer due to nature
+// of the hooks interface and SDK start up sequence.
+func (k *Keeper) SetSlashHook(sh types.SlashHooks) {
+	if k.slashHooks != nil {
+		panic("cannot set slash hooks twice")
+	}
+
+	k.slashHooks = sh
 }
 
 // GetLastTotalPower Load the last total validator power.

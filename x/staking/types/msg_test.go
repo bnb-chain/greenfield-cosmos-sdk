@@ -135,7 +135,7 @@ func TestMsgEditValidator(t *testing.T) {
 
 		msg := types.NewMsgEditValidator(
 			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,
-			tc.validatorAddr, tc.validatorAddr, blsPk)
+			tc.validatorAddr, tc.validatorAddr, blsPk, nil)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

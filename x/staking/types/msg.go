@@ -2,6 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -153,7 +154,7 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 //nolint:interfacer
 func NewMsgEditValidator(
 	valAddr sdk.AccAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
-	newRelayerAddr, newChallengerAddr sdk.AccAddress, newBlsKey string,
+	newRelayerAddr, newChallengerAddr sdk.AccAddress, newBlsKey string, pubKey *types.Any,
 ) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,
@@ -163,6 +164,7 @@ func NewMsgEditValidator(
 		RelayerAddress:    newRelayerAddr.String(),
 		ChallengerAddress: newChallengerAddr.String(),
 		BlsKey:            newBlsKey,
+		Pubkey:            pubKey,
 	}
 }
 

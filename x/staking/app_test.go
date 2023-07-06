@@ -17,6 +17,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -95,11 +96,14 @@ func TestStakingMsgs(t *testing.T) {
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
+	pubKey, err := codectypes.NewAnyWithValue(cryptotypes.PubKey(&ed25519.PubKey{}))
+	require.NoError(t, err)
+
 	// edit the validator
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
 		addr1, description, nil, nil,
-		sdk.AccAddress(""), sdk.AccAddress(""), "",
+		sdk.AccAddress(""), sdk.AccAddress(""), "", pubKey,
 	)
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, sdktestutil.DefaultChainId, []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"time"
 
 	gogotypes "github.com/cosmos/gogoproto/types"
@@ -52,6 +53,21 @@ func (k Keeper) IterateValidatorSigningInfos(ctx sdk.Context,
 			break
 		}
 	}
+}
+
+// DeleteValidatorSigningInfo delete validator signing info from the store
+func (k Keeper) DeleteValidatorSigningInfo(ctx sdk.Context, address sdk.ConsAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.ValidatorSigningInfoKey(address))
+}
+
+// MigrateValidatorSigningInfo migrate validator signing info from the store
+func (k Keeper) MigrateValidatorSigningInfo(ctx sdk.Context, oldAddress sdk.ConsAddress, newAddress sdk.ConsAddress) {
+	info, found := k.GetValidatorSigningInfo(ctx, oldAddress)
+	if !found {
+		panic(fmt.Sprintf("miss the old signing info, address: %s", oldAddress))
+	}
+	k.SetValidatorSigningInfo(ctx, newAddress, info)
 }
 
 // GetValidatorMissedBlockBitArray gets the bit for the missed blocks array
@@ -171,11 +187,19 @@ func (k Keeper) SetValidatorMissedBlockBitArray(ctx sdk.Context, address sdk.Con
 }
 
 // clearValidatorMissedBlockBitArray deletes every instance of ValidatorMissedBlockBitArray in the store
-func (k Keeper) clearValidatorMissedBlockBitArray(ctx sdk.Context, address sdk.ConsAddress) {
+func (k Keeper) ClearValidatorMissedBlockBitArray(ctx sdk.Context, address sdk.ConsAddress) {
 	store := ctx.KVStore(k.storeKey)
 	iter := sdk.KVStorePrefixIterator(store, types.ValidatorMissedBlockBitArrayPrefixKey(address))
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
 		store.Delete(iter.Key())
 	}
+}
+
+// MigrateValidatorMissedBlockBitArray migrate MissedBlockBitArray to new address.
+func (k Keeper) MigrateValidatorMissedBlockBitArray(ctx sdk.Context, oldAddress sdk.ConsAddress, newAddress sdk.ConsAddress) {
+	k.IterateValidatorMissedBlockBitArray(ctx, oldAddress, func(index int64, missed bool) (stop bool) {
+		k.SetValidatorMissedBlockBitArray(ctx, newAddress, index, missed)
+		return false
+	})
 }

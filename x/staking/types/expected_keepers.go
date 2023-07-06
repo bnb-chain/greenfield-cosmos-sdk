@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/math"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -119,3 +120,12 @@ type StakingHooksWrapper struct{ StakingHooks }
 
 // IsOnePerModuleType implements the depinject.OnePerModuleType interface.
 func (StakingHooksWrapper) IsOnePerModuleType() {}
+
+type SlashHooks interface {
+	MigrateValidatorSigningInfo(ctx sdk.Context, oldAddress sdk.ConsAddress, newAddress sdk.ConsAddress)
+	DeleteValidatorSigningInfo(ctx sdk.Context, address sdk.ConsAddress)
+	MigrateValidatorMissedBlockBitArray(ctx sdk.Context, oldAddress sdk.ConsAddress, newAddress sdk.ConsAddress)
+	ClearValidatorMissedBlockBitArray(ctx sdk.Context, address sdk.ConsAddress)
+	AddPubkey(ctx sdk.Context, pubkey cryptotypes.PubKey) error
+	DeleteAddrPubkeyRelation(ctx sdk.Context, addr cryptotypes.Address)
+}

@@ -226,7 +226,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k *ke
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, address, "")
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, address, "", val.ConsensusPubkey)
 
 		txCtx := simulation.OperationInput{
 			R:               r,

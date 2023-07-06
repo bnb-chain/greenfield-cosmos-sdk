@@ -1,9 +1,12 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"fmt"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	gogotypes "github.com/cosmos/gogoproto/types"
 
@@ -111,6 +114,12 @@ func (k Keeper) DeleteValidatorByRelayerAddress(ctx sdk.Context, validator types
 	relayer := validator.GetRelayer()
 	store := ctx.KVStore(k.storeKey)
 	store.Delete(types.GetValidatorByRelayerAddrKey(relayer))
+}
+
+// validator index
+func (k Keeper) DeleteValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetValidatorByConsAddrKey(consAddr))
 }
 
 // validator index
@@ -379,6 +388,18 @@ func (k Keeper) DeleteLastValidatorCrossChainBytes(ctx sdk.Context, operator sdk
 	store.Delete(types.GetLastValidatorCrossChainKey(operator))
 }
 
+// Set the last validator consensus bytes.
+func (k Keeper) SetLastValidatorConsBytes(ctx sdk.Context, operator sdk.AccAddress, consBytes []byte) {
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.GetLastValidatorConsKey(operator), consBytes)
+}
+
+// Delete the last validator cross-chain bytes.
+func (k Keeper) DeleteLastValidatorConsBytes(ctx sdk.Context, operator sdk.AccAddress) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetLastValidatorConsKey(operator))
+}
+
 // returns an iterator for the consensus validators in the last block
 func (k Keeper) LastValidatorsIterator(ctx sdk.Context) (iterator sdk.Iterator) {
 	store := ctx.KVStore(k.storeKey)
@@ -391,6 +412,14 @@ func (k Keeper) LastValidatorsIterator(ctx sdk.Context) (iterator sdk.Iterator) 
 func (k Keeper) LastValidatorsCrossChainBytesIterator(ctx sdk.Context) (iterator storetypes.Iterator) {
 	store := ctx.KVStore(k.storeKey)
 	iterator = storetypes.KVStorePrefixIterator(store, types.LastValidatorCrossChainKey)
+
+	return iterator
+}
+
+// returns an iterator for the consensus validators in the last block by cross-chain key
+func (k Keeper) LastValidatorsConsBytesIterator(ctx sdk.Context) (iterator storetypes.Iterator) {
+	store := ctx.KVStore(k.storeKey)
+	iterator = storetypes.KVStorePrefixIterator(store, types.LastValidatorConsKey)
 
 	return iterator
 }
@@ -590,4 +619,47 @@ func (k Keeper) IsValidatorJailed(ctx sdk.Context, addr sdk.ConsAddress) bool {
 	}
 
 	return v.Jailed
+}
+
+func (k Keeper) SetPendingRemovedValidatorConsKey(ctx sdk.Context, oldConsKey []byte) {
+	store := ctx.KVStore(k.storeKey)
+	bigEndianHeight := make([]byte, 8)
+	binary.BigEndian.PutUint64(bigEndianHeight, uint64(ctx.BlockHeight()))
+	store.Set(types.GetPendingValidatorQueueKey(oldConsKey), bigEndianHeight)
+}
+
+func (k Keeper) deletePendingRemovedValidatorConsKey(ctx sdk.Context, consKey []byte) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetPendingValidatorQueueKey(consKey))
+}
+
+func (k Keeper) DeletePendingRemovedValidatorConsKey(ctx sdk.Context) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := storetypes.KVStorePrefixIterator(store, types.PendingRemoveValidatorKey)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		buf := iterator.Key()
+		if len(buf) != ed25519.PubKeySize+2 {
+			continue
+		}
+		blockHeight := binary.BigEndian.Uint64(iterator.Value())
+		if blockHeight+types.RotatePendingRemovedValidatorNumber > uint64(ctx.BlockHeight()) {
+			continue
+		}
+
+		oldConsBytes := buf[2:] // trim prefix, 0x61:xxxx
+
+		// delete old validator index by old consensus key.
+		oldConsKey := cryptotypes.PubKey(&ed25519.PubKey{Key: oldConsBytes})
+		oldAddr := sdk.ConsAddress(oldConsKey.Address())
+		k.DeleteValidatorByConsAddr(ctx, oldAddr)
+		// delete slash validator info
+		if k.slashHooks != nil {
+			k.slashHooks.DeleteValidatorSigningInfo(ctx, oldAddr)
+			k.slashHooks.ClearValidatorMissedBlockBitArray(ctx, oldAddr)
+			k.slashHooks.DeleteAddrPubkeyRelation(ctx, oldConsKey.Address())
+		}
+		k.deletePendingRemovedValidatorConsKey(ctx, oldConsBytes)
+	}
 }

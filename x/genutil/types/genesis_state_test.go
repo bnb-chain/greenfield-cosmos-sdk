@@ -77,7 +77,7 @@ func TestValidateGenesisBadMessage(t *testing.T) {
 
 	msg1 := stakingtypes.NewMsgEditValidator(
 		sdk.AccAddress(pk1.Address()), desc, nil, nil,
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1,
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1, nil,
 	)
 
 	txConfig := moduletestutil.MakeTestEncodingConfig(staking.AppModuleBasic{}, genutil.AppModuleBasic{}).TxConfig

@@ -10,6 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +19,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 type msgServer struct {
@@ -214,6 +217,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 	if err != nil {
 		return nil, err
 	}
+
 	// validator must already be registered
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
@@ -305,6 +309,47 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		}
 	}
 
+	// replace pubkey
+	if msg.Pubkey != nil && len(msg.Pubkey.Value) > 0 && msg.Pubkey.TypeUrl == "/cosmos.crypto.ed25519.PubKey" {
+		var pk cryptotypes.PubKey = &ed25519.PubKey{}
+		err = proto.Unmarshal(msg.Pubkey.Value, pk)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				sdkerrors.ErrInvalidRequest, "invalid pubkey err: %v", err,
+			)
+		}
+
+		if len(pk.Bytes()) > 0 {
+			oldConsAddr, err := validator.GetConsAddr()
+			if err != nil {
+				return nil, sdkerrors.Wrapf(
+					types.ErrNoValidatorFound, "validator not found operator addr: %s,cons addr: %s, err: %v",
+					validator.OperatorAddress, oldConsAddr.String(), err,
+				)
+			}
+
+			// should make sure the new pubkey is unique
+			newConsAddr := sdk.ConsAddress(pk.Address())
+			if _, found := k.GetValidatorByConsAddr(ctx, newConsAddr); found {
+				return nil, types.ErrValidatorPubKeyExists
+			}
+
+			pkAny, err := codectypes.NewAnyWithValue(pk)
+			if err != nil {
+				return nil, err
+			}
+
+			validator.ConsensusPubkey = pkAny
+			k.SetValidatorByConsAddr(ctx, validator)
+			// migrate slash validator info
+			if k.slashHooks != nil {
+				k.slashHooks.MigrateValidatorSigningInfo(ctx, oldConsAddr, newConsAddr)
+				k.slashHooks.MigrateValidatorMissedBlockBitArray(ctx, oldConsAddr, newConsAddr)
+				k.slashHooks.AddPubkey(ctx, pk)
+			}
+		}
+	}
+
 	k.SetValidator(ctx, validator)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
@@ -315,6 +360,7 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 			sdk.NewAttribute(types.AttributeKeyRelayerAddress, validator.RelayerAddress),
 			sdk.NewAttribute(types.AttributeKeyChallengerAddress, validator.ChallengerAddress),
 			sdk.NewAttribute(types.AttributeKeyBlsKey, string(validator.BlsKey)),
+			sdk.NewAttribute(types.AttributeKeyConsensusPubKey, string(validator.ConsensusPubkey.Value)),
 		),
 	})
 

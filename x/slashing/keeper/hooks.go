@@ -44,7 +44,7 @@ func (h Hooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, v
 
 // AfterValidatorRemoved deletes the address-pubkey relation when a validator is removed,
 func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, _ sdk.AccAddress) error {
-	h.k.deleteAddrPubkeyRelation(ctx, crypto.Address(consAddr))
+	h.k.DeleteAddrPubkeyRelation(ctx, crypto.Address(consAddr))
 	return nil
 }
 

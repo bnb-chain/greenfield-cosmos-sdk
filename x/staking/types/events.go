@@ -18,6 +18,7 @@ const (
 	AttributeKeyRelayerAddress    = "relayer_address"
 	AttributeKeyChallengerAddress = "challenger_address"
 	AttributeKeyBlsKey            = "bls_key"
+	AttributeKeyConsensusPubKey   = "consensus_pubkey"
 	AttributeKeySrcValidator      = "source_validator"
 	AttributeKeyDstValidator      = "destination_validator"
 	AttributeKeyDelegator         = "delegator"
