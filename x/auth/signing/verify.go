@@ -3,32 +3,41 @@ package signing
 import (
 	"fmt"
 
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-
 	errorsmod "cosmossdk.io/errors"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	lru "github.com/hashicorp/golang-lru"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 // VerifySignature verifies a transaction signature contained in SignatureData abstracting over different signing modes
 // and single vs multi-signatures.
-func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx) error {
+func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx, sigCache *lru.ARCCache, txBytes []byte) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
 		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
-			sig := data.Signature
-			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
-			if err != nil {
-				return err
+			// skip signature verification if we have a cache and the tx is already in it
+			if sigCache != nil && txBytes != nil {
+				if _, known := sigCache.Get(string(txBytes)); known {
+					return nil
+				}
 			}
+
+			sig := data.Signature
 
 			// check signature length
 			if len(sig) != ethcrypto.SignatureLength {
 				return errorsmod.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
+			}
+
+			sigHash, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+			if err != nil {
+				return err
 			}
 
 			// remove the recovery offset if needed (ie. Metamask eip712 signature)
@@ -41,6 +50,7 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 			if err != nil {
 				return errorsmod.Wrap(err, "failed to recover fee payer from sig")
 			}
+
 			ecPubKey, err := ethcrypto.UnmarshalPubkey(feePayerPubkey)
 			if err != nil {
 				return errorsmod.Wrap(err, "failed to unmarshal recovered fee payer pubkey")
@@ -52,6 +62,11 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 			}
 			if !pubKey.Equals(pk) {
 				return errorsmod.Wrapf(sdkerrors.ErrorInvalidSigner, "feePayer's pubkey %s is different from signature's pubkey %s", pubKey, pk)
+			}
+
+			// add the tx to the cache if needed
+			if sigCache != nil && txBytes != nil {
+				sigCache.Add(string(txBytes), tx)
 			}
 			return nil
 		}

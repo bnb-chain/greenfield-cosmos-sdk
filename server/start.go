@@ -11,6 +11,7 @@ import (
 	"runtime/pprof"
 	"time"
 
+	db "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/abci/server"
 	tcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	"github.com/cometbft/cometbft/node"
@@ -19,6 +20,7 @@ import (
 	"github.com/cometbft/cometbft/proxy"
 	"github.com/cometbft/cometbft/rpc/client/local"
 	"github.com/spf13/cobra"
+	"github.com/syndtr/goleveldb/leveldb/opt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -83,6 +85,16 @@ const (
 
 	// mempool flags
 	FlagMempoolMaxTxs = "mempool.max-txs"
+
+	// db-related flags
+	FlagDBCache                 = "db.cache"
+	FlagDBFDLimit               = "db.fdlimit"
+	FlagDBFilter                = "db.filter"
+	FlagDBApplicationPercentage = "db.application-percentage"
+	FlagDBBlockStorePercentage  = "db.blockStore-percentage"
+	FlagDBStatePercentage       = "db.state-percentage"
+	FlagDBTxIndexPercentage     = "db.txIndex-percentage"
+	FlagDBEvidencePercentage    = "db.evidence-percentage"
 )
 
 // StartCmd runs the service passed in, either stand-alone or in-process with
@@ -199,6 +211,15 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 
 	cmd.Flags().Int(FlagMempoolMaxTxs, mempool.DefaultMaxTx, "Sets MaxTx value for the app-side mempool")
 
+	cmd.Flags().Int(FlagDBCache, 1024, "Megabytes of memory allocated to database caching")
+	cmd.Flags().Int(FlagDBFDLimit, 500, "Raise the open file descriptor resource limit")
+	cmd.Flags().Int(FlagDBFilter, 10, "The number of bits for the hot and cold Bloom filters in the database")
+	cmd.Flags().Int(FlagDBApplicationPercentage, 40, "Percentage of cache memory allowance to use for application database io")
+	cmd.Flags().Int(FlagDBBlockStorePercentage, 20, "Percentage of cache memory allowance to use for blockstore database io")
+	cmd.Flags().Int(FlagDBStatePercentage, 20, "Percentage of cache memory allowance to use for state database io")
+	cmd.Flags().Int(FlagDBTxIndexPercentage, 10, "Percentage of cache memory allowance to use for tx index database io")
+	cmd.Flags().Int(FlagDBEvidencePercentage, 10, "Percentage of cache memory allowance to use for evidence database io")
+
 	// add support for all Tendermint-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd
@@ -209,7 +230,15 @@ func startStandAlone(ctx *Context, appCreator types.AppCreator) error {
 	transport := ctx.Viper.GetString(flagTransport)
 	home := ctx.Viper.GetString(flags.FlagHome)
 
-	db, err := openDB(home, GetAppDBBackend(ctx.Viper))
+	dbCacheSize := ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBApplicationPercentage) / 100 * opt.MiB
+	dbHandles := ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBApplicationPercentage) / 100
+	dbFilter := ctx.Viper.GetInt(FlagDBFilter)
+
+	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
+		Cache:   dbCacheSize,
+		Handles: dbHandles,
+		Filter:  dbFilter,
+	})
 	if err != nil {
 		return err
 	}
@@ -270,7 +299,15 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 	cfg := ctx.Config
 	home := cfg.RootDir
 
-	db, err := openDB(home, GetAppDBBackend(ctx.Viper))
+	dbCacheSize := ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBApplicationPercentage) / 100 * opt.MiB
+	dbHandles := ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBApplicationPercentage) / 100
+	dbFilter := ctx.Viper.GetInt(FlagDBFilter)
+
+	db, err := openDB(home, GetAppDBBackend(ctx.Viper), &db.NewDatabaseOption{
+		Cache:   dbCacheSize,
+		Handles: dbHandles,
+		Filter:  dbFilter,
+	})
 	if err != nil {
 		return err
 	}
@@ -324,14 +361,14 @@ func startInProcess(ctx *Context, clientCtx client.Context, appCreator types.App
 		config.GRPC.Enable = true
 	} else {
 		ctx.Logger.Info("starting node with ABCI Tendermint in-process")
-
+		dbOptions := makeDBOptions(ctx)
 		tmNode, err = node.NewNode(
 			cfg,
 			pvm.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 			nodeKey,
 			proxy.NewLocalClientCreator(app),
 			genDocProvider,
-			node.DefaultDBProvider,
+			node.DefaultDBProviderWithDBOptions(dbOptions),
 			node.DefaultMetricsProvider(cfg.Instrumentation),
 			ctx.Logger,
 		)
@@ -573,4 +610,36 @@ func wrapCPUProfile(ctx *Context, callback func() error) error {
 	}
 
 	return WaitForQuitSignals()
+}
+
+// makeDBOptions returns the db options based on the context.
+// The db options are used to create the db provider.
+// such types of db are used in cometbft:
+//   - blockstore
+//   - state
+//   - tx_index
+//   - evidence
+func makeDBOptions(ctx *Context) map[string]*db.NewDatabaseOption {
+	return map[string]*db.NewDatabaseOption{
+		"blockstore": {
+			Cache:   ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBBlockStorePercentage) / 100 * opt.MiB,
+			Handles: ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBBlockStorePercentage) / 100,
+			Filter:  ctx.Viper.GetInt(FlagDBFilter),
+		},
+		"state": {
+			Cache:   ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBStatePercentage) / 100 * opt.MiB,
+			Handles: ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBStatePercentage) / 100,
+			Filter:  ctx.Viper.GetInt(FlagDBFilter),
+		},
+		"tx_index": {
+			Cache:   ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBTxIndexPercentage) / 100 * opt.MiB,
+			Handles: ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBTxIndexPercentage) / 100,
+			Filter:  ctx.Viper.GetInt(FlagDBFilter),
+		},
+		"evidence": {
+			Cache:   ctx.Viper.GetInt(FlagDBCache) * ctx.Viper.GetInt(FlagDBEvidencePercentage) / 100 * opt.MiB,
+			Handles: ctx.Viper.GetInt(FlagDBFDLimit) * ctx.Viper.GetInt(FlagDBEvidencePercentage) / 100,
+			Filter:  ctx.Viper.GetInt(FlagDBFilter),
+		},
+	}
 }

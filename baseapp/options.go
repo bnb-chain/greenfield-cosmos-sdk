@@ -5,6 +5,7 @@ import (
 	"io"
 
 	dbm "github.com/cometbft/cometbft-db"
+	lru "github.com/hashicorp/golang-lru"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/snapshots"
@@ -297,4 +298,9 @@ func (app *BaseApp) SetPrepareProposal(handler sdk.PrepareProposalHandler) {
 // SetUpgradeChecker is used to set a upgrade checker from the upgrade module
 func (app *BaseApp) SetUpgradeChecker(checker func(sdk.Context, string) bool) {
 	app.upgradeChecker = checker
+}
+
+// SetSigCache is used to set a signature cache
+func (app *BaseApp) SetSigCache(cache *lru.ARCCache) {
+	app.sigCache = cache
 }

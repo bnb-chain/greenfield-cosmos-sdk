@@ -92,7 +92,7 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid validator address: %s", err)
 	}
-	if !sdk.AccAddress(valAddr).Equals(delAddr) {
+	if !valAddr.Equals(delAddr) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "validator address is invalid")
 	}
 
