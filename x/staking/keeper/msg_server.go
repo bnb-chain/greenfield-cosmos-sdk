@@ -7,12 +7,15 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -104,6 +107,19 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	}
 	if _, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
 		return nil, types.ErrValidatorBlsKeyExists
+	}
+
+	// check to see if the bls proof is signed from operator
+	blsProof, err := hex.DecodeString(msg.BlsProof)
+	if err != nil {
+		return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
+	}
+	ok, err = k.CheckBlsProof(ctx, blsPk, blsProof, valAddr)
+	if err != nil {
+		return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
+	}
+	if !ok {
+		return nil, types.ErrValidatorInvalidBlsProof
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -289,10 +305,22 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 	}
 
 	// replace bls pubkey
-	if len(msg.BlsKey) != 0 {
+	if len(msg.BlsKey) != 0 && len(msg.BlsProof) != 0 {
 		blsPk, err := hex.DecodeString(msg.BlsKey)
 		if err != nil || len(blsPk) != sdk.BLSPubKeyLength {
 			return nil, types.ErrValidatorInvalidBlsKey
+		}
+		// check to see if the bls proof is signed from operator
+		blsProof, err := hex.DecodeString(msg.BlsProof)
+		if err != nil {
+			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
+		}
+		ok, err := k.CheckBlsProof(ctx, blsPk, blsProof, validator.GetOperator())
+		if err != nil {
+			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
+		}
+		if !ok {
+			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, "signature verification failed")
 		}
 		if tmpValidator, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
@@ -627,4 +655,24 @@ func (ms msgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
+}
+
+// CheckBlsProof checks the BLS signature of the validator
+func (ms msgServer) CheckBlsProof(goCtx context.Context, blsPk, sig []byte, valAddr sdk.Address) (bool, error) {
+	if len(sig) != sdk.BLSSignatureLength {
+		return false, sdkerrors.Wrapf(sdkerrors.ErrorInvalidSigner, "signature length (actual: %d) doesn't match typical BLS signature 96 bytes", len(sig))
+	}
+
+	blsPubKey, err := bls.PublicKeyFromBytes(blsPk)
+	if err != nil {
+		return false, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS public key is invalid")
+	}
+
+	signature, err := bls.SignatureFromBytes(sig)
+	if err != nil {
+		return false, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS signature key is invalid")
+	}
+
+	sigHash := tmhash.Sum(blsPk)
+	return signature.Verify(blsPubKey, sigHash), nil
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
@@ -393,11 +394,13 @@ func createValidators(t *testing.T, stakingMsgSvr stakingtypes.MsgServer, ctx sd
 		valTokens := sdk.TokensFromConsensusPower(powerAmt[i], sdk.DefaultPowerReduction)
 		blsSecretKey, _ := bls.RandKey()
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+		blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+		blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 		valCreateMsg, err := stakingtypes.NewMsgCreateValidator(
 			addrs[i], pubkeys[i], sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			TestDescription, TestCommissionRates, sdk.OneInt(),
 			addrs[i], addrs[i],
-			addrs[i], addrs[i], blsPk)
+			addrs[i], addrs[i], blsPk, blsProof)
 		require.NoError(t, err)
 		res, err := stakingMsgSvr.CreateValidator(sdk.WrapSDKContext(ctx), valCreateMsg)
 		require.NoError(t, err)

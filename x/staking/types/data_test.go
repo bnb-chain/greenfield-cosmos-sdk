@@ -4,16 +4,20 @@ import (
 	"fmt"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	pk1      = ed25519.GenPrivKey().PubKey()
+	pv1, _   = ethsecp256k1.GenPrivKey()
+	pv2, _   = ethsecp256k1.GenPrivKey()
+	pv3, _   = ethsecp256k1.GenPrivKey()
+	pk1      = pv1.PubKey()
 	pk1Any   *codectypes.Any
-	pk2      = ed25519.GenPrivKey().PubKey()
-	pk3      = ed25519.GenPrivKey().PubKey()
+	pk2      = pv2.PubKey()
+	pk3      = pv3.PubKey()
 	addr1, _ = sdk.Bech32ifyAddressBytes(sdk.Bech32PrefixAccAddr, pk1.Address().Bytes())
 	addr2, _ = sdk.Bech32ifyAddressBytes(sdk.Bech32PrefixAccAddr, pk2.Address().Bytes())
 	addr3, _ = sdk.Bech32ifyAddressBytes(sdk.Bech32PrefixAccAddr, pk3.Address().Bytes())

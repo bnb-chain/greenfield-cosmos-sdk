@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -16,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -40,18 +41,20 @@ func TestMsgDecode(t *testing.T) {
 	var pkUnmarshaled cryptotypes.PubKey
 	err = cdc.UnmarshalInterface(pk1bz, &pkUnmarshaled)
 	require.NoError(t, err)
-	require.True(t, pk1.Equals(pkUnmarshaled.(*ed25519.PubKey)))
+	require.True(t, pk1.Equals(pkUnmarshaled.(*ethsecp256k1.PubKey)))
 
 	// now let's try to serialize the whole message
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 
 	commission1 := types.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
 	msg, err := types.NewMsgCreateValidator(
 		valAddr1, pk1,
 		coinPos, types.Description{}, commission1, sdk.OneInt(),
 		valAddr1, valAddr1,
-		valAddr1, valAddr1, blsPk,
+		valAddr1, valAddr1, blsPk, blsProof,
 	)
 	require.NoError(t, err)
 	msgSerialized, err := cdc.MarshalInterface(msg)
@@ -92,15 +95,24 @@ func TestMsgCreateValidator(t *testing.T) {
 		{"delegation less than min self delegation", "a", "b", "c", "d", "e", commission1, coinPos.Amount.Add(math.OneInt()), valAddr1, pk1, coinPos, false},
 	}
 
-	blsSecretKey, _ := bls.RandKey()
-	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	for _, tc := range tests {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
+		var (
+			blsPk    string
+			blsProof string
+		)
+		if !tc.validatorAddr.Equals(emptyAddr) {
+			blsSecretKey, _ := bls.RandKey()
+			blsPk = hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+			blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+			blsProof = hex.EncodeToString(blsProofBuf.Marshal())
+		}
+
 		msg, err := types.NewMsgCreateValidator(
 			tc.validatorAddr, tc.pubkey,
 			tc.bond, description, tc.CommissionRates, tc.minSelfDelegation,
 			tc.validatorAddr, tc.validatorAddr,
-			tc.validatorAddr, tc.validatorAddr, blsPk,
+			tc.validatorAddr, tc.validatorAddr, blsPk, blsProof,
 		)
 		require.NoError(t, err)
 		if tc.expectPass {
@@ -130,12 +142,19 @@ func TestMsgEditValidator(t *testing.T) {
 		description := types.NewDescription(tc.moniker, tc.identity, tc.website, tc.securityContact, tc.details)
 		newRate := math.LegacyZeroDec()
 
+		var (
+			blsPk    string
+			blsProof string
+		)
+
 		blsSecretKey, _ := bls.RandKey()
-		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+		blsPk = hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+		blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+		blsProof = hex.EncodeToString(blsProofBuf.Marshal())
 
 		msg := types.NewMsgEditValidator(
 			tc.validatorAddr, description, &newRate, &tc.minSelfDelegation,
-			tc.validatorAddr, tc.validatorAddr, blsPk)
+			tc.validatorAddr, tc.validatorAddr, blsPk, blsProof)
 		if tc.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", tc.name)
 		} else {

@@ -36,7 +36,7 @@ var (
 func NewMsgCreateValidator(
 	valAddr sdk.AccAddress, pubKey cryptotypes.PubKey, //nolint:interfacer
 	selfDelegation sdk.Coin, description Description, commission CommissionRates, minSelfDelegation math.Int,
-	from, selfDelAddr, relayerAddr, challengerAddr sdk.AccAddress, blsKey string,
+	from, selfDelAddr, relayerAddr, challengerAddr sdk.AccAddress, blsKey, blsProof string,
 ) (*MsgCreateValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
@@ -57,6 +57,7 @@ func NewMsgCreateValidator(
 		RelayerAddress:    relayerAddr.String(),
 		ChallengerAddress: challengerAddr.String(),
 		BlsKey:            blsKey,
+		BlsProof:          blsProof,
 	}, nil
 }
 
@@ -113,6 +114,10 @@ func (msg MsgCreateValidator) ValidateBasic() error {
 		return ErrValidatorInvalidBlsKey
 	}
 
+	if len(msg.BlsProof) != 2*sdk.BLSSignatureLength {
+		return ErrValidatorInvalidBlsProof.Wrapf("proof length is invalid %d", len(msg.BlsProof))
+	}
+
 	if msg.Description == (Description{}) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "empty description")
 	}
@@ -150,7 +155,7 @@ func (msg MsgCreateValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) 
 //nolint:interfacer
 func NewMsgEditValidator(
 	valAddr sdk.AccAddress, description Description, newRate *sdk.Dec, newMinSelfDelegation *math.Int,
-	newRelayerAddr, newChallengerAddr sdk.AccAddress, newBlsKey string,
+	newRelayerAddr, newChallengerAddr sdk.AccAddress, newBlsKey, newBlsProof string,
 ) *MsgEditValidator {
 	return &MsgEditValidator{
 		Description:       description,
@@ -160,6 +165,7 @@ func NewMsgEditValidator(
 		RelayerAddress:    newRelayerAddr.String(),
 		ChallengerAddress: newChallengerAddr.String(),
 		BlsKey:            newBlsKey,
+		BlsProof:          newBlsProof,
 	}
 }
 
@@ -198,6 +204,16 @@ func (msg MsgEditValidator) ValidateBasic() error {
 		_, err := sdk.AccAddressFromHexUnsafe(msg.ChallengerAddress)
 		if err != nil {
 			return sdkerrors.ErrInvalidAddress.Wrapf("invalid challenger address: %s", err)
+		}
+	}
+
+	if len(msg.BlsKey) != 0 && len(msg.BlsProof) != 0 {
+		if len(msg.BlsKey) != 2*sdk.BLSPubKeyLength {
+			return ErrValidatorInvalidBlsKey
+		}
+		length := len(msg.BlsProof)
+		if length != 2*sdk.BLSSignatureLength {
+			return ErrValidatorInvalidBlsProof.Wrapf("proof length is invalid %d", len(msg.BlsProof))
 		}
 	}
 

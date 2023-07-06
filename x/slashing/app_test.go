@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
@@ -79,11 +80,13 @@ func TestSlashingMsgs(t *testing.T) {
 	commission := stakingtypes.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		addr1, valKey.PubKey(),
 		bondCoin, description, commission, sdk.OneInt(),
-		addr1, addr1, addr1, addr1, blsPk,
+		addr1, addr1, addr1, addr1, blsPk, blsProof,
 	)
 	require.NoError(t, err)
 

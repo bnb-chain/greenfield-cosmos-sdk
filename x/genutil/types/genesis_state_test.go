@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,20 +44,24 @@ func TestValidateGenesisMultipleMessages(t *testing.T) {
 
 	blsSecretKey1, _ := bls.RandKey()
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey1.Sign(tmhash.Sum(blsSecretKey1.PublicKey().Marshal()))
+	blsProof1 := hex.EncodeToString(blsProofBuf.Marshal())
 	msg1, err := stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk1.Address()), pk1,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1, blsProof1)
 	require.NoError(t, err)
 
 	blsSecretKey2, _ := bls.RandKey()
 	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
+	blsProofBuf = blsSecretKey2.Sign(tmhash.Sum(blsSecretKey2.PublicKey().Marshal()))
+	blsProof2 := hex.EncodeToString(blsProofBuf.Marshal())
 	msg2, err := stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk2.Address()), pk2,
 		sdk.NewInt64Coin(sdk.DefaultBondDenom, 50), desc, comm, sdk.OneInt(),
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
-		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2, blsProof2)
 	require.NoError(t, err)
 
 	txConfig := moduletestutil.MakeTestEncodingConfig(staking.AppModuleBasic{}, genutil.AppModuleBasic{}).TxConfig
@@ -74,10 +79,11 @@ func TestValidateGenesisBadMessage(t *testing.T) {
 	desc := stakingtypes.NewDescription("testname", "", "", "", "")
 	blsSecretKey1, _ := bls.RandKey()
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
-
+	blsProofBuf := blsSecretKey1.Sign(tmhash.Sum(blsSecretKey1.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 	msg1 := stakingtypes.NewMsgEditValidator(
 		sdk.AccAddress(pk1.Address()), desc, nil, nil,
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1,
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1, blsProof,
 	)
 
 	txConfig := moduletestutil.MakeTestEncodingConfig(staking.AppModuleBasic{}, genutil.AppModuleBasic{}).TxConfig

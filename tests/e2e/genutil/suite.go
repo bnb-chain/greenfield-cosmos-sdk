@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/suite"
 
@@ -53,6 +54,8 @@ func (s *E2ETestSuite) TestGenTxCmd() {
 	amount := sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(12))
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 
 	tests := []struct {
 		name     string
@@ -83,6 +86,7 @@ func (s *E2ETestSuite) TestGenTxCmd() {
 				val.Address.String(),
 				val.Address.String(),
 				blsPk,
+				blsProof,
 			},
 			expError: false,
 		},
@@ -97,6 +101,7 @@ func (s *E2ETestSuite) TestGenTxCmd() {
 				val.Address.String(),
 				val.Address.String(),
 				blsPk,
+				blsProof,
 			},
 			expError: true,
 		},

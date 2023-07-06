@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -142,6 +143,19 @@ func CreateTestPubKeys(numPubKeys int) []cryptotypes.PubKey {
 	}
 
 	return publicKeys
+}
+
+// CreateTestAccounts returns number of PubKey, PrivKey
+func CreateTestAccounts(num int) ([]cryptotypes.PubKey, []cryptotypes.PrivKey) {
+	var publicKeys = make([]cryptotypes.PubKey, 0, num)
+	var privateKeys = make([]cryptotypes.PrivKey, 0, num)
+	for i := 0; i < num; i++ {
+		privKey, _ := ethsecp256k1.GenPrivKey()
+		publicKeys = append(publicKeys, privKey.PubKey())
+		privateKeys = append(privateKeys, privKey)
+	}
+
+	return publicKeys, privateKeys
 }
 
 // NewPubKeyFromHex returns a PubKey from a hex string.

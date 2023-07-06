@@ -232,10 +232,11 @@ func NewEditValidatorCmd() *cobra.Command {
 			}
 
 			blsPk, _ := cmd.Flags().GetString(FlagBlsKey)
+			blsProof, _ := cmd.Flags().GetString(FlagBlsProof)
 
 			msg := types.NewMsgEditValidator(
 				valAddr, description, newRate, newMinSelfDelegation,
-				relayer, challenger, blsPk,
+				relayer, challenger, blsPk, blsProof,
 			)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -497,6 +498,7 @@ type TxCreateValidatorConfig struct {
 	Relayer    sdk.AccAddress
 	Challenger sdk.AccAddress
 	BlsKey     string
+	BLSProof   string
 }
 
 func PrepareConfigForTxCreateValidator(flagSet *flag.FlagSet, moniker, nodeID, chainID string, valPubKey cryptotypes.PubKey) (TxCreateValidatorConfig, error) {
@@ -636,7 +638,7 @@ func BuildCreateValidatorMsg(clientCtx client.Context, config TxCreateValidatorC
 	msg, err := types.NewMsgCreateValidator(
 		config.Validator, config.PubKey,
 		amount, description, commissionRates, minSelfDelegation,
-		from, config.Delegator, config.Relayer, config.Challenger, config.BlsKey)
+		from, config.Delegator, config.Relayer, config.Challenger, config.BlsKey, config.BLSProof)
 	if err != nil {
 		return txBldr, msg, err
 	}
