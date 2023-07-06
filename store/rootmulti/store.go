@@ -18,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 
 	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
+	"github.com/cosmos/cosmos-sdk/store/cache"
 	"github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	"github.com/cosmos/cosmos-sdk/store/iavl"
@@ -491,6 +492,23 @@ func (rs *Store) CacheMultiStore() types.CacheMultiStore {
 			store = listenkv.NewStore(store, k, rs.listeners[k])
 		}
 		stores[k] = store
+	}
+	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
+}
+
+func (rs *Store) DeepCopyMultiStore() types.CacheMultiStore {
+	stores := make(map[types.StoreKey]types.CacheWrapper)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		}
+		stores[k] = storeCache
 	}
 	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
 }

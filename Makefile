@@ -348,7 +348,7 @@ benchmark:
 ###############################################################################
 
 golangci_lint_cmd=golangci-lint
-golangci_version=v1.50.1
+golangci_version=v1.53.3
 
 lint:
 	@echo "--> Running linter"

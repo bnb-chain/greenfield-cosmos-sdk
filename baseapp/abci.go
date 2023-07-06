@@ -11,14 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-
-	errorsmod "cosmossdk.io/errors"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	cmtrpctypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -504,7 +503,65 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	return res
 }
 
-// halt attempts to gracefully shutdown the node via SIGINT and SIGTERM falling
+// PreBeginBlock implements the ABCI application interface.
+func (app *BaseApp) PreBeginBlock(req abci.RequestPreBeginBlock) (res abci.ResponsePrefetch) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = abci.ResponsePrefetch{Error: errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r).Error()}
+		}
+	}()
+
+	if req.Header.ChainID != app.chainID {
+		err := fmt.Sprintf("invalid request chain-id: %s, expected: %s", req.Header.ChainID, app.chainID)
+		return abci.ResponsePrefetch{Error: err}
+	}
+
+	if app.cms.TracingEnabled() {
+		app.cms.SetTracingContext(map[string]interface{}{"blockHeight": req.Header.Height})
+	}
+
+	// Initialize the preDeliverTx state.
+	app.setPreState(req.StateNumber, req.Header)
+
+	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
+	return
+}
+
+func (app *BaseApp) PreDeliverTx(req abci.RequestPreDeliverTx) {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	preState := app.preDeliverStates[req.StateIndex]
+	if preState == nil {
+		return
+	}
+
+	ctx := preState.ctx.
+		WithTxBytes(req.Tx).
+		WithVoteInfos(app.voteInfos)
+
+	ctx = ctx.WithConsensusParams(app.GetConsensusParams(ctx))
+
+	app.runTxOnContext(ctx, runTxModePreDeliver, req.Tx)
+}
+
+func (app *BaseApp) PreCommit(req abci.RequestPreCommit) (res abci.ResponsePrefetch) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = abci.ResponsePrefetch{Error: errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r).Error()}
+		}
+	}()
+
+	app.preDeliverStates[req.StateIndex].ms.Write()
+
+	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
+	return
+}
+
+// halt attempts to gracefully shut down the node via SIGINT and SIGTERM falling
 // back on os.Exit if both fail.
 func (app *BaseApp) halt() {
 	app.logger.Info("halting node per configuration", "height", app.haltHeight, "time", app.haltTime)
