@@ -152,6 +152,9 @@ modify the related configrations as you need, where you can get the pubkey using
 
 			grantee := authtypes.NewModuleAddress(govtypes.ModuleName)
 			authorization, err := types.NewStakeAuthorization([]sdk.AccAddress{valAddr}, nil, types.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, &valMsg.Value)
+			if err != nil {
+				return err
+			}
 			authzMsg, err := authz.NewMsgGrant(clientCtx.GetFromAddress(), grantee, authorization, nil)
 			if err != nil {
 				return err
