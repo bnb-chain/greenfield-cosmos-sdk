@@ -16,8 +16,19 @@ func SignMsgKeysCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sign [message]",
 		Short: "Sign message",
-		Long:  "Return a signature from their associated name and address private key.",
-		RunE:  runSignMsgCmd,
+		Long: `Return a signature from their associated name and address private key.
+!!!NOTE!!! 
+This is not a secure way to sign messages.
+This command is allowed to sign any message from your private key.
+Please *DO NOT* use this command unless you know what you are doing.
+
+Example For Signing BLS PoP Message:
+	$ gnfd keys add bls --keyring-backend test --algo eth_bls
+	$ BLS=$(./build/bin/gnfd keys show bls --keyring-backend test --output json | jq -r .pubkey_hex)
+	$ gnfd keys sign $BLS --from bls 
+	
+`,
+		RunE: runSignMsgCmd,
 	}
 
 	cmd.Flags().String(flags.FlagFrom, "", "Name or address of private key with which to sign")

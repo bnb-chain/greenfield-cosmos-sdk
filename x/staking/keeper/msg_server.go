@@ -114,12 +114,9 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
 	}
-	ok, err = k.CheckBlsProof(ctx, blsPk, blsProof, valAddr)
+	err = k.CheckBlsProof(blsPk, blsProof)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
-	}
-	if !ok {
-		return nil, types.ErrValidatorInvalidBlsProof
 	}
 
 	bondDenom := k.BondDenom(ctx)
@@ -315,13 +312,11 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 		if err != nil {
 			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
 		}
-		ok, err := k.CheckBlsProof(ctx, blsPk, blsProof, validator.GetOperator())
+		err = k.CheckBlsProof(blsPk, blsProof)
 		if err != nil {
 			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, err.Error())
 		}
-		if !ok {
-			return nil, sdkerrors.Wrap(types.ErrValidatorInvalidBlsProof, "signature verification failed")
-		}
+
 		if tmpValidator, found := k.GetValidatorByBlsKey(ctx, blsPk); found {
 			if tmpValidator.OperatorAddress != validator.OperatorAddress {
 				return nil, types.ErrValidatorBlsKeyExists
@@ -658,21 +653,24 @@ func (ms msgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdatePara
 }
 
 // CheckBlsProof checks the BLS signature of the validator
-func (ms msgServer) CheckBlsProof(goCtx context.Context, blsPk, sig []byte, valAddr sdk.Address) (bool, error) {
+func (ms msgServer) CheckBlsProof(blsPk, sig []byte) error {
 	if len(sig) != sdk.BLSSignatureLength {
-		return false, sdkerrors.Wrapf(sdkerrors.ErrorInvalidSigner, "signature length (actual: %d) doesn't match typical BLS signature 96 bytes", len(sig))
+		return sdkerrors.Wrapf(sdkerrors.ErrorInvalidSigner, "signature length (actual: %d) doesn't match typical BLS signature 96 bytes", len(sig))
 	}
 
 	blsPubKey, err := bls.PublicKeyFromBytes(blsPk)
 	if err != nil {
-		return false, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS public key is invalid")
+		return sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS public key is invalid")
 	}
 
 	signature, err := bls.SignatureFromBytes(sig)
 	if err != nil {
-		return false, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS signature key is invalid")
+		return sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS signature key is invalid")
 	}
 
 	sigHash := tmhash.Sum(blsPk)
-	return signature.Verify(blsPubKey, sigHash), nil
+	if !signature.Verify(blsPubKey, sigHash) {
+		return sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, "BLS signature verification is failed")
+	}
+	return nil
 }
