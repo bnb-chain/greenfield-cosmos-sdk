@@ -93,10 +93,6 @@ func (pubKey *PubKey) VerifySignature(msg, sig []byte) bool {
 		sig = sig[:len(sig)-1]
 	}
 
-	if len(msg) != crypto.DigestLength {
-		msg = crypto.Keccak256Hash(msg).Bytes()
-	}
-
 	// the signature needs to be in [R || S] format when provided to VerifySignature
-	return crypto.VerifySignature(pubKey.Key, msg, sig)
+	return crypto.VerifySignature(pubKey.Key, crypto.Keccak256Hash(msg).Bytes(), sig)
 }
