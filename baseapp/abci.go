@@ -777,7 +777,7 @@ func (app *BaseApp) ApplySnapshotChunk(req abci.RequestApplySnapshotChunk) abci.
 }
 
 func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQuery) abci.ResponseQuery {
-	ctx, err := app.CreateQueryContext(req.Height, req.Prove)
+	ctx, err := app.CreateQueryContext(req.Height, req.Prove, req.Path)
 	if err != nil {
 		return sdkerrors.QueryResult(err, app.trace)
 	}
@@ -860,7 +860,7 @@ func checkNegativeHeight(height int64) error {
 
 // createQueryContext creates a new sdk.Context for a query, taking as args
 // the block height and whether the query needs a proof or not.
-func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, error) {
+func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string) (sdk.Context, error) {
 	if err := checkNegativeHeight(height); err != nil {
 		return sdk.Context{}, err
 	}
@@ -897,7 +897,15 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, e
 			)
 	}
 
-	cacheMS, err := qms.CacheMultiStoreWithVersion(height)
+	var cacheMS storetypes.CacheMultiStore
+	var err error
+	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" {
+		// use checkState for account queries
+		// we could get the newest account info to send multi txs in one block
+		cacheMS, err = app.checkState.ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
+	} else {
+		cacheMS, err = qms.CacheMultiStoreWithVersion(height)
+	}
 	if err != nil {
 		return sdk.Context{},
 			sdkerrors.Wrapf(
