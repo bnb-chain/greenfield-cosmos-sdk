@@ -38,14 +38,14 @@ func TestBeginBlocker(t *testing.T) {
 
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	pks, pvs := simtestutil.CreateTestAccounts(1)
+	pks := simtestutil.CreateTestPubKeys(1)
 	simtestutil.AddTestAddrsFromPubKeys(bankKeeper, stakingKeeper, ctx, pks, stakingKeeper.TokensFromConsensusPower(ctx, 200))
-	addr, pk, pv := sdk.AccAddress(pks[0].Address()), pks[0], pvs[0]
+	addr, pk := sdk.AccAddress(pks[0].Address()), pks[0]
 	tstaking := stakingtestutil.NewHelper(t, ctx, stakingKeeper)
 
 	// bond the validator
 	power := int64(100)
-	amt := tstaking.CreateValidatorWithValPower(addr, pk, pv, power, true)
+	amt := tstaking.CreateValidatorWithValPower(addr, pk, power, true)
 	staking.EndBlocker(ctx, stakingKeeper)
 	require.Equal(
 		t, bankKeeper.GetAllBalances(ctx, addr),

@@ -39,20 +39,20 @@ func NewHelper(t *testing.T, ctx sdk.Context, k *keeper.Keeper) *Helper {
 // CreateValidator calls staking module `MsgServer/CreateValidator` to create a new validator
 func (sh *Helper) CreateValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, pv cryptotypes.PrivKey, stakeAmount math.Int, ok bool) {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
-	sh.createValidator(addr, pk, pv, coin, ok)
+	sh.createValidator(addr, pk, coin, ok)
 }
 
 // CreateValidatorWithValPower calls staking module `MsgServer/CreateValidator` to create a new validator with zero
 // commission
-func (sh *Helper) CreateValidatorWithValPower(addr sdk.AccAddress, pk cryptotypes.PubKey, pv cryptotypes.PrivKey, valPower int64, ok bool) math.Int {
+func (sh *Helper) CreateValidatorWithValPower(addr sdk.AccAddress, pk cryptotypes.PubKey, valPower int64, ok bool) math.Int {
 	amount := sh.k.TokensFromConsensusPower(sh.Ctx, valPower)
 	coin := sdk.NewCoin(sh.Denom, amount)
-	sh.createValidator(addr, pk, pv, coin, ok)
+	sh.createValidator(addr, pk, coin, ok)
 	return amount
 }
 
 // CreateValidatorMsg returns a message used to create validator in this service.
-func (sh *Helper) CreateValidatorMsg(addr sdk.AccAddress, pk cryptotypes.PubKey, pv cryptotypes.PrivKey, stakeAmount math.Int) *stakingtypes.MsgCreateValidator {
+func (sh *Helper) CreateValidatorMsg(addr sdk.AccAddress, pk cryptotypes.PubKey, stakeAmount math.Int) *stakingtypes.MsgCreateValidator {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
@@ -72,11 +72,12 @@ func (sh *Helper) CreateValidatorWithMsg(ctx context.Context, msg *stakingtypes.
 	return sh.msgSrvr.CreateValidator(ctx, msg)
 }
 
-func (sh *Helper) createValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, pv cryptotypes.PrivKey, coin sdk.Coin, ok bool) {
+func (sh *Helper) createValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, coin sdk.Coin, ok bool) {
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
 	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
 	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
+
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
