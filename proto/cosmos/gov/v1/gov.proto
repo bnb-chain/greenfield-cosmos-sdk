@@ -96,6 +96,9 @@ message Proposal {
   //
   // Since: cosmos-sdk 0.47
   string proposer = 13 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  
+  // The reason of the failure proposal
+  string failed_reason = 14;
 }
 
 // ProposalStatus enumerates the valid statuses of a proposal.
