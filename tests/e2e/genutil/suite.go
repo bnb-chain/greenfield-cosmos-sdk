@@ -116,6 +116,7 @@ func (s *E2ETestSuite) TestGenTxCmd() {
 				val.Address.String(),
 				val.Address.String(),
 				blsPk,
+				blsProof,
 			},
 			expError: false,
 		},
