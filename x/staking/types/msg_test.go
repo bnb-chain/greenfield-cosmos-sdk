@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -41,7 +41,7 @@ func TestMsgDecode(t *testing.T) {
 	var pkUnmarshaled cryptotypes.PubKey
 	err = cdc.UnmarshalInterface(pk1bz, &pkUnmarshaled)
 	require.NoError(t, err)
-	require.True(t, pk1.Equals(pkUnmarshaled.(*ethsecp256k1.PubKey)))
+	require.True(t, pk1.Equals(pkUnmarshaled.(*ed25519.PubKey)))
 
 	// now let's try to serialize the whole message
 	blsSecretKey, _ := bls.RandKey()

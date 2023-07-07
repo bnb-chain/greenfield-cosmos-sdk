@@ -37,7 +37,7 @@ func NewHelper(t *testing.T, ctx sdk.Context, k *keeper.Keeper) *Helper {
 }
 
 // CreateValidator calls staking module `MsgServer/CreateValidator` to create a new validator
-func (sh *Helper) CreateValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, pv cryptotypes.PrivKey, stakeAmount math.Int, ok bool) {
+func (sh *Helper) CreateValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, stakeAmount math.Int, ok bool) {
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
 	sh.createValidator(addr, pk, coin, ok)
 }
