@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -161,11 +162,13 @@ func SimulateMsgCreateValidator(ak types.AccountKeeper, bk types.BankKeeper, k *
 
 		blsSecretKey, _ := bls.RandKey()
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+		blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+		blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 
 		msg, err := types.NewMsgCreateValidator(
 			address, simAccount.ConsKey.PubKey(),
 			selfDelegation, description, commission, sdk.OneInt(),
-			address, address, address, address, blsPk,
+			address, address, address, address, blsPk, blsProof,
 		)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to create CreateValidator message"), nil, err
@@ -226,7 +229,7 @@ func SimulateMsgEditValidator(ak types.AccountKeeper, bk types.BankKeeper, k *ke
 			simtypes.RandStringOfLength(r, 10),
 		)
 
-		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, address, "")
+		msg := types.NewMsgEditValidator(address, description, &newCommissionRate, nil, address, address, "", "")
 
 		txCtx := simulation.OperationInput{
 			R:               r,

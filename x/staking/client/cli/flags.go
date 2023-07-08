@@ -36,6 +36,7 @@ const (
 	FlagAddressRelayer    = "addr-relayer"
 	FlagAddressChallenger = "addr-challenger"
 	FlagBlsKey            = "bls-key"
+	FlagBlsProof          = "bls-proof"
 )
 
 // common flagsets to add to various functions
@@ -96,6 +97,7 @@ func FlagSetRelayerAddress() *flag.FlagSet {
 func FlagSetBlsKey() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(FlagBlsKey, "", "The bls pubkey of the validator")
+	fs.String(FlagBlsProof, "", "The bls proof of the validator")
 	return fs
 }
 

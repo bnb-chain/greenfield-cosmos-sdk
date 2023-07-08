@@ -58,4 +58,5 @@ var (
 	ErrRedelegationNotAllowed           = errors.Register(ModuleName, 48, "redelegation is not allowed")
 	ErrInvalidSigner                    = errors.Register(ModuleName, 49, "invalid signer")
 	ErrInvalidMinSelfDelegation         = errors.Register(ModuleName, 50, "invalid minimum self delegation, must no less than the chain level minimum self delegation")
+	ErrValidatorInvalidBlsProof         = errors.Register(ModuleName, 51, "validator bls proof is invalid")
 )

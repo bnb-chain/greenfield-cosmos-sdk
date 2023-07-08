@@ -71,6 +71,7 @@ message MsgCreateValidator {
   string relayer_address    = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string challenger_address = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string bls_key            = 11;
+  string bls_proof          = 12;
 }
 
 // MsgCreateValidatorResponse defines the Msg/CreateValidator response type.
@@ -98,7 +99,8 @@ message MsgEditValidator {
 
   string relayer_address            = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string challenger_address         = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string         bls_key            = 7; // The BLS pubkey for the authorized relayer/challenger
+  string bls_key                    = 7; // The BLS pubkey for the authorized relayer/challenger
+  string bls_proof                  = 8;
 }
 
 // MsgEditValidatorResponse defines the Msg/EditValidator response type.

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
 
@@ -55,10 +56,12 @@ func (sh *Helper) CreateValidatorMsg(addr sdk.AccAddress, pk cryptotypes.PubKey,
 	coin := sdk.NewCoin(sh.Denom, stakeAmount)
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		addr, addr, addr, addr, blsPk,
+		addr, addr, addr, addr, blsPk, blsProof,
 	)
 	require.NoError(sh.t, err)
 	return msg
@@ -72,10 +75,13 @@ func (sh *Helper) CreateValidatorWithMsg(ctx context.Context, msg *stakingtypes.
 func (sh *Helper) createValidator(addr sdk.AccAddress, pk cryptotypes.PubKey, coin sdk.Coin, ok bool) {
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
+
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		addr, pk,
 		coin, stakingtypes.Description{}, sh.Commission, sdk.OneInt(),
-		addr, addr, addr, addr, blsPk,
+		addr, addr, addr, addr, blsPk, blsProof,
 	)
 	require.NoError(sh.t, err)
 	res, err := sh.msgSrvr.CreateValidator(sh.Ctx.WithBlockHeight(0), msg)
