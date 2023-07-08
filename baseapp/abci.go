@@ -194,6 +194,7 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 			WithBlockHeight(req.Header.Height)
 	}
 
+	app.queryStateMtx.Lock()
 	if app.queryState == nil {
 		app.setQueryState(req.Header)
 	} else {
@@ -203,6 +204,7 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 			WithBlockHeader(req.Header).
 			WithBlockHeight(req.Header.Height)
 	}
+	app.queryStateMtx.Unlock()
 
 	gasMeter := app.getBlockGasMeter(app.deliverState.ctx)
 
@@ -212,9 +214,11 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 		WithConsensusParams(app.GetConsensusParams(app.deliverState.ctx))
 
 	if app.checkState != nil {
+		app.checkStateMtx.Lock()
 		app.checkState.ctx = app.checkState.ctx.
 			WithBlockGasMeter(gasMeter).
 			WithHeaderHash(req.Hash)
+		app.checkStateMtx.Unlock()
 	}
 
 	if app.beginBlocker != nil {
@@ -392,6 +396,9 @@ func (app *BaseApp) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
 		panic(fmt.Sprintf("unknown RequestCheckTx type: %s", req.Type))
 	}
 
+	app.checkStateMtx.Lock()
+	defer app.checkStateMtx.Unlock()
+
 	gInfo, result, anteEvents, priority, err := app.runTx(mode, req.Tx)
 	if err != nil {
 		return sdkerrors.ResponseCheckTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, anteEvents, app.trace)
@@ -486,7 +493,9 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	//
 	// NOTE: This is safe because Tendermint holds a lock on the mempool for
 	// Commit. Use the header from this latest block.
+	app.checkStateMtx.Lock()
 	app.setState(runTxModeCheck, header)
+	app.checkStateMtx.Unlock()
 
 	// empty/reset the deliver state
 	app.deliverState = nil
@@ -788,6 +797,11 @@ func (app *BaseApp) ApplySnapshotChunk(req abci.RequestApplySnapshotChunk) abci.
 }
 
 func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQuery) abci.ResponseQuery {
+	if req.Path == "/cosmos.auth.v1beta1.Query/Account" {
+		app.checkStateMtx.RLock()
+		defer app.checkStateMtx.RUnlock()
+	}
+
 	ctx, err := app.CreateQueryContext(req.Height, req.Prove, req.Path)
 	if err != nil {
 		return sdkerrors.QueryResult(err, app.trace)
@@ -882,7 +896,7 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	if qs == nil {
 		return sdk.Context{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "queryState is nil")
 	}
-	qms := app.getQueryState().ms.(sdk.MultiStore)
+	qms := qs.ms.(sdk.MultiStore)
 
 	lastBlockHeight := qms.LatestVersion()
 	if lastBlockHeight == 0 {
@@ -915,7 +929,7 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" {
 		// use checkState for account queries
 		// we could get the newest account info to send multi txs in one block
-		cacheMS, err = app.getState(runTxModeCheck).ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
+		cacheMS, err = app.checkState.ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
 	} else {
 		cacheMS, err = qms.CacheMultiStoreWithVersion(height)
 	}

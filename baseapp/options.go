@@ -263,13 +263,6 @@ func (app *BaseApp) SetTxEncoder(txEncoder sdk.TxEncoder) {
 	app.txEncoder = txEncoder
 }
 
-// SetQueryMultiStore set a alternative MultiStore implementation to support grpc query service.
-//
-// Ref: https://github.com/cosmos/cosmos-sdk/issues/13317
-func (app *BaseApp) SetQueryMultiStore(ms sdk.MultiStore) {
-	app.qms = ms
-}
-
 // SetMempool sets the mempool for the BaseApp and is required for the app to start up.
 func (app *BaseApp) SetMempool(mempool mempool.Mempool) {
 	if app.sealed {

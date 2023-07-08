@@ -94,8 +94,8 @@ type BaseApp struct { //nolint: maligned
 
 	preDeliverStates []*state // for PreDeliverTx
 
-	queryStateMtx *sync.RWMutex // mutex for queryState
-	checkStateMtx *sync.RWMutex // mutex for checkState
+	queryStateMtx sync.RWMutex // mutex for queryState
+	checkStateMtx sync.RWMutex // mutex for checkState
 
 	// an inter-block write-through cache provided to the context during deliverState
 	interBlockCache sdk.MultiStorePersistentCache
@@ -185,6 +185,8 @@ func NewBaseApp(
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
 		preDeliverStates: make([]*state, 0),
+		checkStateMtx:    sync.RWMutex{},
+		queryStateMtx:    sync.RWMutex{},
 	}
 
 	for _, option := range options {
@@ -193,16 +195,6 @@ func NewBaseApp(
 
 	if app.mempool == nil {
 		app.SetMempool(mempool.NoOpMempool{})
-	}
-
-	if app.queryStateMtx == nil {
-		mtx := new(sync.RWMutex)
-		app.queryStateMtx = mtx
-	}
-
-	if app.checkStateMtx == nil {
-		mtx := new(sync.RWMutex)
-		app.checkStateMtx = mtx
 	}
 
 	abciProposalHandler := NewDefaultProposalHandler(app.mempool, app)
@@ -475,8 +467,6 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 
 	switch mode {
 	case runTxModeCheck:
-		app.checkStateMtx.Lock()
-		defer app.checkStateMtx.Unlock()
 		// Minimum gas prices are also set. It is set on InitChain and reset on Commit.
 		baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices)
 		app.checkState = baseState
@@ -512,9 +502,6 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 }
 
 func (app *BaseApp) setQueryState(header tmproto.Header) {
-	app.queryStateMtx.Lock()
-	defer app.queryStateMtx.Unlock()
-
 	ms := app.cms.CacheMultiStore()
 	baseState := &state{
 		ms:  ms,
@@ -644,9 +631,6 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 		return app.processProposalState
 
 	default:
-		app.queryStateMtx.RLock()
-		defer app.queryStateMtx.RUnlock()
-
 		return app.checkState
 	}
 }
