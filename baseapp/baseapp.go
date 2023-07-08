@@ -24,7 +24,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
-	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 )
 
 type (
@@ -95,7 +94,7 @@ type BaseApp struct { //nolint: maligned
 	preDeliverStates []*state // for PreDeliverTx
 
 	// queryState is set on InitChain and BeginBlock
-	queryState           *queryState // optional alternative multistore for querying only.
+	queryState *queryState // optional alternative multistore for querying only.
 
 	queryStateMtx sync.RWMutex // mutex for queryState
 	checkStateMtx sync.RWMutex // mutex for checkState
