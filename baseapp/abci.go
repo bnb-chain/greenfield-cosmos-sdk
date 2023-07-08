@@ -801,7 +801,7 @@ func (app *BaseApp) ApplySnapshotChunk(req abci.RequestApplySnapshotChunk) abci.
 }
 
 func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQuery) abci.ResponseQuery {
-	if req.Path == "/cosmos.auth.v1beta1.Query/Account" && req.Height == 0 {
+	if req.Path == "/cosmos.auth.v1beta1.Query/Account" && (req.Height == app.queryState.ms.LatestVersion() || req.Height == 0) {
 		app.checkStateMtx.RLock()
 		defer app.checkStateMtx.RUnlock()
 	}
