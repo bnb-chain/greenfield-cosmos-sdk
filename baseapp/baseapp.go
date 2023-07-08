@@ -86,13 +86,15 @@ type BaseApp struct { //nolint: maligned
 	// checkState is set on InitChain and reset on Commit
 	// deliverState is set on InitChain and BeginBlock and set to nil on Commit
 	// queryState is set on InitChain and BeginBlock
-	queryState           *state // optional alternative multistore for querying only.
 	checkState           *state // for CheckTx
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
 	prepareProposalState *state // for PrepareProposal
 
 	preDeliverStates []*state // for PreDeliverTx
+
+	// queryState is set on InitChain and BeginBlock
+	queryState           *queryState // optional alternative multistore for querying only.
 
 	queryStateMtx sync.RWMutex // mutex for queryState
 	checkStateMtx sync.RWMutex // mutex for checkState
@@ -635,7 +637,7 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 	}
 }
 
-func (app *BaseApp) getQueryState() *state {
+func (app *BaseApp) getQueryState() *queryState {
 	app.queryStateMtx.RLock()
 	defer app.queryStateMtx.RUnlock()
 

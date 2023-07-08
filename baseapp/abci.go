@@ -473,7 +473,9 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// The write to the DeliverTx state writes all state transitions to the root
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
 	app.deliverState.ms.Write()
+	app.queryStateMtx.Lock()
 	commitID := app.cms.Commit()
+	app.queryStateMtx.Unlock()
 
 	res := abci.ResponseCommit{
 		Data:         commitID.Hash,
@@ -797,7 +799,7 @@ func (app *BaseApp) ApplySnapshotChunk(req abci.RequestApplySnapshotChunk) abci.
 }
 
 func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQuery) abci.ResponseQuery {
-	if req.Path == "/cosmos.auth.v1beta1.Query/Account" {
+	if req.Path == "/cosmos.auth.v1beta1.Query/Account" && req.Height == 0 {
 		app.checkStateMtx.RLock()
 		defer app.checkStateMtx.RUnlock()
 	}
@@ -926,10 +928,10 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 
 	var cacheMS storetypes.CacheMultiStore
 	var err error
-	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" {
-		// use checkState for account queries
+	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" && height == lastBlockHeight {
+		// use checkState for account queries on the latest height
 		// we could get the newest account info to send multi txs in one block
-		cacheMS, err = app.checkState.ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
+		cacheMS = app.checkState.ms
 	} else {
 		cacheMS, err = qms.CacheMultiStoreWithVersion(height)
 	}
