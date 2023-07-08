@@ -72,6 +72,7 @@ func (app *BaseApp) InitChain(req abci.RequestInitChain) (res abci.ResponseInitC
 	}
 
 	// initialize states with a correct header
+	app.setQueryState(initHeader)
 	app.setState(runTxModeDeliver, initHeader)
 	app.setState(runTxModeCheck, initHeader)
 
@@ -189,6 +190,16 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 		// In the first block, app.deliverState.ctx will already be initialized
 		// by InitChain. Context is now updated with Header information.
 		app.deliverState.ctx = app.deliverState.ctx.
+			WithBlockHeader(req.Header).
+			WithBlockHeight(req.Header.Height)
+	}
+
+	if app.queryState == nil {
+		app.setQueryState(req.Header)
+	} else {
+		// In the first block, app.queryState.ctx will already be initialized
+		// by InitChain. Context is now updated with Header information.
+		app.queryState.ctx = app.queryState.ctx.
 			WithBlockHeader(req.Header).
 			WithBlockHeight(req.Header.Height)
 	}
@@ -793,11 +804,12 @@ func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQu
 }
 
 func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCRequest) abci.ResponseEthQuery {
-	// use custom query multistore if provided
-	qms := app.qms
-	if qms == nil {
-		qms = app.cms.(storetypes.MultiStore)
+	// use custom query state if provided
+	qs := app.getQueryState()
+	if qs == nil {
+		return sdkerrors.EthQueryResult(fmt.Errorf("queryState is nil"), app.trace)
 	}
+	qms := qs.ms.(sdk.MultiStore)
 
 	height := qms.LatestVersion()
 	if height == 0 {
@@ -815,7 +827,7 @@ func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCR
 	}
 
 	// branch the commit-multistore for safety
-	ctx := sdk.NewContext(cacheMS, app.checkState.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
+	ctx := sdk.NewContext(cacheMS, qs.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
 		WithBlockHeight(height)
 
 	res, err := handler(ctx, req)
@@ -865,11 +877,12 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 		return sdk.Context{}, err
 	}
 
-	// use custom query multistore if provided
-	qms := app.qms
-	if qms == nil {
-		qms = app.cms.(sdk.MultiStore)
+	// use custom query state if provided
+	qs := app.getQueryState()
+	if qs == nil {
+		return sdk.Context{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "queryState is nil")
 	}
+	qms := app.getQueryState().ms.(sdk.MultiStore)
 
 	lastBlockHeight := qms.LatestVersion()
 	if lastBlockHeight == 0 {
@@ -902,7 +915,7 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" {
 		// use checkState for account queries
 		// we could get the newest account info to send multi txs in one block
-		cacheMS, err = app.checkState.ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
+		cacheMS, err = app.getState(runTxModeCheck).ms.(sdk.MultiStore).CacheMultiStoreWithVersion(height)
 	} else {
 		cacheMS, err = qms.CacheMultiStoreWithVersion(height)
 	}
@@ -915,7 +928,7 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	}
 
 	// branch the commit-multistore for safety
-	ctx := sdk.NewContext(cacheMS, app.checkState.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
+	ctx := sdk.NewContext(cacheMS, qs.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
 		WithMinGasPrices(app.minGasPrices).
 		WithBlockHeight(height)
 

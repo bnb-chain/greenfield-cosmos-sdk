@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -57,7 +58,6 @@ type BaseApp struct { //nolint: maligned
 	name              string               // application name from abci.Info
 	db                dbm.DB               // common DB backend
 	cms               sdk.CommitMultiStore // Main (uncached) state
-	qms               sdk.MultiStore       // Optional alternative multistore for querying only.
 	storeLoader       StoreLoader          // function to handle store loading, may be overridden with SetStoreLoader()
 	grpcQueryRouter   *GRPCQueryRouter     // router for redirecting gRPC query calls
 	ethQueryRouter    *EthQueryRouter      // router for redirecting eth query calls
@@ -85,12 +85,17 @@ type BaseApp struct { //nolint: maligned
 	//
 	// checkState is set on InitChain and reset on Commit
 	// deliverState is set on InitChain and BeginBlock and set to nil on Commit
+	// queryState is set on InitChain and BeginBlock
+	queryState           *state // optional alternative multistore for querying only.
 	checkState           *state // for CheckTx
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
 	prepareProposalState *state // for PrepareProposal
 
 	preDeliverStates []*state // for PreDeliverTx
+
+	queryStateMtx *sync.RWMutex // mutex for queryState
+	checkStateMtx *sync.RWMutex // mutex for checkState
 
 	// an inter-block write-through cache provided to the context during deliverState
 	interBlockCache sdk.MultiStorePersistentCache
@@ -188,6 +193,16 @@ func NewBaseApp(
 
 	if app.mempool == nil {
 		app.SetMempool(mempool.NoOpMempool{})
+	}
+
+	if app.queryStateMtx == nil {
+		mtx := new(sync.RWMutex)
+		app.queryStateMtx = mtx
+	}
+
+	if app.checkStateMtx == nil {
+		mtx := new(sync.RWMutex)
+		app.checkStateMtx = mtx
 	}
 
 	abciProposalHandler := NewDefaultProposalHandler(app.mempool, app)
@@ -460,6 +475,8 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 
 	switch mode {
 	case runTxModeCheck:
+		app.checkStateMtx.Lock()
+		defer app.checkStateMtx.Unlock()
 		// Minimum gas prices are also set. It is set on InitChain and reset on Commit.
 		baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices)
 		app.checkState = baseState
@@ -492,6 +509,19 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 		}
 		app.preDeliverStates = append(app.preDeliverStates, baseState)
 	}
+}
+
+func (app *BaseApp) setQueryState(header tmproto.Header) {
+	app.queryStateMtx.Lock()
+	defer app.queryStateMtx.Unlock()
+
+	ms := app.cms.CacheMultiStore()
+	baseState := &state{
+		ms:  ms,
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
+	}
+
+	app.queryState = baseState
 }
 
 // GetConsensusParams returns the current consensus parameters from the BaseApp's
@@ -614,8 +644,18 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 		return app.processProposalState
 
 	default:
+		app.queryStateMtx.RLock()
+		defer app.queryStateMtx.RUnlock()
+
 		return app.checkState
 	}
+}
+
+func (app *BaseApp) getQueryState() *state {
+	app.queryStateMtx.RLock()
+	defer app.queryStateMtx.RUnlock()
+
+	return app.queryState
 }
 
 func (app *BaseApp) getBlockGasMeter(ctx sdk.Context) storetypes.GasMeter {
