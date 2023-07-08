@@ -24,6 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 )
 
 type (
@@ -504,12 +505,15 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 }
 
 func (app *BaseApp) setQueryState(header tmproto.Header) {
-	ms := app.cms.CacheMultiStore()
-	baseState := &state{
+	var ms sdk.CommitMultiStore
+	if _, ok := app.cms.(*rootmulti.Store); ok {
+		ms = app.cms.(*rootmulti.Store).DeepCopy()
+	}
+
+	baseState := &queryState{
 		ms:  ms,
 		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
 	}
-
 	app.queryState = baseState
 }
 

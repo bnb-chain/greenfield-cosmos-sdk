@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/transient"
 	"github.com/cosmos/cosmos-sdk/store/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/store/cache"
 )
 
 const (
@@ -571,6 +572,35 @@ func (rs *Store) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStor
 	}
 
 	return cachemulti.NewStore(rs.db, cachedStores, rs.keysByName, rs.traceWriter, rs.getTracingContext()), nil
+}
+
+func (rs *Store) DeepCopy() *Store {
+	stores := make(map[types.StoreKey]types.CommitKVStore)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		}
+		stores[k] = storeCache.CommitKVStore
+	}
+
+	return &Store{
+		db:                  rs.db,
+		logger:              rs.logger,
+		iavlCacheSize:       rs.iavlCacheSize,
+		iavlDisableFastNode: rs.iavlDisableFastNode,
+		storesParams:        rs.storesParams,
+		stores:              stores,
+		keysByName:          rs.keysByName,
+		listeners:           make(map[types.StoreKey][]types.WriteListener),
+		removalMap:          make(map[types.StoreKey]bool),
+		pruningManager:      pruning.NewManager(rs.db, rs.logger),
+	}
 }
 
 // GetStore returns a mounted Store for a given StoreKey. If the StoreKey does

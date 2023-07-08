@@ -473,9 +473,7 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// The write to the DeliverTx state writes all state transitions to the root
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
 	app.deliverState.ms.Write()
-	app.queryStateMtx.Lock()
 	commitID := app.cms.Commit()
-	app.queryStateMtx.Unlock()
 
 	res := abci.ResponseCommit{
 		Data:         commitID.Hash,
