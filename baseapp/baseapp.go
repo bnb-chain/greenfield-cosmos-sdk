@@ -506,8 +506,8 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 
 func (app *BaseApp) setQueryState(header tmproto.Header) {
 	var ms sdk.CommitMultiStore
-	if _, ok := app.cms.(*rootmulti.Store); ok {
-		ms = app.cms.(*rootmulti.Store).DeepCopy()
+	if rs, ok := app.cms.(*rootmulti.Store); ok {
+		ms = rs.DeepCopy()
 	}
 
 	baseState := &queryState{

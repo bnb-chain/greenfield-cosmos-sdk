@@ -497,6 +497,10 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	app.setState(runTxModeCheck, header)
 	app.checkStateMtx.Unlock()
 
+	app.queryStateMtx.Lock()
+	app.setQueryState(header)
+	app.queryStateMtx.Unlock()
+
 	// empty/reset the deliver state
 	app.deliverState = nil
 
