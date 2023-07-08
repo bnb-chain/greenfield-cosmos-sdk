@@ -637,13 +637,6 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 	}
 }
 
-func (app *BaseApp) getQueryState() *queryState {
-	app.queryStateMtx.RLock()
-	defer app.queryStateMtx.RUnlock()
-
-	return app.queryState
-}
-
 func (app *BaseApp) getBlockGasMeter(ctx sdk.Context) storetypes.GasMeter {
 	if maxGas := app.GetMaximumBlockGas(ctx); maxGas > 0 {
 		return storetypes.NewGasMeter(maxGas)

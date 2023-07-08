@@ -821,7 +821,9 @@ func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQu
 
 func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCRequest) abci.ResponseEthQuery {
 	// use custom query state if provided
-	qs := app.getQueryState()
+	app.queryStateMtx.RLock()
+	defer app.queryStateMtx.RUnlock()
+	qs := app.queryState
 	if qs == nil {
 		return sdkerrors.EthQueryResult(fmt.Errorf("queryState is nil"), app.trace)
 	}
@@ -894,7 +896,9 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	}
 
 	// use custom query state if provided
-	qs := app.getQueryState()
+	app.queryStateMtx.RLock()
+	defer app.queryStateMtx.RUnlock()
+	qs := app.queryState
 	if qs == nil {
 		return sdk.Context{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "queryState is nil")
 	}
