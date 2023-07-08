@@ -29,7 +29,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "invalid  params",
 			input: &types.MsgUpdateParams{
 				Authority: s.consensusParamsKeeper.GetAuthority(),
-				Block:     &tmproto.BlockParams{MaxGas: -10, MaxBytes: -10, MaxTxs: 1},
+				Block:     &tmproto.BlockParams{MaxGas: -10, MaxBytes: -10},
 				Validator: defaultConsensusParams.Validator,
 				Evidence:  defaultConsensusParams.Evidence,
 			},

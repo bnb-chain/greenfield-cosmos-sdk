@@ -188,7 +188,6 @@ func randomConsensusParams(r *rand.Rand, appState json.RawMessage, cdc codec.JSO
 		Block: &tmproto.BlockParams{
 			MaxBytes: int64(simulation.RandIntBetween(r, 20000000, 30000000)),
 			MaxGas:   -1,
-			MaxTxs:   int64(simulation.RandIntBetween(r, 2000, 3000)),
 		},
 		Validator: &tmproto.ValidatorParams{
 			PubKeyTypes: []string{types.ABCIPubKeyTypeEd25519},

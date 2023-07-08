@@ -232,8 +232,8 @@ github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816/go.mod h1:+zsy
 github.com/bkielbasa/cyclop v1.2.0/go.mod h1:qOI0yy6A7dYC4Zgsa72Ppm9kONl0RoIlPbzot9mhmeI=
 github.com/blizzy78/varnamelen v0.8.0/go.mod h1:V9TzQZ4fLJ1DSrjVDfl89H7aMnTvKkApdHeyESmyR7k=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
-github.com/bnb-chain/greenfield-cometbft v0.0.0-20230705094342-460c09a1e1e0 h1:1wg4IFBMuAE1N6zS4Yemzgfl9vi+9z20/vHY2izaWAA=
-github.com/bnb-chain/greenfield-cometbft v0.0.0-20230705094342-460c09a1e1e0/go.mod h1:g/VTfvYWVPGpsmb/NIhlGIUMtylikOEOrOKmfwcND84=
+github.com/bnb-chain/greenfield-cometbft v0.0.0-20230708043117-3c173b676201 h1:gqpAEOh5Q3/MBVEjN2DxB0K8XwhVNZ17i+Y814s+i1U=
+github.com/bnb-chain/greenfield-cometbft v0.0.0-20230708043117-3c173b676201/go.mod h1:88OUM8fxk37o0unDrWo4yRgR7EHRZi3iJK4U+FE19Sw=
 github.com/bnb-chain/greenfield-cometbft-db v0.0.0-20230706092249-b0e93377dd4d h1:jE74hTplEUGjTTI2cYhdS1/J74EIuqJbzQG3307ok3w=
 github.com/bnb-chain/greenfield-cometbft-db v0.0.0-20230706092249-b0e93377dd4d/go.mod h1:ey1CiK4bYo1RBNJLRiVbYr5CMdSxci9S/AZRINLtppI=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=

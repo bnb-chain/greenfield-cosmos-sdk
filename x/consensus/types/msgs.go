@@ -46,7 +46,6 @@ func (msg MsgUpdateParams) ToProtoConsensusParams() tmproto.ConsensusParams {
 		Block: &tmproto.BlockParams{
 			MaxBytes: msg.Block.MaxBytes,
 			MaxGas:   msg.Block.MaxGas,
-			MaxTxs:   msg.Block.MaxTxs,
 		},
 		Evidence: &tmproto.EvidenceParams{
 			MaxAgeNumBlocks: msg.Evidence.MaxAgeNumBlocks,
