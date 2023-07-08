@@ -586,7 +586,9 @@ func (rs *Store) DeepCopy() *Store {
 				}
 			}
 		}
-		stores[k] = storeCache.CommitKVStore
+		if storeCache != nil {
+			stores[k] = storeCache.CommitKVStore
+		}
 	}
 
 	return &Store{
