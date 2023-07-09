@@ -590,14 +590,23 @@ func (rs *Store) DeepCopy() *Store {
 		}
 	}
 
+	storesParams := make(map[types.StoreKey]storeParams)
+	for k, v := range rs.storesParams {
+		storesParams[k] = v
+	}
+
+	keysByName := make(map[string]types.StoreKey)
+	for k, v := range rs.keysByName {
+		keysByName[k] = v
+	}
+
 	return &Store{
 		db:                  rs.db,
-		logger:              rs.logger,
 		iavlCacheSize:       rs.iavlCacheSize,
-		iavlDisableFastNode: rs.iavlDisableFastNode,
-		storesParams:        rs.storesParams,
+		iavlDisableFastNode: true,
+		storesParams:        storesParams,
 		stores:              stores,
-		keysByName:          rs.keysByName,
+		keysByName:          keysByName,
 		listeners:           make(map[types.StoreKey][]types.WriteListener),
 		removalMap:          make(map[types.StoreKey]bool),
 		pruningManager:      pruning.NewManager(rs.db, rs.logger),
