@@ -470,8 +470,15 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	switch mode {
 	case runTxModeCheck:
 		// Minimum gas prices are also set. It is set on InitChain and reset on Commit.
-		baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices)
-		app.checkState = baseState
+		var msCopy sdk.CacheMultiStore
+		if rs, ok := app.cms.(*rootmulti.Store); ok {
+			msCopy = rs.DeepCopyMultiStore()
+			baseState.ms = msCopy
+			baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices).WithMultiStore(msCopy)
+			app.checkState = baseState
+		} else {
+			panic(fmt.Sprintf("set checkState failed: %T is not rootmulti.Store", app.cms))
+		}
 	case runTxModeDeliver:
 		// It is set on InitChain and BeginBlock and set to nil on Commit.
 		app.deliverState = baseState

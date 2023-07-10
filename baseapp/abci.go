@@ -473,7 +473,6 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// The write to the DeliverTx state writes all state transitions to the root
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
 	// checkState needs to be locked here to prevent a race condition
-	app.checkStateMtx.Lock()
 	app.deliverState.ms.Write()
 	commitID := app.cms.Commit()
 
@@ -496,6 +495,7 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	app.logger.Info("commit synced", "commit", fmt.Sprintf("%X", commitID))
 
 	// Reset the Check state to the latest committed.
+	app.checkStateMtx.Lock()
 	app.setState(runTxModeCheck, header)
 	app.checkStateMtx.Unlock()
 
@@ -617,9 +617,9 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	}()
 
 	// when a client did not provide a query height, manually inject the latest
-	if req.Height == 0 {
-		req.Height = app.LastBlockHeight()
-	}
+	// if req.Height == 0 {
+	// 	req.Height = app.LastBlockHeight()
+	// }
 
 	telemetry.IncrCounter(1, "query", "count")
 	telemetry.IncrCounter(1, "query", req.Path)
@@ -911,9 +911,9 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 
 	if height > lastBlockHeight {
 		return sdk.Context{},
-			sdkerrors.Wrap(
+			sdkerrors.Wrapf(
 				sdkerrors.ErrInvalidHeight,
-				"cannot query with height in the future; please provide a valid height",
+				"cannot query with height in the future(%d, latest height %d); please provide a valid height", height, lastBlockHeight,
 			)
 	}
 
