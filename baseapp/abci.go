@@ -472,10 +472,12 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// Write the DeliverTx state into branched storage and commit the MultiStore.
 	// The write to the DeliverTx state writes all state transitions to the root
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
+	// checkState needs to be locked here to prevent a race condition
+	app.checkStateMtx.Lock()
 	app.deliverState.ms.Write()
+	commitID := app.cms.Commit()
 
 	app.queryStateMtx.Lock()
-	commitID := app.cms.Commit()
 	app.setQueryState(header)
 	app.queryStateMtx.Unlock()
 
@@ -494,10 +496,6 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	app.logger.Info("commit synced", "commit", fmt.Sprintf("%X", commitID))
 
 	// Reset the Check state to the latest committed.
-	//
-	// NOTE: This is safe because Tendermint holds a lock on the mempool for
-	// Commit. Use the header from this latest block.
-	app.checkStateMtx.Lock()
 	app.setState(runTxModeCheck, header)
 	app.checkStateMtx.Unlock()
 
