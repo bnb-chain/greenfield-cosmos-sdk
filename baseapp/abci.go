@@ -617,9 +617,9 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 	}()
 
 	// when a client did not provide a query height, manually inject the latest
-	// if req.Height == 0 {
-	// 	req.Height = app.LastBlockHeight()
-	// }
+	if req.Height == 0 {
+		req.Height = app.queryState.ms.LatestVersion()
+	}
 
 	telemetry.IncrCounter(1, "query", "count")
 	telemetry.IncrCounter(1, "query", req.Path)
