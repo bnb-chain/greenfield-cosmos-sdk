@@ -38,9 +38,10 @@ type StakingKeeper interface {
 
 // CrossChainKeeper defines the expected crossChain keeper
 type CrossChainKeeper interface {
-	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
-
-	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+	GetDestBscChainID() sdk.ChainID
+	CreateRawIBCPackageWithFee(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
 		packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
 	) (uint64, error)
+
+	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
 }

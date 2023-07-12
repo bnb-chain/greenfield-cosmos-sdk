@@ -47,6 +47,7 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 
 	_, err := k.crossChainKeeper.CreateRawIBCPackageWithFee(
 		ctx,
+		k.crossChainKeeper.GetDestBscChainID(),
 		types.SyncParamsChannelID,
 		sdk.SynCrossChainPackageType,
 		encodedPackage,

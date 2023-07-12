@@ -53,7 +53,8 @@ type BankKeeper interface {
 }
 
 type CrossChainKeeper interface {
-	CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
+	GetDestBscChainID() sdk.ChainID
+	CreateRawIBCPackageWithFee(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
 		packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
 	) (uint64, error)
 

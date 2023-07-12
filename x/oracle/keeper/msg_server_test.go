@@ -38,11 +38,11 @@ func (s *TestSuite) TestClaim() {
 
 	s.crossChainKeeper.EXPECT().GetSrcChainID().Return(sdk.ChainID(1)).AnyTimes()
 	s.crossChainKeeper.EXPECT().IsDestChainSupported(sdk.ChainID(56)).Return(true).AnyTimes()
-	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), types.RelayPackagesChannelId).Return(uint64(0)).AnyTimes()
-	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), sdk.ChannelID(1)).Return(uint64(0)).AnyTimes()
-	s.crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
+	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), gomock.Any(), types.RelayPackagesChannelId).Return(uint64(0)).AnyTimes()
+	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), gomock.Any(), sdk.ChannelID(1)).Return(uint64(0)).AnyTimes()
+	s.crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
 	s.crossChainKeeper.EXPECT().GetCrossChainApp(sdk.ChannelID(1)).Return(&DummyCrossChainApp{}).AnyTimes()
-	s.crossChainKeeper.EXPECT().IncrReceiveSequence(gomock.Any(), gomock.Any()).Return().AnyTimes()
+	s.crossChainKeeper.EXPECT().IncrReceiveSequence(gomock.Any(), gomock.Any(), gomock.Any()).Return().AnyTimes()
 	s.stakingKeeper.EXPECT().BondDenom(gomock.Any()).Return("BNB").AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 
@@ -104,11 +104,11 @@ func (s *TestSuite) TestInvalidClaim() {
 
 	s.crossChainKeeper.EXPECT().GetSrcChainID().Return(sdk.ChainID(1)).AnyTimes()
 	s.crossChainKeeper.EXPECT().IsDestChainSupported(sdk.ChainID(65)).Return(false)
-	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), types.RelayPackagesChannelId).Return(uint64(0)).AnyTimes()
-	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), sdk.ChannelID(1)).Return(uint64(0)).AnyTimes()
-	s.crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
+	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), gomock.Any(), types.RelayPackagesChannelId).Return(uint64(0)).AnyTimes()
+	s.crossChainKeeper.EXPECT().GetReceiveSequence(gomock.Any(), gomock.Any(), sdk.ChannelID(1)).Return(uint64(0)).AnyTimes()
+	s.crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
 	s.crossChainKeeper.EXPECT().GetCrossChainApp(sdk.ChannelID(1)).Return(&DummyCrossChainApp{}).AnyTimes()
-	s.crossChainKeeper.EXPECT().IncrReceiveSequence(gomock.Any(), gomock.Any()).Return().AnyTimes()
+	s.crossChainKeeper.EXPECT().IncrReceiveSequence(gomock.Any(), gomock.Any(), gomock.Any()).Return().AnyTimes()
 	s.stakingKeeper.EXPECT().BondDenom(gomock.Any()).Return("BNB").AnyTimes()
 	s.bankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 

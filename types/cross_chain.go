@@ -38,8 +38,9 @@ type CrossChainApplication interface {
 }
 
 type CrossChainAppContext struct {
-	Sequence uint64
-	Header   *PackageHeader
+	SrcChainId ChainID
+	Sequence   uint64
+	Header     *PackageHeader
 }
 
 type ExecuteResult struct {
