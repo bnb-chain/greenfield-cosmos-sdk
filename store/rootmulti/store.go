@@ -496,23 +496,6 @@ func (rs *Store) CacheMultiStore() types.CacheMultiStore {
 	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
 }
 
-func (rs *Store) DeepCopyMultiStore() types.CacheMultiStore {
-	stores := make(map[types.StoreKey]types.CacheWrapper)
-	for k, v := range rs.stores {
-		var storeCache *cache.CommitKVStoreCache
-		if store, ok := v.(*cache.CommitKVStoreCache); ok {
-			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
-				tree := iavlStore.CloneMutableTree()
-				if tree != nil {
-					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
-				}
-			}
-		}
-		stores[k] = storeCache
-	}
-	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
-}
-
 // CacheMultiStoreWithVersion is analogous to CacheMultiStore except that it
 // attempts to load stores at a given version (height). An error is returned if
 // any store cannot be loaded. This should only be used for querying and
@@ -571,6 +554,65 @@ func (rs *Store) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStor
 	}
 
 	return cachemulti.NewStore(rs.db, cachedStores, rs.keysByName, rs.traceWriter, rs.getTracingContext()), nil
+}
+
+func (rs *Store) DeepCopyAndCache() types.CacheMultiStore {
+	stores := make(map[types.StoreKey]types.CacheWrapper)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		}
+		if storeCache != nil {
+			stores[k] = storeCache.CommitKVStore
+		}
+	}
+	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
+}
+
+func (rs *Store) DeepCopy() *Store {
+	stores := make(map[types.StoreKey]types.CommitKVStore)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		}
+		if storeCache != nil {
+			stores[k] = storeCache.CommitKVStore
+		}
+	}
+
+	storesParams := make(map[types.StoreKey]storeParams)
+	for k, v := range rs.storesParams {
+		storesParams[k] = v
+	}
+
+	keysByName := make(map[string]types.StoreKey)
+	for k, v := range rs.keysByName {
+		keysByName[k] = v
+	}
+
+	return &Store{
+		db:                  rs.db,
+		iavlCacheSize:       rs.iavlCacheSize,
+		iavlDisableFastNode: true,
+		storesParams:        storesParams,
+		stores:              stores,
+		keysByName:          keysByName,
+		listeners:           make(map[types.StoreKey][]types.WriteListener),
+		removalMap:          make(map[types.StoreKey]bool),
+		pruningManager:      pruning.NewManager(rs.db, rs.logger),
+	}
 }
 
 // GetStore returns a mounted Store for a given StoreKey. If the StoreKey does
