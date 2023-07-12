@@ -92,15 +92,15 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 }
 
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
-func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.ChannelID,
+func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID,
 	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
 ) (uint64, error) {
-	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, k.GetDestChainID(), channelID) != sdk.ChannelAllow {
+	if packageType == sdk.SynCrossChainPackageType && k.GetChannelSendPermission(ctx, destChainId, channelID) != sdk.ChannelAllow {
 		return 0, fmt.Errorf("channel %d is not allowed to write syn package", channelID)
 	}
 
-	sequence := k.GetSendSequence(ctx, channelID)
-	key := types.BuildCrossChainPackageKey(k.GetSrcChainID(), k.GetDestChainID(), channelID, sequence)
+	sequence := k.GetSendSequence(ctx, destChainId, channelID)
+	key := types.BuildCrossChainPackageKey(k.GetSrcChainID(), destChainId, channelID, sequence)
 	kvStore := ctx.KVStore(k.storeKey)
 	if kvStore.Has(key) {
 		return 0, fmt.Errorf("duplicated sequence")
@@ -116,11 +116,11 @@ func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, channelID sdk.Channe
 
 	kvStore.Set(key, append(packageHeader, packageLoad...))
 
-	k.IncrSendSequence(ctx, channelID)
+	k.IncrSendSequence(ctx, destChainId, channelID)
 
 	err := ctx.EventManager().EmitTypedEvent(&types.EventCrossChain{
 		SrcChainId:    uint32(k.GetSrcChainID()),
-		DestChainId:   uint32(k.GetDestChainID()),
+		DestChainId:   uint32(destChainId),
 		ChannelId:     uint32(channelID),
 		Sequence:      sequence,
 		PackageType:   uint32(packageType),
@@ -157,7 +157,7 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 
 // IsDestChainSupported returns the support status of a dest chain
 func (k Keeper) IsDestChainSupported(chainID sdk.ChainID) bool {
-	return chainID == k.cfg.destChainId
+	return chainID == k.cfg.destBscChainId
 }
 
 // SetChannelSendPermission sets the channel send permission
@@ -188,39 +188,39 @@ func (k Keeper) GetSrcChainID() sdk.ChainID {
 
 // SetDestChainID sets the destination chain id
 func (k Keeper) SetDestChainID(destChainId sdk.ChainID) {
-	k.cfg.destChainId = destChainId
+	k.cfg.destBscChainId = destChainId
 }
 
-// GetDestChainID gets the destination chain id
-func (k Keeper) GetDestChainID() sdk.ChainID {
-	return k.cfg.destChainId
+// GetDestBscChainID gets the destination chain id of bsc
+func (k Keeper) GetDestBscChainID() sdk.ChainID {
+	return k.cfg.destBscChainId
 }
 
 // GetCrossChainPackage returns the ibc package by sequence
-func (k Keeper) GetCrossChainPackage(ctx sdk.Context, channelId sdk.ChannelID, sequence uint64) ([]byte, error) {
+func (k Keeper) GetCrossChainPackage(ctx sdk.Context, destChainId sdk.ChainID, channelId sdk.ChannelID, sequence uint64) ([]byte, error) {
 	kvStore := ctx.KVStore(k.storeKey)
-	key := types.BuildCrossChainPackageKey(k.GetSrcChainID(), k.GetDestChainID(), channelId, sequence)
+	key := types.BuildCrossChainPackageKey(k.GetSrcChainID(), destChainId, channelId, sequence)
 	return kvStore.Get(key), nil
 }
 
 // GetSendSequence returns the sending sequence of the channel
-func (k Keeper) GetSendSequence(ctx sdk.Context, channelID sdk.ChannelID) uint64 {
-	return k.getSequence(ctx, k.GetDestChainID(), channelID, types.PrefixForSendSequenceKey)
+func (k Keeper) GetSendSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64 {
+	return k.getSequence(ctx, destChainId, channelID, types.PrefixForSendSequenceKey)
 }
 
 // IncrSendSequence increases the sending sequence of the channel
-func (k Keeper) IncrSendSequence(ctx sdk.Context, channelID sdk.ChannelID) {
-	k.incrSequence(ctx, k.GetDestChainID(), channelID, types.PrefixForSendSequenceKey)
+func (k Keeper) IncrSendSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) {
+	k.incrSequence(ctx, destChainId, channelID, types.PrefixForSendSequenceKey)
 }
 
 // GetReceiveSequence returns the receiving sequence of the channel
-func (k Keeper) GetReceiveSequence(ctx sdk.Context, channelID sdk.ChannelID) uint64 {
-	return k.getSequence(ctx, k.GetDestChainID(), channelID, types.PrefixForReceiveSequenceKey)
+func (k Keeper) GetReceiveSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64 {
+	return k.getSequence(ctx, destChainId, channelID, types.PrefixForReceiveSequenceKey)
 }
 
 // IncrReceiveSequence increases the receiving sequence of the channel
-func (k Keeper) IncrReceiveSequence(ctx sdk.Context, channelID sdk.ChannelID) {
-	k.incrSequence(ctx, k.GetDestChainID(), channelID, types.PrefixForReceiveSequenceKey)
+func (k Keeper) IncrReceiveSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) {
+	k.incrSequence(ctx, destChainId, channelID, types.PrefixForReceiveSequenceKey)
 }
 
 // getSequence returns the sequence with a prefix

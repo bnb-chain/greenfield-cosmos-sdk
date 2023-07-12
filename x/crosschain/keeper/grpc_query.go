@@ -26,7 +26,7 @@ func (k Keeper) CrossChainPackage(c context.Context, req *types.QueryCrossChainP
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	pack, err := k.GetCrossChainPackage(ctx, sdk.ChannelID(req.ChannelId), req.Sequence)
+	pack, err := k.GetCrossChainPackage(ctx, k.GetDestBscChainID(), sdk.ChannelID(req.ChannelId), req.Sequence)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (k Keeper) SendSequence(c context.Context, req *types.QuerySendSequenceRequ
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	sequence := k.GetSendSequence(ctx, sdk.ChannelID(req.ChannelId))
+	sequence := k.GetSendSequence(ctx, k.GetDestBscChainID(), sdk.ChannelID(req.ChannelId))
 
 	return &types.QuerySendSequenceResponse{
 		Sequence: sequence,
@@ -56,7 +56,7 @@ func (k Keeper) ReceiveSequence(c context.Context, req *types.QueryReceiveSequen
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	sequence := k.GetReceiveSequence(ctx, sdk.ChannelID(req.ChannelId))
+	sequence := k.GetReceiveSequence(ctx, k.GetDestBscChainID(), sdk.ChannelID(req.ChannelId))
 
 	return &types.QueryReceiveSequenceResponse{
 		Sequence: sequence,

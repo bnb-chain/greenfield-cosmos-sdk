@@ -59,7 +59,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		return nil, sdkerrors.Wrapf(types.ErrInvalidSrcChainId, "src chain id(%d) is not supported", req.SrcChainId)
 	}
 
-	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, types.RelayPackagesChannelId)
+	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), types.RelayPackagesChannelId)
 	if sequence != req.Sequence {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence, "current sequence of channel %d is %d", types.RelayPackagesChannelId, sequence)
 	}
@@ -92,7 +92,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		totalRelayerFee = totalRelayerFee.Add(relayerFee)
 
 		// increase channel sequence
-		k.CrossChainKeeper.IncrReceiveSequence(ctx, pack.ChannelId)
+		k.CrossChainKeeper.IncrReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), pack.ChannelId)
 	}
 
 	err = k.distributeReward(ctx, relayer, signedRelayers, totalRelayerFee)
@@ -100,7 +100,7 @@ func (k msgServer) Claim(goCtx context.Context, req *types.MsgClaim) (*types.Msg
 		return nil, err
 	}
 
-	k.CrossChainKeeper.IncrReceiveSequence(ctx, types.RelayPackagesChannelId)
+	k.CrossChainKeeper.IncrReceiveSequence(ctx, sdk.ChainID(req.SrcChainId), types.RelayPackagesChannelId)
 
 	err = ctx.EventManager().EmitTypedEvents(events...)
 	if err != nil {
@@ -179,7 +179,7 @@ func (k Keeper) handlePackage(
 		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
 	}
 
-	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, pack.ChannelId)
+	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(srcChainId), pack.ChannelId)
 	if sequence != pack.Sequence {
 		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidReceiveSequence,
 			"current sequence of channel %d is %d", pack.ChannelId, sequence)
@@ -201,7 +201,7 @@ func (k Keeper) handlePackage(
 	}
 
 	cacheCtx, write := ctx.CacheContext()
-	crash, result := executeClaim(cacheCtx, crossChainApp, sequence, pack.Payload, &packageHeader)
+	crash, result := executeClaim(cacheCtx, crossChainApp, srcChainId, sequence, pack.Payload, &packageHeader)
 	if result.IsOk() {
 		write()
 	}
@@ -216,7 +216,7 @@ func (k Keeper) handlePackage(
 				return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrInvalidPackage, "payload without header")
 			}
 
-			sendSeq, ibcErr := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+			sendSeq, ibcErr := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, sdk.ChainID(srcChainId), pack.ChannelId,
 				sdk.FailAckCrossChainPackageType, pack.Payload[sdk.SynPackageHeaderLength:], packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if ibcErr != nil {
 				logger.Error("failed to write FailAckCrossChainPackage", "err", err)
@@ -224,7 +224,7 @@ func (k Keeper) handlePackage(
 			}
 			sendSequence = int64(sendSeq)
 		} else if len(result.Payload) != 0 {
-			sendSeq, err := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, pack.ChannelId,
+			sendSeq, err := k.CrossChainKeeper.CreateRawIBCPackageWithFee(ctx, sdk.ChainID(srcChainId), pack.ChannelId,
 				sdk.AckCrossChainPackageType, result.Payload, packageHeader.AckRelayerFee, sdk.NilAckRelayerFee)
 			if err != nil {
 				logger.Error("failed to write AckCrossChainPackage", "err", err)
@@ -253,6 +253,7 @@ func (k Keeper) handlePackage(
 func executeClaim(
 	ctx sdk.Context,
 	app sdk.CrossChainApplication,
+	srcChainId uint32,
 	sequence uint64,
 	payload []byte,
 	header *sdk.PackageHeader,
@@ -272,18 +273,21 @@ func executeClaim(
 	switch header.PackageType {
 	case sdk.SynCrossChainPackageType:
 		result = app.ExecuteSynPackage(ctx, &sdk.CrossChainAppContext{
-			Sequence: sequence,
-			Header:   header,
+			SrcChainId: sdk.ChainID(srcChainId),
+			Sequence:   sequence,
+			Header:     header,
 		}, payload[sdk.SynPackageHeaderLength:])
 	case sdk.AckCrossChainPackageType:
 		result = app.ExecuteAckPackage(ctx, &sdk.CrossChainAppContext{
-			Sequence: sequence,
-			Header:   header,
+			SrcChainId: sdk.ChainID(srcChainId),
+			Sequence:   sequence,
+			Header:     header,
 		}, payload[sdk.AckPackageHeaderLength:])
 	case sdk.FailAckCrossChainPackageType:
 		result = app.ExecuteFailAckPackage(ctx, &sdk.CrossChainAppContext{
-			Sequence: sequence,
-			Header:   header,
+			SrcChainId: sdk.ChainID(srcChainId),
+			Sequence:   sequence,
+			Header:     header,
 		}, payload[sdk.AckPackageHeaderLength:])
 	default:
 		panic(fmt.Sprintf("receive unexpected package type %d", header.PackageType))
