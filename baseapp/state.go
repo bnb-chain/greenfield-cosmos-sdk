@@ -19,3 +19,8 @@ func (st *state) CacheMultiStore() sdk.CacheMultiStore {
 func (st *state) Context() sdk.Context {
 	return st.ctx
 }
+
+type queryState struct {
+	ms  sdk.CommitMultiStore
+	ctx sdk.Context
+}

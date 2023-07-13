@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -57,7 +58,6 @@ type BaseApp struct { //nolint: maligned
 	name              string               // application name from abci.Info
 	db                dbm.DB               // common DB backend
 	cms               sdk.CommitMultiStore // Main (uncached) state
-	qms               sdk.MultiStore       // Optional alternative multistore for querying only.
 	storeLoader       StoreLoader          // function to handle store loading, may be overridden with SetStoreLoader()
 	grpcQueryRouter   *GRPCQueryRouter     // router for redirecting gRPC query calls
 	ethQueryRouter    *EthQueryRouter      // router for redirecting eth query calls
@@ -85,12 +85,19 @@ type BaseApp struct { //nolint: maligned
 	//
 	// checkState is set on InitChain and reset on Commit
 	// deliverState is set on InitChain and BeginBlock and set to nil on Commit
+	// queryState is set on InitChain and BeginBlock
 	checkState           *state // for CheckTx
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
 	prepareProposalState *state // for PrepareProposal
 
 	preDeliverStates []*state // for PreDeliverTx
+
+	// queryState is set on InitChain and BeginBlock
+	queryState *queryState // optional alternative multistore for querying only.
+
+	queryStateMtx sync.RWMutex // mutex for queryState
+	checkStateMtx sync.RWMutex // mutex for checkState
 
 	// an inter-block write-through cache provided to the context during deliverState
 	interBlockCache sdk.MultiStorePersistentCache
@@ -180,6 +187,8 @@ func NewBaseApp(
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
 		preDeliverStates: make([]*state, 0),
+		checkStateMtx:    sync.RWMutex{},
+		queryStateMtx:    sync.RWMutex{},
 	}
 
 	for _, option := range options {
@@ -400,6 +409,7 @@ func (app *BaseApp) Init() error {
 	emptyHeader := tmproto.Header{ChainID: app.chainID}
 
 	// needed for the export command which inits from store but never calls initchain
+	app.setQueryState(emptyHeader)
 	app.setState(runTxModeCheck, emptyHeader)
 	app.Seal()
 
@@ -461,8 +471,15 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	switch mode {
 	case runTxModeCheck:
 		// Minimum gas prices are also set. It is set on InitChain and reset on Commit.
-		baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices)
-		app.checkState = baseState
+		var ms sdk.CacheMultiStore
+		if rs, ok := app.cms.(*rootmulti.Store); ok {
+			ms = rs.DeepCopyAndCache()
+			baseState.ms = ms
+			baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices).WithMultiStore(ms)
+			app.checkState = baseState
+		} else {
+			panic(fmt.Sprintf("set checkState failed: %T is not rootmulti.Store", app.cms))
+		}
 	case runTxModeDeliver:
 		// It is set on InitChain and BeginBlock and set to nil on Commit.
 		app.deliverState = baseState
@@ -483,7 +500,7 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 	for i := int64(0); i < number; i++ {
 		var ms sdk.CacheMultiStore
 		if _, ok := app.cms.(*rootmulti.Store); ok {
-			ms = app.cms.(*rootmulti.Store).DeepCopyMultiStore()
+			ms = app.cms.(*rootmulti.Store).DeepCopyAndCache()
 		}
 
 		baseState := &state{
@@ -492,6 +509,19 @@ func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
 		}
 		app.preDeliverStates = append(app.preDeliverStates, baseState)
 	}
+}
+
+func (app *BaseApp) setQueryState(header tmproto.Header) {
+	var ms sdk.CommitMultiStore
+	if rs, ok := app.cms.(*rootmulti.Store); ok {
+		ms = rs.DeepCopy()
+	}
+
+	baseState := &queryState{
+		ms:  ms,
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
+	}
+	app.queryState = baseState
 }
 
 // GetConsensusParams returns the current consensus parameters from the BaseApp's
