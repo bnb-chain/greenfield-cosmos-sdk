@@ -409,6 +409,7 @@ func (app *BaseApp) Init() error {
 	emptyHeader := tmproto.Header{ChainID: app.chainID}
 
 	// needed for the export command which inits from store but never calls initchain
+	app.setQueryState(emptyHeader)
 	app.setState(runTxModeCheck, emptyHeader)
 	app.Seal()
 

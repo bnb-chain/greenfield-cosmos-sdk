@@ -567,6 +567,11 @@ func (rs *Store) DeepCopyAndCache() types.CacheMultiStore {
 					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
 				}
 			}
+		} else if store, ok := v.(*iavl.Store); ok {
+			tree := store.CloneMutableTree()
+			if tree != nil {
+				storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+			}
 		}
 		if storeCache != nil {
 			stores[k] = storeCache.CommitKVStore
@@ -585,6 +590,11 @@ func (rs *Store) DeepCopy() *Store {
 				if tree != nil {
 					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
 				}
+			}
+		} else if store, ok := v.(*iavl.Store); ok {
+			tree := store.CloneMutableTree()
+			if tree != nil {
+				storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
 			}
 		}
 		if storeCache != nil {
