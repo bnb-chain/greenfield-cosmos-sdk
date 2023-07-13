@@ -19,6 +19,7 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltestutil "github.com/cosmos/cosmos-sdk/x/genutil/testutil"
@@ -67,17 +68,19 @@ func (suite *GenTxTestSuite) SetupTest() {
 	one := math.OneInt()
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk1.Address()), pk1,
 		amount, desc, comm, one,
 		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()),
-		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk)
+		sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk, blsProof)
 	suite.NoError(err)
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
 		sdk.AccAddress(pk2.Address()), pk1,
 		amount, desc, comm, one,
 		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()),
-		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk1.Address()), blsPk)
+		sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk1.Address()), blsPk, blsProof)
 	suite.NoError(err)
 }
 

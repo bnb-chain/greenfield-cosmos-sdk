@@ -60,7 +60,7 @@ type AccountKeeper struct {
 
 	// The prototypical AccountI constructor.
 	proto      func() types.AccountI
-	addressCdc address.Codec
+	addressCdc address.Codec //nolint:unused
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.

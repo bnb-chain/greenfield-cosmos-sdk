@@ -33,9 +33,9 @@ func GenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalI
 	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
-		Use:   "gentx [key_name] [amount] [validator] [relayer] [challenger] [blskey]",
+		Use:   "gentx [key_name] [amount] [validator] [relayer] [challenger] [blskey] [blsProof]",
 		Short: "Generate a genesis tx carrying a self delegation",
-		Args:  cobra.ExactArgs(6),
+		Args:  cobra.ExactArgs(7),
 		Long: fmt.Sprintf(`Generate a genesis transaction that creates a validator with a self-delegation,
 that is signed by the key in the Keyring referenced by a given name. A node ID and Bech32 consensus
 pubkey may optionally be provided. If they are omitted, they will be retrieved from the priv_validator.json
@@ -47,6 +47,7 @@ $ %s gentx my-key-name 1000000stake \
 	0x6D967dc83b625603c963713eABd5B43A281E595e \
 	0xcdd393723f1Af81faa3F3c87B51dAB72B6c68154 \
 	ac1e598ae0ccbeeaafa31bc6faefa85c2ae3138699cac79169cd718f1a38445201454ec092a86f200e08a15266bdc6e9 \
+	b68b819c2d431bd8ea800326bbcd91bbbbec5404b8f456b23c87de368c7f48507e7be120f32354ebf3df38c2b5808cebd4c07254f0b4626007c6d46fc05b260901 \
 	--home=/path/to/home/dir --keyring-backend=os --chain-id=greenfield_9000-1 \
     --moniker="myvalidator" \
     --commission-max-change-rate=0.01 \
@@ -172,12 +173,17 @@ $ %s gentx my-key-name 1000000stake \
 			if len(blsPk) != 2*sdk.BLSPubKeyLength {
 				return fmt.Errorf("invalid bls pubkey")
 			}
+			blsProof := args[6]
+			if len(blsProof) != 2*sdk.BLSSignatureLength {
+				return fmt.Errorf("invalid bls proof, len: %d", len(blsProof))
+			}
 
 			createValCfg.Validator = validator
 			createValCfg.Delegator = addr
 			createValCfg.Relayer = relayer
 			createValCfg.Challenger = challenger
 			createValCfg.BlsKey = blsPk
+			createValCfg.BLSProof = blsProof
 
 			// create a 'create-validator' message
 			txBldr, msg, err := cli.BuildCreateValidatorMsg(clientCtx, createValCfg, txFactory, true)

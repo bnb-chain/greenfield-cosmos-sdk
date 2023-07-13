@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 
 	tmconfig "github.com/cometbft/cometbft/config"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/types"
 	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
@@ -302,6 +303,8 @@ func initTestnetFiles(
 		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 		blsSecretKey, _ := bls.RandKey()
 		blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+		blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+		blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			sdk.AccAddress(addr),
 			valPubKeys[i],
@@ -309,7 +312,7 @@ func initTestnetFiles(
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
 			sdk.OneInt(),
-			addr, addr, addr, addr, blsPk,
+			addr, addr, addr, addr, blsPk, blsProof,
 		)
 		if err != nil {
 			return err

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
 	"github.com/stretchr/testify/require"
@@ -79,11 +80,13 @@ func TestSlashingMsgs(t *testing.T) {
 	commission := stakingtypes.NewCommissionRates(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec())
 	blsSecretKey, _ := bls.RandKey()
 	blsPk := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 
 	createValidatorMsg, err := stakingtypes.NewMsgCreateValidator(
 		addr1, valKey.PubKey(),
 		bondCoin, description, commission, sdk.OneInt(),
-		addr1, addr1, addr1, addr1, blsPk,
+		addr1, addr1, addr1, addr1, blsPk, blsProof,
 	)
 	require.NoError(t, err)
 
@@ -91,6 +94,7 @@ func TestSlashingMsgs(t *testing.T) {
 	txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
 	_, _, err = sims.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, sdktestutil.DefaultChainId, []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, sims.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
+	ctxCheck = baseApp.NewContext(true, tmproto.Header{})
 	require.True(t, sdk.Coins{genCoin.Sub(bondCoin)}.IsEqual(bankKeeper.GetAllBalances(ctxCheck, addr1)))
 
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}

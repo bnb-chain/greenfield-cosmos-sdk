@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
@@ -86,17 +87,21 @@ func (suite *GenTxTestSuite) SetupTest() {
 	amount := sdk.NewInt64Coin(sdk.DefaultBondDenom, 50)
 	one := math.OneInt()
 	blsSecretKey1, _ := bls.RandKey()
+	blsProofBuf := blsSecretKey1.Sign(tmhash.Sum(blsSecretKey1.PublicKey().Marshal()))
+	blsProof1 := hex.EncodeToString(blsProofBuf.Marshal())
 	blsPk1 := hex.EncodeToString(blsSecretKey1.PublicKey().Marshal())
 
 	suite.msg1, err = stakingtypes.NewMsgCreateValidator(
-		sdk.AccAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1)
+		sdk.AccAddress(pk1.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), sdk.AccAddress(pk1.Address()), blsPk1, blsProof1)
 	suite.NoError(err)
 
 	blsSecretKey2, _ := bls.RandKey()
 	blsPk2 := hex.EncodeToString(blsSecretKey2.PublicKey().Marshal())
+	blsProofBuf = blsSecretKey2.Sign(tmhash.Sum(blsSecretKey2.PublicKey().Marshal()))
+	blsProof2 := hex.EncodeToString(blsProofBuf.Marshal())
 
 	suite.msg2, err = stakingtypes.NewMsgCreateValidator(
-		sdk.AccAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2)
+		sdk.AccAddress(pk2.Address()), pk1, amount, desc, comm, one, sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), sdk.AccAddress(pk2.Address()), blsPk2, blsProof2)
 	suite.NoError(err)
 }
 

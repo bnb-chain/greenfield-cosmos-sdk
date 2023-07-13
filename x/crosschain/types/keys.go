@@ -23,8 +23,6 @@ const (
 
 	MaxSideChainIdLength = 20
 	SequenceLength       = 8
-
-	GovChannelId = sdk.ChannelID(9)
 )
 
 var (
@@ -57,9 +55,6 @@ type ChannelPermissionSetting struct {
 func (c *ChannelPermissionSetting) Check() error {
 	if len(c.DestChainId) == 0 || len(c.DestChainId) > MaxSideChainIdLength {
 		return fmt.Errorf("invalid dest chain id")
-	}
-	if c.ChannelId == GovChannelId {
-		return fmt.Errorf("gov channel id is forbidden to set")
 	}
 	if c.Permission != sdk.ChannelAllow && c.Permission != sdk.ChannelForbidden {
 		return fmt.Errorf("permission %d is invalid", c.Permission)

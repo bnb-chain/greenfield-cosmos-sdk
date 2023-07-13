@@ -12,6 +12,7 @@ import (
 	"cosmossdk.io/math"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 
@@ -70,10 +71,12 @@ func TestStakingMsgs(t *testing.T) {
 	description := types.NewDescription("foo_moniker", "", "", "", "")
 	blsSecretKey, _ := bls.RandKey()
 	blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
+	blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+	blsProof1 := hex.EncodeToString(blsProofBuf.Marshal())
 	createValidatorMsg, err := types.NewMsgCreateValidator(
 		addr1, valKey.PubKey(),
 		bondCoin, description, commissionRates, sdk.OneInt(),
-		addr1, addr1, addr1, addr1, blsPubKey,
+		addr1, addr1, addr1, addr1, blsPubKey, blsProof1,
 	)
 	require.NoError(t, err)
 
@@ -81,6 +84,7 @@ func TestStakingMsgs(t *testing.T) {
 	txConfig := moduletestutil.MakeTestEncodingConfig().TxConfig
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{createValidatorMsg}, sdktestutil.DefaultChainId, []uint64{0}, []uint64{0}, true, true, []cryptotypes.PrivKey{priv1}, simtestutil.SetMockHeight(app.BaseApp, 0))
 	require.NoError(t, err)
+	ctxCheck = app.BaseApp.NewContext(true, tmproto.Header{})
 	require.True(t, sdk.Coins{genCoin.Sub(bondCoin)}.IsEqual(bankKeeper.GetAllBalances(ctxCheck, addr1)))
 
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
@@ -99,7 +103,7 @@ func TestStakingMsgs(t *testing.T) {
 	description = types.NewDescription("bar_moniker", "", "", "", "")
 	editValidatorMsg := types.NewMsgEditValidator(
 		addr1, description, nil, nil,
-		sdk.AccAddress(""), sdk.AccAddress(""), "",
+		sdk.AccAddress(""), sdk.AccAddress(""), "", "",
 	)
 	header = tmproto.Header{ChainID: sdktestutil.DefaultChainId, Height: app.LastBlockHeight() + 1}
 	_, _, err = simtestutil.SignCheckDeliver(t, txConfig, app.BaseApp, header, []sdk.Msg{editValidatorMsg}, sdktestutil.DefaultChainId, []uint64{0}, []uint64{1}, true, true, []cryptotypes.PrivKey{priv1})

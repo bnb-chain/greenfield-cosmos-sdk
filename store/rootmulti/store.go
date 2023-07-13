@@ -18,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 
 	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
+	"github.com/cosmos/cosmos-sdk/store/cache"
 	"github.com/cosmos/cosmos-sdk/store/cachemulti"
 	"github.com/cosmos/cosmos-sdk/store/dbadapter"
 	"github.com/cosmos/cosmos-sdk/store/iavl"
@@ -553,6 +554,75 @@ func (rs *Store) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStor
 	}
 
 	return cachemulti.NewStore(rs.db, cachedStores, rs.keysByName, rs.traceWriter, rs.getTracingContext()), nil
+}
+
+func (rs *Store) DeepCopyAndCache() types.CacheMultiStore {
+	stores := make(map[types.StoreKey]types.CacheWrapper)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		} else if store, ok := v.(*iavl.Store); ok {
+			tree := store.CloneMutableTree()
+			if tree != nil {
+				storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+			}
+		}
+		if storeCache != nil {
+			stores[k] = storeCache.CommitKVStore
+		}
+	}
+	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
+}
+
+func (rs *Store) DeepCopy() *Store {
+	stores := make(map[types.StoreKey]types.CommitKVStore)
+	for k, v := range rs.stores {
+		var storeCache *cache.CommitKVStoreCache
+		if store, ok := v.(*cache.CommitKVStoreCache); ok {
+			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
+				tree := iavlStore.CloneMutableTree()
+				if tree != nil {
+					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				}
+			}
+		} else if store, ok := v.(*iavl.Store); ok {
+			tree := store.CloneMutableTree()
+			if tree != nil {
+				storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+			}
+		}
+		if storeCache != nil {
+			stores[k] = storeCache.CommitKVStore
+		}
+	}
+
+	storesParams := make(map[types.StoreKey]storeParams)
+	for k, v := range rs.storesParams {
+		storesParams[k] = v
+	}
+
+	keysByName := make(map[string]types.StoreKey)
+	for k, v := range rs.keysByName {
+		keysByName[k] = v
+	}
+
+	return &Store{
+		db:                  rs.db,
+		iavlCacheSize:       rs.iavlCacheSize,
+		iavlDisableFastNode: true,
+		storesParams:        storesParams,
+		stores:              stores,
+		keysByName:          keysByName,
+		listeners:           make(map[types.StoreKey][]types.WriteListener),
+		removalMap:          make(map[types.StoreKey]bool),
+		pruningManager:      pruning.NewManager(rs.db, rs.logger),
+	}
 }
 
 // GetStore returns a mounted Store for a given StoreKey. If the StoreKey does

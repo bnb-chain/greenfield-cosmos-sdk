@@ -5,7 +5,6 @@ import (
 	"math/big"
 
 	sdkerrors "cosmossdk.io/errors"
-	"github.com/cosmos/cosmos-sdk/bsc/rlp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -44,12 +43,11 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 		Target: addresses,
 	}
 
-	encodedPackage, err := rlp.EncodeToBytes(pack)
-	if err != nil {
-		return sdkerrors.Wrapf(types.ErrInvalidUpgradeProposal, "encode sync params package error")
-	}
-	_, err = k.crossChainKeeper.CreateRawIBCPackageWithFee(
+	encodedPackage := pack.MustSerialize()
+
+	_, err := k.crossChainKeeper.CreateRawIBCPackageWithFee(
 		ctx,
+		k.crossChainKeeper.GetDestBscChainID(),
 		types.SyncParamsChannelID,
 		sdk.SynCrossChainPackageType,
 		encodedPackage,

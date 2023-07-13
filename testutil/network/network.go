@@ -17,6 +17,7 @@ import (
 	"time"
 
 	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/node"
 	tmclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/prysmaticlabs/prysm/crypto/bls"
@@ -498,7 +499,8 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 		blsPubKey := hex.EncodeToString(blsSecretKey.PublicKey().Marshal())
-
+		blsProofBuf := blsSecretKey.Sign(tmhash.Sum(blsSecretKey.PublicKey().Marshal()))
+		blsProof := hex.EncodeToString(blsProofBuf.Marshal())
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
 			addr,
 			valPubKeys[i],
@@ -506,7 +508,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(commission, math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
-			addr, addr, addr, addr, blsPubKey,
+			addr, addr, addr, addr, blsPubKey, blsProof,
 		)
 		if err != nil {
 			return nil, err

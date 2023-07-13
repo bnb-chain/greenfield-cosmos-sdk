@@ -8,7 +8,6 @@ run:
 linters:
   disable-all: true
   enable:
-    - depguard
     - dogsled
     - exportloopref
     - goconst
@@ -18,7 +17,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - nakedret
     - nolintlint
     - staticcheck
     - stylecheck
@@ -39,6 +37,15 @@ issues:
     - text: "ST1016:"
       linters:
         - stylecheck
+    - text: "SA1019: errors"
+      linters:
+        - staticcheck
+    - text: "SA1019: sdkerr"
+      linters:
+        - staticcheck
+    - text: "SA1019: sdkerrors"
+      linters:
+        - staticcheck
     - path: "migrations"
       text: "SA1019:"
       linters:

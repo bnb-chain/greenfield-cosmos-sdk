@@ -11,14 +11,13 @@ import (
 	"syscall"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
-
-	errorsmod "cosmossdk.io/errors"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 
 	cmtrpctypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -73,6 +72,7 @@ func (app *BaseApp) InitChain(req abci.RequestInitChain) (res abci.ResponseInitC
 	}
 
 	// initialize states with a correct header
+	app.setQueryState(initHeader)
 	app.setState(runTxModeDeliver, initHeader)
 	app.setState(runTxModeCheck, initHeader)
 
@@ -194,6 +194,18 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 			WithBlockHeight(req.Header.Height)
 	}
 
+	app.queryStateMtx.Lock()
+	if app.queryState == nil {
+		app.setQueryState(req.Header)
+	} else {
+		// In the first block, app.queryState.ctx will already be initialized
+		// by InitChain. Context is now updated with Header information.
+		app.queryState.ctx = app.queryState.ctx.
+			WithBlockHeader(req.Header).
+			WithBlockHeight(req.Header.Height)
+	}
+	app.queryStateMtx.Unlock()
+
 	gasMeter := app.getBlockGasMeter(app.deliverState.ctx)
 
 	app.deliverState.ctx = app.deliverState.ctx.
@@ -202,9 +214,11 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 		WithConsensusParams(app.GetConsensusParams(app.deliverState.ctx))
 
 	if app.checkState != nil {
+		app.checkStateMtx.Lock()
 		app.checkState.ctx = app.checkState.ctx.
 			WithBlockGasMeter(gasMeter).
 			WithHeaderHash(req.Hash)
+		app.checkStateMtx.Unlock()
 	}
 
 	if app.beginBlocker != nil {
@@ -382,6 +396,9 @@ func (app *BaseApp) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
 		panic(fmt.Sprintf("unknown RequestCheckTx type: %s", req.Type))
 	}
 
+	app.checkStateMtx.Lock()
+	defer app.checkStateMtx.Unlock()
+
 	gInfo, result, anteEvents, priority, err := app.runTx(mode, req.Tx)
 	if err != nil {
 		return sdkerrors.ResponseCheckTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, anteEvents, app.trace)
@@ -455,8 +472,13 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// Write the DeliverTx state into branched storage and commit the MultiStore.
 	// The write to the DeliverTx state writes all state transitions to the root
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
+	// checkState needs to be locked here to prevent a race condition
 	app.deliverState.ms.Write()
 	commitID := app.cms.Commit()
+
+	app.queryStateMtx.Lock()
+	app.setQueryState(header)
+	app.queryStateMtx.Unlock()
 
 	res := abci.ResponseCommit{
 		Data:         commitID.Hash,
@@ -473,10 +495,9 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	app.logger.Info("commit synced", "commit", fmt.Sprintf("%X", commitID))
 
 	// Reset the Check state to the latest committed.
-	//
-	// NOTE: This is safe because Tendermint holds a lock on the mempool for
-	// Commit. Use the header from this latest block.
+	app.checkStateMtx.Lock()
 	app.setState(runTxModeCheck, header)
+	app.checkStateMtx.Unlock()
 
 	// empty/reset the deliver state
 	app.deliverState = nil
@@ -504,7 +525,65 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	return res
 }
 
-// halt attempts to gracefully shutdown the node via SIGINT and SIGTERM falling
+// PreBeginBlock implements the ABCI application interface.
+func (app *BaseApp) PreBeginBlock(req abci.RequestPreBeginBlock) (res abci.ResponsePrefetch) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = abci.ResponsePrefetch{Error: errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r).Error()}
+		}
+	}()
+
+	if req.Header.ChainID != app.chainID {
+		err := fmt.Sprintf("invalid request chain-id: %s, expected: %s", req.Header.ChainID, app.chainID)
+		return abci.ResponsePrefetch{Error: err}
+	}
+
+	if app.cms.TracingEnabled() {
+		app.cms.SetTracingContext(map[string]interface{}{"blockHeight": req.Header.Height})
+	}
+
+	// Initialize the preDeliverTx state.
+	app.setPreState(req.StateNumber, req.Header)
+
+	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
+	return
+}
+
+func (app *BaseApp) PreDeliverTx(req abci.RequestPreDeliverTx) {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	preState := app.preDeliverStates[req.StateIndex]
+	if preState == nil {
+		return
+	}
+
+	ctx := preState.ctx.
+		WithTxBytes(req.Tx).
+		WithVoteInfos(app.voteInfos)
+
+	ctx = ctx.WithConsensusParams(app.GetConsensusParams(ctx))
+
+	app.runTxOnContext(ctx, runTxModePreDeliver, req.Tx)
+}
+
+func (app *BaseApp) PreCommit(req abci.RequestPreCommit) (res abci.ResponsePrefetch) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = abci.ResponsePrefetch{Error: errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r).Error()}
+		}
+	}()
+
+	app.preDeliverStates[req.StateIndex].ms.Write()
+
+	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
+	return
+}
+
+// halt attempts to gracefully shut down the node via SIGINT and SIGTERM falling
 // back on os.Exit if both fail.
 func (app *BaseApp) halt() {
 	app.logger.Info("halting node per configuration", "height", app.haltHeight, "time", app.haltTime)
@@ -539,7 +618,11 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 
 	// when a client did not provide a query height, manually inject the latest
 	if req.Height == 0 {
-		req.Height = app.LastBlockHeight()
+		app.queryStateMtx.RLock()
+		if app.queryState != nil {
+			req.Height = app.queryState.ms.LatestVersion()
+		}
+		app.queryStateMtx.RUnlock()
 	}
 
 	telemetry.IncrCounter(1, "query", "count")
@@ -720,7 +803,12 @@ func (app *BaseApp) ApplySnapshotChunk(req abci.RequestApplySnapshotChunk) abci.
 }
 
 func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQuery) abci.ResponseQuery {
-	ctx, err := app.CreateQueryContext(req.Height, req.Prove)
+	if req.Path == "/cosmos.auth.v1beta1.Query/Account" && (req.Height == app.queryState.ms.LatestVersion() || req.Height == 0) {
+		app.checkStateMtx.RLock()
+		defer app.checkStateMtx.RUnlock()
+	}
+
+	ctx, err := app.CreateQueryContext(req.Height, req.Prove, req.Path)
 	if err != nil {
 		return sdkerrors.QueryResult(err, app.trace)
 	}
@@ -736,11 +824,14 @@ func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQu
 }
 
 func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCRequest) abci.ResponseEthQuery {
-	// use custom query multistore if provided
-	qms := app.qms
-	if qms == nil {
-		qms = app.cms.(storetypes.MultiStore)
+	// use custom query state if provided
+	app.queryStateMtx.RLock()
+	defer app.queryStateMtx.RUnlock()
+	qs := app.queryState
+	if qs == nil {
+		return sdkerrors.EthQueryResult(fmt.Errorf("queryState is nil"), app.trace)
 	}
+	qms := qs.ms.(sdk.MultiStore)
 
 	height := qms.LatestVersion()
 	if height == 0 {
@@ -758,7 +849,7 @@ func (app *BaseApp) handleEthQuery(handler EthQueryHandler, req cmtrpctypes.RPCR
 	}
 
 	// branch the commit-multistore for safety
-	ctx := sdk.NewContext(cacheMS, app.checkState.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
+	ctx := sdk.NewContext(cacheMS, qs.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
 		WithBlockHeight(height)
 
 	res, err := handler(ctx, req)
@@ -803,16 +894,19 @@ func checkNegativeHeight(height int64) error {
 
 // createQueryContext creates a new sdk.Context for a query, taking as args
 // the block height and whether the query needs a proof or not.
-func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, error) {
+func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string) (sdk.Context, error) {
 	if err := checkNegativeHeight(height); err != nil {
 		return sdk.Context{}, err
 	}
 
-	// use custom query multistore if provided
-	qms := app.qms
-	if qms == nil {
-		qms = app.cms.(sdk.MultiStore)
+	// use custom query state if provided
+	app.queryStateMtx.RLock()
+	defer app.queryStateMtx.RUnlock()
+	qs := app.queryState
+	if qs == nil {
+		return sdk.Context{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "queryState is nil")
 	}
+	qms := qs.ms.(sdk.MultiStore)
 
 	lastBlockHeight := qms.LatestVersion()
 	if lastBlockHeight == 0 {
@@ -821,9 +915,9 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, e
 
 	if height > lastBlockHeight {
 		return sdk.Context{},
-			sdkerrors.Wrap(
+			sdkerrors.Wrapf(
 				sdkerrors.ErrInvalidHeight,
-				"cannot query with height in the future; please provide a valid height",
+				"cannot query with height in the future(%d, latest height %d); please provide a valid height", height, lastBlockHeight,
 			)
 	}
 
@@ -840,7 +934,15 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, e
 			)
 	}
 
-	cacheMS, err := qms.CacheMultiStoreWithVersion(height)
+	var cacheMS storetypes.CacheMultiStore
+	var err error
+	if len(path) == 1 && path[0] == "/cosmos.auth.v1beta1.Query/Account" && height == lastBlockHeight {
+		// use checkState for account queries on the latest height
+		// we could get the newest account info to send multi txs in one block
+		cacheMS = app.checkState.ms
+	} else {
+		cacheMS, err = qms.CacheMultiStoreWithVersion(height)
+	}
 	if err != nil {
 		return sdk.Context{},
 			sdkerrors.Wrapf(
@@ -850,7 +952,7 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdk.Context, e
 	}
 
 	// branch the commit-multistore for safety
-	ctx := sdk.NewContext(cacheMS, app.checkState.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
+	ctx := sdk.NewContext(cacheMS, qs.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
 		WithMinGasPrices(app.minGasPrices).
 		WithBlockHeight(height)
 

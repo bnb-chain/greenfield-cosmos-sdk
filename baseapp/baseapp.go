@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -12,11 +13,13 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/gogoproto/proto"
+	lru "github.com/hashicorp/golang-lru"
 	"golang.org/x/exp/maps"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
+	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -41,18 +44,20 @@ const (
 	runTxModeDeliver                      // Deliver a transaction
 	runTxPrepareProposal                  // Prepare a TM block proposal
 	runTxProcessProposal                  // Process a TM block proposal
+	runTxModePreDeliver                   // Pre-deliver a transaction
+
+	inMemorySignatures = 4096 // Number of recent block signatures to keep in memory
 )
 
 var _ abci.Application = (*BaseApp)(nil)
 
 // BaseApp reflects the ABCI application implementation.
-type BaseApp struct { // nolint: maligned
+type BaseApp struct { //nolint: maligned
 	// initialized on creation
 	logger            log.Logger
 	name              string               // application name from abci.Info
 	db                dbm.DB               // common DB backend
 	cms               sdk.CommitMultiStore // Main (uncached) state
-	qms               sdk.MultiStore       // Optional alternative multistore for querying only.
 	storeLoader       StoreLoader          // function to handle store loading, may be overridden with SetStoreLoader()
 	grpcQueryRouter   *GRPCQueryRouter     // router for redirecting gRPC query calls
 	ethQueryRouter    *EthQueryRouter      // router for redirecting eth query calls
@@ -80,10 +85,19 @@ type BaseApp struct { // nolint: maligned
 	//
 	// checkState is set on InitChain and reset on Commit
 	// deliverState is set on InitChain and BeginBlock and set to nil on Commit
+	// queryState is set on InitChain and BeginBlock
 	checkState           *state // for CheckTx
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
 	prepareProposalState *state // for PrepareProposal
+
+	preDeliverStates []*state // for PreDeliverTx
+
+	// queryState is set on InitChain and BeginBlock
+	queryState *queryState // optional alternative multistore for querying only.
+
+	queryStateMtx sync.RWMutex // mutex for queryState
+	checkStateMtx sync.RWMutex // mutex for checkState
 
 	// an inter-block write-through cache provided to the context during deliverState
 	interBlockCache sdk.MultiStorePersistentCache
@@ -148,6 +162,9 @@ type BaseApp struct { // nolint: maligned
 
 	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
 	upgradeChecker func(ctx sdk.Context, name string) bool
+
+	// Signatures of recent blocks to speed up
+	sigCache *lru.ARCCache
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -169,6 +186,9 @@ func NewBaseApp(
 		msgServiceRouter: NewMsgServiceRouter(),
 		txDecoder:        txDecoder,
 		fauxMerkleMode:   false,
+		preDeliverStates: make([]*state, 0),
+		checkStateMtx:    sync.RWMutex{},
+		queryStateMtx:    sync.RWMutex{},
 	}
 
 	for _, option := range options {
@@ -187,6 +207,14 @@ func NewBaseApp(
 
 	if app.processProposal == nil {
 		app.SetProcessProposal(abciProposalHandler.ProcessProposalHandler())
+	}
+
+	if app.sigCache == nil {
+		sigCache, err := lru.NewARC(inMemorySignatures)
+		if err != nil {
+			panic(err)
+		}
+		app.sigCache = sigCache
 	}
 
 	if app.interBlockCache != nil {
@@ -381,6 +409,7 @@ func (app *BaseApp) Init() error {
 	emptyHeader := tmproto.Header{ChainID: app.chainID}
 
 	// needed for the export command which inits from store but never calls initchain
+	app.setQueryState(emptyHeader)
 	app.setState(runTxModeCheck, emptyHeader)
 	app.Seal()
 
@@ -430,7 +459,7 @@ func (app *BaseApp) Seal() { app.sealed = true }
 func (app *BaseApp) IsSealed() bool { return app.sealed }
 
 // setState sets the BaseApp's state for the corresponding mode with a branched
-// multi-store (i.e. a CacheMultiStore) and a new Context with the same
+// multi-store (i.e., a CacheMultiStore) and a new Context with the same
 // multi-store branch, and provided header.
 func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	ms := app.cms.CacheMultiStore()
@@ -442,8 +471,15 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	switch mode {
 	case runTxModeCheck:
 		// Minimum gas prices are also set. It is set on InitChain and reset on Commit.
-		baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices)
-		app.checkState = baseState
+		var ms sdk.CacheMultiStore
+		if rs, ok := app.cms.(*rootmulti.Store); ok {
+			ms = rs.DeepCopyAndCache()
+			baseState.ms = ms
+			baseState.ctx = baseState.ctx.WithIsCheckTx(true).WithMinGasPrices(app.minGasPrices).WithMultiStore(ms)
+			app.checkState = baseState
+		} else {
+			panic(fmt.Sprintf("set checkState failed: %T is not rootmulti.Store", app.cms))
+		}
 	case runTxModeDeliver:
 		// It is set on InitChain and BeginBlock and set to nil on Commit.
 		app.deliverState = baseState
@@ -456,6 +492,36 @@ func (app *BaseApp) setState(mode runTxMode, header tmproto.Header) {
 	default:
 		panic(fmt.Sprintf("invalid runTxMode for setState: %d", mode))
 	}
+}
+
+func (app *BaseApp) setPreState(number int64, header tmproto.Header) {
+	app.preDeliverStates = app.preDeliverStates[:0] // reset, keep allocated memory
+
+	for i := int64(0); i < number; i++ {
+		var ms sdk.CacheMultiStore
+		if _, ok := app.cms.(*rootmulti.Store); ok {
+			ms = app.cms.(*rootmulti.Store).DeepCopyAndCache()
+		}
+
+		baseState := &state{
+			ms:  ms,
+			ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
+		}
+		app.preDeliverStates = append(app.preDeliverStates, baseState)
+	}
+}
+
+func (app *BaseApp) setQueryState(header tmproto.Header) {
+	var ms sdk.CommitMultiStore
+	if rs, ok := app.cms.(*rootmulti.Store); ok {
+		ms = rs.DeepCopy()
+	}
+
+	baseState := &queryState{
+		ms:  ms,
+		ctx: sdk.NewContext(ms, header, false, app.upgradeChecker, app.logger),
+	}
+	app.queryState = baseState
 }
 
 // GetConsensusParams returns the current consensus parameters from the BaseApp's
@@ -598,7 +664,8 @@ func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context 
 	}
 	ctx := modeState.ctx.
 		WithTxBytes(txBytes).
-		WithVoteInfos(app.voteInfos)
+		WithVoteInfos(app.voteInfos).
+		WithSigCache(app.sigCache)
 
 	ctx = ctx.WithConsensusParams(app.GetConsensusParams(ctx))
 
@@ -640,12 +707,16 @@ func (app *BaseApp) cacheTxContext(ctx sdk.Context, txBytes []byte) (sdk.Context
 // returned if the tx does not run out of gas and if all the messages are valid
 // and execute successfully. An error is returned otherwise.
 func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, result *sdk.Result, anteEvents []abci.Event, priority int64, err error) {
+	ctx := app.getContextForTx(mode, txBytes)
+	return app.runTxOnContext(ctx, mode, txBytes)
+}
+
+func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, result *sdk.Result, anteEvents []abci.Event, priority int64, err error) {
 	// NOTE: GasWanted should be returned by the AnteHandler. GasUsed is
 	// determined by the GasMeter. We need access to the context to get the gas
 	// meter, so we initialize upfront.
 	var gasWanted uint64
 
-	ctx := app.getContextForTx(mode, txBytes)
 	ms := ctx.MultiStore()
 	gInfo.MinGasPrice = app.minGasPrices.String()
 
@@ -667,7 +738,7 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 
 	// consumeBlockGas makes sure block gas is consumed at most once. It must
 	// happen after tx processing, and must be executed even if tx processing
-	// fails. Hence, it's execution is deferred.
+	// fails. Hence, its execution is deferred.
 	consumeBlockGas := func() {
 		if !blockGasConsumed {
 			blockGasConsumed = true
@@ -678,18 +749,27 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 	}
 
 	// If BlockGasMeter() panics it will be caught by the above recover and will
-	// return an error - in any case BlockGasMeter will consume gas past the limit.
+	// return an error - in any case, BlockGasMeter will consume gas past the limit.
 	//
 	// NOTE: consumeBlockGas must exist in a separate defer function from the
-	// general deferred recovery function to recover from consumeBlockGas as it'll
+	// general deferred recovery function to recover from consumeBlockGas, as it'll
 	// be executed first (deferred statements are executed as stack).
 	if mode == runTxModeDeliver {
 		defer consumeBlockGas()
 	}
 
-	tx, err := app.txDecoder(txBytes)
-	if err != nil {
-		return sdk.GasInfo{}, nil, nil, 0, err
+	var tx sdk.Tx
+	if ctx.SigCache() != nil && ctx.TxBytes() != nil {
+		if txCache, known := ctx.SigCache().Get(string(ctx.TxBytes())); known {
+			tx = txCache.(sdk.Tx)
+		}
+	}
+
+	if tx == nil {
+		tx, err = app.txDecoder(txBytes)
+		if err != nil {
+			return sdk.GasInfo{}, nil, nil, 0, err
+		}
 	}
 
 	msgs := tx.GetMsgs()
@@ -785,6 +865,10 @@ func (app *BaseApp) runTx(mode runTxMode, txBytes []byte) (gInfo sdk.GasInfo, re
 			msCache.Write()
 		}
 
+		if mode == runTxModePreDeliver {
+			msCache.Write()
+		}
+
 		if len(anteEvents) > 0 && (mode == runTxModeDeliver || mode == runTxModeSimulate) {
 			// append the events in the order of occurrence
 			result.Events = append(anteEvents, result.Events...)
@@ -806,7 +890,7 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 
 	// NOTE: GasWanted is determined by the AnteHandler and GasUsed by the GasMeter.
 	for i, msg := range msgs {
-		if mode != runTxModeDeliver && mode != runTxModeSimulate {
+		if mode != runTxModeDeliver && mode != runTxModeSimulate && mode != runTxModePreDeliver {
 			break
 		}
 

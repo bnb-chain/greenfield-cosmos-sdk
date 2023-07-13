@@ -38,6 +38,7 @@ var (
 type Store struct {
 	tree   Tree
 	logger log.Logger
+	diff   map[string]struct{}
 }
 
 // LoadStore returns an IAVL Store as a CommitKVStore. Internally, it will load the
@@ -159,7 +160,7 @@ func (st *Store) SetPruning(_ pruningtypes.PruningOptions) {
 	panic("cannot set pruning options on an initialized IAVL store")
 }
 
-// SetPruning panics as pruning options should be provided at initialization
+// GetPruning panics as pruning options should be provided at initialization
 // since IAVl accepts pruning options directly.
 func (st *Store) GetPruning() pruningtypes.PruningOptions {
 	panic("cannot get pruning options on an initialized IAVL store")
@@ -190,6 +191,18 @@ func (st *Store) CacheWrapWithTrace(w io.Writer, tc types.TraceContext) types.Ca
 	return cachekv.NewStore(tracekv.NewStore(st, w, tc))
 }
 
+func (st *Store) EnableDiff() {
+	st.diff = map[string]struct{}{}
+}
+
+func (st *Store) GetDiff() map[string]struct{} {
+	return st.diff
+}
+
+func (st *Store) ResetDiff() {
+	st.diff = map[string]struct{}{}
+}
+
 // Implements types.KVStore.
 func (st *Store) Set(key, value []byte) {
 	types.AssertValidKey(key)
@@ -197,6 +210,10 @@ func (st *Store) Set(key, value []byte) {
 	_, err := st.tree.Set(key, value)
 	if err != nil && st.logger != nil {
 		st.logger.Error("iavl set error", "error", err.Error())
+	}
+
+	if st.diff != nil {
+		st.diff[string(key)] = struct{}{}
 	}
 }
 
@@ -224,6 +241,10 @@ func (st *Store) Has(key []byte) (exists bool) {
 func (st *Store) Delete(key []byte) {
 	defer telemetry.MeasureSince(time.Now(), "store", "iavl", "delete")
 	st.tree.Remove(key)
+
+	if st.diff != nil {
+		st.diff[string(key)] = struct{}{}
+	}
 }
 
 // DeleteVersions deletes a series of versions from the MutableTree. An error
@@ -413,4 +434,11 @@ func getProofFromTree(tree *iavl.MutableTree, key []byte, exists bool) *tmcrypto
 
 	op := types.NewIavlCommitmentOp(key, commitmentProof)
 	return &tmcrypto.ProofOps{Ops: []tmcrypto.ProofOp{op.ProofOp()}}
+}
+
+func (st *Store) CloneMutableTree() *iavl.MutableTree {
+	if mutableTree, ok := st.tree.(*iavl.MutableTree); ok {
+		return iavl.CloneMutableTree(mutableTree)
+	}
+	return nil
 }
