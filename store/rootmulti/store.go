@@ -559,22 +559,20 @@ func (rs *Store) CacheMultiStoreWithVersion(version int64) (types.CacheMultiStor
 func (rs *Store) DeepCopyAndCache() types.CacheMultiStore {
 	stores := make(map[types.StoreKey]types.CacheWrapper)
 	for k, v := range rs.stores {
-		var storeCache *cache.CommitKVStoreCache
 		if store, ok := v.(*cache.CommitKVStoreCache); ok {
 			if iavlStore, ok := store.CommitKVStore.(*iavl.Store); ok {
 				tree := iavlStore.CloneMutableTree()
 				if tree != nil {
-					storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+					stores[k] = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000).CommitKVStore
 				}
 			}
 		} else if store, ok := v.(*iavl.Store); ok {
 			tree := store.CloneMutableTree()
 			if tree != nil {
-				storeCache = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000)
+				stores[k] = cache.NewCommitKVStoreCache(iavl.UnsafeNewStore(tree), 1000).CommitKVStore
 			}
-		}
-		if storeCache != nil {
-			stores[k] = storeCache.CommitKVStore
+		} else if _, ok := v.(*transient.Store); ok {
+			stores[k] = transient.NewStore()
 		}
 	}
 	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
