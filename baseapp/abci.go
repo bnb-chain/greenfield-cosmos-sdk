@@ -618,9 +618,11 @@ func (app *BaseApp) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 
 	// when a client did not provide a query height, manually inject the latest
 	if req.Height == 0 {
+		app.queryStateMtx.RLock()
 		if app.queryState != nil {
 			req.Height = app.queryState.ms.LatestVersion()
 		}
+		app.queryStateMtx.RUnlock()
 	}
 
 	telemetry.IncrCounter(1, "query", "count")
