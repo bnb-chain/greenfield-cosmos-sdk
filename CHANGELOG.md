@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.3-alpha.2
+This is a maintenance release.  
+
+* [#231](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/231) feat: enable diff on iavl store 
+* [#233](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/233) chore: bnb wording change 
+* [#232](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/232) feat: using abi.encode for update param tx 
+* [#222](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/222) feat: performance improvement 
+* [#234](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/234) staking: create validator in one transaction 
+* [#237](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/237) chore: update greenfield-cometbft-db version 
+* [#238](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/238) feat: show proposal failed reason 
+* [#239](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/239) feat: add bls verification 
+* [#242](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/242) feat: support cross chain for multiple blockchains 
+
 ## v0.2.3-alpha.1
 This release upgrades the reference cosmos-sdk to v0.47.3.
 Please refer to the [changelogs of cosmos-sdk v0.47.3](https://github.com/cosmos/cosmos-sdk/blob/v0.47.3/CHANGELOG.md) for more details regarding the changes.
