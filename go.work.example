@@ -12,6 +12,4 @@ use (
 	./tx
 	./simapp
 	./tests
-	./tools/rosetta
-	./tools/cosmovisor
 )

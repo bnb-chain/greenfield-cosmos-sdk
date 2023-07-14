@@ -35,11 +35,6 @@
   - x/staking/**/*
 "C:x/upgrade":
   - x/upgrade/**/*
-"C:Cosmovisor":
-  - tools/cosmovisor/**/*
-"C:Rosetta":
-  - contrib/rosetta/**/*
-  - tools/rosetta/**/*
 "C:Keys":
   - client/keys/**/*
 "Type: Build":
