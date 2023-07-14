@@ -17,14 +17,8 @@ cp ../x/auth/tx/README.md ./docs/modules/auth/2-tx.md
 ## Add modules page list
 cat ../x/README.md | sed 's/\.\.\/docs\/building-modules\/README\.md/\/building-modules\/intro\.html/g' > ./docs/modules/README.md
 
-## Add cosmovisor documentation
-cp ../tools/cosmovisor/README.md ./docs/tooling/01-cosmovisor.md
-
 ## Add depinject documentation
 cp ../depinject/README.md ./docs/tooling/02-depinject.md
-
-## Add rosetta documentation
-cp ../tools/rosetta/README.md ./docs/run-node/04-rosetta.md
 
 ## Add architecture documentation
 cp -r ./architecture ./docs
