@@ -91,6 +91,24 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
 	return nil
 }
 
+// UpdatePermissions updates the permission of channels
+func (k Keeper) UpdatePermissions(ctx sdk.Context, permissions []*types.ChannelPermission) error {
+	for _, permission := range permissions {
+		if !k.IsDestChainSupported(sdk.ChainID(permission.DestChainId)) {
+			return fmt.Errorf("dest chain %d is not supported", permission.DestChainId)
+		}
+		if !k.IsChannelSupported(sdk.ChannelID(permission.ChannelId)) {
+			return fmt.Errorf("channel %d is not supported", permission.ChannelId)
+		}
+		if sdk.ChannelPermission(permission.Permission) != sdk.ChannelAllow && sdk.ChannelPermission(permission.Permission) != sdk.ChannelForbidden {
+			return fmt.Errorf("permission %d is not supported", permission.Permission)
+		}
+
+		k.SetChannelSendPermission(ctx, sdk.ChainID(permission.DestChainId), sdk.ChannelID(permission.ChannelId), sdk.ChannelPermission(permission.Permission))
+	}
+	return nil
+}
+
 // CreateRawIBCPackageWithFee creates a cross chain package with given cross chain fee
 func (k Keeper) CreateRawIBCPackageWithFee(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID,
 	packageType sdk.CrossChainPackageType, packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
@@ -158,6 +176,12 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 // IsDestChainSupported returns the support status of a dest chain
 func (k Keeper) IsDestChainSupported(chainID sdk.ChainID) bool {
 	return chainID == k.cfg.destBscChainId
+}
+
+// IsChannelSupported returns the support status of a channel
+func (k Keeper) IsChannelSupported(channelId sdk.ChannelID) bool {
+	_, ok := k.cfg.channelIDToName[channelId]
+	return ok
 }
 
 // SetChannelSendPermission sets the channel send permission

@@ -102,3 +102,23 @@ func (s *TestSuite) TestSetChannelSendPermission() {
 	permission := s.crossChainKeeper.GetChannelSendPermission(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
 	s.Require().EqualValues(sdk.ChannelAllow, permission)
 }
+
+func (s *TestSuite) TestUpdateChannelPermission() {
+	s.crossChainKeeper.RegisterChannel("test", 1, &testutil2.MockCrossChainApplication{})
+	s.crossChainKeeper.SetDestChainID(1)
+
+	s.crossChainKeeper.SetChannelSendPermission(s.ctx, sdk.ChainID(1), sdk.ChannelID(1), sdk.ChannelAllow)
+
+	permissions := []*types.ChannelPermission{
+		&types.ChannelPermission{
+			DestChainId: 1,
+			ChannelId:   1,
+			Permission:  0,
+		},
+	}
+	err := s.crossChainKeeper.UpdatePermissions(s.ctx, permissions)
+	s.Require().NoError(err)
+
+	permission := s.crossChainKeeper.GetChannelSendPermission(s.ctx, sdk.ChainID(1), sdk.ChannelID(1))
+	s.Require().EqualValues(sdk.ChannelForbidden, permission)
+}
