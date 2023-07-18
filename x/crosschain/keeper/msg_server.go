@@ -33,3 +33,16 @@ func (k msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+func (k msgServer) UpdateChannelPermissions(goCtx context.Context, req *types.MsgUpdateChannelPermissions) (*types.MsgUpdateChannelPermissionsResponse, error) {
+	if k.GetAuthority() != req.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.GetAuthority(), req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.UpdatePermissions(ctx, req.ChannelPermissions); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateChannelPermissionsResponse{}, nil
+}
