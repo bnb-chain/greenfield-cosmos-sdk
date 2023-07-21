@@ -88,7 +88,7 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMirrorBucket", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgUpdateBucketInfo", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgCreateObject", 1.2e3),
-		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgSealObject", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgSealObject", 1.2e2),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMirrorObject", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgRejectSealObject", 1.2e4),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgDeleteObject", 1.2e3),
