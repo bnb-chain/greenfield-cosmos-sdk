@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.3-alpha.4
+This is a maintenance release.
+
+Features:
+* [#247](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/247) feat: add UpdateChannelPermissions tx for crosschain module
+
+Chores:
+* [#246](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/246) chore: remove unused tools
+* [#248](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/248) chore: implement base64 encoding in EIP712
+* [#249](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/249) chore: adjust MsgSealObject gas to 120
+
 ## v0.2.3-alpha.2
 This is a maintenance release.  
 
