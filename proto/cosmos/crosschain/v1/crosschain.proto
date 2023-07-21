@@ -18,3 +18,13 @@ message Params {
     (gogoproto.nullable) = false
   ];
 }
+
+// ChannelPermission defines the fields of the channel permission
+message ChannelPermission {
+  // destination chain id
+  uint32 dest_chain_id = 1;
+  // channel id
+  uint32 channel_id = 2;
+  // permission status, 1 for allow, 0 for forbidden
+  uint32 permission = 3;
+}

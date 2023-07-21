@@ -65,8 +65,73 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
+// ChannelPermission defines the fields of the channel permission
+type ChannelPermission struct {
+	// destination chain id
+	DestChainId uint32 `protobuf:"varint,1,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
+	// channel id
+	ChannelId uint32 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// permission status, 1 for allow, 0 for forbidden
+	Permission uint32 `protobuf:"varint,3,opt,name=permission,proto3" json:"permission,omitempty"`
+}
+
+func (m *ChannelPermission) Reset()         { *m = ChannelPermission{} }
+func (m *ChannelPermission) String() string { return proto.CompactTextString(m) }
+func (*ChannelPermission) ProtoMessage()    {}
+func (*ChannelPermission) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d7b94a7254cf916a, []int{1}
+}
+func (m *ChannelPermission) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ChannelPermission) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ChannelPermission.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ChannelPermission) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChannelPermission.Merge(m, src)
+}
+func (m *ChannelPermission) XXX_Size() int {
+	return m.Size()
+}
+func (m *ChannelPermission) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChannelPermission.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChannelPermission proto.InternalMessageInfo
+
+func (m *ChannelPermission) GetDestChainId() uint32 {
+	if m != nil {
+		return m.DestChainId
+	}
+	return 0
+}
+
+func (m *ChannelPermission) GetChannelId() uint32 {
+	if m != nil {
+		return m.ChannelId
+	}
+	return 0
+}
+
+func (m *ChannelPermission) GetPermission() uint32 {
+	if m != nil {
+		return m.Permission
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "cosmos.crosschain.v1.Params")
+	proto.RegisterType((*ChannelPermission)(nil), "cosmos.crosschain.v1.ChannelPermission")
 }
 
 func init() {
@@ -74,7 +139,7 @@ func init() {
 }
 
 var fileDescriptor_d7b94a7254cf916a = []byte{
-	// 253 bytes of a gzipped FileDescriptorProto
+	// 330 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x4d, 0xce, 0x2f, 0xce,
 	0xcd, 0x2f, 0xd6, 0x4f, 0x2e, 0xca, 0x2f, 0x2e, 0x4e, 0xce, 0x48, 0xcc, 0xcc, 0xd3, 0x2f, 0x33,
 	0x44, 0xe2, 0xe9, 0x15, 0x14, 0xe5, 0x97, 0xe4, 0x0b, 0x89, 0x40, 0x94, 0xe9, 0x21, 0x49, 0x94,
@@ -87,10 +152,15 @@ var fileDescriptor_d7b94a7254cf916a = []byte{
 	0x0f, 0x73, 0x3b, 0x98, 0xd2, 0x2d, 0x4e, 0xc9, 0xd6, 0x2f, 0xa9, 0x2c, 0x48, 0x2d, 0xd6, 0xf3,
 	0xcc, 0x2b, 0xb9, 0xb4, 0x45, 0x97, 0x0b, 0xea, 0x20, 0xcf, 0xbc, 0x92, 0x20, 0x41, 0x90, 0xc1,
 	0xbe, 0x60, 0x73, 0x9d, 0x20, 0xc6, 0x5a, 0x29, 0x77, 0x3d, 0xdf, 0xa0, 0x25, 0x87, 0xa4, 0xb7,
-	0x02, 0x39, 0x10, 0x20, 0x4e, 0x72, 0xf2, 0x3c, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6,
-	0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96, 0x63, 0xb8, 0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39,
-	0x86, 0x28, 0x7d, 0xbc, 0xee, 0x40, 0x31, 0x0b, 0xec, 0xa8, 0x24, 0x36, 0xb0, 0x7f, 0x8d, 0x01,
-	0x01, 0x00, 0x00, 0xff, 0xff, 0x5a, 0x39, 0xd6, 0x62, 0x72, 0x01, 0x00, 0x00,
+	0x02, 0x39, 0x10, 0x20, 0x4e, 0x52, 0x2a, 0xe3, 0x12, 0x74, 0xce, 0x48, 0xcc, 0xcb, 0x4b, 0xcd,
+	0x09, 0x48, 0x2d, 0xca, 0xcd, 0x2c, 0x2e, 0xce, 0xcc, 0xcf, 0x13, 0x52, 0xe2, 0xe2, 0x4d, 0x49,
+	0x2d, 0x2e, 0x89, 0x07, 0xab, 0x8c, 0xcf, 0x4c, 0x01, 0xbb, 0x90, 0x37, 0x88, 0x1b, 0x24, 0xe8,
+	0x0c, 0x12, 0xf3, 0x4c, 0x11, 0x92, 0xe5, 0xe2, 0x4a, 0x86, 0x68, 0x04, 0x29, 0x60, 0x02, 0x2b,
+	0xe0, 0x84, 0x8a, 0x78, 0xa6, 0x08, 0xc9, 0x71, 0x71, 0x15, 0xc0, 0x0d, 0x94, 0x60, 0x06, 0x4b,
+	0x23, 0x89, 0x38, 0x79, 0x9e, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72,
+	0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x3e,
+	0x5e, 0xff, 0xa3, 0xf8, 0x01, 0x1c, 0x18, 0x49, 0x6c, 0xe0, 0x70, 0x36, 0x06, 0x04, 0x00, 0x00,
+	0xff, 0xff, 0xcb, 0x97, 0x26, 0xfa, 0xea, 0x01, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -126,6 +196,44 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ChannelPermission) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ChannelPermission) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ChannelPermission) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Permission != 0 {
+		i = encodeVarintCrosschain(dAtA, i, uint64(m.Permission))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.ChannelId != 0 {
+		i = encodeVarintCrosschain(dAtA, i, uint64(m.ChannelId))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.DestChainId != 0 {
+		i = encodeVarintCrosschain(dAtA, i, uint64(m.DestChainId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintCrosschain(dAtA []byte, offset int, v uint64) int {
 	offset -= sovCrosschain(v)
 	base := offset
@@ -145,6 +253,24 @@ func (m *Params) Size() (n int) {
 	_ = l
 	l = m.InitModuleBalance.Size()
 	n += 1 + l + sovCrosschain(uint64(l))
+	return n
+}
+
+func (m *ChannelPermission) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.DestChainId != 0 {
+		n += 1 + sovCrosschain(uint64(m.DestChainId))
+	}
+	if m.ChannelId != 0 {
+		n += 1 + sovCrosschain(uint64(m.ChannelId))
+	}
+	if m.Permission != 0 {
+		n += 1 + sovCrosschain(uint64(m.Permission))
+	}
 	return n
 }
 
@@ -217,6 +343,113 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCrosschain(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthCrosschain
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ChannelPermission) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCrosschain
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ChannelPermission: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ChannelPermission: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestChainId", wireType)
+			}
+			m.DestChainId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCrosschain
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DestChainId |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelId", wireType)
+			}
+			m.ChannelId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCrosschain
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ChannelId |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Permission", wireType)
+			}
+			m.Permission = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCrosschain
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Permission |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipCrosschain(dAtA[iNdEx:])

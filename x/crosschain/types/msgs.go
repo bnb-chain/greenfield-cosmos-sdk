@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -26,6 +28,32 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 
 	if err := m.Params.Validate(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgUpdateChannelPermissions) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (m *MsgUpdateChannelPermissions) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromHexUnsafe(m.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (m *MsgUpdateChannelPermissions) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromHexUnsafe(m.Authority); err != nil {
+		return errorsmod.Wrap(err, "invalid authority address")
+	}
+
+	for _, per := range m.ChannelPermissions {
+		if per == nil {
+			return fmt.Errorf("channel permission is nil")
+		}
 	}
 
 	return nil
