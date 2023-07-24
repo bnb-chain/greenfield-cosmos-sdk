@@ -34,11 +34,14 @@ const (
 var strategy emittingStrategy
 
 func SetEventingOption(option string) {
-	if option == "" || option == EventingOptionEverything {
+	switch option {
+	case "":
 		strategy = emittingEverything
-	} else if option == EventingOptionNothing {
+	case EventingOptionEverything:
+		strategy = emittingEverything
+	case EventingOptionNothing:
 		strategy = emittingNothing
-	} else {
+	default:
 		panic("invalid eventing option")
 	}
 }
