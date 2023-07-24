@@ -272,7 +272,7 @@ func DefaultConfig() *Config {
 			Pruning:             pruningtypes.PruningOptionDefault,
 			PruningKeepRecent:   "0",
 			PruningInterval:     "0",
-			Eventing:            sdk.EventingOptionNothing,
+			Eventing:            sdk.EventingOptionEverything,
 			MinRetainBlocks:     0,
 			IndexEvents:         make([]string, 0),
 			IAVLCacheSize:       781250,
