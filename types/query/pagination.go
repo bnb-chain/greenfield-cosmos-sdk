@@ -38,9 +38,7 @@ func ParsePagination(pageReq *PageRequest) (page, limit int, err error) {
 
 	if limit < 0 {
 		return 1, 0, status.Error(codes.InvalidArgument, "limit must greater than 0")
-	} else if limit == 0 {
-		limit = DefaultLimit
-	} else if limit > DefaultLimit {
+	} else if limit > DefaultLimit || limit == 0 {
 		// limit to protect the node would not be Query DoS
 		limit = DefaultLimit
 	}
