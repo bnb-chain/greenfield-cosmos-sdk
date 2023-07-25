@@ -7,6 +7,9 @@ import (
 const (
 	// EnablePublicDelegationUpgrade is the upgrade name for enabling public delegation
 	EnablePublicDelegationUpgrade = "EnablePublicDelegationUpgrade"
+
+	// EnableGroupMemberExpirationUpgrade is the upgrade name for enabling group member expiration
+	EnableGroupMemberExpirationUpgrade = "EnableGroupMemberExpirationUpgrade"
 )
 
 // The default upgrade config for networks
