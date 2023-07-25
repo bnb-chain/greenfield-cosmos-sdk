@@ -48,6 +48,8 @@ type BaseConfig struct {
 	PruningKeepRecent string `mapstructure:"pruning-keep-recent"`
 	PruningInterval   string `mapstructure:"pruning-interval"`
 
+	Eventing string `mapstructure:"eventing"`
+
 	// HaltHeight contains a non-zero block height at which a node will gracefully
 	// halt and shutdown that can be used to assist upgrades and testing.
 	//
@@ -270,6 +272,7 @@ func DefaultConfig() *Config {
 			Pruning:             pruningtypes.PruningOptionDefault,
 			PruningKeepRecent:   "0",
 			PruningInterval:     "0",
+			Eventing:            sdk.EventingOptionEverything,
 			MinRetainBlocks:     0,
 			IndexEvents:         make([]string, 0),
 			IAVLCacheSize:       781250,

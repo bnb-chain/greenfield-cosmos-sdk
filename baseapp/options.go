@@ -24,6 +24,11 @@ func SetPruning(opts pruningtypes.PruningOptions) func(*BaseApp) {
 	return func(bapp *BaseApp) { bapp.cms.SetPruning(opts) }
 }
 
+// SetEventing sets an eventing option on the event manager with the app
+func SetEventing(eventingStr string) func(*BaseApp) {
+	return func(bapp *BaseApp) { sdk.SetEventingOption(eventingStr) }
+}
+
 // SetMinGasPrices returns an option that sets the minimum gas prices on the app.
 func SetMinGasPrices(gasPricesStr string) func(*BaseApp) {
 	gasPrices, err := sdk.ParseDecCoins(gasPricesStr)
