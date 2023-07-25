@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.3-alpha.5
+This is a maintenance release.
+
+Features:
+* [#253](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/253) feat: add option for disabling event emit
+
+Fix:
+* [#252](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/252) fix: limit pagination to protect the node would not be Query DoS
+
 ## v0.2.3-alpha.4
 This is a maintenance release.
 
