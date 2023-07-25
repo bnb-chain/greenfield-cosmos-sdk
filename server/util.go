@@ -480,6 +480,7 @@ func DefaultBaseappOptions(appOpts types.AppOptions) []func(*baseapp.BaseApp) {
 
 	return []func(*baseapp.BaseApp){
 		baseapp.SetPruning(pruningOpts),
+		baseapp.SetEventing(cast.ToString(appOpts.Get(FlagEventing))),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(FlagHaltHeight))),
 		baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(FlagHaltTime))),

@@ -31,6 +31,10 @@ pruning = "{{ .BaseConfig.Pruning }}"
 pruning-keep-recent = "{{ .BaseConfig.PruningKeepRecent }}"
 pruning-interval = "{{ .BaseConfig.PruningInterval }}"
 
+# everything: all events will be emitted
+# nothing: no events will be emitted.
+eventing = "{{ .BaseConfig.Eventing }}"
+
 # HaltHeight contains a non-zero block height at which a node will gracefully
 # halt and shutdown that can be used to assist upgrades and testing.
 #

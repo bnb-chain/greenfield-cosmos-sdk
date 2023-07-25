@@ -16,6 +16,36 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
+// EventingOptionEverything will allow to emit all events.
+const EventingOptionEverything = "everything"
+
+// EventingOptionNothing will emit none events.
+const EventingOptionNothing = "nothing"
+
+type emittingStrategy int
+
+const (
+	// emittingEverything strategy will emit everything.
+	emittingEverything emittingStrategy = iota
+	// emittingNothing strategy will emit nothing.
+	emittingNothing
+)
+
+var strategy emittingStrategy
+
+func SetEventingOption(option string) {
+	switch option {
+	case "":
+		strategy = emittingEverything
+	case EventingOptionEverything:
+		strategy = emittingEverything
+	case EventingOptionNothing:
+		strategy = emittingNothing
+	default:
+		panic("invalid eventing option")
+	}
+}
+
 // ----------------------------------------------------------------------------
 // Event Manager
 // ----------------------------------------------------------------------------
@@ -35,12 +65,18 @@ func (em *EventManager) Events() Events { return em.events }
 // EmitEvent stores a single Event object.
 // Deprecated: Use EmitTypedEvent
 func (em *EventManager) EmitEvent(event Event) {
+	if strategy == emittingNothing {
+		return
+	}
 	em.events = em.events.AppendEvent(event)
 }
 
 // EmitEvents stores a series of Event objects.
 // Deprecated: Use EmitTypedEvents
 func (em *EventManager) EmitEvents(events Events) {
+	if strategy == emittingNothing {
+		return
+	}
 	em.events = em.events.AppendEvents(events)
 }
 
@@ -51,6 +87,9 @@ func (em EventManager) ABCIEvents() []abci.Event {
 
 // EmitTypedEvent takes typed event and emits converting it into Event
 func (em *EventManager) EmitTypedEvent(tev proto.Message) error {
+	if strategy == emittingNothing {
+		return nil
+	}
 	event, err := TypedEventToEvent(tev)
 	if err != nil {
 		return err
@@ -62,6 +101,9 @@ func (em *EventManager) EmitTypedEvent(tev proto.Message) error {
 
 // EmitTypedEvents takes series of typed events and emit
 func (em *EventManager) EmitTypedEvents(tevs ...proto.Message) error {
+	if strategy == emittingNothing {
+		return nil
+	}
 	events := make(Events, len(tevs))
 	for i, tev := range tevs {
 		res, err := TypedEventToEvent(tev)
