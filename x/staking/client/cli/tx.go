@@ -101,7 +101,8 @@ Where create_validator_proposal.json contains:
 			"from": "0x7b5Fe22B5446f7C62Ea27B8BD71CeF94e03f3dF2",
 			"relayer_address": "${RELAYER_ADDR}",
 			"challenger_address": "${CHALLENGER_ADDR}",
-			"bls_key": "${VALIDATOR_BLS}"
+			"bls_key": "${VALIDATOR_BLS}",
+			"bls_proof": "${VALIDATOR_BLS_PROOF}"
 		}
 	],
 	"metadata": "",
