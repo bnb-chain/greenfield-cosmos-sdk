@@ -44,6 +44,7 @@ type Context struct {
 	upgradeChecker       func(ctx Context, name string) bool
 	txSize               uint64 // The tx bytes length
 	sigCache             *lru.ARCCache
+	enableUnsafeQuery    bool
 }
 
 // Proposed rename, not done to avoid API breakage
@@ -74,6 +75,10 @@ func (c Context) IsUpgraded(name string) bool {
 		return false
 	}
 	return c.upgradeChecker(c, name)
+}
+
+func (c Context) IsEnableUnsafeQuery() bool {
+	return c.enableUnsafeQuery
 }
 
 // clone the header before returning
@@ -276,6 +281,12 @@ func (c Context) WithTxSize(s uint64) Context {
 // WithSigCache returns a Context with a signature cache
 func (c Context) WithSigCache(cache *lru.ARCCache) Context {
 	c.sigCache = cache
+	return c
+}
+
+// WithEnableUnsafeQuery returns a Context with unsafe query enabled
+func (c Context) WithEnableUnsafeQuery(enabled bool) Context {
+	c.enableUnsafeQuery = enabled
 	return c
 }
 
