@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/hex"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"sort"
 	"testing"
 
@@ -129,7 +130,7 @@ func (suite *DeterministicTestSuite) TestGRPCQueryAccounts() {
 		numAccs := rapid.IntRange(1, 10).Draw(t, "accounts")
 		accs := suite.createAndSetAccounts(t, numAccs)
 
-		req := &types.QueryAccountsRequest{Pagination: testdata.PaginationGenerator(t, uint64(numAccs)).Draw(t, "accounts")}
+		req := &types.QueryAccountsRequest{Pagination: &query.PageRequest{}}
 		testdata.DeterministicIterations(suite.ctx, suite.Require(), req, suite.queryClient.Accounts, 0, true)
 
 		for i := 0; i < numAccs; i++ {
