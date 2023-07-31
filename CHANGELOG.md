@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.3
+This is a official release for v0.2.3, includes all the changes since v0.2.2.
+
+* [#259](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/259) disable sp exit and bucket migrate 
+
 ## v0.2.3-alpha.5
 This is a maintenance release.
 
