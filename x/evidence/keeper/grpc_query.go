@@ -62,7 +62,9 @@ func (k Keeper) AllEvidence(c context.Context, req *types.QueryAllEvidenceReques
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	k.GetAllEvidence(ctx)
+	if err := query.CheckOffsetQueryNotAllowed(ctx, req.Pagination); err != nil {
+		return nil, err
+	}
 
 	var evidence []*codectypes.Any
 	store := ctx.KVStore(k.storeKey)
