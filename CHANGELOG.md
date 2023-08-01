@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.3
+This is a official release for v0.2.3, includes all the changes since v0.2.2.
+
 ## v0.2.3-alpha.5
 This is a maintenance release.
 
