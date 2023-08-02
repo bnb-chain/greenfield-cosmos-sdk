@@ -188,7 +188,7 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 	cmd.Flags().Uint(FlagInvCheckPeriod, 0, "Assert registered invariants every N blocks")
 	cmd.Flags().Uint64(FlagMinRetainBlocks, 0, "Minimum block height offset during ABCI commit to prune Tendermint blocks")
 	cmd.Flags().String(FlagEventing, sdk.EventingOptionEverything, "Eventing strategy (everything|nothing)")
-	cmd.Flags().Bool(FlagEnableUnsafeQuery, true, "Define if unsafe query should be enabled (unsafe - use it at your own risk)")
+	cmd.Flags().Bool(FlagEnableUnsafeQuery, false, "Define if unsafe query should be enabled (unsafe - use it at your own risk)")
 
 	cmd.Flags().Bool(FlagAPIEnable, false, "Define if the API server should be enabled")
 	cmd.Flags().Bool(FlagAPISwagger, false, "Define if swagger documentation should automatically be registered (Note: the API must also be enabled)")
