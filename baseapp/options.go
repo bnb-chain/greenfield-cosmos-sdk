@@ -102,6 +102,11 @@ func SetChainID(chainID string) func(*BaseApp) {
 	return func(app *BaseApp) { app.chainID = chainID }
 }
 
+// SetEnableUnsafeQuery sets the flag to enable unsafe query in BaseApp.
+func SetEnableUnsafeQuery(enabled bool) func(*BaseApp) {
+	return func(app *BaseApp) { app.enableUnsafeQuery = enabled }
+}
+
 func (app *BaseApp) SetName(name string) {
 	if app.sealed {
 		panic("SetName() on sealed BaseApp")

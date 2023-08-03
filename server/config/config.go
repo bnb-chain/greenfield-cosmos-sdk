@@ -98,6 +98,9 @@ type BaseConfig struct {
 	// AppDBBackend defines the type of Database to use for the application and snapshots databases.
 	// An empty string indicates that the Tendermint config's DBBackend value should be used.
 	AppDBBackend string `mapstructure:"app-db-backend"`
+
+	// EnableUnsafeQuery enable/disable unsafe query apis.
+	EnableUnsafeQuery bool `mapstructure:"enable-unsafe-query"`
 }
 
 // APIConfig defines the API listener configuration.
@@ -279,6 +282,7 @@ func DefaultConfig() *Config {
 			IAVLDisableFastNode: false,
 			IAVLLazyLoading:     false,
 			AppDBBackend:        "",
+			EnableUnsafeQuery:   false,
 		},
 		Telemetry: telemetry.Config{
 			Enabled:      false,

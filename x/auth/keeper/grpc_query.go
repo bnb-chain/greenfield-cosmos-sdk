@@ -45,6 +45,12 @@ func (ak AccountKeeper) Accounts(c context.Context, req *types.QueryAccountsRequ
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
+
+	// offset query is not allowed
+	if err := query.CheckOffsetQueryNotAllowed(ctx, req.Pagination); err != nil {
+		return nil, err
+	}
+
 	store := ctx.KVStore(ak.storeKey)
 	accountsStore := prefix.NewStore(store, types.AddressStoreKeyPrefix)
 
