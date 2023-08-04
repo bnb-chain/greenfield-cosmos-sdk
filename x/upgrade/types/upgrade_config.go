@@ -8,10 +8,9 @@ const (
 	// EnablePublicDelegationUpgrade is the upgrade name for enabling public delegation
 	EnablePublicDelegationUpgrade = "EnablePublicDelegationUpgrade"
 
-	// TODO: name is to be determined
-	// BEP1001 is the upgrade name for following features:
+	// Nagqu is the upgrade name for following features:
 	// - group member expiration
-	BEP1001 = "BEP1001"
+	Nagqu = "Nagqu"
 )
 
 // The default upgrade config for networks
