@@ -9,7 +9,6 @@ const (
 	EnablePublicDelegationUpgrade = "EnablePublicDelegationUpgrade"
 
 	// Nagqu is the upgrade name for following features:
-	// - group member expiration
 	Nagqu = "Nagqu"
 )
 

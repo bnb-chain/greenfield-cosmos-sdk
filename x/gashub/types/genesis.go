@@ -102,6 +102,7 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgLeaveGroup", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgUpdateGroupMember", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgUpdateGroupExtra", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgRenewGroupMember", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMirrorGroup", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgPutPolicy", 2.4e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgDeletePolicy", 1.2e3),
