@@ -1,7 +1,7 @@
 # Changelog
 
 ## v0.2.4-alpha.1  
-This ia a maintenance release.
+This release includes 4 features and 1 bugfix.
 
 Features:
 * [#256](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/256) feat: add Nagqu fork name
