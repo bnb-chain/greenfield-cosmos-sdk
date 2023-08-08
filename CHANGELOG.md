@@ -4,16 +4,13 @@
 This release includes 4 features and 1 bugfix.
 
 Features:
-* [#256](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/256) feat: add Nagqu fork name
+* [#256](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/256) feat: add Nagqu fork name for upcoming upgrading
 * [#258](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/258) feat: add flag to enable or disable heavy queries
-* [#263](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/263) feat: add MsgRenewGroupMember gas
-* [#262](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/262) feat: add msg
+* [#263](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/263) feat: add MsgRenewGroupMember to renew storage group member  
+* [#262](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/262) feat: add MsgUpdateStorageProviderStatus to update sp status  
 
 Fix:  
 * [#257](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/257) fix: add bls proof in proposal description
-
-Documentation:  
-* [#261](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/261) docs: prepare release 0.2.3
 
 ## v0.2.3
 This is a official release for v0.2.3, includes all the changes since v0.2.2.
