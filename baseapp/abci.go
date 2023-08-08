@@ -954,7 +954,8 @@ func (app *BaseApp) CreateQueryContext(height int64, prove bool, path ...string)
 	// branch the commit-multistore for safety
 	ctx := sdk.NewContext(cacheMS, qs.ctx.BlockHeader(), true, app.upgradeChecker, app.logger).
 		WithMinGasPrices(app.minGasPrices).
-		WithBlockHeight(height)
+		WithBlockHeight(height).
+		WithEnableUnsafeQuery(app.enableUnsafeQuery)
 
 	if height != lastBlockHeight {
 		rms, ok := app.cms.(*rootmulti.Store)

@@ -163,8 +163,11 @@ type BaseApp struct { //nolint: maligned
 	// upgradeChecker is a hook function from the upgrade module to check upgrade is executed or not.
 	upgradeChecker func(ctx sdk.Context, name string) bool
 
-	// Signatures of recent blocks to speed up
+	// sigCache caches the signatures of recent blocks to speed up
 	sigCache *lru.ARCCache
+
+	// enableUnsafeQuery defines whether the unsafe queries will be enabled or not
+	enableUnsafeQuery bool
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a

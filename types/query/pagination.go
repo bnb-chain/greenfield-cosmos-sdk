@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultPage is the default `page` number for queries.
@@ -22,6 +23,14 @@ const DefaultLimit = 100
 // MaxLimit is the maximum limit the paginate function can handle
 // which equals the maximum value that can be stored in uint64
 const MaxLimit = math.MaxUint64
+
+// CheckOffsetQueryNotAllowed is used for checking query which offset/count total parameter is not allowed
+func CheckOffsetQueryNotAllowed(ctx sdk.Context, req *PageRequest) error {
+	if req != nil && (req.Offset > 0 || req.CountTotal) && !ctx.IsEnableUnsafeQuery() {
+		return status.Error(codes.InvalidArgument, "query with offset/count total is not allowed")
+	}
+	return nil
+}
 
 // ParsePagination validate PageRequest and returns page number & limit.
 func ParsePagination(pageReq *PageRequest) (page, limit int, err error) {

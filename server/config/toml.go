@@ -91,6 +91,10 @@ iavl-lazy-loading = {{ .BaseConfig.IAVLLazyLoading }}
 # Second fallback (if the types.DBBackend also isn't set), is the db-backend value set in Tendermint's config.toml.
 app-db-backend = "{{ .BaseConfig.AppDBBackend }}"
 
+# EnableUnsafeQuery enables or disables the unsafe queries.
+# Default is false.
+enable-unsafe-query = "{{ .BaseConfig.EnableUnsafeQuery }}"
+
 ###############################################################################
 ###                           Upgrade Configuration                         ###
 ###############################################################################

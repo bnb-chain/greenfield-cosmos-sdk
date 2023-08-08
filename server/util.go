@@ -498,6 +498,7 @@ func DefaultBaseappOptions(appOpts types.AppOptions) []func(*baseapp.BaseApp) {
 		),
 		baseapp.SetIAVLLazyLoading(cast.ToBool(appOpts.Get(FlagIAVLLazyLoading))),
 		baseapp.SetChainID(chainID),
+		baseapp.SetEnableUnsafeQuery(cast.ToBool(appOpts.Get(FlagEnableUnsafeQuery))),
 	}
 }
 
