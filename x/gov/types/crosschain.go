@@ -6,11 +6,9 @@ import (
 )
 
 const (
-	SyncParamsChannel   = "syncParametersChange"
-	SyncSequenceChannel = "syncSequence"
+	SyncParamsChannel = "syncParametersChange"
 
-	SyncParamsChannelID   sdk.ChannelID = 3
-	SyncSequenceChannelID sdk.ChannelID = 7
+	SyncParamsChannelID sdk.ChannelID = 3
 
 	KeyUpgrade = "upgrade"
 )
