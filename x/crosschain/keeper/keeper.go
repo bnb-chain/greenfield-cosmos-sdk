@@ -175,7 +175,13 @@ func (k Keeper) RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChai
 
 // IsDestChainSupported returns the support status of a dest chain
 func (k Keeper) IsDestChainSupported(chainID sdk.ChainID) bool {
-	return chainID == k.cfg.destBscChainId
+	if chainID == k.cfg.destBscChainId {
+		return true
+	}
+	if k.cfg.destOpChainId != 0 && chainID == k.cfg.destOpChainId {
+		return true
+	}
+	return false
 }
 
 // IsChannelSupported returns the support status of a channel
@@ -210,14 +216,24 @@ func (k Keeper) GetSrcChainID() sdk.ChainID {
 	return k.cfg.srcChainID
 }
 
-// SetDestChainID sets the destination chain id
-func (k Keeper) SetDestChainID(destChainId sdk.ChainID) {
+// SetDestBscChainID sets the destination chain id
+func (k Keeper) SetDestBscChainID(destChainId sdk.ChainID) {
 	k.cfg.destBscChainId = destChainId
 }
 
 // GetDestBscChainID gets the destination chain id of bsc
 func (k Keeper) GetDestBscChainID() sdk.ChainID {
 	return k.cfg.destBscChainId
+}
+
+// SetDestOpChainID sets the destination chain id of op chain
+func (k Keeper) SetDestOpChainID(destChainId sdk.ChainID) {
+	k.cfg.destOpChainId = destChainId
+}
+
+// GetDestOpChainID gets the destination chain id of op chain
+func (k Keeper) GetDestOpChainID() sdk.ChainID {
+	return k.cfg.destOpChainId
 }
 
 // GetCrossChainPackage returns the ibc package by sequence

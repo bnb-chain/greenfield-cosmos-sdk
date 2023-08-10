@@ -93,6 +93,7 @@ func setupGovKeeper(t *testing.T) (
 
 	crossChainKeeper.EXPECT().GetDestBscChainID().Return(sdk.ChainID(714)).AnyTimes()
 	crossChainKeeper.EXPECT().CreateRawIBCPackageWithFee(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(uint64(0), nil).AnyTimes()
+	crossChainKeeper.EXPECT().IsDestChainSupported(gomock.Any()).Return(true).AnyTimes()
 
 	// Register all handlers for the MegServiceRouter.
 	msr.SetInterfaceRegistry(encCfg.InterfaceRegistry)

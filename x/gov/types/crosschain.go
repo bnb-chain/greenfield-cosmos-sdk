@@ -6,9 +6,13 @@ import (
 )
 
 const (
-	SyncParamsChannel                 = "syncParametersChange"
-	SyncParamsChannelID sdk.ChannelID = 3
-	KeyUpgrade                        = "upgrade"
+	SyncParamsChannel   = "syncParametersChange"
+	SyncSequenceChannel = "syncSequence"
+
+	SyncParamsChannelID   sdk.ChannelID = 3
+	SyncSequenceChannelID sdk.ChannelID = 7
+
+	KeyUpgrade = "upgrade"
 )
 
 // SyncParamsPackage is the payload to be encoded for cross-chain IBC package
