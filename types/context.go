@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	lru "github.com/hashicorp/golang-lru"
 
+	"github.com/cosmos/cosmos-sdk/store/gaskv"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
@@ -313,15 +314,13 @@ func (c Context) Value(key interface{}) interface{} {
 // ----------------------------------------------------------------------------
 
 // KVStore fetches a KVStore from the MultiStore.
-// Remove gas metering
 func (c Context) KVStore(key storetypes.StoreKey) storetypes.KVStore {
-	return c.MultiStore().GetKVStore(key)
+	return gaskv.NewStore(c.ms.GetKVStore(key), c.gasMeter, c.kvGasConfig)
 }
 
 // TransientStore fetches a TransientStore from the MultiStore.
-// Remove gas metering
 func (c Context) TransientStore(key storetypes.StoreKey) storetypes.KVStore {
-	return c.MultiStore().GetKVStore(key)
+	return gaskv.NewStore(c.ms.GetKVStore(key), c.gasMeter, c.kvGasConfig)
 }
 
 // CacheContext returns a new Context with the multi-store cached and a new

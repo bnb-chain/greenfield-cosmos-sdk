@@ -74,6 +74,14 @@ func (d debuggingGasMeter) String() string {
 	return d.g.String()
 }
 
+func (d debuggingGasMeter) RwConsumed() storetypes.Gas {
+	return d.g.RwConsumed()
+}
+
+func (d debuggingGasMeter) ConsumeRw(amount storetypes.Gas, descriptor string) {
+	d.g.ConsumeRw(amount, descriptor)
+}
+
 type GasCountingMockContext struct {
 	GasMeter sdk.GasMeter
 }

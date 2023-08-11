@@ -85,7 +85,6 @@ type MsgGasParams struct {
 	// gas_params is the oneof that represents either fixed_gas_params or dynamic_gas_params
 	//
 	// Types that are valid to be assigned to GasParams:
-	//
 	//	*MsgGasParams_FixedType
 	//	*MsgGasParams_GrantType
 	//	*MsgGasParams_MultiSendType

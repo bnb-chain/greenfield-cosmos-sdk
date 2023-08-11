@@ -436,6 +436,7 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		telemetry.IncrCounter(1, "tx", resultStr)
 		telemetry.SetGauge(float32(gInfo.GasUsed), "tx", "gas", "used")
 		telemetry.SetGauge(float32(gInfo.GasWanted), "tx", "gas", "wanted")
+		telemetry.SetGauge(float32(gInfo.GasWanted), "tx", "gas", "rwused")
 	}()
 
 	gInfo, result, anteEvents, _, err := app.runTx(runTxModeDeliver, req.Tx)
@@ -444,11 +445,14 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		return sdkerrors.ResponseDeliverTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, sdk.MarkEventsToIndex(anteEvents, app.indexEvents), app.trace)
 	}
 
+	app.deliverState.ctx.Logger().Debug("Gas info rw used", "RwUsed", gInfo.RwUsed, "height", app.deliverState.ctx.BlockHeight())
+	rwUsedBz := sdk.Uint64ToBigEndian(gInfo.RwUsed)
+
 	return abci.ResponseDeliverTx{
 		GasWanted: int64(gInfo.GasWanted), // TODO: Should type accept unsigned ints?
 		GasUsed:   int64(gInfo.GasUsed),   // TODO: Should type accept unsigned ints?
 		Log:       result.Log,
-		Data:      result.Data,
+		Data:      append(result.Data, rwUsedBz...),
 		Events:    sdk.MarkEventsToIndex(result.Events, app.indexEvents),
 	}
 }
