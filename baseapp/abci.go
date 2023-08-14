@@ -224,6 +224,7 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 	if app.beginBlocker != nil {
 		res = app.beginBlocker(app.deliverState.ctx, req)
 		res.Events = sdk.MarkEventsToIndex(res.Events, app.indexEvents)
+		res.ExtraData = sdk.Uint64ToBigEndian(app.deliverState.ctx.GasMeter().RwConsumed())
 	}
 	// set the signed validators for addition to context in deliverTx
 	app.voteInfos = req.LastCommitInfo.GetVotes()
@@ -247,6 +248,7 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 	if app.endBlocker != nil {
 		res = app.endBlocker(app.deliverState.ctx, req)
 		res.Events = sdk.MarkEventsToIndex(res.Events, app.indexEvents)
+		res.ExtraData = sdk.Uint64ToBigEndian(app.deliverState.ctx.GasMeter().RwConsumed())
 	}
 
 	if cp := app.GetConsensusParams(app.deliverState.ctx); cp != nil {
@@ -1167,6 +1169,7 @@ func SplitABCIQueryPath(requestPath string) (path []string) {
 func (app *BaseApp) getContextForProposal(ctx sdk.Context, height int64) sdk.Context {
 	if height == app.initialHeight {
 		ctx, _ = app.deliverState.ctx.CacheContext()
+		ctx = ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 
 		// clear all context data set during InitChain to avoid inconsistent behavior
 		ctx = ctx.WithBlockHeader(tmproto.Header{})
