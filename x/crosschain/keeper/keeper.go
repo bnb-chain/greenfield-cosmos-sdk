@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -22,17 +23,24 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 
 	authority string
+
+	stakingKeeper types.StakingKeeper
+	bankKeeper    types.BankKeeper
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, authority string,
+	stakingKeeper types.StakingKeeper,
+	bankKeeper types.BankKeeper,
 ) Keeper {
 	return Keeper{
-		cdc:       cdc,
-		storeKey:  key,
-		cfg:       newCrossChainCfg(),
-		authority: authority,
+		cdc:           cdc,
+		storeKey:      key,
+		cfg:           newCrossChainCfg(),
+		authority:     authority,
+		stakingKeeper: stakingKeeper,
+		bankKeeper:    bankKeeper,
 	}
 }
 
@@ -292,4 +300,16 @@ func (k Keeper) incrSequence(ctx sdk.Context, destChainID sdk.ChainID, channelID
 // GetCrossChainApp returns the cross chain app by channel id
 func (k Keeper) GetCrossChainApp(channelID sdk.ChannelID) sdk.CrossChainApplication {
 	return k.cfg.channelIDToApp[channelID]
+}
+
+func (k Keeper) MintModuleAccountTokens(ctx sdk.Context, amount math.Int) error {
+	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.Coin{
+		Denom:  bondDenom,
+		Amount: amount,
+	}})
+	if err != nil {
+		return fmt.Errorf("mint cross chain module amount error, err=%s", err.Error())
+	}
+	return nil
 }
