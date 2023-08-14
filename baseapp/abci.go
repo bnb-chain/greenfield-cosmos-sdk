@@ -445,23 +445,11 @@ func (app *BaseApp) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliv
 		return sdkerrors.ResponseDeliverTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, sdk.MarkEventsToIndex(anteEvents, app.indexEvents), app.trace)
 	}
 
-	app.deliverState.ctx.Logger().Debug("Gas info rw used", "RwUsed", gInfo.RwUsed, "height", app.deliverState.ctx.BlockHeight())
-	rwUsedBz := sdk.Uint64ToBigEndian(gInfo.RwUsed)
-
-	msgData := &sdk.TxMsgData{}
-	proto.Unmarshal(result.Data, msgData)
-	msgData.ExtraData = rwUsedBz
-	bz, err := proto.Marshal(msgData)
-	if err != nil {
-		resultStr = "failed"
-		return sdkerrors.ResponseDeliverTxWithEvents(err, gInfo.GasWanted, gInfo.GasUsed, sdk.MarkEventsToIndex(anteEvents, app.indexEvents), app.trace)
-	}
-
 	return abci.ResponseDeliverTx{
 		GasWanted: int64(gInfo.GasWanted), // TODO: Should type accept unsigned ints?
 		GasUsed:   int64(gInfo.GasUsed),   // TODO: Should type accept unsigned ints?
 		Log:       result.Log,
-		Data:      bz,
+		Data:      result.Data,
 		Events:    sdk.MarkEventsToIndex(result.Events, app.indexEvents),
 	}
 }

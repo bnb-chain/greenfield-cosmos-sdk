@@ -292,7 +292,7 @@ func (app *BaseApp) MountStores(keys ...storetypes.StoreKey) {
 	for _, key := range keys {
 		switch key.(type) {
 		case *storetypes.KVStoreKey:
-			if !app.fauxMerkleMode && !app.enablePlainStore {
+			if app.IsIavlStore() {
 				app.MountStore(key, storetypes.StoreTypeIAVL)
 			} else {
 				// StoreTypeDB doesn't do anything upon commit, and it doesn't
@@ -316,7 +316,7 @@ func (app *BaseApp) MountStores(keys ...storetypes.StoreKey) {
 // BaseApp multistore.
 func (app *BaseApp) MountKVStores(keys map[string]*storetypes.KVStoreKey) {
 	for _, key := range keys {
-		if !app.fauxMerkleMode && !app.enablePlainStore {
+		if app.IsIavlStore() {
 			app.MountStore(key, storetypes.StoreTypeIAVL)
 		} else {
 			// StoreTypeDB doesn't do anything upon commit, and it doesn't
@@ -944,7 +944,8 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 		msgLogs = append(msgLogs, sdk.NewABCIMessageLog(uint32(i), msgResult.Log, msgEvents))
 	}
 
-	data, err := makeABCIData(msgResponses)
+	rwUsedBz := sdk.Uint64ToBigEndian(ctx.GasMeter().RwConsumed())
+	data, err := makeABCIData(msgResponses, rwUsedBz)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to marshal tx data")
 	}
@@ -958,8 +959,8 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 }
 
 // makeABCIData generates the Data field to be sent to ABCI Check/DeliverTx.
-func makeABCIData(msgResponses []*codectypes.Any) ([]byte, error) {
-	return proto.Marshal(&sdk.TxMsgData{MsgResponses: msgResponses})
+func makeABCIData(msgResponses []*codectypes.Any, extraDate []byte) ([]byte, error) {
+	return proto.Marshal(&sdk.TxMsgData{MsgResponses: msgResponses, ExtraData: extraDate})
 }
 
 func createEvents(events sdk.Events, msg sdk.Msg) sdk.Events {
