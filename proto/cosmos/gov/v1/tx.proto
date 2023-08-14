@@ -184,6 +184,8 @@ message MsgUpdateCrossChainParams {
 
   // for cross chain param change or contract upgrade
   CrossChainParamsChange params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+
+  uint32 dest_chain_id = 3;
 }
 
 // MsgUpdateCrossChainParamsResponse defines the response structure for executing a MsgUpdateCrossChainParams message.

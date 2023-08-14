@@ -35,4 +35,6 @@ var (
 	ErrExceedParamsChangeLimit = errors.Register(ModuleName, 27, "exceed params change limit")
 	ErrInvalidUpgradeProposal  = errors.Register(ModuleName, 28, "invalid sync params package")
 	ErrInvalidValue            = errors.Register(ModuleName, 29, "decode hex value failed")
+
+	ErrChainNotSupported = errors.Register(ModuleName, 30, "crosschain: chain is not supported")
 )

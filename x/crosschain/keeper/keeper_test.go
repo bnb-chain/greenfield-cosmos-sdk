@@ -105,7 +105,7 @@ func (s *TestSuite) TestSetChannelSendPermission() {
 
 func (s *TestSuite) TestUpdateChannelPermission() {
 	s.crossChainKeeper.RegisterChannel("test", 1, &testutil2.MockCrossChainApplication{})
-	s.crossChainKeeper.SetDestChainID(1)
+	s.crossChainKeeper.SetDestBscChainID(1)
 
 	s.crossChainKeeper.SetChannelSendPermission(s.ctx, sdk.ChainID(1), sdk.ChannelID(1), sdk.ChannelAllow)
 

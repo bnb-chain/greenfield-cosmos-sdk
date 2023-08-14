@@ -231,4 +231,3 @@ message CrossChainParamsChange {
   // targets defines a slice of addresses string in hex format
   repeated string  targets  = 3;
 }
-
