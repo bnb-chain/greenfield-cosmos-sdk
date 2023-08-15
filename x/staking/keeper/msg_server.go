@@ -48,13 +48,12 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	// For genesis block, the signer can be the validator address itself,
-	// because the delegator address is more privately key that may not be held by the deployer.
-	// For other blocks, the signer should be the gov module account.
+	// For genesis block, the signer should be the self delegator itself,
+	// for other blocks, the signer should be the gov module account.
 	govModuleAddr := k.authKeeper.GetModuleAddress(govtypes.ModuleName)
 	if ctx.BlockHeight() == 0 {
 		signers := msg.GetSigners()
-		if len(signers) != 1 || !signers[0].Equals(valAddr) {
+		if len(signers) != 1 || !signers[0].Equals(delAddr) {
 			return nil, types.ErrInvalidSigner
 		}
 	} else {
