@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Msg_UpdateParams_FullMethodName             = "/cosmos.crosschain.v1.Msg/UpdateParams"
 	Msg_UpdateChannelPermissions_FullMethodName = "/cosmos.crosschain.v1.Msg/UpdateChannelPermissions"
+	Msg_MintModuleTokens_FullMethodName         = "/cosmos.crosschain.v1.Msg/MintModuleTokens"
 )
 
 // MsgClient is the client API for Msg service.
@@ -37,6 +38,9 @@ type MsgClient interface {
 	// UpdateChannelPermissions defines a governance operation for updating the channel permissions.
 	// The authority is defined in the keeper.
 	UpdateChannelPermissions(ctx context.Context, in *MsgUpdateChannelPermissions, opts ...grpc.CallOption) (*MsgUpdateChannelPermissionsResponse, error)
+	// MintModuleTokens defines a governance operation for minting tokens for the crosschain module.
+	// The authority is defined in the keeper.
+	MintModuleTokens(ctx context.Context, in *MsgMintModuleTokens, opts ...grpc.CallOption) (*MsgMintModuleTokensResponse, error)
 }
 
 type msgClient struct {
@@ -65,6 +69,15 @@ func (c *msgClient) UpdateChannelPermissions(ctx context.Context, in *MsgUpdateC
 	return out, nil
 }
 
+func (c *msgClient) MintModuleTokens(ctx context.Context, in *MsgMintModuleTokens, opts ...grpc.CallOption) (*MsgMintModuleTokensResponse, error) {
+	out := new(MsgMintModuleTokensResponse)
+	err := c.cc.Invoke(ctx, Msg_MintModuleTokens_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
@@ -77,6 +90,9 @@ type MsgServer interface {
 	// UpdateChannelPermissions defines a governance operation for updating the channel permissions.
 	// The authority is defined in the keeper.
 	UpdateChannelPermissions(context.Context, *MsgUpdateChannelPermissions) (*MsgUpdateChannelPermissionsResponse, error)
+	// MintModuleTokens defines a governance operation for minting tokens for the crosschain module.
+	// The authority is defined in the keeper.
+	MintModuleTokens(context.Context, *MsgMintModuleTokens) (*MsgMintModuleTokensResponse, error)
 	mustEmbedUnimplementedMsgServer()
 }
 
@@ -89,6 +105,9 @@ func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*
 }
 func (UnimplementedMsgServer) UpdateChannelPermissions(context.Context, *MsgUpdateChannelPermissions) (*MsgUpdateChannelPermissionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateChannelPermissions not implemented")
+}
+func (UnimplementedMsgServer) MintModuleTokens(context.Context, *MsgMintModuleTokens) (*MsgMintModuleTokensResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MintModuleTokens not implemented")
 }
 func (UnimplementedMsgServer) mustEmbedUnimplementedMsgServer() {}
 
@@ -139,6 +158,24 @@ func _Msg_UpdateChannelPermissions_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_MintModuleTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgMintModuleTokens)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).MintModuleTokens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_MintModuleTokens_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).MintModuleTokens(ctx, req.(*MsgMintModuleTokens))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Msg_ServiceDesc is the grpc.ServiceDesc for Msg service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +190,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateChannelPermissions",
 			Handler:    _Msg_UpdateChannelPermissions_Handler,
+		},
+		{
+			MethodName: "MintModuleTokens",
+			Handler:    _Msg_MintModuleTokens_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

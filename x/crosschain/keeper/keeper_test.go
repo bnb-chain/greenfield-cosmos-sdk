@@ -3,6 +3,9 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -12,8 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crosschain/keeper"
 	testutil2 "github.com/cosmos/cosmos-sdk/x/crosschain/testutil"
 	"github.com/cosmos/cosmos-sdk/x/crosschain/types"
+	govtestutil "github.com/cosmos/cosmos-sdk/x/gov/testutil"
 	"github.com/cosmos/cosmos-sdk/x/mint"
-	"github.com/stretchr/testify/suite"
 )
 
 type TestSuite struct {
@@ -31,11 +34,16 @@ func (s *TestSuite) SetupTest() {
 	key := storetypes.NewKVStoreKey(types.StoreKey)
 	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	s.ctx = testCtx.Ctx
-
+	// gomock initializations
+	ctrl := gomock.NewController(s.T())
+	bankKeeper := govtestutil.NewMockBankKeeper(ctrl)
+	stakingKeeper := govtestutil.NewMockStakingKeeper(ctrl)
 	s.crossChainKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
 		authtypes.NewModuleAddress(types.ModuleName).String(),
+		stakingKeeper,
+		bankKeeper,
 	)
 
 	err := s.crossChainKeeper.SetParams(s.ctx, types.DefaultParams())

@@ -178,6 +178,8 @@ func ProvideModule(in CrossChainInputs) CrossChainOutputs {
 		in.Cdc,
 		in.Key,
 		authority.String(),
+		in.StakingKeeper,
+		in.BankKeeper,
 	)
 
 	m := NewAppModule(k, in.BankKeeper, in.StakingKeeper)
