@@ -33,7 +33,7 @@ func GenTxCmd(mbm module.BasicManager, txEncCfg client.TxEncodingConfig, genBalI
 	fsCreateValidator, defaultsDesc := cli.CreateValidatorMsgFlagSet(ipDefault)
 
 	cmd := &cobra.Command{
-		Use:   "gentx [key_name] [amount] [validator] [relayer] [challenger] [blskey] [blsProof]",
+		Use:   "gentx [key_name] [amount] [delegator] [relayer] [challenger] [blskey] [blsProof]",
 		Short: "Generate a genesis tx carrying a self delegation",
 		Args:  cobra.ExactArgs(7),
 		Long: fmt.Sprintf(`Generate a genesis transaction that creates a validator with a self-delegation,
@@ -128,7 +128,11 @@ $ %s gentx my-key-name 1000000stake \
 			if err != nil {
 				return err
 			}
-			err = genutil.ValidateAccountInGenesis(genesisState, genBalIterator, addr, coins, cdc)
+			delegator, err := sdk.AccAddressFromHexUnsafe(args[2])
+			if err != nil {
+				return err
+			}
+			err = genutil.ValidateAccountInGenesis(genesisState, genBalIterator, delegator, coins, cdc)
 			if err != nil {
 				return errors.Wrap(err, "failed to validate account in genesis")
 			}
@@ -157,10 +161,6 @@ $ %s gentx my-key-name 1000000stake \
 			// ref: https://github.com/cosmos/cosmos-sdk/issues/8177
 			createValCfg.Amount = amount
 
-			validator, err := sdk.AccAddressFromHexUnsafe(args[2])
-			if err != nil {
-				return err
-			}
 			relayer, err := sdk.AccAddressFromHexUnsafe(args[3])
 			if err != nil {
 				return err
@@ -178,8 +178,8 @@ $ %s gentx my-key-name 1000000stake \
 				return fmt.Errorf("invalid bls proof, len: %d", len(blsProof))
 			}
 
-			createValCfg.Validator = validator
-			createValCfg.Delegator = addr
+			createValCfg.Validator = addr
+			createValCfg.Delegator = delegator
 			createValCfg.Relayer = relayer
 			createValCfg.Challenger = challenger
 			createValCfg.BlsKey = blsPk
