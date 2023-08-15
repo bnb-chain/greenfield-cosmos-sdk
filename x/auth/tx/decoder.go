@@ -168,3 +168,8 @@ func varintMinLength(n uint64) int {
 		return 10
 	}
 }
+
+// UnWrapTx returns the underlying Tx.
+func UnWrapTx(tx sdk.Tx) *tx.Tx {
+	return tx.(*wrapper).tx
+}
