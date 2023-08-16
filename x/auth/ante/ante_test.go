@@ -351,8 +351,8 @@ func TestAnteHandlerAccountNumbersAtBlockHeightZero(t *testing.T) {
 				}
 			},
 			false,
-			false,
-			sdkerrors.ErrUnauthorized,
+			true,
+			nil,
 		},
 		{
 			"new tx with another signer and incorrect account numbers",
@@ -371,8 +371,8 @@ func TestAnteHandlerAccountNumbersAtBlockHeightZero(t *testing.T) {
 				}
 			},
 			false,
-			false,
-			sdkerrors.ErrUnauthorized,
+			true,
+			nil,
 		},
 		{
 			"new tx with another signer and correct account numbers",
@@ -398,6 +398,7 @@ func TestAnteHandlerAccountNumbersAtBlockHeightZero(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.desc), func(t *testing.T) {
+			t.Log(tc.desc)
 			suite := SetupTestSuite(t, false)
 			suite.ctx = suite.ctx.WithBlockHeight(0)
 			suite.txBuilder = suite.clientCtx.TxConfig.NewTxBuilder()

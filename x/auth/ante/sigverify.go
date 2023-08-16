@@ -56,6 +56,11 @@ func NewSetPubKeyDecorator(ak AccountKeeper) SetPubKeyDecorator {
 }
 
 func (spkd SetPubKeyDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	if ctx.BlockHeight() == 0 {
+		// skip the signature verification on the genesis block
+		return next(ctx, tx, simulate)
+	}
+
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid tx type")
@@ -148,6 +153,10 @@ func NewSigGasConsumeDecorator(ak AccountKeeper, sigGasConsumer SignatureVerific
 }
 
 func (sgcd SigGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if ctx.BlockHeight() == 0 {
+		// skip the signature verification on the genesis block
+		return next(ctx, tx, simulate)
+	}
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid transaction type")
@@ -234,6 +243,10 @@ func OnlyLegacyAminoSigners(sigData signing.SignatureData) bool {
 }
 
 func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if ctx.BlockHeight() == 0 {
+		// skip the signature verification on the genesis block
+		return next(ctx, tx, simulate)
+	}
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid transaction type")
