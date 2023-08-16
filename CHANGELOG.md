@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.4-alpha.2
+This release includes 5 new features.
+
+Features:
+* [#266](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/266) feat: implement cross-chain mechanism between op and greenfield
+* [#267](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/267) feat: add method to access check state in app
+* [#269](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/269) feat: track store r/w consume for enabling plain store
+* [#270](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/270) feat: make cross-chain token mintable
+* [#273](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/273) feat: skip sig verification on genesis block
+
+Chores:
+* [#268](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/268) chore: modify default gas
+
 ## v0.2.4-alpha.1  
 This release includes 4 features and 1 bugfix.
 

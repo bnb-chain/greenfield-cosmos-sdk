@@ -7,7 +7,7 @@ require (
 	cosmossdk.io/core v0.6.1
 	cosmossdk.io/depinject v1.0.0-alpha.3
 	cosmossdk.io/math v1.0.1
-	github.com/cometbft/cometbft v0.37.1
+	github.com/cometbft/cometbft v0.37.2
 	github.com/cometbft/cometbft-db v0.7.0
 	github.com/cosmos/cosmos-sdk v0.47.2
 	github.com/golang/mock v1.6.0
@@ -163,12 +163,12 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.0-20230815065708-123390673ba9
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.3-alpha.1
 	github.com/cometbft/cometbft-db => github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1
 
 	// Simapp always use the latest version of the cosmos-sdk
 	github.com/cosmos/cosmos-sdk => ../.
-	github.com/cosmos/iavl => github.com/bnb-chain/greenfield-iavl v0.20.1-alpha.1
+	github.com/cosmos/iavl => github.com/bnb-chain/greenfield-iavl v0.20.1
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
