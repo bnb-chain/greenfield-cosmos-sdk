@@ -37,10 +37,10 @@ jobs:
         with:
           name: "${{ github.sha }}-01"
           path: ./pkgs.txt.part.01
-      - uses: actions/upload-artifact@v3
-        with:
-          name: "${{ github.sha }}-02"
-          path: ./pkgs.txt.part.02
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: "${{ github.sha }}-02"
+      #     path: ./pkgs.txt.part.02
       - uses: actions/upload-artifact@v3
         with:
           name: "${{ github.sha }}-03"
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: ["00", "01", "02", "03"]
+        part: ["00", "01", "03"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
