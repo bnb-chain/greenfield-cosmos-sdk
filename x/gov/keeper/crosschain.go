@@ -11,10 +11,33 @@ import (
 )
 
 func (k Keeper) RegisterCrossChainSyncParamsApp() error {
-	return k.crossChainKeeper.RegisterChannel(types.SyncParamsChannel, types.SyncParamsChannelID, k)
+	if err := k.crossChainKeeper.RegisterChannel(types.SyncParamsChannel, types.SyncParamsChannelID, SyncParamsApp{keeper: k}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) error {
+type SyncParamsApp struct {
+	keeper Keeper
+}
+
+func (app SyncParamsApp) ExecuteSynPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+	app.keeper.Logger(ctx).Error("received sync params sync package", "payload", hex.EncodeToString(payload))
+	return sdk.ExecuteResult{}
+}
+
+func (app SyncParamsApp) ExecuteAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+	app.keeper.Logger(ctx).Error("received sync params in ack package", "payload", hex.EncodeToString(payload))
+	return sdk.ExecuteResult{}
+}
+
+func (app SyncParamsApp) ExecuteFailAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
+	app.keeper.Logger(ctx).Error("received sync params fail ack package", "payload", hex.EncodeToString(payload))
+	return sdk.ExecuteResult{}
+}
+
+func (k Keeper) SyncParams(ctx sdk.Context, destChainId sdk.ChainID, cpc govv1.CrossChainParamsChange) error {
 	if err := cpc.ValidateBasic(); err != nil {
 		return err
 	}
@@ -45,9 +68,13 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 
 	encodedPackage := pack.MustSerialize()
 
+	if !k.crossChainKeeper.IsDestChainSupported(destChainId) {
+		return sdkerrors.Wrapf(types.ErrChainNotSupported, "destination chain (%d) is not supported", destChainId)
+	}
+
 	_, err := k.crossChainKeeper.CreateRawIBCPackageWithFee(
 		ctx,
-		k.crossChainKeeper.GetDestBscChainID(),
+		destChainId,
 		types.SyncParamsChannelID,
 		sdk.SynCrossChainPackageType,
 		encodedPackage,
@@ -55,19 +82,4 @@ func (k Keeper) SyncParams(ctx sdk.Context, cpc govv1.CrossChainParamsChange) er
 		big.NewInt(0),
 	)
 	return err
-}
-
-func (k Keeper) ExecuteSynPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
-	k.Logger(ctx).Error("received sync params sync package", "payload", hex.EncodeToString(payload))
-	return sdk.ExecuteResult{}
-}
-
-func (k Keeper) ExecuteAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
-	k.Logger(ctx).Error("received sync params in ack package", "payload", hex.EncodeToString(payload))
-	return sdk.ExecuteResult{}
-}
-
-func (k Keeper) ExecuteFailAckPackage(ctx sdk.Context, _ *sdk.CrossChainAppContext, payload []byte) sdk.ExecuteResult {
-	k.Logger(ctx).Error("received sync params fail ack package", "payload", hex.EncodeToString(payload))
-	return sdk.ExecuteResult{}
 }

@@ -5,6 +5,7 @@ package types
 
 import (
 	context "context"
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -219,17 +220,107 @@ func (m *MsgUpdateChannelPermissionsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateChannelPermissionsResponse proto.InternalMessageInfo
 
+// MsgMintModuleTokens is the Msg/MintModuleTokens request type.
+// The Msg is used to mint tokens for the crosschain module.
+// This Only permitted to be called by the authority(gov).
+type MsgMintModuleTokens struct {
+	// authority is the address that controls the module (defaults to x/gov unless overwritten).
+	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// initial balance to mint for crosschain module when the chain starts
+	Amount cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MsgMintModuleTokens) Reset()         { *m = MsgMintModuleTokens{} }
+func (m *MsgMintModuleTokens) String() string { return proto.CompactTextString(m) }
+func (*MsgMintModuleTokens) ProtoMessage()    {}
+func (*MsgMintModuleTokens) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bdb806a4c5354501, []int{4}
+}
+func (m *MsgMintModuleTokens) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgMintModuleTokens) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgMintModuleTokens.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgMintModuleTokens) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgMintModuleTokens.Merge(m, src)
+}
+func (m *MsgMintModuleTokens) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgMintModuleTokens) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgMintModuleTokens.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgMintModuleTokens proto.InternalMessageInfo
+
+func (m *MsgMintModuleTokens) GetAuthority() string {
+	if m != nil {
+		return m.Authority
+	}
+	return ""
+}
+
+// MsgMintModuleTokensResponse defines the response structure for executing a
+// MsgMintModuleTokens message.
+type MsgMintModuleTokensResponse struct {
+}
+
+func (m *MsgMintModuleTokensResponse) Reset()         { *m = MsgMintModuleTokensResponse{} }
+func (m *MsgMintModuleTokensResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgMintModuleTokensResponse) ProtoMessage()    {}
+func (*MsgMintModuleTokensResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bdb806a4c5354501, []int{5}
+}
+func (m *MsgMintModuleTokensResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgMintModuleTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgMintModuleTokensResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgMintModuleTokensResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgMintModuleTokensResponse.Merge(m, src)
+}
+func (m *MsgMintModuleTokensResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgMintModuleTokensResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgMintModuleTokensResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgMintModuleTokensResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgUpdateParams)(nil), "cosmos.crosschain.v1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "cosmos.crosschain.v1.MsgUpdateParamsResponse")
 	proto.RegisterType((*MsgUpdateChannelPermissions)(nil), "cosmos.crosschain.v1.MsgUpdateChannelPermissions")
 	proto.RegisterType((*MsgUpdateChannelPermissionsResponse)(nil), "cosmos.crosschain.v1.MsgUpdateChannelPermissionsResponse")
+	proto.RegisterType((*MsgMintModuleTokens)(nil), "cosmos.crosschain.v1.MsgMintModuleTokens")
+	proto.RegisterType((*MsgMintModuleTokensResponse)(nil), "cosmos.crosschain.v1.MsgMintModuleTokensResponse")
 }
 
 func init() { proto.RegisterFile("cosmos/crosschain/v1/tx.proto", fileDescriptor_bdb806a4c5354501) }
 
 var fileDescriptor_bdb806a4c5354501 = []byte{
-	// 422 bytes of a gzipped FileDescriptorProto
+	// 522 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0xce, 0x2f, 0xce,
 	0xcd, 0x2f, 0xd6, 0x4f, 0x2e, 0xca, 0x2f, 0x2e, 0x4e, 0xce, 0x48, 0xcc, 0xcc, 0xd3, 0x2f, 0x33,
 	0xd4, 0x2f, 0xa9, 0xd0, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0x81, 0x48, 0xeb, 0x21, 0xa4,
@@ -248,15 +339,21 @@ var fileDescriptor_bdb806a4c5354501 = []byte{
 	0x9a, 0x13, 0x90, 0x5a, 0x94, 0x9b, 0x59, 0x5c, 0x9c, 0x99, 0x9f, 0x47, 0xbe, 0x1f, 0x22, 0xb8,
 	0x84, 0x93, 0x21, 0xa6, 0xc5, 0x17, 0x20, 0x8c, 0x93, 0x60, 0x52, 0x60, 0xd6, 0xe0, 0x36, 0x52,
 	0xc7, 0xee, 0x21, 0x0c, 0xeb, 0x83, 0x84, 0x92, 0x31, 0x5c, 0x84, 0xe1, 0x39, 0x55, 0x2e, 0x65,
-	0x3c, 0x1e, 0x80, 0x79, 0xd4, 0xe8, 0x2f, 0x23, 0x17, 0xb3, 0x6f, 0x71, 0xba, 0x50, 0x0a, 0x17,
-	0x0f, 0x4a, 0x24, 0xa9, 0x62, 0x77, 0x0b, 0x5a, 0x78, 0x49, 0xe9, 0x12, 0xa5, 0x0c, 0x66, 0x9b,
-	0x50, 0x07, 0x23, 0x97, 0x04, 0xce, 0x30, 0x35, 0x24, 0x60, 0x16, 0xa6, 0x16, 0x29, 0x4b, 0x92,
-	0xb5, 0xc0, 0x9c, 0x22, 0xc5, 0xda, 0x00, 0x4a, 0x1b, 0x4e, 0x9e, 0x27, 0x1e, 0xc9, 0x31, 0x5e,
-	0x78, 0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31,
-	0xdc, 0x78, 0x2c, 0xc7, 0x10, 0xa5, 0x9f, 0x9e, 0x59, 0x92, 0x51, 0x9a, 0xa4, 0x97, 0x9c, 0x9f,
-	0xab, 0x0f, 0xcb, 0x15, 0x60, 0x4a, 0xb7, 0x38, 0x25, 0x5b, 0xbf, 0x02, 0x39, 0x8b, 0x94, 0x54,
-	0x16, 0xa4, 0x16, 0x27, 0xb1, 0x81, 0x93, 0xbc, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x22, 0x48,
-	0x1d, 0x26, 0xad, 0x03, 0x00, 0x00,
+	0x3c, 0x1e, 0x80, 0x7b, 0x74, 0x01, 0x23, 0x97, 0xb0, 0x6f, 0x71, 0xba, 0x6f, 0x66, 0x5e, 0x89,
+	0x6f, 0x7e, 0x4a, 0x69, 0x4e, 0x6a, 0x48, 0x7e, 0x76, 0x2a, 0x05, 0x1e, 0x74, 0xe4, 0x62, 0x4b,
+	0xcc, 0xcd, 0x2f, 0xcd, 0x2b, 0x01, 0x47, 0x12, 0xa7, 0x93, 0x26, 0x28, 0x1a, 0x6e, 0xdd, 0x93,
+	0x17, 0x85, 0x68, 0x2c, 0x4e, 0xc9, 0xd6, 0xcb, 0xcc, 0xd7, 0xcf, 0x4d, 0x2c, 0xc9, 0xd0, 0xf3,
+	0xcc, 0x2b, 0xb9, 0xb4, 0x45, 0x97, 0x03, 0xc6, 0x0e, 0x82, 0x6a, 0xc4, 0xf0, 0x89, 0x2c, 0x38,
+	0x2a, 0xd0, 0x5d, 0x08, 0xf3, 0x81, 0xd1, 0x7b, 0x26, 0x2e, 0x66, 0xdf, 0xe2, 0x74, 0xa1, 0x14,
+	0x2e, 0x1e, 0x94, 0x64, 0xa6, 0x8a, 0x3d, 0x34, 0xd1, 0x62, 0x5c, 0x4a, 0x97, 0x28, 0x65, 0x30,
+	0xdb, 0x84, 0x3a, 0x18, 0xb9, 0x24, 0x70, 0xa6, 0x0a, 0x43, 0x02, 0x66, 0x61, 0x6a, 0x91, 0xb2,
+	0x24, 0x59, 0x0b, 0xdc, 0x29, 0x05, 0x5c, 0x02, 0x18, 0xd1, 0xa6, 0x89, 0xd3, 0x38, 0x74, 0xa5,
+	0x52, 0x86, 0x44, 0x2b, 0x85, 0xd9, 0x28, 0xc5, 0xda, 0x00, 0xca, 0x4f, 0x4e, 0x9e, 0x27, 0x1e,
+	0xc9, 0x31, 0x5e, 0x78, 0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17,
+	0x1e, 0xcb, 0x31, 0xdc, 0x78, 0x2c, 0xc7, 0x10, 0xa5, 0x9f, 0x9e, 0x59, 0x92, 0x51, 0x9a, 0xa4,
+	0x97, 0x9c, 0x9f, 0xab, 0x0f, 0x2b, 0x49, 0xc0, 0x94, 0x6e, 0x71, 0x4a, 0xb6, 0x7e, 0x05, 0x72,
+	0xb1, 0x52, 0x52, 0x59, 0x90, 0x5a, 0x9c, 0xc4, 0x06, 0x2e, 0x26, 0x8c, 0x01, 0x01, 0x00, 0x00,
+	0xff, 0xff, 0x30, 0xf1, 0xad, 0x12, 0xe1, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -279,6 +376,9 @@ type MsgClient interface {
 	// UpdateChannelPermissions defines a governance operation for updating the channel permissions.
 	// The authority is defined in the keeper.
 	UpdateChannelPermissions(ctx context.Context, in *MsgUpdateChannelPermissions, opts ...grpc.CallOption) (*MsgUpdateChannelPermissionsResponse, error)
+	// MintModuleTokens defines a governance operation for minting tokens for the crosschain module.
+	// The authority is defined in the keeper.
+	MintModuleTokens(ctx context.Context, in *MsgMintModuleTokens, opts ...grpc.CallOption) (*MsgMintModuleTokensResponse, error)
 }
 
 type msgClient struct {
@@ -307,6 +407,15 @@ func (c *msgClient) UpdateChannelPermissions(ctx context.Context, in *MsgUpdateC
 	return out, nil
 }
 
+func (c *msgClient) MintModuleTokens(ctx context.Context, in *MsgMintModuleTokens, opts ...grpc.CallOption) (*MsgMintModuleTokensResponse, error) {
+	out := new(MsgMintModuleTokensResponse)
+	err := c.cc.Invoke(ctx, "/cosmos.crosschain.v1.Msg/MintModuleTokens", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// UpdateParams defines a governance operation for updating the x/crosschain module parameters.
@@ -317,6 +426,9 @@ type MsgServer interface {
 	// UpdateChannelPermissions defines a governance operation for updating the channel permissions.
 	// The authority is defined in the keeper.
 	UpdateChannelPermissions(context.Context, *MsgUpdateChannelPermissions) (*MsgUpdateChannelPermissionsResponse, error)
+	// MintModuleTokens defines a governance operation for minting tokens for the crosschain module.
+	// The authority is defined in the keeper.
+	MintModuleTokens(context.Context, *MsgMintModuleTokens) (*MsgMintModuleTokensResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -328,6 +440,9 @@ func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateP
 }
 func (*UnimplementedMsgServer) UpdateChannelPermissions(ctx context.Context, req *MsgUpdateChannelPermissions) (*MsgUpdateChannelPermissionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateChannelPermissions not implemented")
+}
+func (*UnimplementedMsgServer) MintModuleTokens(ctx context.Context, req *MsgMintModuleTokens) (*MsgMintModuleTokensResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MintModuleTokens not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -370,6 +485,24 @@ func _Msg_UpdateChannelPermissions_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_MintModuleTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgMintModuleTokens)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).MintModuleTokens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cosmos.crosschain.v1.Msg/MintModuleTokens",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).MintModuleTokens(ctx, req.(*MsgMintModuleTokens))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "cosmos.crosschain.v1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -381,6 +514,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateChannelPermissions",
 			Handler:    _Msg_UpdateChannelPermissions_Handler,
+		},
+		{
+			MethodName: "MintModuleTokens",
+			Handler:    _Msg_MintModuleTokens_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -517,6 +654,69 @@ func (m *MsgUpdateChannelPermissionsResponse) MarshalToSizedBuffer(dAtA []byte) 
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgMintModuleTokens) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgMintModuleTokens) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgMintModuleTokens) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgMintModuleTokensResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgMintModuleTokensResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgMintModuleTokensResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -572,6 +772,30 @@ func (m *MsgUpdateChannelPermissions) Size() (n int) {
 }
 
 func (m *MsgUpdateChannelPermissionsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgMintModuleTokens) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovTx(uint64(l))
+	return n
+}
+
+func (m *MsgMintModuleTokensResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -894,6 +1118,172 @@ func (m *MsgUpdateChannelPermissionsResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgUpdateChannelPermissionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgMintModuleTokens) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgMintModuleTokens: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgMintModuleTokens: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Authority", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Authority = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgMintModuleTokensResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgMintModuleTokensResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgMintModuleTokensResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

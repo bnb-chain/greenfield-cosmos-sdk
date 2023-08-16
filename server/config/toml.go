@@ -95,6 +95,12 @@ app-db-backend = "{{ .BaseConfig.AppDBBackend }}"
 # Default is false.
 enable-unsafe-query = "{{ .BaseConfig.EnableUnsafeQuery }}"
 
+# EnablePlainStore enables or disables the plain store. If it is true, then plain store will be used, not IAVL store.
+# Do not enable it on validator nodes or other nodes which require high security level.
+# If you enable it, please also enable skip_app_hash config in config.toml file.
+# Default is false.
+enable-plain-store = "{{ .BaseConfig.EnablePlainStore }}"
+
 ###############################################################################
 ###                           Upgrade Configuration                         ###
 ###############################################################################

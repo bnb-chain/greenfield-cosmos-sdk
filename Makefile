@@ -110,7 +110,7 @@ include contrib/devtools/Makefile
 ###############################################################################
 
 BUILD_TARGETS := build install
-
+.PHONY: build build-linux-amd64 build-linux-arm64
 build: BUILD_ARGS=-o $(BUILDDIR)/
 
 build-linux-amd64:

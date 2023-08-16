@@ -573,6 +573,8 @@ func (rs *Store) DeepCopyAndCache() types.CacheMultiStore {
 			}
 		} else if _, ok := v.(*transient.Store); ok {
 			stores[k] = transient.NewStore()
+		} else if dbStore, ok := v.(commitDBStoreAdapter); ok {
+			stores[k] = commitDBStoreAdapter{Store: dbadapter.Store{DB: dbStore.Store.DB}}
 		}
 	}
 	return cachemulti.NewStore(rs.db, stores, rs.keysByName, rs.traceWriter, rs.getTracingContext())
@@ -595,6 +597,8 @@ func (rs *Store) DeepCopy() *Store {
 			}
 		} else if _, ok := v.(*transient.Store); ok {
 			stores[k] = transient.NewStore()
+		} else if dbStore, ok := v.(commitDBStoreAdapter); ok {
+			stores[k] = commitDBStoreAdapter{Store: dbadapter.Store{DB: dbStore.Store.DB}}
 		}
 	}
 

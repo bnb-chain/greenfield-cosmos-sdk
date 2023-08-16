@@ -41,10 +41,12 @@ message QueryParamsResponse {
 
 // QueryCrossChainPackageRequest is the request type for the Query/CrossChainPackage RPC method.
 message QueryCrossChainPackageRequest {
+  // destination chain id
+  uint32 dest_chain_id = 1;
   // channel id of the cross chain package
-  uint32 channel_id = 1;
+  uint32 channel_id = 2;
   // sequence of the cross chain package
-  uint64 sequence   = 2;
+  uint64 sequence   = 3;
 }
 
 // QueryCrossChainPackageResponse is the response type for the Query/CrossChainPackage RPC method.
@@ -55,8 +57,10 @@ message QueryCrossChainPackageResponse {
 
 // QuerySendSequenceRequest is the request type for the Query/SendSequence RPC method.
 message QuerySendSequenceRequest {
+  // destination chain id
+  uint32 dest_chain_id = 1;
   // channel id of the cross chain package
-  uint32 channel_id = 1;
+  uint32 channel_id = 2;
 }
 
 // QuerySendSequenceResponse is the response type for the Query/SendSequence RPC method.
@@ -67,8 +71,10 @@ message QuerySendSequenceResponse {
 
 // QuerySendSequenceRequest is the request type for the Query/ReceiveSequence RPC method.
 message QueryReceiveSequenceRequest {
+  // destination chain id
+  uint32 dest_chain_id = 1;
   // channel id of the cross chain package
-  uint32 channel_id = 1;
+  uint32 channel_id = 2;
 }
 
 // QuerySendSequenceResponse is the response type for the Query/ReceiveSequence RPC method.

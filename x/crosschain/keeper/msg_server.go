@@ -46,3 +46,16 @@ func (k msgServer) UpdateChannelPermissions(goCtx context.Context, req *types.Ms
 
 	return &types.MsgUpdateChannelPermissionsResponse{}, nil
 }
+
+func (k msgServer) MintModuleTokens(goCtx context.Context, req *types.MsgMintModuleTokens) (*types.MsgMintModuleTokensResponse, error) {
+	if k.GetAuthority() != req.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.GetAuthority(), req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.MintModuleAccountTokens(ctx, req.Amount); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgMintModuleTokensResponse{}, nil
+}

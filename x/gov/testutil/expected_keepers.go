@@ -44,4 +44,10 @@ type CrossChainKeeper interface {
 	) (uint64, error)
 
 	RegisterChannel(name string, id sdk.ChannelID, app sdk.CrossChainApplication) error
+
+	GetSendSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64
+
+	GetReceiveSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64
+
+	IsDestChainSupported(chainID sdk.ChainID) bool
 }
