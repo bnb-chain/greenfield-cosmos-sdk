@@ -61,6 +61,7 @@ const (
 	FlagIAVLLazyLoading     = "iavl-lazy-loading"
 
 	FlagEnableUnsafeQuery = "enable-unsafe-query"
+	FlagEnablePlainStore  = "enable-plain-store"
 
 	// state sync-related flags
 	FlagStateSyncSnapshotInterval   = "state-sync.snapshot-interval"

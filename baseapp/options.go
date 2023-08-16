@@ -107,6 +107,11 @@ func SetEnableUnsafeQuery(enabled bool) func(*BaseApp) {
 	return func(app *BaseApp) { app.enableUnsafeQuery = enabled }
 }
 
+// SetEnablePlainStore sets the flag to enable plain store in BaseApp.
+func SetEnablePlainStore(enabled bool) func(*BaseApp) {
+	return func(app *BaseApp) { app.enablePlainStore = enabled }
+}
+
 func (app *BaseApp) SetName(name string) {
 	if app.sealed {
 		panic("SetName() on sealed BaseApp")

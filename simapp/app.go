@@ -358,7 +358,8 @@ func NewSimApp(
 	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
 
-	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.StakingKeeper, app.BankKeeper)
 
 	app.GashubKeeper = gashubkeeper.NewKeeper(appCodec, keys[gashubtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
 
@@ -389,7 +390,8 @@ func NewSimApp(
 	)
 
 	app.NFTKeeper = nftkeeper.NewKeeper(keys[nftkeeper.StoreKey], appCodec, app.AccountKeeper, app.BankKeeper)
-	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	app.CrossChainKeeper = crosschainkeeper.NewKeeper(appCodec, keys[crosschaintypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		app.StakingKeeper, app.BankKeeper)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(

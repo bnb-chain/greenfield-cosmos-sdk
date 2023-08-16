@@ -39,7 +39,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
-	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
@@ -48,7 +47,6 @@ require (
 	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/cosmos/iavl v0.20.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
-	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/creachadair/taskgroup v0.4.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -165,7 +163,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 
-	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.2-alpha.1
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.0-20230815065708-123390673ba9
 	github.com/cometbft/cometbft-db => github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1
 
 	// Simapp always use the latest version of the cosmos-sdk

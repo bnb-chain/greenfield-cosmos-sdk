@@ -85,7 +85,6 @@ type BaseApp struct { //nolint: maligned
 	//
 	// checkState is set on InitChain and reset on Commit
 	// deliverState is set on InitChain and BeginBlock and set to nil on Commit
-	// queryState is set on InitChain and BeginBlock
 	checkState           *state // for CheckTx
 	deliverState         *state // for DeliverTx
 	processProposalState *state // for ProcessProposal
@@ -168,6 +167,9 @@ type BaseApp struct { //nolint: maligned
 
 	// enableUnsafeQuery defines whether the unsafe queries will be enabled or not
 	enableUnsafeQuery bool
+
+	// enablePlainStore defines whether uses plain db store type or not
+	enablePlainStore bool
 }
 
 // NewBaseApp returns a reference to an initialized BaseApp. It accepts a
@@ -290,7 +292,7 @@ func (app *BaseApp) MountStores(keys ...storetypes.StoreKey) {
 	for _, key := range keys {
 		switch key.(type) {
 		case *storetypes.KVStoreKey:
-			if !app.fauxMerkleMode {
+			if app.IsIavlStore() {
 				app.MountStore(key, storetypes.StoreTypeIAVL)
 			} else {
 				// StoreTypeDB doesn't do anything upon commit, and it doesn't
@@ -314,7 +316,7 @@ func (app *BaseApp) MountStores(keys ...storetypes.StoreKey) {
 // BaseApp multistore.
 func (app *BaseApp) MountKVStores(keys map[string]*storetypes.KVStoreKey) {
 	for _, key := range keys {
-		if !app.fauxMerkleMode {
+		if app.IsIavlStore() {
 			app.MountStore(key, storetypes.StoreTypeIAVL)
 		} else {
 			// StoreTypeDB doesn't do anything upon commit, and it doesn't
@@ -460,6 +462,9 @@ func (app *BaseApp) Seal() { app.sealed = true }
 
 // IsSealed returns true if the BaseApp is sealed and false otherwise.
 func (app *BaseApp) IsSealed() bool { return app.sealed }
+
+// IsIavlStore returns whether IAVL store is used.
+func (app *BaseApp) IsIavlStore() bool { return !app.enablePlainStore && !app.fauxMerkleMode }
 
 // setState sets the BaseApp's state for the corresponding mode with a branched
 // multi-store (i.e., a CacheMultiStore) and a new Context with the same
@@ -740,7 +745,7 @@ func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []by
 			err, result = processRecovery(r, recoveryMW), nil
 		}
 
-		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed(), MinGasPrice: gInfo.MinGasPrice}
+		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed(), MinGasPrice: gInfo.MinGasPrice, RwUsed: ctx.GasMeter().RwConsumed()}
 	}()
 
 	blockGasConsumed := false
@@ -939,7 +944,8 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 		msgLogs = append(msgLogs, sdk.NewABCIMessageLog(uint32(i), msgResult.Log, msgEvents))
 	}
 
-	data, err := makeABCIData(msgResponses)
+	rwUsedBz := sdk.Uint64ToBigEndian(ctx.GasMeter().RwConsumed())
+	data, err := makeABCIData(msgResponses, rwUsedBz)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to marshal tx data")
 	}
@@ -953,8 +959,8 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 }
 
 // makeABCIData generates the Data field to be sent to ABCI Check/DeliverTx.
-func makeABCIData(msgResponses []*codectypes.Any) ([]byte, error) {
-	return proto.Marshal(&sdk.TxMsgData{MsgResponses: msgResponses})
+func makeABCIData(msgResponses []*codectypes.Any, extraDate []byte) ([]byte, error) {
+	return proto.Marshal(&sdk.TxMsgData{MsgResponses: msgResponses, ExtraData: extraDate})
 }
 
 func createEvents(events sdk.Events, msg sdk.Msg) sdk.Events {

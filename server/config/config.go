@@ -101,6 +101,9 @@ type BaseConfig struct {
 
 	// EnableUnsafeQuery enable/disable unsafe query apis.
 	EnableUnsafeQuery bool `mapstructure:"enable-unsafe-query"`
+
+	// EnablePlainStore enable/disable plain db store without iavl.
+	EnablePlainStore bool `mapstructure:"enable-plain-store"`
 }
 
 // APIConfig defines the API listener configuration.
@@ -283,6 +286,7 @@ func DefaultConfig() *Config {
 			IAVLLazyLoading:     false,
 			AppDBBackend:        "",
 			EnableUnsafeQuery:   false,
+			EnablePlainStore:    false,
 		},
 		Telemetry: telemetry.Config{
 			Enabled:      false,
