@@ -222,9 +222,11 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 	}
 
 	if app.beginBlocker != nil {
+		fmt.Println("BeginBlock DEBUG_RW total before", app.deliverState.ctx.GasMeter().RwConsumed())
 		res = app.beginBlocker(app.deliverState.ctx, req)
 		res.Events = sdk.MarkEventsToIndex(res.Events, app.indexEvents)
 		res.ExtraData = sdk.Uint64ToBigEndian(app.deliverState.ctx.GasMeter().RwConsumed())
+		fmt.Println("BeginBlock DEBUG_RW total after", app.deliverState.ctx.GasMeter().RwConsumed())
 	}
 	// set the signed validators for addition to context in deliverTx
 	app.voteInfos = req.LastCommitInfo.GetVotes()
@@ -246,9 +248,11 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 	}
 
 	if app.endBlocker != nil {
+		fmt.Println("EndBlock DEBUG_RW total before", app.deliverState.ctx.GasMeter().RwConsumed())
 		res = app.endBlocker(app.deliverState.ctx, req)
 		res.Events = sdk.MarkEventsToIndex(res.Events, app.indexEvents)
 		res.ExtraData = sdk.Uint64ToBigEndian(app.deliverState.ctx.GasMeter().RwConsumed())
+		fmt.Println("EndBlock DEBUG_RW total after", app.deliverState.ctx.GasMeter().RwConsumed())
 	}
 
 	if cp := app.GetConsensusParams(app.deliverState.ctx); cp != nil {

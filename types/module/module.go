@@ -557,10 +557,12 @@ func (m *Manager) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 	for _, moduleName := range m.OrderBeginBlockers {
+		fmt.Println("BeginBlock DEBUG_RW module before", "module", moduleName, ctx.GasMeter().RwConsumed())
 		module, ok := m.Modules[moduleName].(BeginBlockAppModule)
 		if ok {
 			module.BeginBlock(ctx, req)
 		}
+		fmt.Println("BeginBlock DEBUG_RW module after", "module", moduleName, ctx.GasMeter().RwConsumed())
 	}
 
 	return abci.ResponseBeginBlock{
@@ -576,6 +578,7 @@ func (m *Manager) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 	validatorUpdates := []abci.ValidatorUpdate{}
 
 	for _, moduleName := range m.OrderEndBlockers {
+		fmt.Println("EndBlock DEBUG_RW module before", "module", moduleName, ctx.GasMeter().RwConsumed())
 		module, ok := m.Modules[moduleName].(EndBlockAppModule)
 		if !ok {
 			continue
@@ -591,6 +594,7 @@ func (m *Manager) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) abci.Respo
 
 			validatorUpdates = moduleValUpdates
 		}
+		fmt.Println("EndBlock DEBUG_RW module after", "module", moduleName, ctx.GasMeter().RwConsumed())
 	}
 
 	return abci.ResponseEndBlock{
