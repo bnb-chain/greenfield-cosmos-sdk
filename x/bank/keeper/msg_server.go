@@ -82,6 +82,7 @@ func (k msgServer) MultiSend(goCtx context.Context, msg *types.MsgMultiSend) (*t
 		}
 	}
 
+	isUpgradeNagqu := ctx.IsUpgraded(upgradetypes.Nagqu)
 	for _, out := range msg.Outputs {
 		accAddr := sdk.MustAccAddressFromHex(out.Address)
 
@@ -89,7 +90,7 @@ func (k msgServer) MultiSend(goCtx context.Context, msg *types.MsgMultiSend) (*t
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", out.Address)
 		}
 
-		if ctx.IsUpgraded(upgradetypes.Nagqu) {
+		if isUpgradeNagqu {
 			if k.PaymentKeeper != nil && k.PaymentKeeper.IsPaymentAccount(ctx, accAddr) {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "payment account %s is not allowed to receive funds", accAddr)
 			}
