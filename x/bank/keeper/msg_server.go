@@ -10,18 +10,20 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 type msgServer struct {
 	Keeper
+	PaymentKeeper types.PaymentKeeper
 }
 
 var _ types.MsgServer = msgServer{}
 
 // NewMsgServerImpl returns an implementation of the bank MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) types.MsgServer {
-	return &msgServer{Keeper: keeper}
+func NewMsgServerImpl(keeper Keeper, paymentKeeper types.PaymentKeeper) types.MsgServer {
+	return &msgServer{Keeper: keeper, PaymentKeeper: paymentKeeper}
 }
 
 func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSendResponse, error) {
@@ -42,6 +44,12 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 
 	if k.BlockedAddr(to) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", msg.ToAddress)
+	}
+
+	if ctx.IsUpgraded(upgradetypes.Nagqu) {
+		if k.PaymentKeeper != nil && k.PaymentKeeper.IsPaymentAccount(ctx, to) {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "payment account %s is not allowed to receive funds", msg.ToAddress)
+		}
 	}
 
 	err = k.SendCoins(ctx, from, to, msg.Amount)
@@ -74,11 +82,18 @@ func (k msgServer) MultiSend(goCtx context.Context, msg *types.MsgMultiSend) (*t
 		}
 	}
 
+	isUpgradeNagqu := ctx.IsUpgraded(upgradetypes.Nagqu)
 	for _, out := range msg.Outputs {
 		accAddr := sdk.MustAccAddressFromHex(out.Address)
 
 		if k.BlockedAddr(accAddr) {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", out.Address)
+		}
+
+		if isUpgradeNagqu {
+			if k.PaymentKeeper != nil && k.PaymentKeeper.IsPaymentAccount(ctx, accAddr) {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "payment account %s is not allowed to receive funds", accAddr)
+			}
 		}
 	}
 

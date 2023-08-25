@@ -75,7 +75,7 @@ func newBarCoin(amt int64) sdk.Coin {
 	return sdk.NewInt64Coin(barDenom, amt)
 }
 
-//nolint: interfacer
+// nolint: interfacer
 func getCoinsByName(ctx sdk.Context, bk keeper.Keeper, ak types.AccountKeeper, moduleName string) sdk.Coins {
 	moduleAddress := ak.GetModuleAddress(moduleName)
 	macc := ak.GetAccount(ctx, moduleAddress)
@@ -150,7 +150,7 @@ func (suite *IntegrationTestSuite) SetupTest() {
 	types.RegisterInterfaces(interfaceRegistry)
 
 	suite.queryClient = queryClient
-	suite.msgServer = keeper.NewMsgServerImpl(suite.bankKeeper)
+	suite.msgServer = keeper.NewMsgServerImpl(suite.bankKeeper, nil)
 }
 
 func (suite *IntegrationTestSuite) TestSupply() {
