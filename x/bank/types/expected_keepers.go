@@ -27,10 +27,3 @@ type AccountKeeper interface {
 	SetModuleAccount(ctx sdk.Context, macc types.ModuleAccountI)
 	GetModulePermissions() map[string]types.PermissionsForAddress
 }
-
-type PaymentKeeper interface {
-	IsPaymentAccount(
-		ctx sdk.Context,
-		addr sdk.AccAddress,
-	) bool
-}
