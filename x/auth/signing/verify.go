@@ -20,6 +20,8 @@ import (
 func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData signing.SignatureData, handler SignModeHandler, tx sdk.Tx, sigCache *lru.ARCCache, txBytes []byte) error {
 	switch data := sigData.(type) {
 	case *signing.SingleSignatureData:
+		// EIP712 signatures are verified in a different way
+		// In greenfield, we adapt another antehandler to reject non-EIP712 signatures
 		if data.SignMode == signing.SignMode_SIGN_MODE_EIP_712 {
 			// skip signature verification if we have a cache and the tx is already in it
 			if sigCache != nil && txBytes != nil {
@@ -69,16 +71,18 @@ func VerifySignature(pubKey cryptotypes.PubKey, signerData SignerData, sigData s
 				sigCache.Add(string(txBytes), tx)
 			}
 			return nil
+		} else {
+			// original cosmos-sdk signature verification
+			signBytes, err := handler.GetSignBytes(data.SignMode, signerData, tx)
+			if err != nil {
+				return err
+			}
+			if !pubKey.VerifySignature(signBytes, data.Signature) {
+				return fmt.Errorf("unable to verify single signer signature")
+			}
+			return nil
 		}
-		// This should never happen, but we add it just for test cases.
-		signBytes, err := handler.GetSignBytes(data.SignMode, signerData, tx)
-		if err != nil {
-			return err
-		}
-		if !pubKey.VerifySignature(signBytes, data.Signature) {
-			return fmt.Errorf("unable to verify single signer signature")
-		}
-		return nil
+
 	case *signing.MultiSignatureData:
 		return fmt.Errorf("multi signature is not allowed")
 	default:
