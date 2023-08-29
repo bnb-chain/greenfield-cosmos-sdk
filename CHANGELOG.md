@@ -1,11 +1,7 @@
 # Changelog
 
 ## v0.2.4
-This release includes all the changes in the v0.2.4 alpha versions, along with 2 new features and 2 new bugfixes.
-
-Features:
-* [#277#288](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/277) Revert "feat: restrict token transfers to payment accounts
-* [#277](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/277) feat: restrict token transfers to payment accounts
+This release includes all the changes in the v0.2.4 alpha versions and 2 new bugfixes.
 
 Bugfixes:
 * [#281](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/281) fix: disable pre deliver when raw db store is used
