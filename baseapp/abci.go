@@ -545,8 +545,10 @@ func (app *BaseApp) PreBeginBlock(req abci.RequestPreBeginBlock) (res abci.Respo
 		app.cms.SetTracingContext(map[string]interface{}{"blockHeight": req.Header.Height})
 	}
 
-	// Initialize the preDeliverTx state.
-	app.setPreState(req.StateNumber, req.Header)
+	if app.IsIavlStore() {
+		// Initialize the preDeliverTx state.
+		app.setPreState(req.StateNumber, req.Header)
+	}
 
 	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
 	return
@@ -558,6 +560,10 @@ func (app *BaseApp) PreDeliverTx(req abci.RequestPreDeliverTx) {
 			return
 		}
 	}()
+
+	if !app.IsIavlStore() {
+		return
+	}
 
 	preState := app.preDeliverStates[req.StateIndex]
 	if preState == nil {
@@ -580,7 +586,9 @@ func (app *BaseApp) PreCommit(req abci.RequestPreCommit) (res abci.ResponsePrefe
 		}
 	}()
 
-	app.preDeliverStates[req.StateIndex].ms.Write()
+	if app.IsIavlStore() {
+		app.preDeliverStates[req.StateIndex].ms.Write()
+	}
 
 	res = abci.ResponsePrefetch{Code: abci.CodeTypeOK}
 	return
