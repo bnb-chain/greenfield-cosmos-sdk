@@ -8,8 +8,9 @@ import (
 
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	proto "github.com/cosmos/gogoproto/proto"
+
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -120,7 +121,7 @@ func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signed
 	otherRelayers := make([]sdk.AccAddress, 0, len(signedRelayers))
 	for _, signedRelayer := range signedRelayers {
 		if !signedRelayer.Equals(relayer) {
-			otherRelayers = append(otherRelayers, relayer)
+			otherRelayers = append(otherRelayers, signedRelayer)
 		}
 	}
 
