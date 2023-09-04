@@ -248,16 +248,6 @@ func (rs *Store) loadVersion(ver int64, upgrades *types.StoreUpgrades) error {
 			return fmt.Errorf("version of store %s mismatch root store's version; expected %d got %d; new stores should be added using StoreUpgrades", key.Name(), ver, commitID.Version)
 		}
 
-		//latestVersion := rs.loadLatestVersion(key, storeParams)
-		//if latestVersion < commitID.Version {
-		//	cInfo, _ = rs.GetCommitInfo(latestVersion)
-		//	// convert StoreInfos slice to map
-		//	for _, storeInfo := range cInfo.StoreInfos {
-		//		infos[storeInfo.Name] = storeInfo
-		//	}
-		//	commitID = rs.getCommitID(infos, key.Name())
-		//}
-
 		store, err := rs.loadCommitStoreFromParams(key, commitID, storeParams)
 		if err != nil {
 			return errors.Wrap(err, "failed to load store")
@@ -1076,18 +1066,6 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		var err error
 
 		if params.initialVersion == 0 {
-			/*
-				mtree, err := iavltree.NewMutableTree(db, 1024, true)
-				if err != nil {
-					panic(err)
-				}
-				lastestVersion, err := mtree.Load()
-				if err != nil {
-					panic(err)
-				}
-				fmt.Println(lastestVersion)
-			*/
-
 			store, err = iavl.LoadStore(db, rs.logger, key, id, rs.lazyLoading, rs.iavlCacheSize, rs.iavlDisableFastNode)
 		} else {
 			store, err = iavl.LoadStoreWithInitialVersion(db, rs.logger, key, id, rs.lazyLoading, params.initialVersion, rs.iavlCacheSize, rs.iavlDisableFastNode)
@@ -1123,35 +1101,6 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		}
 
 		return mem.NewStore(), nil
-
-	default:
-		panic(fmt.Sprintf("unrecognized store type %v", params.typ))
-	}
-}
-
-func (rs *Store) loadLatestVersion(key types.StoreKey, params storeParams) int64 {
-	var db dbm.DB
-
-	if params.db != nil {
-		db = dbm.NewPrefixDB(params.db, []byte("s/_/"))
-	} else {
-		prefix := "s/k:" + params.key.Name() + "/"
-		db = dbm.NewPrefixDB(rs.db, []byte(prefix))
-	}
-
-	switch params.typ {
-	case types.StoreTypeIAVL:
-		mtree, err := iavltree.NewMutableTree(db, 1024, true)
-		if err != nil {
-			panic(err)
-		}
-		latestVersion, err := mtree.Load()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(latestVersion)
-
-		return latestVersion
 
 	default:
 		panic(fmt.Sprintf("unrecognized store type %v", params.typ))
