@@ -130,7 +130,21 @@ func (st *Store) GetImmutable(version int64) (*Store, error) {
 func (st *Store) Commit() types.CommitID {
 	defer telemetry.MeasureSince(time.Now(), "store", "iavl", "commit")
 
-	hash, version, err := st.tree.SaveVersion()
+	hash, version, err := st.tree.SaveVersion(true)
+	if err != nil {
+		panic(err)
+	}
+
+	return types.CommitID{
+		Version: version,
+		Hash:    hash,
+	}
+}
+
+func (st *Store) CommitWithoutFlush() types.CommitID {
+	defer telemetry.MeasureSince(time.Now(), "store", "iavl", "commit")
+
+	hash, version, err := st.tree.SaveVersion(false)
 	if err != nil {
 		panic(err)
 	}

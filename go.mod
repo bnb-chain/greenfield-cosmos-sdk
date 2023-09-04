@@ -171,7 +171,7 @@ replace (
 
 	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.3-alpha.1
 	github.com/cometbft/cometbft-db => github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1
-	github.com/cosmos/iavl => github.com/bnb-chain/greenfield-iavl v0.20.1
+	github.com/cosmos/iavl => github.com/forcodedancing/greenfield-iavl v0.0.0-20230904060038-c9b4c44e96ae
 
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.

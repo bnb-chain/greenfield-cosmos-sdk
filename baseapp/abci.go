@@ -477,7 +477,17 @@ func (app *BaseApp) Commit() abci.ResponseCommit {
 	// MultiStore (app.cms) so when Commit() is called is persists those values.
 	// checkState needs to be locked here to prevent a race condition
 	app.deliverState.ms.Write()
-	commitID := app.cms.Commit()
+	var commitID storetypes.CommitID
+	if ok {
+		// TODO: read from config file
+		if header.Height%10 == 0 { // graceful shutdown is not easy to achieve, for un-flushed state is store in cometbft
+			commitID = app.cms.Commit()
+		} else {
+			commitID = rms.CommitWithoutFlush()
+		}
+	} else {
+		commitID = app.cms.Commit()
+	}
 
 	app.queryStateMtx.Lock()
 	app.setQueryState(header)

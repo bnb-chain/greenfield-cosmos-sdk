@@ -22,7 +22,7 @@ type (
 		Get(key []byte) ([]byte, error)
 		Set(key, value []byte) (bool, error)
 		Remove(key []byte) ([]byte, bool, error)
-		SaveVersion() ([]byte, int64, error)
+		SaveVersion(flush bool) ([]byte, int64, error)
 		DeleteVersion(version int64) error
 		DeleteVersions(versions ...int64) error
 		Version() int64
@@ -53,7 +53,7 @@ func (it *immutableTree) Remove(_ []byte) ([]byte, bool, error) {
 	panic("cannot call 'Remove' on an immutable IAVL tree")
 }
 
-func (it *immutableTree) SaveVersion() ([]byte, int64, error) {
+func (it *immutableTree) SaveVersion(flush bool) ([]byte, int64, error) {
 	panic("cannot call 'SaveVersion' on an immutable IAVL tree")
 }
 

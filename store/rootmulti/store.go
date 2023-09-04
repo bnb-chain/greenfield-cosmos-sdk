@@ -248,6 +248,16 @@ func (rs *Store) loadVersion(ver int64, upgrades *types.StoreUpgrades) error {
 			return fmt.Errorf("version of store %s mismatch root store's version; expected %d got %d; new stores should be added using StoreUpgrades", key.Name(), ver, commitID.Version)
 		}
 
+		//latestVersion := rs.loadLatestVersion(key, storeParams)
+		//if latestVersion < commitID.Version {
+		//	cInfo, _ = rs.GetCommitInfo(latestVersion)
+		//	// convert StoreInfos slice to map
+		//	for _, storeInfo := range cInfo.StoreInfos {
+		//		infos[storeInfo.Name] = storeInfo
+		//	}
+		//	commitID = rs.getCommitID(infos, key.Name())
+		//}
+
 		store, err := rs.loadCommitStoreFromParams(key, commitID, storeParams)
 		if err != nil {
 			return errors.Wrap(err, "failed to load store")
@@ -447,6 +457,52 @@ func (rs *Store) Commit() types.CommitID {
 	rs.lastCommitInfo = commitStores(version, rs.stores, rs.removalMap)
 	rs.lastCommitInfo.Timestamp = rs.commitHeader.Time
 	defer rs.flushMetadata(rs.db, version, rs.lastCommitInfo)
+
+	// remove remnants of removed stores
+	for sk := range rs.removalMap {
+		if _, ok := rs.stores[sk]; ok {
+			delete(rs.stores, sk)
+			delete(rs.storesParams, sk)
+			delete(rs.keysByName, sk.Name())
+		}
+	}
+
+	// reset the removalMap
+	rs.removalMap = make(map[types.StoreKey]bool)
+
+	if err := rs.handlePruning(version); err != nil {
+		panic(err)
+	}
+
+	return types.CommitID{
+		Version: version,
+		Hash:    rs.lastCommitInfo.Hash(),
+	}
+}
+
+// CommitWithoutFlush will commit without flush to database.
+func (rs *Store) CommitWithoutFlush() types.CommitID {
+	var previousHeight, version int64
+	if rs.lastCommitInfo.GetVersion() == 0 && rs.initialVersion > 1 {
+		// This case means that no commit has been made in the store, we
+		// start from initialVersion.
+		version = rs.initialVersion
+	} else {
+		// This case can means two things:
+		// - either there was already a previous commit in the store, in which
+		// case we increment the version from there,
+		// - or there was no previous commit, and initial version was not set,
+		// in which case we start at version 1.
+		previousHeight = rs.lastCommitInfo.GetVersion()
+		version = previousHeight + 1
+	}
+
+	if rs.commitHeader.Height != version {
+		rs.logger.Debug("commit header and version mismatch", "header_height", rs.commitHeader.Height, "version", version)
+	}
+
+	rs.lastCommitInfo = commitStoresWithoutFlush(version, rs.stores, rs.removalMap)
+	rs.lastCommitInfo.Timestamp = rs.commitHeader.Time
 
 	// remove remnants of removed stores
 	for sk := range rs.removalMap {
@@ -1020,6 +1076,18 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		var err error
 
 		if params.initialVersion == 0 {
+			/*
+				mtree, err := iavltree.NewMutableTree(db, 1024, true)
+				if err != nil {
+					panic(err)
+				}
+				lastestVersion, err := mtree.Load()
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(lastestVersion)
+			*/
+
 			store, err = iavl.LoadStore(db, rs.logger, key, id, rs.lazyLoading, rs.iavlCacheSize, rs.iavlDisableFastNode)
 		} else {
 			store, err = iavl.LoadStoreWithInitialVersion(db, rs.logger, key, id, rs.lazyLoading, params.initialVersion, rs.iavlCacheSize, rs.iavlDisableFastNode)
@@ -1055,6 +1123,35 @@ func (rs *Store) loadCommitStoreFromParams(key types.StoreKey, id types.CommitID
 		}
 
 		return mem.NewStore(), nil
+
+	default:
+		panic(fmt.Sprintf("unrecognized store type %v", params.typ))
+	}
+}
+
+func (rs *Store) loadLatestVersion(key types.StoreKey, params storeParams) int64 {
+	var db dbm.DB
+
+	if params.db != nil {
+		db = dbm.NewPrefixDB(params.db, []byte("s/_/"))
+	} else {
+		prefix := "s/k:" + params.key.Name() + "/"
+		db = dbm.NewPrefixDB(rs.db, []byte(prefix))
+	}
+
+	switch params.typ {
+	case types.StoreTypeIAVL:
+		mtree, err := iavltree.NewMutableTree(db, 1024, true)
+		if err != nil {
+			panic(err)
+		}
+		latestVersion, err := mtree.Load()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(latestVersion)
+
+		return latestVersion
 
 	default:
 		panic(fmt.Sprintf("unrecognized store type %v", params.typ))
@@ -1209,6 +1306,62 @@ func commitStores(version int64, storeMap map[types.StoreKey]types.CommitKVStore
 		}
 
 		storeType := store.GetStoreType()
+		if storeType == types.StoreTypeTransient || storeType == types.StoreTypeMemory {
+			continue
+		}
+
+		if !removalMap[key] {
+			si := types.StoreInfo{}
+			si.Name = key.Name()
+			si.CommitId = commitID
+			storeInfos = append(storeInfos, si)
+		}
+	}
+
+	sort.SliceStable(storeInfos, func(i, j int) bool {
+		return strings.Compare(storeInfos[i].Name, storeInfos[j].Name) < 0
+	})
+
+	return &types.CommitInfo{
+		Version:    version,
+		StoreInfos: storeInfos,
+	}
+}
+
+// Commits each store and returns a new commitInfo.
+func commitStoresWithoutFlush(version int64, storeMap map[types.StoreKey]types.CommitKVStore, removalMap map[types.StoreKey]bool) *types.CommitInfo {
+	storeInfos := make([]types.StoreInfo, 0, len(storeMap))
+
+	storeKeys := keysForStoreKeyMap(storeMap)
+
+	for _, key := range storeKeys {
+		store := storeMap[key]
+		storeType := store.GetStoreType()
+
+		last := store.LastCommitID()
+
+		// If a commit event execution is interrupted, a new iavl store's version
+		// will be larger than the RMS's metadata, when the block is replayed, we
+		// should avoid committing that iavl store again.
+		var commitID types.CommitID
+		if last.Version >= version {
+			last.Version = version
+			commitID = last
+		} else {
+			cacheStore, ok := store.(*cache.CommitKVStoreCache)
+			if ok {
+				iavlStore, ok := cacheStore.CommitKVStore.(*iavl.Store)
+				if ok {
+					iavlStore.CommitWithoutFlush()
+				} else {
+					panic("not iavl store")
+				}
+
+			} else {
+				commitID = store.Commit()
+			}
+		}
+
 		if storeType == types.StoreTypeTransient || storeType == types.StoreTypeMemory {
 			continue
 		}
