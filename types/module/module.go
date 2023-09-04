@@ -556,13 +556,16 @@ func (m Manager) RunMigrations(ctx sdk.Context, cfg Configurator, fromVM Version
 func (m *Manager) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
 
+	fmt.Println("DEBUG_DEBUG before begin block", ctx.GasMeter().RwConsumed())
+
 	for _, moduleName := range m.OrderBeginBlockers {
 		module, ok := m.Modules[moduleName].(BeginBlockAppModule)
 		if ok {
 			module.BeginBlock(ctx, req)
 		}
+		fmt.Println("DEBUG_DEBUG after module", moduleName, ctx.GasMeter().RwConsumed())
 	}
-
+	fmt.Println("DEBUG_DEBUG after begin block", ctx.GasMeter().RwConsumed())
 	return abci.ResponseBeginBlock{
 		Events: ctx.EventManager().ABCIEvents(),
 	}
