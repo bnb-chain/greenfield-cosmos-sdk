@@ -83,3 +83,16 @@ func (c *UpgradeConfig) GetPlan(height int64) []*Plan {
 	}
 	return plans
 }
+
+// GetPlanByName returns the upgrade plan by its name
+func (c *UpgradeConfig) GetPlanByName(name string) *Plan {
+	for _, vPlans := range c.elements {
+		for _, plan := range vPlans {
+			if plan.Name == name {
+				return plan
+			}
+		}
+	}
+
+	return nil
+}

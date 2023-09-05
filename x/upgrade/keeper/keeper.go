@@ -296,18 +296,7 @@ func (k Keeper) GetUpgradePlan(ctx sdk.Context) ([]*types.Plan, bool) {
 		return nil, false
 	}
 
-	nonUpgraded := make([]*types.Plan, 0, len(plans))
-	for i := 0; i < len(plans); i++ {
-		if !k.IsUpgraded(ctx, plans[i].Name) {
-			nonUpgraded = append(nonUpgraded, plans[i])
-		}
-	}
-
-	if len(nonUpgraded) == 0 {
-		return nil, false
-	}
-
-	return nonUpgraded, true
+	return plans, true
 }
 
 // setDone marks this upgrade name as being done so the name can't be reused accidentally
@@ -418,12 +407,12 @@ func (k Keeper) ReadUpgradeInfoFromDisk() (types.Plan, error) {
 
 // IsUpgraded returns the bool which the given upgrade was executed
 func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
-	height := k.GetDoneHeight(ctx, name)
-	if height == 0 {
+	plan := k.upgradeConfig.GetPlanByName(name)
+	if plan == nil {
 		return false
 	}
 
-	return height <= ctx.BlockHeight()
+	return plan.Height <= ctx.BlockHeight()
 }
 
 // InitUpgraded execute the upgrade initializer that the upgrade is already applied.
@@ -460,30 +449,32 @@ func (keeper *Keeper) RegisterUpgradePlan(chianID string, plans []serverconfig.U
 }
 
 // getExistChainConfig returns the exist chain config
-func getExistChainConfig(chainID string) *types.UpgradeConfig {
+func getExistChainConfig(chainID string) (*types.UpgradeConfig, bool) {
 	switch chainID {
 	case types.TestnetChainID:
-		return types.TestnetConfig
+		return types.TestnetConfig, true
 	default:
-		return types.NewUpgradeConfig()
+		return types.NewUpgradeConfig(), false
 	}
 }
 
 // convertUpgradeConfig converts serverconfig.UpgradeConfig to types.UpgradeConfig
 func convertUpgradeConfig(chainID string, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
-	upgradeConfig := getExistChainConfig(chainID)
+	upgradeConfig, exist := getExistChainConfig(chainID)
 
-	// override by app config
-	for _, plan := range plans {
-		nPlan := &types.Plan{
-			Name:   plan.Name,
-			Height: plan.Height,
-			Info:   plan.Info,
+	if !exist {
+		// override by app config
+		for _, plan := range plans {
+			nPlan := &types.Plan{
+				Name:   plan.Name,
+				Height: plan.Height,
+				Info:   plan.Info,
+			}
+			if err := nPlan.ValidateBasic(); err != nil {
+				return nil, err
+			}
+			upgradeConfig.SetPlan(nPlan)
 		}
-		if err := nPlan.ValidateBasic(); err != nil {
-			return nil, err
-		}
-		upgradeConfig.SetPlan(nPlan)
 	}
 
 	return upgradeConfig, nil
