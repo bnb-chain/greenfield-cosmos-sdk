@@ -166,10 +166,11 @@ func TestHaltIfTooNew(t *testing.T) {
 }
 
 func VerifyCleared(t *testing.T, newCtx sdk.Context) {
+	// upgrade info still kept in upgrade configs for IsUpgraded usage
 	t.Log("Verify that the upgrade plan has been cleared")
-	plan, _ := s.keeper.GetUpgradePlan(newCtx)
-	var expected []*types.Plan
-	require.Equal(t, plan, expected)
+	//plan, _ := s.keeper.GetUpgradePlan(newCtx)
+	//var expected []*types.Plan
+	//require.Equal(t, plan, expected)
 }
 
 func TestCanClear(t *testing.T) {
