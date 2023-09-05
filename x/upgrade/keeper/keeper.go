@@ -271,16 +271,12 @@ func (k Keeper) ClearIBCState(ctx sdk.Context, lastHeight int64) {
 // ClearUpgradePlan clears any schedule upgrade and associated IBC states.
 func (k Keeper) ClearUpgradePlan(ctx sdk.Context) {
 	// clear IBC states everytime upgrade plan is removed
-	planHeight := ctx.BlockHeight()
 	oldPlans, found := k.GetUpgradePlan(ctx)
 	if found {
 		for _, plan := range oldPlans {
-			planHeight = plan.Height
 			k.ClearIBCState(ctx, plan.Height)
 		}
 	}
-
-	k.upgradeConfig.Clear(planHeight)
 }
 
 // Logger returns a module-specific logger.
