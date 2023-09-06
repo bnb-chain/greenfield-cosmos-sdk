@@ -15,6 +15,9 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
+// Nagqu defines the name of Nagqu upgrade
+const Nagqu = "Nagqu"
+
 /*
 Context is an immutable object contains all information needed to
 process a request.
@@ -313,13 +316,24 @@ func (c Context) Value(key interface{}) interface{} {
 // Store / Caching
 // ----------------------------------------------------------------------------
 
+// KVStoreWithZeroRead fetches a KVStore from the MultiStore.
+func (c Context) KVStoreWithZeroRead(key storetypes.StoreKey) storetypes.KVStore {
+	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.gasMeter, storetypes.KVGasConfigAfterNagqu())
+}
+
 // KVStore fetches a KVStore from the MultiStore.
 func (c Context) KVStore(key storetypes.StoreKey) storetypes.KVStore {
+	if c.upgradeChecker != nil && c.upgradeChecker(c, Nagqu) {
+		return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.gasMeter, storetypes.KVGasConfigAfterNagqu())
+	}
 	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.gasMeter, c.kvGasConfig)
 }
 
 // TransientStore fetches a TransientStore from the MultiStore.
 func (c Context) TransientStore(key storetypes.StoreKey) storetypes.KVStore {
+	if c.upgradeChecker != nil && c.upgradeChecker(c, Nagqu) {
+		return c.MultiStore().GetKVStore(key)
+	}
 	return gaskv.NewStore(c.MultiStore().GetKVStore(key), c.gasMeter, c.kvGasConfig)
 }
 
