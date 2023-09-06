@@ -261,6 +261,19 @@ type GasConfig struct {
 	IterNextCostFlat Gas
 }
 
+// KVGasConfigAfterNagqu returns a gas config after Nagqu harfork for KVStores.
+func KVGasConfigAfterNagqu() GasConfig {
+	return GasConfig{
+		HasCost:          0,
+		DeleteCost:       1000,
+		ReadCostFlat:     0,
+		ReadCostPerByte:  0,
+		WriteCostFlat:    2000,
+		WriteCostPerByte: 30,
+		IterNextCostFlat: 0,
+	}
+}
+
 // KVGasConfig returns a default gas config for KVStores.
 func KVGasConfig() GasConfig {
 	return GasConfig{

@@ -2,14 +2,16 @@ package types
 
 import (
 	"math"
+
+	"github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
 	// EnablePublicDelegationUpgrade is the upgrade name for enabling public delegation
-	EnablePublicDelegationUpgrade = "EnablePublicDelegationUpgrade"
+	EnablePublicDelegationUpgrade = types.EnablePublicDelegationUpgrade
 
 	// Nagqu is the upgrade name for following features:
-	Nagqu = "Nagqu"
+	Nagqu = types.Nagqu
 )
 
 // The default upgrade config for networks
