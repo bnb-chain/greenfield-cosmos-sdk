@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.5-alpha.1
+This release includes 1 feature and 1 chore.
+
+Features:
+* [#277](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/277) feat: restrict token transfers to payment accounts
+
+Chores:
+* [#300](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/300) chore: add hardfork logic for Nagqu
+
 ## v0.2.4
 This release includes all the changes in the v0.2.4 alpha versions and 2 new bugfixes.
 
