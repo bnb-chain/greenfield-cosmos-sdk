@@ -14,13 +14,20 @@ const (
 
 // The default upgrade config for networks
 var (
+	// TODO: local test purpose, remove after Nagqu upgrade
+	LocalChainID = "greenfield_9000-121"
+	LocalConfig  = NewUpgradeConfig().SetPlan(&Plan{
+		Name:   Nagqu,
+		Height: 200,
+		Info:   "",
+	})
+
 	TestnetChainID = "greenfield_5600-1"
-	TestnetConfig  = NewUpgradeConfig()
-	// .SetPlan(&Plan{
-	// 	Name: EnablePublicDelegationUpgrade,
-	// 	Height: 100,
-	// 	Info: "Enable public delegation",
-	// })
+	TestnetConfig  = NewUpgradeConfig().SetPlan(&Plan{
+		Name:   Nagqu,
+		Height: 1000000, // TODO: update it
+		Info:   "",
+	})
 )
 
 func NewUpgradeConfig() *UpgradeConfig {
@@ -82,4 +89,17 @@ func (c *UpgradeConfig) GetPlan(height int64) []*Plan {
 		}
 	}
 	return plans
+}
+
+// GetPlanByName returns the upgrade plan by its name
+func (c *UpgradeConfig) GetPlanByName(name string) *Plan {
+	for _, vPlans := range c.elements {
+		for _, plan := range vPlans {
+			if plan.Name == name {
+				return plan
+			}
+		}
+	}
+
+	return nil
 }

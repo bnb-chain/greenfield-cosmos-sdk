@@ -249,7 +249,7 @@ func encodeDoneKey(name string, height int64) []byte {
 
 // GetDoneHeight returns the height at which the given upgrade was executed
 func (k Keeper) GetDoneHeight(ctx sdk.Context, name string) int64 {
-	iter := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte{types.DoneByte})
+	iter := sdk.KVStorePrefixIterator(ctx.KVStoreWithZeroRead(k.storeKey), []byte{types.DoneByte})
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -299,6 +299,29 @@ func (k Keeper) GetUpgradePlan(ctx sdk.Context) ([]*types.Plan, bool) {
 	nonUpgraded := make([]*types.Plan, 0, len(plans))
 	for i := 0; i < len(plans); i++ {
 		if !k.IsUpgraded(ctx, plans[i].Name) {
+			nonUpgraded = append(nonUpgraded, plans[i])
+		}
+	}
+
+	if len(nonUpgraded) == 0 {
+		return nil, false
+	}
+
+	return nonUpgraded, true
+}
+
+// GetUpgradePlanInBeginBlock returns the currently scheduled Plan if any, setting havePlan to true if there is a scheduled
+// upgrade or false if there is none
+// Note: Only use it in the begin block of upgrade module
+func (k Keeper) GetUpgradePlanInBeginBlock(ctx sdk.Context) ([]*types.Plan, bool) {
+	plans := k.upgradeConfig.GetPlan(ctx.BlockHeight())
+	if len(plans) == 0 {
+		return nil, false
+	}
+
+	nonUpgraded := make([]*types.Plan, 0, len(plans))
+	for i := 0; i < len(plans); i++ {
+		if !k.IsUpgradedInBeginBlock(ctx, plans[i].Name) {
 			nonUpgraded = append(nonUpgraded, plans[i])
 		}
 	}
@@ -416,14 +439,51 @@ func (k Keeper) ReadUpgradeInfoFromDisk() (types.Plan, error) {
 	return upgradeInfo, nil
 }
 
-// IsUpgraded returns the bool which the given upgrade was executed
-func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
+// IsUpgradedInBeginBlock returns the bool which the given upgrade was executed
+// Note: Only use it in the begin block of upgrade module
+func (k Keeper) IsUpgradedInBeginBlock(ctx sdk.Context, name string) bool {
+	if name == types.Nagqu { // special logic for Nagqu hardfork
+		plan := k.findNagquPlan(ctx, name)
+		if plan != nil {
+			return plan.Height < ctx.BlockHeight()
+		}
+	}
+
 	height := k.GetDoneHeight(ctx, name)
 	if height == 0 {
 		return false
 	}
 
 	return height <= ctx.BlockHeight()
+}
+
+// IsUpgraded returns the bool which the given upgrade was executed
+func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
+	if name == types.Nagqu { // special logic for Nagqu hardfork
+		plan := k.findNagquPlan(ctx, name)
+		if plan != nil {
+			return plan.Height <= ctx.BlockHeight()
+		}
+	}
+
+	height := k.GetDoneHeight(ctx, name)
+	if height == 0 {
+		return false
+	}
+
+	return height <= ctx.BlockHeight()
+}
+
+// findNagquPlan will find upgrade plan for Nagpu hardfork
+func (k Keeper) findNagquPlan(ctx sdk.Context, name string) *types.Plan {
+	var plan *types.Plan
+	switch ctx.ChainID() {
+	case types.TestnetChainID:
+		plan = types.TestnetConfig.GetPlanByName(name)
+	case types.LocalChainID:
+		plan = types.TestnetConfig.GetPlanByName(name)
+	}
+	return plan
 }
 
 // InitUpgraded execute the upgrade initializer that the upgrade is already applied.
@@ -460,30 +520,34 @@ func (keeper *Keeper) RegisterUpgradePlan(chianID string, plans []serverconfig.U
 }
 
 // getExistChainConfig returns the exist chain config
-func getExistChainConfig(chainID string) *types.UpgradeConfig {
+func getExistChainConfig(chainID string) (*types.UpgradeConfig, bool) {
 	switch chainID {
 	case types.TestnetChainID:
-		return types.TestnetConfig
+		return types.TestnetConfig, true
+	case types.LocalChainID:
+		return types.LocalConfig, true
 	default:
-		return types.NewUpgradeConfig()
+		return types.NewUpgradeConfig(), false
 	}
 }
 
 // convertUpgradeConfig converts serverconfig.UpgradeConfig to types.UpgradeConfig
 func convertUpgradeConfig(chainID string, plans []serverconfig.UpgradeConfig) (*types.UpgradeConfig, error) {
-	upgradeConfig := getExistChainConfig(chainID)
+	upgradeConfig, exist := getExistChainConfig(chainID)
 
-	// override by app config
-	for _, plan := range plans {
-		nPlan := &types.Plan{
-			Name:   plan.Name,
-			Height: plan.Height,
-			Info:   plan.Info,
+	if !exist {
+		// override by app config
+		for _, plan := range plans {
+			nPlan := &types.Plan{
+				Name:   plan.Name,
+				Height: plan.Height,
+				Info:   plan.Info,
+			}
+			if err := nPlan.ValidateBasic(); err != nil {
+				return nil, err
+			}
+			upgradeConfig.SetPlan(nPlan)
 		}
-		if err := nPlan.ValidateBasic(); err != nil {
-			return nil, err
-		}
-		upgradeConfig.SetPlan(nPlan)
 	}
 
 	return upgradeConfig, nil

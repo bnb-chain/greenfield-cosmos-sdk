@@ -24,7 +24,7 @@ import (
 func BeginBlocker(k *keeper.Keeper, ctx sdk.Context, _ abci.RequestBeginBlock) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	plans, found := k.GetUpgradePlan(ctx)
+	plans, found := k.GetUpgradePlanInBeginBlock(ctx)
 
 	if !found {
 		return
