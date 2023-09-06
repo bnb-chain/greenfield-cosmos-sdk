@@ -15,9 +15,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
-// Nagqu defines the name of Nagqu upgrade
-const Nagqu = "Nagqu"
-
 /*
 Context is an immutable object contains all information needed to
 process a request.
