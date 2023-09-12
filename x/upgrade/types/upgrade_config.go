@@ -17,12 +17,11 @@ const (
 // The default upgrade config for networks
 var (
 	TestnetChainID = "greenfield_5600-1"
-	TestnetConfig  = NewUpgradeConfig()
-	// .SetPlan(&Plan{
-	// 	Name: EnablePublicDelegationUpgrade,
-	// 	Height: 100,
-	// 	Info: "Enable public delegation",
-	// })
+	TestnetConfig  = NewUpgradeConfig().SetPlan(&Plan{
+		Name:   Nagqu,
+		Height: 471350,
+		Info:   "Nagqu hardfork",
+	})
 )
 
 func NewUpgradeConfig() *UpgradeConfig {
