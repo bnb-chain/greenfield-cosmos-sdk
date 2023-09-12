@@ -2,9 +2,10 @@
 
 ## v0.2.5  
 
-This release includes all the changes in the v0.2.5 alpha versions.
+This release includes all the changes in the v0.2.5 alpha versions and 1 new feature.
 
 Features:
+* [#306](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/306) feat: enable Nagqu hardfork to testnet  
 * [#277](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/277) feat: restrict token transfers to payment accounts
 
 Chores:
