@@ -107,6 +107,11 @@ func ReadPersistentCommandFlags(clientCtx Context, flagSet *pflag.FlagSet) (Cont
 		clientCtx = clientCtx.WithSimulation(dryRun)
 	}
 
+	if !clientCtx.Simulate || flagSet.Changed(flags.FlagPrintEIP712MsgType) {
+		printEIP712, _ := flagSet.GetBool(flags.FlagPrintEIP712MsgType)
+		clientCtx = clientCtx.WithSimulation(printEIP712).WithPrintEIP712MsgType(printEIP712)
+	}
+
 	if clientCtx.KeyringDir == "" || flagSet.Changed(flags.FlagKeyringDir) {
 		keyringDir, _ := flagSet.GetString(flags.FlagKeyringDir)
 

@@ -89,6 +89,8 @@ const (
 	// Tendermint logging flags
 	FlagLogLevel  = "log_level"
 	FlagLogFormat = "log_format"
+
+	FlagPrintEIP712MsgType = "print-eip712-msg-type"
 )
 
 // LineBreak can be included in a command list to provide a blank line
@@ -136,6 +138,7 @@ func AddTxFlagsToCmd(cmd *cobra.Command) {
 	// --gas can accept integers and "auto"
 	f.String(FlagGas, "", fmt.Sprintf("gas limit to set per-transaction; set to %q to calculate sufficient gas automatically. Note: %q option doesn't always report accurate results. Set a valid coin value to adjust the result. Can be used instead of %q. (default %d)",
 		GasFlagAuto, GasFlagAuto, FlagFees, DefaultGasLimit))
+	f.Bool(FlagPrintEIP712MsgType, false, "ignore the --gas flag and perform a simulation of a transaction(but don't broadcast it) and print the EIP712 message type")
 
 	AddKeyringFlags(f)
 }
