@@ -59,6 +59,8 @@ type Context struct {
 	// IsAux is true when the signer is an auxiliary signer (e.g. the tipper).
 	IsAux bool
 
+	PrintEIP712MsgType bool
+
 	// TODO: Deprecated (remove).
 	LegacyAmino *codec.LegacyAmino
 }
@@ -267,6 +269,12 @@ func (ctx Context) WithAux(isAux bool) Context {
 	return ctx
 }
 
+// WithPrintEIP712MsgType returns a copy of the context with an updated PrintEIP712MsgType value.
+func (ctx Context) WithPrintEIP712MsgType(printEIP712MsgType bool) Context {
+	ctx.PrintEIP712MsgType = printEIP712MsgType
+	return ctx
+}
+
 // WithLedgerHasProto returns the context with the provided boolean value, indicating
 // whether the target Ledger application can support Protobuf payloads.
 func (ctx Context) WithLedgerHasProtobuf(val bool) Context {
@@ -369,7 +377,7 @@ func GetFromFields(clientCtx Context, kr keyring.Keyring, from string) (sdk.AccA
 	switch {
 	case clientCtx.Simulate:
 		if err != nil {
-			return nil, "", 0, fmt.Errorf("a valid bech32 address must be provided in simulation mode: %w", err)
+			return nil, "", 0, fmt.Errorf("a valid hex address must be provided in simulation mode: %w", err)
 		}
 
 		return addr, "", 0, nil

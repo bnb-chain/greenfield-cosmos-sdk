@@ -59,6 +59,10 @@ func GenerateOrBroadcastTxWithFactory(clientCtx client.Context, txf Factory, msg
 		return txf.PrintUnsignedTx(clientCtx, msgs...)
 	}
 
+	if clientCtx.PrintEIP712MsgType {
+		return txf.PrintEIP712MsgType(clientCtx, msgs...)
+	}
+
 	return BroadcastTx(clientCtx, txf, msgs...)
 }
 

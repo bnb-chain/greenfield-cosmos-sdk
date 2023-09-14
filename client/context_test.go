@@ -205,7 +205,7 @@ func TestGetFromFields(t *testing.T) {
 			},
 			from:        "alice",
 			clientCtx:   client.Context{}.WithSimulation(true),
-			expectedErr: "a valid bech32 address must be provided in simulation mode",
+			expectedErr: "a valid hex address must be provided in simulation mode",
 		},
 		{
 			keyring: func() keyring.Keyring {
