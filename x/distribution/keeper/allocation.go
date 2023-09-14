@@ -31,6 +31,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, totalPreviousPower int64, bonded
 	if totalPreviousPower == 0 {
 		feePool.CommunityPool = feePool.CommunityPool.Add(feesCollected...)
 		k.SetFeePool(ctx, feePool)
+		ctx.Logger().Info("DEBUG_DEBUG totalPreviousPower is zero", "totalPreviousPower", totalPreviousPower)
 		return
 	}
 

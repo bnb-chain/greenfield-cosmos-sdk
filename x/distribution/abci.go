@@ -20,11 +20,14 @@ func BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) 
 	var previousTotalPower int64
 	for _, voteInfo := range req.LastCommitInfo.GetVotes() {
 		previousTotalPower += voteInfo.Validator.Power
+		ctx.Logger().Info("DEBUG_DEBUG voting power", "validator", voteInfo.Validator.Power)
 	}
+	ctx.Logger().Info("DEBUG_DEBUG total voting power", "total", previousTotalPower)
 
 	// TODO this is Tendermint-dependent
 	// ref https://github.com/cosmos/cosmos-sdk/issues/3095
 	if ctx.BlockHeight() > 1 {
+		ctx.Logger().Info("DEBUG_DEBUG AllocateTokens", "height", ctx.BlockHeight())
 		k.AllocateTokens(ctx, previousTotalPower, req.LastCommitInfo.GetVotes())
 	}
 
