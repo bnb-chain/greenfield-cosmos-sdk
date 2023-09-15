@@ -1,8 +1,10 @@
 package v1
 
 import (
+	"encoding/hex"
 	"strings"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 )
@@ -35,6 +37,11 @@ func (m *CrossChainParamsChange) ValidateBasic() error {
 			_, err := sdk.AccAddressFromHexUnsafe(value)
 			if err != nil {
 				return types.ErrAddressNotValid
+			}
+		} else {
+			_, err := hex.DecodeString(value)
+			if err != nil {
+				return sdkerrors.Wrapf(types.ErrInvalidValue, "value is not valid %s", value)
 			}
 		}
 		_, err := sdk.AccAddressFromHexUnsafe(target)
