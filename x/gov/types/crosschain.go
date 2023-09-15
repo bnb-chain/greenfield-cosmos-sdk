@@ -35,10 +35,10 @@ var (
 	}
 )
 
-func (p SyncParamsPackage) MustSerialize() []byte {
+func (p SyncParamsPackage) Serialize() ([]byte, error) {
 	encodedBytes, err := syncParamsPackageArgs.Pack(&p)
 	if err != nil {
-		panic("encode params change sync package error")
+		return nil, err
 	}
-	return encodedBytes
+	return encodedBytes, nil
 }
