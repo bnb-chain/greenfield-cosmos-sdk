@@ -1,7 +1,15 @@
 # Changelog
 
-## v0.2.5  
+## v0.2.6-alpha.1
+This release includes 1 new feature.
 
+Features:
+* [#310](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/310) feat: add FlagPrintEIP712MsgType  
+
+Chores:
+* [#312](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/312) chore: improve the validations of parameters
+
+## v0.2.5
 This release includes all the changes in the v0.2.5 alpha versions and 1 new feature.
 
 Features:

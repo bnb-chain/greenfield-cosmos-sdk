@@ -33,7 +33,7 @@ var (
 	ErrAddressSizeNotMatch     = errors.Register(ModuleName, 25, "number of old address not equal to new addresses")
 	ErrAddressNotValid         = errors.Register(ModuleName, 26, "address format is not valid")
 	ErrExceedParamsChangeLimit = errors.Register(ModuleName, 27, "exceed params change limit")
-	ErrInvalidUpgradeProposal  = errors.Register(ModuleName, 28, "invalid sync params package")
+	ErrInvalidSyncParamPackage = errors.Register(ModuleName, 28, "invalid sync params package")
 	ErrInvalidValue            = errors.Register(ModuleName, 29, "decode hex value failed")
 
 	ErrChainNotSupported = errors.Register(ModuleName, 30, "crosschain: chain is not supported")

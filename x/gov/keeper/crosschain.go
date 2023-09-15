@@ -66,13 +66,16 @@ func (k Keeper) SyncParams(ctx sdk.Context, destChainId sdk.ChainID, cpc govv1.C
 		Target: addresses,
 	}
 
-	encodedPackage := pack.MustSerialize()
+	encodedPackage, err := pack.Serialize()
+	if err != nil {
+		return sdkerrors.Wrapf(types.ErrInvalidSyncParamPackage, "fail to serialize, err: %s", err.Error())
+	}
 
 	if !k.crossChainKeeper.IsDestChainSupported(destChainId) {
 		return sdkerrors.Wrapf(types.ErrChainNotSupported, "destination chain (%d) is not supported", destChainId)
 	}
 
-	_, err := k.crossChainKeeper.CreateRawIBCPackageWithFee(
+	_, err = k.crossChainKeeper.CreateRawIBCPackageWithFee(
 		ctx,
 		destChainId,
 		types.SyncParamsChannelID,
