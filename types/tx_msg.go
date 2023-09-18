@@ -25,6 +25,17 @@ type (
 		GetSigners() []AccAddress
 	}
 
+	// MsgWithRuntimeValidation defines the interface a transaction message which wants to enable runtime validation.
+	// Contract: enable runtime validation after Xxxx upgrade.
+	MsgWithRuntimeValidation interface {
+		Msg
+
+		// ValidateRuntime does a simple validation, different from ValidateBasic the context information
+		// will be used to facilitate validation for hardfork.
+		// Contract: only used for simple validation which needs hardfork logic.
+		ValidateRuntime(ctx Context) error
+	}
+
 	// Fee defines an interface for an application application-defined concrete
 	// transaction type to be able to set and return the transaction fee.
 	Fee interface {

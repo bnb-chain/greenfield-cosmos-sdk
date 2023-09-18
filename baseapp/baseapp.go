@@ -637,6 +637,23 @@ func validateBasicTxMsgs(msgs []sdk.Msg) error {
 	return nil
 }
 
+// validateRuntimeTxMsgs executes basic runtime validator calls for messages.
+func validateRuntimeTxMsgs(ctx sdk.Context, msgs []sdk.Msg) error {
+	if len(msgs) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "must contain at least one message")
+	}
+
+	for _, msg := range msgs {
+		if runtimeMsg, ok := msg.(sdk.MsgWithRuntimeValidation); ok {
+			if err := runtimeMsg.ValidateRuntime(ctx); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // Returns the application's deliverState if app is in runTxModeDeliver,
 // prepareProposalState if app is in runTxPrepareProposal, processProposalState
 // if app is in runTxProcessProposal, and checkState otherwise.
@@ -788,6 +805,9 @@ func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []by
 
 	msgs := tx.GetMsgs()
 	if err := validateBasicTxMsgs(msgs); err != nil {
+		return sdk.GasInfo{}, nil, nil, 0, err
+	}
+	if err := validateRuntimeTxMsgs(ctx, msgs); err != nil {
 		return sdk.GasInfo{}, nil, nil, 0, err
 	}
 
