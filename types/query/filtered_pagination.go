@@ -151,7 +151,7 @@ func GenericFilteredPaginate[T codec.ProtoMarshaler, F codec.ProtoMarshaler](
 		return results, nil, fmt.Errorf("invalid request, either offset or key is expected, got both")
 	}
 
-	if limit == 0 {
+	if limit == 0 || limit > DefaultLimit {
 		limit = DefaultLimit
 
 		// count total results when the limit is zero/not supplied
