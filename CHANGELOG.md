@@ -1,7 +1,7 @@
 # Changelog
 
-## v0.2.6-alpha.2
-This release includes 1 new bugfix.  
+## v0.2.6
+This release caps the pagination limit for queries at 100 records if it exceeds the default pagination limit.
 
 * [#315](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/315) fix: restrict pagination limit  
 
