@@ -110,6 +110,7 @@ func DefaultGenesisState() *GenesisState {
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgMigrateBucket", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgCancelMigrateBucket", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgCompleteMigrateBucket", 1.2e3),
+		*NewMsgGasParamsWithFixedGas("/greenfield.storage.MsgRejectMigrateBucket", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgCreatePaymentAccount", 2e5),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgDeposit", 1.2e3),
 		*NewMsgGasParamsWithFixedGas("/greenfield.payment.MsgWithdraw", 1.2e3),
