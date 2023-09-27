@@ -66,7 +66,7 @@ the new application db will use plain DB store types.
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Multi root store is dumped at version %d \n", version)
+			fmt.Printf("Multi root store is captured at version %d \n", version)
 
 			_ = db.Close()
 			_ = newDb.Close()
@@ -80,10 +80,10 @@ the new application db will use plain DB store types.
 			if err = os.Rename(applicationMigratePath, applicationPath); err != nil {
 				return err
 			}
-			fmt.Printf("Database is replaced and the old one is backup %s\n", applicationBackupPath)
+			fmt.Printf("Application db is replaced and the old one is backup %s\n", applicationBackupPath)
 
 			_ = os.Remove(applicationMigratePath)
-			fmt.Printf("Migrate database done, please update app.toml and config.toml to use fastnode feature")
+			fmt.Printf("Migrate application db done, please update app.toml and config.toml to use fastnode feature")
 
 			return nil
 		},

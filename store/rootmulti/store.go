@@ -142,9 +142,6 @@ func (rs *Store) MigrateStores(targetType types.StoreType, newDb dbm.DB) error {
 		return errors.New("only StoreTypeDB is supported")
 	}
 
-	batch := newDb.NewBatch()
-	defer batch.Close()
-
 	for key, store := range rs.stores {
 		switch store.GetStoreType() {
 		case types.StoreTypeIAVL:
@@ -152,7 +149,7 @@ func (rs *Store) MigrateStores(targetType types.StoreType, newDb dbm.DB) error {
 			iterator := store.Iterator(nil, nil)
 			for ; iterator.Valid(); iterator.Next() {
 				prefixKey := append([]byte("s/k:"+key.Name()+"/"), iterator.Key()...)
-				if err := batch.Set(prefixKey, iterator.Value()); err != nil {
+				if err := newDb.SetSync(prefixKey, iterator.Value()); err != nil {
 					return err
 				}
 			}
@@ -160,9 +157,6 @@ func (rs *Store) MigrateStores(targetType types.StoreType, newDb dbm.DB) error {
 		default:
 
 		}
-	}
-	if err := batch.WriteSync(); err != nil {
-		return err
 	}
 	return nil
 }
