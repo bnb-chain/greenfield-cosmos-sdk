@@ -20,13 +20,12 @@ const tmpMigratingDir = "data-migrating"
 
 // NewMigrateStoreCmd creates a command to migrate multistore from IAVL stores to plain DB stores to enable fast node.
 func NewMigrateStoreCmd(appCreator types.AppCreator, defaultNodeHome string) *cobra.Command {
-
 	cmd := &cobra.Command{
 		Use:   "migrate-store",
 		Short: "migrate application db to use plain db stores instead of IAVL stores",
 		Long: `
-To run a fast node, plain DB store types is needed. To convert a normal full node to a fast full node.
-We need to migrate the underlying stores. With this command, the old application db will be backed up, 
+To run a fast node, plain DB store type is needed. To convert a normal full node to a fast full node, 
+we need to migrate the underlying stores. With this command, the old application db will be backed up, 
 the new application db will use plain DB store types.
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
