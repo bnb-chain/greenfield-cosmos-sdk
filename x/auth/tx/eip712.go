@@ -2,7 +2,6 @@ package tx
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -476,8 +475,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 				newValue := make(map[string]interface{})
 				bz, _ := json.Marshal(anyValue)
 				newValue["type"] = anyValue["@type"]
-				base64Str := base64.StdEncoding.EncodeToString(bz) // base64 encode to keep consistency with js-sdk
-				newValue["value"] = []byte(base64Str)
+				newValue["value"] = bz
 				msgValue[encName[:len(encName)-3]] = newValue
 				typedData[primaryType][i].Name = encName[:len(encName)-3]
 				typedData[primaryType][i].Type = "TypeAny"
