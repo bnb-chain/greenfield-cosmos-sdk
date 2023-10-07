@@ -1,9 +1,10 @@
 # Changelog
 
 ## v1.0.0
-This release includes 1 new feature.
+This release includes 2 new features.
 
 * [#317](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/317) feat: add Nagqu fork to mainnet
+* [#323](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/323) feat: support multi msg for `PrintEIP712MsgType` flag
 
 ## v0.2.6
 This release caps the pagination limit for queries at 100 records if it exceeds the default pagination limit.
