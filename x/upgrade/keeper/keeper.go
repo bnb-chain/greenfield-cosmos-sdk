@@ -462,6 +462,8 @@ func (keeper *Keeper) RegisterUpgradePlan(chianID string, plans []serverconfig.U
 // getExistChainConfig returns the exist chain config
 func getExistChainConfig(chainID string) *types.UpgradeConfig {
 	switch chainID {
+	case types.MainnetChainID:
+		return types.MainnetConfig
 	case types.TestnetChainID:
 		return types.TestnetConfig
 	default:
