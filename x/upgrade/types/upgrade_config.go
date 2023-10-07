@@ -16,6 +16,13 @@ const (
 
 // The default upgrade config for networks
 var (
+	MainnetChainID = "greenfield_1017-1"
+	MainnetConfig  = NewUpgradeConfig().SetPlan(&Plan{
+		Name:   Nagqu,
+		Height: 1,
+		Info:   "Nagqu hardfork",
+	})
+
 	TestnetChainID = "greenfield_5600-1"
 	TestnetConfig  = NewUpgradeConfig().SetPlan(&Plan{
 		Name:   Nagqu,
