@@ -410,10 +410,6 @@ func (f Factory) PrintUnsignedTx(clientCtx client.Context, msgs ...sdk.Msg) erro
 }
 
 func (f Factory) PrintEIP712MsgType(clientCtx client.Context, msgs ...sdk.Msg) error {
-	if len(msgs) != 1 {
-		return errors.New("only one message is supported")
-	}
-
 	unsignedTx, err := f.BuildUnsignedTx(msgs...)
 	if err != nil {
 		return err
@@ -443,28 +439,19 @@ func (f Factory) PrintEIP712MsgType(clientCtx client.Context, msgs ...sdk.Msg) e
 		return fmt.Errorf("failed to wrap tx to typedData: %s", err)
 	}
 
-	eip712MsgTypes := typedData.Types
-	delete(eip712MsgTypes, "Tx")
-	delete(eip712MsgTypes, "Fee")
-	delete(eip712MsgTypes, "Coin")
-	delete(eip712MsgTypes, "EIP712Domain")
-
-	msgData := typedData.Message["msg1"].(map[string]interface{})
-	if msgData == nil {
-		return fmt.Errorf("failed to get msg data")
+	msgData := make(map[string]interface{})
+	for i := 1; i <= len(msgs); i++ {
+		msgData[fmt.Sprintf("msg%d", i)] = typedData.Message[fmt.Sprintf("msg%d", i)]
 	}
-	msgTypeUrl := msgData["type"].(string)
 
 	type EIP712TypedData struct {
-		MsgTypeUrl        string                 `json:"MsgTypeUrl"`
 		EIP712MessageType apitypes.Types         `json:"EIP712MessageType"`
 		MessageData       map[string]interface{} `json:"MessageData"`
 		TxRawBytes        string                 `json:"TxRawBytes"`
 	}
 
 	eip712TypedData := EIP712TypedData{
-		MsgTypeUrl:        msgTypeUrl,
-		EIP712MessageType: eip712MsgTypes,
+		EIP712MessageType: typedData.Types,
 		MessageData:       msgData,
 		TxRawBytes:        txRawBytesHex,
 	}
