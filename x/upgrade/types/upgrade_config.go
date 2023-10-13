@@ -10,8 +10,11 @@ const (
 	// EnablePublicDelegationUpgrade is the upgrade name for enabling public delegation
 	EnablePublicDelegationUpgrade = types.EnablePublicDelegationUpgrade
 
-	// Nagqu is the upgrade name for following features:
+	// Nagqu is the upgrade name for Nagqu upgrade
 	Nagqu = types.Nagqu
+
+	// Pampas is the upgrade name for Pampas upgrade
+	Pampas = types.Pampas
 )
 
 // The default upgrade config for networks
