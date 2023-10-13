@@ -122,7 +122,8 @@ func (s *paginationTestSuite) TestPagination() {
 	request := types.NewQueryAllBalancesRequest(addr1, pageReq)
 	res, err := queryClient.AllBalances(gocontext.Background(), request)
 	s.Require().NoError(err)
-	s.Require().Equal(res.Pagination.Total, uint64(numBalances))
+	// default page request will not return total count
+	// s.Require().Equal(res.Pagination.Total, uint64(numBalances))
 	s.Require().NotNil(res.Pagination.NextKey)
 	s.Require().LessOrEqual(res.Balances.Len(), defaultLimit)
 
