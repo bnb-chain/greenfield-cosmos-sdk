@@ -236,6 +236,7 @@ func ProvideModule(in AuthInputs) AuthOutputs {
 	}
 
 	if in.AccountI == nil {
+
 		in.AccountI = types.ProtoBaseAccount
 	}
 
