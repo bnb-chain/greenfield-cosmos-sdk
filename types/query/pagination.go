@@ -81,9 +81,8 @@ func Paginate(
 
 	if limit == 0 {
 		limit = DefaultLimit
-
-		// count total results when the limit is zero/not supplied
-		countTotal = true
+		// do not count total results when the limit is zero/not supplied
+		// countTotal = true
 	} else if limit > DefaultLimit {
 		// limit to protect the node would not be Query DoS
 		limit = DefaultLimit
