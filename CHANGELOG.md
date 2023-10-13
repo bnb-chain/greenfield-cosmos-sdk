@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.1
+This release includes 1 bug fix.
+
+* [#338](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/338) fix: count total when pagination request is empty
+
 ## v1.0.0
 This release includes 2 new features.
 
