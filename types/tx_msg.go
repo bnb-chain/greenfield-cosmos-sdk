@@ -26,7 +26,7 @@ type (
 	}
 
 	// MsgWithRuntimeValidation defines the interface a transaction message which wants to enable runtime validation.
-	// Contract: enable runtime validation after Xxxx upgrade.
+	// Contract: enable runtime validation after Pampas upgrade.
 	MsgWithRuntimeValidation interface {
 		Msg
 
