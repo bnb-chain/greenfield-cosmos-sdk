@@ -136,6 +136,31 @@ func (rs *Store) GetStoreType() types.StoreType {
 	return types.StoreTypeMulti
 }
 
+// MigrateStores will migrate stores to another type in another db.
+func (rs *Store) MigrateStores(targetType types.StoreType, newDb dbm.DB) error {
+	if targetType != types.StoreTypeDB {
+		return errors.New("only StoreTypeDB is supported")
+	}
+
+	for key, store := range rs.stores {
+		switch store.GetStoreType() {
+		case types.StoreTypeIAVL:
+			rs.logger.Info("Migrating IAVL store", "store name", key.Name())
+			iterator := store.Iterator(nil, nil)
+			for ; iterator.Valid(); iterator.Next() {
+				prefixKey := append([]byte("s/k:"+key.Name()+"/"), iterator.Key()...)
+				if err := newDb.SetSync(prefixKey, iterator.Value()); err != nil {
+					return err
+				}
+			}
+			_ = iterator.Close()
+		default:
+
+		}
+	}
+	return nil
+}
+
 // MountStoreWithDB implements CommitMultiStore.
 func (rs *Store) MountStoreWithDB(key types.StoreKey, typ types.StoreType, db dbm.DB) {
 	if key == nil {
@@ -1248,4 +1273,35 @@ func flushLatestVersion(batch dbm.Batch, version int64) {
 	}
 
 	batch.Set([]byte(latestVersionKey), bz)
+}
+
+// MigrateCommitInfos will migrate commit infos to another db.
+func MigrateCommitInfos(oldDb, newDb dbm.DB) (int64, error) {
+	bz, err := oldDb.Get([]byte(latestVersionKey))
+	if err != nil {
+		return 0, errors.New("fail to read the latest version")
+	}
+	if err = newDb.SetSync([]byte(latestVersionKey), bz); err != nil {
+		return 0, err
+	}
+
+	version := GetLatestVersion(oldDb)
+	bz, err = oldDb.Get([]byte(fmt.Sprintf(commitInfoKeyFmt, version)))
+	if bz == nil {
+		return 0, errors.New("fail to read the latest commit info")
+	}
+	if err != nil {
+		return 0, err
+	}
+	if err = newDb.SetSync([]byte(fmt.Sprintf(commitInfoKeyFmt, version)), bz); err != nil {
+		return 0, err
+	}
+
+	// ignore the errors for saving old commit info
+	bz, _ = oldDb.Get([]byte(fmt.Sprintf(commitInfoKeyFmt, version-1)))
+	if bz != nil {
+		_ = newDb.SetSync([]byte(fmt.Sprintf(commitInfoKeyFmt, version-1)), bz)
+	}
+
+	return version, nil
 }
