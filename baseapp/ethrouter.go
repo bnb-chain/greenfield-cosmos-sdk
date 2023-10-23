@@ -64,11 +64,35 @@ func (e *EthQueryRouter) RegisterConstHandler() {
 	e.AddRoute(EthNetworkID, chainIdHandler)
 	e.AddRoute(EthChainID, chainIdHandler)
 	e.AddRoute(NetVersion, chainIdHandler)
+	e.AddRoute(EthGasPrice, gasPriceHandler)
+	e.AddRoute(EthGetCode, chainIdHandler)                         // return dummy result
+	e.AddRoute(EthEstimateGas, estimateGasHandler)                 // return dummy result
+	e.AddRoute(EthCall, chainIdHandler)                            // return dummy result
+	e.AddRoute(EthGetTransactionCount, getTransactionCountHandler) // return dummy result
+	e.AddRoute(EthSendRawTransaction, chainIdHandler)              // return dummy result
 }
 
 func blockNumberHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.ResponseEthQuery, error) {
 	var res abci.ResponseEthQuery
 	res.Response = big.NewInt(ctx.BlockHeight()).Bytes()
+	return res, nil
+}
+
+func gasPriceHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.ResponseEthQuery, error) {
+	var res abci.ResponseEthQuery
+	res.Response = big.NewInt(5e9).Bytes()
+	return res, nil
+}
+
+func estimateGasHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.ResponseEthQuery, error) {
+	var res abci.ResponseEthQuery
+	res.Response = big.NewInt(21000).Bytes()
+	return res, nil
+}
+
+func getTransactionCountHandler(ctx sdk.Context, req cmtrpctypes.RPCRequest) (abci.ResponseEthQuery, error) {
+	var res abci.ResponseEthQuery
+	res.Response = big.NewInt(1).Bytes()
 	return res, nil
 }
 

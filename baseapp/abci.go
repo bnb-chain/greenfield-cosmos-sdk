@@ -38,12 +38,18 @@ const (
 
 // Supported EVM json-rpc requests
 const (
-	EthBlockNumber      = "eth_blockNumber"
-	EthGetBlockByNumber = "eth_getBlockByNumber"
-	EthGetBalance       = "eth_getBalance"
-	EthChainID          = "eth_chainId"
-	NetVersion          = "net_version"
-	EthNetworkID        = "eth_networkId"
+	EthBlockNumber         = "eth_blockNumber"
+	EthGetBlockByNumber    = "eth_getBlockByNumber"
+	EthGetBalance          = "eth_getBalance"
+	EthChainID             = "eth_chainId"
+	NetVersion             = "net_version"
+	EthNetworkID           = "eth_networkId"
+	EthGasPrice            = "eth_gasPrice"
+	EthGetCode             = "eth_getCode"
+	EthEstimateGas         = "eth_estimateGas"
+	EthCall                = "eth_call"
+	EthGetTransactionCount = "eth_getTransactionCount"
+	EthSendRawTransaction  = "eth_sendRawTransaction"
 )
 
 // InitChain implements the ABCI interface. It runs the initialization logic

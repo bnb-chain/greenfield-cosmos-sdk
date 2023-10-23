@@ -228,8 +228,6 @@ github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816/go.mod h1:+zsy
 github.com/bkielbasa/cyclop v1.2.0/go.mod h1:qOI0yy6A7dYC4Zgsa72Ppm9kONl0RoIlPbzot9mhmeI=
 github.com/blizzy78/varnamelen v0.8.0/go.mod h1:V9TzQZ4fLJ1DSrjVDfl89H7aMnTvKkApdHeyESmyR7k=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
-github.com/bnb-chain/greenfield-cometbft v0.0.3 h1:tv8NMy3bzX/1urqXGQIIAZSLy83loiI+dG0VKeyh1CY=
-github.com/bnb-chain/greenfield-cometbft v0.0.3/go.mod h1:f35mk/r5ab6yvzlqEWZt68LfUje68sYgMpVlt2CUYMk=
 github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1 h1:XcWulGacHVRiSCx90Q8Y//ajOrLNBQWR/KDB89dy3cU=
 github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1/go.mod h1:ey1CiK4bYo1RBNJLRiVbYr5CMdSxci9S/AZRINLtppI=
 github.com/bnb-chain/greenfield-iavl v0.20.1 h1:y3L64GU99otNp27/xLVBTDbv4eroR6CzoYz0rbaVotM=
@@ -1889,6 +1887,8 @@ github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yusufpapurcu/wmi v1.2.2/go.mod h1:SBZ9tNy3G9/m5Oi98Zks0QjeHVDvuK0qfxQmPyzfmi0=
+github.com/yutianwu/greenfield-cometbft v0.0.0-20231023130834-fdf67a7829c3 h1:TU3XeI23YuSBPps5+Xybl4YlUMfbm6h30ZYMhd7xsk0=
+github.com/yutianwu/greenfield-cometbft v0.0.0-20231023130834-fdf67a7829c3/go.mod h1:43yICrTxu90VjEUpQN23bsqi9mua5m5sFQq/ekHwN9s=
 github.com/zondax/hid v0.9.1 h1:gQe66rtmyZ8VeGFcOpbuH3r7erYtNEAezCAYu8LdkJo=
 github.com/zondax/hid v0.9.1/go.mod h1:l5wttcP0jwtdLjqjMMWFVEE7d1zO0jvSPA9OPZxWpEM=
 github.com/zondax/ledger-go v0.14.1 h1:Pip65OOl4iJ84WTpA4BKChvOufMhhbxED3BaihoZN4c=
