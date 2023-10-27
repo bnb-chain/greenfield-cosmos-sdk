@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/hex"
 
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
 	sdkerrors "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -80,7 +82,7 @@ func (k Keeper) GetRelayerRewardShare(ctx sdk.Context) uint32 {
 }
 
 // IsRelayerValid returns true if the relayer is valid and allowed to send the claim message
-func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validators []stakingtypes.Validator, claimTimestamp uint64) (bool, error) {
+func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validators []stakingtypes.Validator, claimTimestamp uint64, claimSrcChain types.ClaimSrcChain) (bool, error) {
 	var validatorIndex int64 = -1
 	var vldr stakingtypes.Validator
 	for index, validator := range validators {
@@ -98,7 +100,7 @@ func (k Keeper) IsRelayerValid(ctx sdk.Context, relayer sdk.AccAddress, validato
 	inturnRelayerTimeout, relayerInterval := k.GetRelayerParams(ctx)
 
 	// check whether submitter of msgClaim is an in-turn relayer
-	inturnRelayerBlsKey, _, err := k.getInturnRelayer(ctx, relayerInterval)
+	inturnRelayerBlsKey, _, err := k.getInturnRelayer(ctx, relayerInterval, claimSrcChain)
 	if err != nil {
 		return false, err
 	}
@@ -130,7 +132,14 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 	}
 	validators := historicalInfo.Valset
 
-	isValid, err := k.IsRelayerValid(ctx, relayer, validators, claim.Timestamp)
+	claimSrcChain := types.BSC
+	if ctx.IsUpgraded(upgradetypes.Pampas) {
+		if sdk.ChainID(claim.SrcChainId) == k.CrossChainKeeper.GetDestOpChainID() {
+			claimSrcChain = types.OP_BNB
+		}
+	}
+
+	isValid, err := k.IsRelayerValid(ctx, relayer, validators, claim.Timestamp, claimSrcChain)
 	if err != nil {
 		return sdk.AccAddress{}, nil, err
 	}
@@ -190,7 +199,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return params
 }
 
-func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64) ([]byte, *types.RelayInterval, error) {
+func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64, claimSrcChain types.ClaimSrcChain) ([]byte, *types.RelayInterval, error) {
 	historicalInfo, ok := k.StakingKeeper.GetHistoricalInfo(ctx, ctx.BlockHeight())
 	if !ok {
 		return nil, nil, sdkerrors.Wrapf(types.ErrValidatorSet, "get historical validators failed")
@@ -211,6 +220,9 @@ func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64) ([]byt
 	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)
 	end := start + relayerInterval
 
+	if claimSrcChain == types.OP_BNB {
+		inTurnRelayerIndex = (inTurnRelayerIndex + uint64(validatorsSize/2)) % uint64(validatorsSize)
+	}
 	inturnRelayer := validators[inTurnRelayerIndex]
 
 	return inturnRelayer.BlsKey, &types.RelayInterval{
@@ -219,8 +231,8 @@ func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64) ([]byt
 	}, nil
 }
 
-func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64) (*types.QueryInturnRelayerResponse, error) {
-	blsKey, interval, err := k.getInturnRelayer(ctx, relayerInterval)
+func (k Keeper) GetInturnRelayer(ctx sdk.Context, relayerInterval uint64, claimSrcChain types.ClaimSrcChain) (*types.QueryInturnRelayerResponse, error) {
+	blsKey, interval, err := k.getInturnRelayer(ctx, relayerInterval, claimSrcChain)
 	if err != nil {
 		return nil, err
 	}

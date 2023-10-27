@@ -61,9 +61,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-var (
-	ParamStoreKey = []byte("paramstore")
-)
+var ParamStoreKey = []byte("paramstore")
 
 func defaultLogger() log.Logger {
 	if testing.Verbose() {

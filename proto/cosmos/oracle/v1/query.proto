@@ -29,8 +29,16 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
+enum ClaimSrcChain {
+  option (gogoproto.goproto_enum_prefix) = false;
+  BSC = 0;
+  OP_BNB = 1;
+}
+
 // QueryInturnRelayerRequest is the request type for the Query In-turn relayer RPC method.
-message QueryInturnRelayerRequest {}
+message QueryInturnRelayerRequest {
+  ClaimSrcChain claim_src_chain  = 1;
+}
 
 // QueryInturnRelayerResponse is the response type for the Query In-turn relayer RPC method.
 message QueryInturnRelayerResponse {

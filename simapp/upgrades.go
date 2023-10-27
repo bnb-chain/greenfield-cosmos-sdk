@@ -9,7 +9,6 @@ import (
 )
 
 func (app *SimApp) RegisterUpgradeHandlers(chainID string, serverCfg *serverconfig.Config) error {
-
 	// Register the plans from server config
 	err := app.UpgradeKeeper.RegisterUpgradePlan(chainID, serverCfg.Upgrade)
 	if err != nil {

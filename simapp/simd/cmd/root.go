@@ -256,7 +256,6 @@ func newApp(
 	serverCfg *serverconfig.Config,
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
-
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 	return simapp.NewSimApp(
 		logger, db, traceStore, true, chainID, serverCfg,

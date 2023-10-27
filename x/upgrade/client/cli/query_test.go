@@ -13,11 +13,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	testutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradecli "github.com/cosmos/cosmos-sdk/x/upgrade/client/cli"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestGetCurrentPlanCmd(t *testing.T) {

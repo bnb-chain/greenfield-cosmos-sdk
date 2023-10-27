@@ -118,7 +118,7 @@ func (s *TestSuite) TestUpdateChannelPermission() {
 	s.crossChainKeeper.SetChannelSendPermission(s.ctx, sdk.ChainID(1), sdk.ChannelID(1), sdk.ChannelAllow)
 
 	permissions := []*types.ChannelPermission{
-		&types.ChannelPermission{
+		{
 			DestChainId: 1,
 			ChannelId:   1,
 			Permission:  0,
