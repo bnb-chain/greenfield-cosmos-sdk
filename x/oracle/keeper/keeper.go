@@ -132,10 +132,10 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 	}
 	validators := historicalInfo.Valset
 
-	claimSrcChain := types.BSC
+	claimSrcChain := types.CLAIM_SRC_CHAIN_BSC
 	if ctx.IsUpgraded(upgradetypes.Pampas) {
 		if sdk.ChainID(claim.SrcChainId) == k.CrossChainKeeper.GetDestOpChainID() {
-			claimSrcChain = types.OP_BNB
+			claimSrcChain = types.CLAIM_SRC_CHAIN_OP_BNB
 		}
 	}
 
@@ -220,7 +220,7 @@ func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64, claimS
 	start := curTimeStamp - (remainder - inTurnRelayerIndex*relayerInterval)
 	end := start + relayerInterval
 
-	if claimSrcChain == types.OP_BNB {
+	if claimSrcChain == types.CLAIM_SRC_CHAIN_OP_BNB {
 		inTurnRelayerIndex = (inTurnRelayerIndex + uint64(validatorsSize/2)) % uint64(validatorsSize)
 	}
 	inturnRelayer := validators[inTurnRelayerIndex]

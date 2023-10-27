@@ -26,7 +26,6 @@ service Query {
     option (cosmos.query.v1.module_query_safe) = true;
     option (google.api.http).get               = "/cosmos/gashub/v1beta1/msg_gas_params";
   }
-
 }
 
 // QueryParamsRequest defines the request type for querying x/gashub parameters.
