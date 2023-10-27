@@ -29,10 +29,13 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// ClaimSrcChain defines the src chain of a claim
 type ClaimSrcChain int32
 
 const (
-	BSC    ClaimSrcChain = 0
+	// BSC defines BSC source chain
+	BSC ClaimSrcChain = 0
+	// OP_BNB defines OPBNB source chain
 	OP_BNB ClaimSrcChain = 1
 )
 
@@ -139,6 +142,7 @@ func (m *QueryParamsResponse) GetParams() Params {
 
 // QueryInturnRelayerRequest is the request type for the Query In-turn relayer RPC method.
 type QueryInturnRelayerRequest struct {
+	// ClaimSrcChain defines the src chain of a claim
 	ClaimSrcChain ClaimSrcChain `protobuf:"varint,1,opt,name=claim_src_chain,json=claimSrcChain,proto3,enum=cosmos.oracle.v1.ClaimSrcChain" json:"claim_src_chain,omitempty"`
 }
 

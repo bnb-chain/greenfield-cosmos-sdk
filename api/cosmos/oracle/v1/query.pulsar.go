@@ -1721,10 +1721,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ClaimSrcChain defines the src chain of a claim
 type ClaimSrcChain int32
 
 const (
-	ClaimSrcChain_BSC    ClaimSrcChain = 0
+	// BSC defines BSC source chain
+	ClaimSrcChain_BSC ClaimSrcChain = 0
+	// OP_BNB defines OPBNB source chain
 	ClaimSrcChain_OP_BNB ClaimSrcChain = 1
 )
 
@@ -1837,6 +1840,7 @@ type QueryInturnRelayerRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// ClaimSrcChain defines the src chain of a claim
 	ClaimSrcChain ClaimSrcChain `protobuf:"varint,1,opt,name=claim_src_chain,json=claimSrcChain,proto3,enum=cosmos.oracle.v1.ClaimSrcChain" json:"claim_src_chain,omitempty"`
 }
 
