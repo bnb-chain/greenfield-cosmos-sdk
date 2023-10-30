@@ -42,9 +42,7 @@ func (s *E2ETestSuite) TestGRPCQueries() {
 						JailedUntil: time.Unix(0, 0),
 					},
 				},
-				Pagination: &query.PageResponse{
-					Total: uint64(1),
-				},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{
