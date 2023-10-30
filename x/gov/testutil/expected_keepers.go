@@ -50,4 +50,6 @@ type CrossChainKeeper interface {
 	GetReceiveSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64
 
 	IsDestChainSupported(chainID sdk.ChainID) bool
+
+	GetDestOpChainID() sdk.ChainID
 }

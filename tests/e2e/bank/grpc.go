@@ -37,9 +37,7 @@ func (s *E2ETestSuite) TestTotalSupplyGRPCHandler() {
 					sdk.NewCoin(fmt.Sprintf("%stoken", val.Moniker), s.cfg.AccountTokens),
 					sdk.NewCoin(s.cfg.BondDenom, s.cfg.StakingTokens.Add(sdk.NewInt(10))),
 				),
-				Pagination: &query.PageResponse{
-					Total: 2,
-				},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{
@@ -160,7 +158,7 @@ func (s *E2ETestSuite) TestDenomMetadataGRPCHandler() {
 						Display: "eth",
 					},
 				},
-				Pagination: &query.PageResponse{Total: 2},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{
@@ -244,9 +242,7 @@ func (s *E2ETestSuite) TestBalancesGRPCHandler() {
 					sdk.NewCoin(fmt.Sprintf("%stoken", val.Moniker), s.cfg.AccountTokens),
 					sdk.NewCoin(s.cfg.BondDenom, s.cfg.StakingTokens.Sub(s.cfg.BondedTokens)),
 				),
-				Pagination: &query.PageResponse{
-					Total: 2,
-				},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{

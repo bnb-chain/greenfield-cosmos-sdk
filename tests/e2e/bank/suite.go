@@ -296,7 +296,7 @@ func (s *E2ETestSuite) TestGetCmdQueryDenomsMetadata() {
 						Display: "eth",
 					},
 				},
-				Pagination: &query.PageResponse{Total: 2},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{
