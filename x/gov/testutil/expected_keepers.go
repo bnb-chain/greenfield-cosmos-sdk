@@ -38,7 +38,6 @@ type StakingKeeper interface {
 
 // CrossChainKeeper defines the expected crossChain keeper
 type CrossChainKeeper interface {
-	GetDestBscChainID() sdk.ChainID
 	CreateRawIBCPackageWithFee(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID, packageType sdk.CrossChainPackageType,
 		packageLoad []byte, relayerFee, ackRelayerFee *big.Int,
 	) (uint64, error)
@@ -50,4 +49,8 @@ type CrossChainKeeper interface {
 	GetReceiveSequence(ctx sdk.Context, destChainId sdk.ChainID, channelID sdk.ChannelID) uint64
 
 	IsDestChainSupported(chainID sdk.ChainID) bool
+
+	GetDestBscChainID() sdk.ChainID
+
+	GetDestOpChainID() sdk.ChainID
 }

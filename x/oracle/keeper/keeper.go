@@ -133,10 +133,8 @@ func (k Keeper) CheckClaim(ctx sdk.Context, claim *types.MsgClaim) (sdk.AccAddre
 	validators := historicalInfo.Valset
 
 	claimSrcChain := types.CLAIM_SRC_CHAIN_BSC
-	if ctx.IsUpgraded(upgradetypes.Pampas) {
-		if sdk.ChainID(claim.SrcChainId) == k.CrossChainKeeper.GetDestOpChainID() {
-			claimSrcChain = types.CLAIM_SRC_CHAIN_OP_BNB
-		}
+	if ctx.IsUpgraded(upgradetypes.Pampas) && sdk.ChainID(claim.SrcChainId) == k.CrossChainKeeper.GetDestOpChainID() {
+		claimSrcChain = types.CLAIM_SRC_CHAIN_OP_BNB
 	}
 
 	isValid, err := k.IsRelayerValid(ctx, relayer, validators, claim.Timestamp, claimSrcChain)
