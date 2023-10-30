@@ -29,8 +29,22 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
+// ClaimSrcChain defines the src chain of a claim
+enum ClaimSrcChain {
+  option (gogoproto.goproto_enum_prefix) = false;
+  // CLAIM_SRC_CHAIN_UNSPECIFIED
+  CLAIM_SRC_CHAIN_UNSPECIFIED = 0;
+  // CLAIM_SRC_CHAIN_BSC defines BSC source chain
+  CLAIM_SRC_CHAIN_BSC = 1;
+  // CLAIM_SRC_CHAIN_OP_BNB defines OPBNB source chain
+  CLAIM_SRC_CHAIN_OP_BNB = 2;
+}
+
 // QueryInturnRelayerRequest is the request type for the Query In-turn relayer RPC method.
-message QueryInturnRelayerRequest {}
+message QueryInturnRelayerRequest {
+  // ClaimSrcChain defines the src chain of a claim
+  ClaimSrcChain claim_src_chain = 1;
+}
 
 // QueryInturnRelayerResponse is the response type for the Query In-turn relayer RPC method.
 message QueryInturnRelayerResponse {
