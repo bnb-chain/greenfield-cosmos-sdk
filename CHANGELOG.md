@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.1
+## v1.1.0
 This release introduces the Pampas upgrade and contains 6 new features.  
 
 Features:
