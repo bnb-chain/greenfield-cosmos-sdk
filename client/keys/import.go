@@ -21,7 +21,7 @@ const (
 // ImportKeyCommand imports private keys from a keyfile.
 func ImportKeyCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "import <name> <keyfile>/<pricateKey>",
+		Use:   "import <name> <keyfile>/<privateKey>",
 		Short: "Import private keys into the local keybase",
 		Long:  "Import a ASCII armored/Secp256k1 private key into the local keybase.",
 		Args:  cobra.ExactArgs(2),
