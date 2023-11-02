@@ -2,39 +2,79 @@ package keys
 
 import (
 	"bufio"
+	"encoding/hex"
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
+)
+
+const (
+	flagEIP712PrivateKey = "eip712-private-key"
 )
 
 // ImportKeyCommand imports private keys from a keyfile.
 func ImportKeyCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "import <name> <keyfile>",
+	cmd := &cobra.Command{
+		Use:   "import <name> <keyfile>/<pricateKey>",
 		Short: "Import private keys into the local keybase",
-		Long:  "Import a ASCII armored private key into the local keybase.",
+		Long:  "Import a ASCII armored/EIP-712 private key into the local keybase.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			buf := bufio.NewReader(clientCtx.Input)
 
-			bz, err := os.ReadFile(args[1])
-			if err != nil {
-				return err
+			isEIP712, _ := cmd.Flags().GetBool(flagEIP712PrivateKey)
+
+			if !isEIP712 {
+				return importASCIIArmored(clientCtx, args)
 			}
 
-			passphrase, err := input.GetPassword("Enter passphrase to decrypt your key:", buf)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.Keyring.ImportPrivKey(args[0], string(bz), passphrase)
+			return importEIP712(clientCtx, args)
 		},
 	}
+
+	cmd.Flags().Bool(flagEIP712PrivateKey, false, "import EIP-712 format private key")
+
+	return cmd
+}
+
+func importASCIIArmored(clientCtx client.Context, args []string) error {
+	buf := bufio.NewReader(clientCtx.Input)
+
+	bz, err := os.ReadFile(args[1])
+	if err != nil {
+		return err
+	}
+
+	passphrase, err := input.GetPassword("Enter passphrase to decrypt your key:", buf)
+	if err != nil {
+		return err
+	}
+
+	return clientCtx.Keyring.ImportPrivKey(args[0], string(bz), passphrase)
+}
+
+func importEIP712(clientCtx client.Context, args []string) error {
+	keyName := args[0]
+	keyBytes, err := hex.DecodeString(args[1])
+	if err != nil {
+		return err
+	}
+	if len(keyBytes) != 32 {
+		return fmt.Errorf("len of keybytes is not equal to 32")
+	}
+	var keyBytesArray [32]byte
+	copy(keyBytesArray[:], keyBytes[:32])
+	privKey := hd.EthSecp256k1.Generate()(keyBytesArray[:]).(*ethsecp256k1.PrivKey)
+
+	clientCtx.Keyring.WriteLocalKey(keyName, privKey)
+	return nil
 }
