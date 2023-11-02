@@ -75,6 +75,9 @@ func importSecp256k1(clientCtx client.Context, args []string) error {
 	copy(keyBytesArray[:], keyBytes[:32])
 	privKey := hd.EthSecp256k1.Generate()(keyBytesArray[:]).(*ethsecp256k1.PrivKey)
 
-	clientCtx.Keyring.WriteLocalKey(keyName, privKey)
+	_, err = clientCtx.Keyring.WriteLocalKey(keyName, privKey)
+	if err != nil {
+		return err
+	}
 	return nil
 }
