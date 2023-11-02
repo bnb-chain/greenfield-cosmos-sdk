@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	flagEIP712PrivateKey = "eip712-private-key"
+	flagSecp256k1PrivateKey = "secp256k1-private-key"
 )
 
 // ImportKeyCommand imports private keys from a keyfile.
@@ -23,7 +23,7 @@ func ImportKeyCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import <name> <keyfile>/<pricateKey>",
 		Short: "Import private keys into the local keybase",
-		Long:  "Import a ASCII armored/EIP-712 private key into the local keybase.",
+		Long:  "Import a ASCII armored/Secp256k1 private key into the local keybase.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -31,17 +31,17 @@ func ImportKeyCommand() *cobra.Command {
 				return err
 			}
 
-			isEIP712, _ := cmd.Flags().GetBool(flagEIP712PrivateKey)
+			isSecp256k1, _ := cmd.Flags().GetBool(flagSecp256k1PrivateKey)
 
-			if !isEIP712 {
+			if !isSecp256k1 {
 				return importASCIIArmored(clientCtx, args)
 			}
 
-			return importEIP712(clientCtx, args)
+			return importSecp256k1(clientCtx, args)
 		},
 	}
 
-	cmd.Flags().Bool(flagEIP712PrivateKey, false, "import EIP-712 format private key")
+	cmd.Flags().Bool(flagSecp256k1PrivateKey, false, "import Secp256k1 format private key")
 
 	return cmd
 }
@@ -62,7 +62,7 @@ func importASCIIArmored(clientCtx client.Context, args []string) error {
 	return clientCtx.Keyring.ImportPrivKey(args[0], string(bz), passphrase)
 }
 
-func importEIP712(clientCtx client.Context, args []string) error {
+func importSecp256k1(clientCtx client.Context, args []string) error {
 	keyName := args[0]
 	keyBytes, err := hex.DecodeString(args[1])
 	if err != nil {
