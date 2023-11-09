@@ -116,6 +116,9 @@ type Importer interface {
 
 	// ImportPubKey imports ASCII armored public keys.
 	ImportPubKey(uid string, armor string) error
+
+	// WriteLocalKey persists a private key object into storage.
+	WriteLocalKey(name string, privKey types.PrivKey) (*Record, error)
 }
 
 // Migrator is implemented by key stores and enables migration of keys from amino to proto
@@ -755,6 +758,11 @@ func newRealPrompt(dir string, buf io.Reader) func(string) (string, error) {
 			return pass, nil
 		}
 	}
+}
+
+// WriteLocalKey persists a local key to the keyring.
+func (ks keystore) WriteLocalKey(name string, privKey types.PrivKey) (*Record, error) {
+	return ks.writeLocalKey(name, privKey)
 }
 
 func (ks keystore) writeLocalKey(name string, privKey types.PrivKey) (*Record, error) {
