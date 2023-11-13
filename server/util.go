@@ -323,6 +323,7 @@ func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator type
 		ExportCmd(appExport, defaultNodeHome),
 		version.NewVersionCommand(),
 		NewRollbackCmd(appCreator, defaultNodeHome),
+		NewMigrateStoreCmd(appCreator, defaultNodeHome),
 	)
 }
 
@@ -429,6 +430,11 @@ func addrToIP(addr net.Addr) net.IP {
 
 func openDB(rootDir string, backendType dbm.BackendType, opts ...*dbm.NewDatabaseOption) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
+	return dbm.NewDB("application", backendType, dataDir, opts...)
+}
+
+func openDBWithDataDir(rootDir, subDir string, backendType dbm.BackendType, opts ...*dbm.NewDatabaseOption) (dbm.DB, error) {
+	dataDir := filepath.Join(rootDir, subDir)
 	return dbm.NewDB("application", backendType, dataDir, opts...)
 }
 

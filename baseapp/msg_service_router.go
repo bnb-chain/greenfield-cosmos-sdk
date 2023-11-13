@@ -122,6 +122,12 @@ func (msr *MsgServiceRouter) RegisterService(sd *grpc.ServiceDesc, handler inter
 				return nil, err
 			}
 
+			if runtimeReq, ok := req.(sdk.MsgWithRuntimeValidation); ok {
+				if err := runtimeReq.ValidateRuntime(ctx); err != nil {
+					return nil, err
+				}
+			}
+
 			if msr.circuitBreaker != nil {
 				msgURL := sdk.MsgTypeURL(req)
 

@@ -256,7 +256,7 @@ func (s *TestSuite) TestKeeper_IsRelayerValid() {
 	for idx, test := range tests {
 		s.ctx = s.ctx.WithBlockTime(time.Unix(test.blockTime, 0))
 		relayer := sdk.MustAccAddressFromHex(test.claimMsg.FromAddress)
-		isValid, err := s.oracleKeeper.IsRelayerValid(s.ctx, relayer, vals, test.claimMsg.Timestamp)
+		isValid, err := s.oracleKeeper.IsRelayerValid(s.ctx, relayer, vals, test.claimMsg.Timestamp, types.CLAIM_SRC_CHAIN_BSC)
 
 		if test.expectedPass {
 			s.Require().Nil(err)

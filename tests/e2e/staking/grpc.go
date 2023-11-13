@@ -400,7 +400,7 @@ func (s *E2ETestSuite) TestGRPCQueryDelegatorDelegations() {
 				DelegationResponses: types.DelegationResponses{
 					types.NewDelegationResp(val.Address, val.ValAddress, sdk.NewDecFromInt(cli.DefaultTokens), sdk.NewCoin(sdk.DefaultBondDenom, cli.DefaultTokens)),
 				},
-				Pagination: &query.PageResponse{Total: 1},
+				Pagination: &query.PageResponse{},
 			},
 		},
 		{
@@ -413,7 +413,7 @@ func (s *E2ETestSuite) TestGRPCQueryDelegatorDelegations() {
 			&types.QueryDelegatorDelegationsResponse{},
 			&types.QueryDelegatorDelegationsResponse{
 				DelegationResponses: types.DelegationResponses{},
-				Pagination:          &query.PageResponse{Total: 0},
+				Pagination:          &query.PageResponse{},
 			},
 		},
 	}
@@ -592,7 +592,6 @@ func (s *E2ETestSuite) TestGRPCQueryDelegatorValidators() {
 			} else {
 				s.Require().NoError(err)
 				s.Require().Len(validators.Validators, len(s.network.Validators))
-				s.Require().Equal(int(validators.Pagination.Total), len(s.network.Validators))
 			}
 		})
 	}

@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.1.0
+This release introduces the Pampas upgrade and contains 8 new features.  
+
+Features:
+* [#316](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/316) feat: add validation with context information
+* [#321](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/321) feat: add tool to migrate stores for fastnode
+* [#336](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/336) feat: introduce the pampas upgrade
+* [#341](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/341) feat: add support for some json rpc queries
+* [#353](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/353) feat: distinguish inturn relayer
+* [#320](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/320) feat: add MsgRejectMigrateBucket
+* [#357](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/357) feat: support Secp256k1 format private keys import
+* [#358](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/358) feat: enable Pampas hardfork to testnet
+
 ## v1.0.1
 This release includes 1 bug fix.
 

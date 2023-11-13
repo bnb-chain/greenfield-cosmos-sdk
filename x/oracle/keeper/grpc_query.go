@@ -18,5 +18,5 @@ func (k Keeper) InturnRelayer(c context.Context, req *types.QueryInturnRelayerRe
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 	_, relayerInterval := k.GetRelayerParams(ctx)
-	return k.GetInturnRelayer(ctx, relayerInterval)
+	return k.GetInturnRelayer(ctx, relayerInterval, req.ClaimSrcChain)
 }
