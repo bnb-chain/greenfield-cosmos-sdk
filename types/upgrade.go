@@ -9,4 +9,7 @@ const (
 
 	// Pampas is the upgrade name for Pampas upgrade
 	Pampas = "Pampas"
+
+	// Eddystone is the upgrade name for Eddystone upgrade
+	Eddystone = "Eddystone"
 )
