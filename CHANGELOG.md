@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.1
+This release introduces the Pampas upgrade to the mainnet.  
+
+Features:
+* [#360](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/360) feat: enable Pampas hardfork to mainnet
+
 ## v1.1.0
 This release introduces the Pampas upgrade and contains 8 new features.  
 

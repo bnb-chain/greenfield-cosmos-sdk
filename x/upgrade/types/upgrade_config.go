@@ -15,6 +15,9 @@ const (
 
 	// Pampas is the upgrade name for Pampas upgrade
 	Pampas = types.Pampas
+
+	// Eddystone is the upgrade name for Eddystone upgrade
+	Eddystone = types.Eddystone
 )
 
 // The default upgrade config for networks
@@ -24,6 +27,10 @@ var (
 		Name:   Nagqu,
 		Height: 1,
 		Info:   "Nagqu hardfork",
+	}).SetPlan(&Plan{
+		Name:   Pampas,
+		Height: 2006197,
+		Info:   "Pampas hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
