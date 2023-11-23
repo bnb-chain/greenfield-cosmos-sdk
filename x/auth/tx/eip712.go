@@ -13,6 +13,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/gogoproto/jsonpb"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -29,7 +30,6 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/gogoproto/jsonpb"
 )
 
 var domain = &apitypes.TypedDataDomain{
@@ -310,11 +310,18 @@ func traverseFields(
 		if v.IsValid() {
 			field = v.Field(i)
 		}
+		if !field.IsValid() {
+			continue
+		}
+		switch field.Kind() {
+		case reflect.Map, reflect.Pointer, reflect.UnsafePointer, reflect.Interface, reflect.Slice:
+			if field.IsNil() {
+				continue
+			}
+		}
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
-		isOmitEmpty := isOmitEmpty(t.Field(i).Tag)
-
 		if fieldName == "" {
 			// For protobuf one_of interface, there's no json tag.
 			// So we need to unwrap it first.
@@ -341,12 +348,7 @@ func traverseFields(
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
 			isCollection = true
 			if field.Len() == 0 {
-				if !isOmitEmpty {
-					fieldType = reflect.TypeOf("str")
-				} else {
-					// skip empty collections from type mapping if is omitEmpty
-					continue
-				}
+				continue
 			} else {
 				fieldType = fieldType.Elem()
 				field = field.Index(0)
@@ -413,7 +415,6 @@ func traverseFields(
 			if err := traverseFields(typeMap, fieldPrefix, index, fieldType, field); err != nil {
 				return err
 			}
-			continue
 		}
 	}
 
@@ -427,25 +428,13 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 	return parts[0]
 }
 
-// isOmitEmpty returns if the struct has emitempty tag
-func isOmitEmpty(tag reflect.StructTag) bool {
-	jsonTags := tag.Get("json")
-	parts := strings.Split(jsonTags, ",")
-	for _, tag := range parts {
-		if tag == "omitempty" {
-			return true
-		}
-	}
-	return false
-}
-
 // isProtobufOneOf returns if the struct is protobuf_oneof type
 func isProtobufOneOf(tag reflect.StructTag) bool {
 	return tag.Get("protobuf_oneof") != ""
 }
 
 func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValue map[string]interface{}) {
-	// 1. the proto codec will set *types.Any's type struct name to be "@type". Need remove prefix "@"
+	// 1. the proto codec will set *types.Any's type struct name to be "@type". Need to remove prefix "@"
 	if msgValue["@type"] != nil {
 		msgValue["type"] = msgValue["@type"]
 		delete(msgValue, "@type")
@@ -476,7 +465,9 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 				newValue := make(map[string]interface{})
 				bz, _ := json.Marshal(anyValue)
 				newValue["type"] = anyValue["@type"]
-				base64Str := base64.StdEncoding.EncodeToString(bz) // base64 encode to keep consistency with js-sdk
+				// base64 encode to keep consistency with js-sdk
+				// actually this is not necessary. It's legacy code, and we keep it for compatibility
+				base64Str := base64.StdEncoding.EncodeToString(bz)
 				newValue["value"] = []byte(base64Str)
 				msgValue[encName[:len(encName)-3]] = newValue
 				typedData[primaryType][i].Name = encName[:len(encName)-3]
@@ -494,7 +485,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 					cleanTypesAndMsgValue(typedData, encType[:len(encType)-2], msgValue[encName].([]interface{})[i].(map[string]interface{}))
 				}
 			} else if encType == "bytes[]" {
-				// convert string to type
+				// convert string to bytes
 				byteList, ok := encValue.([]interface{})
 				if !ok {
 					continue
@@ -516,7 +507,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 				cleanTypesAndMsgValue(typedData, encType, subType)
 			}
 		case encValue == nil:
-			// For nil primitive value, fill in default value
+			// for nil primitive value, fill in default value
 			switch encType {
 			case "bool":
 				msgValue[encName] = false
@@ -534,7 +525,7 @@ func cleanTypesAndMsgValue(typedData apitypes.Types, primaryType string, msgValu
 		}
 	}
 
-	// Delete nil struct
+	// 3. delete nil field
 	for key := range msgValue {
 		var isExist bool
 		for _, field := range typedData[primaryType] {
