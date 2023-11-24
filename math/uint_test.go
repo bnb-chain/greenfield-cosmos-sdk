@@ -1,6 +1,7 @@
 package math_test
 
 import (
+	"encoding/xml"
 	"fmt"
 	"math"
 	"math/big"
@@ -376,4 +377,12 @@ func (s *uintTestSuite) TestUintBigEndian() {
 
 	s.Require().Equal(u1, u2)
 
+}
+
+func (s *uintTestSuite) TestUintXmlMarshalRoundTrip() {
+	u1 := sdkmath.NewUint(256)
+	marshalResult, _ := xml.Marshal(u1)
+	u2 := sdkmath.Uint{}
+	xml.Unmarshal(marshalResult, &u2)
+	s.Require().Equal(u1, u2)
 }
