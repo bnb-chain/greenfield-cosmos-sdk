@@ -138,12 +138,12 @@ func MaxUint(u1, u2 Uint) Uint { return NewUintFromBigInt(max(u1.i, u2.i)) }
 // Human readable string
 func (u Uint) String() string { return u.i.String() }
 
-// MarshalXML defines custom encoding for xml
+// MarshalXML defines custom encoding for xml Marshaler
 func (u Uint) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeElement(u.String(), start)
 }
 
-// UnmarshalXML defines custom encoding for xml
+// UnmarshalXML defines custom decoding for xml Marshaler
 func (u *Uint) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var s string
 	if err := d.DecodeElement(&s, &start); err != nil {
