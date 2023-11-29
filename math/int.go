@@ -3,6 +3,7 @@ package math
 import (
 	"encoding"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"math/big"
 	"strings"
@@ -325,6 +326,20 @@ func MaxInt(i, i2 Int) Int {
 // Human readable string
 func (i Int) String() string {
 	return i.i.String()
+}
+
+// MarshalXML defines custom encoding for xml Marshaler
+func (i Int) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return e.EncodeElement(i.String(), start)
+}
+
+// UnmarshalXML defines custom decoding for xml Marshaler
+func (i *Int) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var s string
+	if err := d.DecodeElement(&s, &start); err != nil {
+		return err
+	}
+	return i.Unmarshal([]byte(s))
 }
 
 // MarshalJSON defines custom encoding scheme
