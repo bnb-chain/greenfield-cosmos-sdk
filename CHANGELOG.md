@@ -1,5 +1,12 @@
 # Changelog
 
+## V1.2.0
+This release introduce the Manchurian upgrade to the testnet.
+
+Chores:
+* [#365](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/365) chore: add xml marshal for Int type
+* [#364](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/364) chore: add xml marshal for UInt type
+
 ## v1.1.1
 This release introduces the Pampas upgrade to the mainnet.  
 

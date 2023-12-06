@@ -10,6 +10,6 @@ const (
 	// Pampas is the upgrade name for Pampas upgrade
 	Pampas = "Pampas"
 
-	// Eddystone is the upgrade name for Eddystone upgrade
-	Eddystone = "Eddystone"
+	// Manchurian is the upgrade name for Manchurian upgrade
+	Manchurian = "Manchurian"
 )

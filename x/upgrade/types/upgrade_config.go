@@ -16,8 +16,8 @@ const (
 	// Pampas is the upgrade name for Pampas upgrade
 	Pampas = types.Pampas
 
-	// Eddystone is the upgrade name for Eddystone upgrade
-	Eddystone = types.Eddystone
+	// Manchurian is the upgrade name for Manchurian upgrade
+	Manchurian = types.Manchurian
 )
 
 // The default upgrade config for networks
