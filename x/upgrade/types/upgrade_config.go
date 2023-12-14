@@ -42,6 +42,10 @@ var (
 		Name:   Pampas,
 		Height: 2427233,
 		Info:   "Pampas hardfork",
+	}).SetPlan(&Plan{
+		Name:   Manchurian,
+		Height: 3590153,
+		Info:   "Manchurian hardfork",
 	})
 )
 
