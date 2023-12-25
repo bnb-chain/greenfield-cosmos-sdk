@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.1
+This release changes the Manchurian upgrade height of testnet.
+
+Features:
+* [#374](https://github.com/bnb-chain/greenfield/pull/374) feat: modify Manchurian hardfork height of testnet
+
 ## V1.2.0
 This release introduce the Manchurian upgrade to the testnet.
 
