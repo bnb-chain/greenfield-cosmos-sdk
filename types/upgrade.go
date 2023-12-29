@@ -15,4 +15,6 @@ const (
 
 	// Hulunbeier is the upgrade name for Hulunbeier upgrade
 	Hulunbeier = "Hulunbeier"
+
+	HulunbeierPatch = "HulunbeierPatch"
 )
