@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.0
+This release introduces the Hulunbeier upgrade.
+
+Features:
+* [#368](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/368) feat: introduce the Hulunbeier upgrade
+* [#376](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/376) feat: introduces hulunbeierPatch upgrade
+
 ## v1.2.1
 This release changes the Manchurian upgrade height of testnet.
 
