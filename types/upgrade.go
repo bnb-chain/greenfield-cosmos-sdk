@@ -12,4 +12,9 @@ const (
 
 	// Manchurian is the upgrade name for Manchurian upgrade
 	Manchurian = "Manchurian"
+
+	// Hulunbeier is the upgrade name for Hulunbeier upgrade
+	Hulunbeier = "Hulunbeier"
+
+	HulunbeierPatch = "HulunbeierPatch"
 )

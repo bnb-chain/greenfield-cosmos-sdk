@@ -18,6 +18,11 @@ const (
 
 	// Manchurian is the upgrade name for Manchurian upgrade
 	Manchurian = types.Manchurian
+
+	// Hulunbeier is the upgrade name for Hulunbeier upgrade
+	Hulunbeier = types.Hulunbeier
+
+	HulunbeierPatch = types.HulunbeierPatch
 )
 
 // The default upgrade config for networks
