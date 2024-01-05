@@ -31,6 +31,10 @@ var (
 		Name:   Pampas,
 		Height: 2006197,
 		Info:   "Pampas hardfork",
+	}).SetPlan(&Plan{
+		Name:   Manchurian,
+		Height: 3426973,
+		Info:   "Manchurian hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
