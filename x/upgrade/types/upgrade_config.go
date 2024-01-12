@@ -23,6 +23,9 @@ const (
 	Hulunbeier = types.Hulunbeier
 
 	HulunbeierPatch = types.HulunbeierPatch
+
+	// Ural is the upgrade name for Ural upgrade
+	Ural = types.Ural
 )
 
 // The default upgrade config for networks
