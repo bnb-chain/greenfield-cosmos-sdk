@@ -17,4 +17,7 @@ const (
 	Hulunbeier = "Hulunbeier"
 
 	HulunbeierPatch = "HulunbeierPatch"
+
+	// Ural is the upgrade name for Ural upgrade
+	Ural = "Ural"
 )
