@@ -23,6 +23,9 @@ const (
 	Hulunbeier = types.Hulunbeier
 
 	HulunbeierPatch = types.HulunbeierPatch
+
+	// Ural is the upgrade name for Ural upgrade
+	Ural = types.Ural
 )
 
 // The default upgrade config for networks
@@ -36,6 +39,10 @@ var (
 		Name:   Pampas,
 		Height: 2006197,
 		Info:   "Pampas hardfork",
+	}).SetPlan(&Plan{
+		Name:   Manchurian,
+		Height: 3426973,
+		Info:   "Manchurian hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
