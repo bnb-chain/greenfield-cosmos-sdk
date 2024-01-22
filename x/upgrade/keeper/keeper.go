@@ -324,6 +324,12 @@ func (k Keeper) HasHandler(name string) bool {
 
 // ApplyUpgrade will execute the handler associated with the Plan and mark the plan as done.
 func (k Keeper) ApplyUpgrade(ctx sdk.Context, plan types.Plan) {
+	err := k.InitUpgraded(ctx)
+	if err != nil {
+		ctx.Logger().Error("failed to init upgraded", "err", err)
+		return
+	}
+
 	initializer := k.upgradeInitializer[plan.Name]
 
 	if initializer != nil {
