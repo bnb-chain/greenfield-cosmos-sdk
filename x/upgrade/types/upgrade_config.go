@@ -43,6 +43,14 @@ var (
 		Name:   Manchurian,
 		Height: 3426973,
 		Info:   "Manchurian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Hulunbeier,
+		Height: 4653883,
+		Info:   "Hulunbeier hardfork",
+	}).SetPlan(&Plan{
+		Name:   HulunbeierPatch,
+		Height: 4653883,
+		Info:   "Hulunbeier hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -58,6 +66,14 @@ var (
 		Name:   Manchurian,
 		Height: 3922485,
 		Info:   "Manchurian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Hulunbeier,
+		Height: 4849568,
+		Info:   "Hulunbeier hardfork",
+	}).SetPlan(&Plan{
+		Name:   HulunbeierPatch,
+		Height: 4849568,
+		Info:   "Hulunbeier hardfork",
 	})
 )
 
