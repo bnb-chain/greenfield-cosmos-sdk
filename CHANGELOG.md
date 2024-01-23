@@ -1,5 +1,15 @@
 # Changelog
 
+## V1.4.0
+This release introduces the Ural upgrade.
+
+Features:
+* [#388](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/388) feat: introduce the Ural upgrade
+
+BUGFIX
+* [#391](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/391) fix: module consensus version is not correctly set when upgrade after state sync
+
+
 ## v1.3.0
 This release introduces the Hulunbeier upgrade.
 
