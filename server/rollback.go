@@ -64,7 +64,7 @@ application.
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
 	cmd.Flags().UintVar(&rollbackBlocks, "blocks", 1, "number of blocks to rollback")
-	cmd.Flags().BoolVar(&removeBlock, "hard", false, "remove last block as well as state")
+	cmd.Flags().BoolVar(&removeBlock, "hard", false, "remove last blocks as well as state")
 
 	return cmd
 }
