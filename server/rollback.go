@@ -14,7 +14,7 @@ import (
 
 // NewRollbackCmd creates a command to rollback tendermint and multistore state by one height.
 func NewRollbackCmd(appCreator types.AppCreator, defaultNodeHome string) *cobra.Command {
-	var rollbackBlocks = uint(1)
+	rollbackBlocks := uint(1)
 	var removeBlock bool
 
 	cmd := &cobra.Command{
