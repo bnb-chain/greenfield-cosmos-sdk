@@ -20,4 +20,7 @@ const (
 
 	// Ural is the upgrade name for Ural upgrade
 	Ural = "Ural"
+
+	// Pawnee is the upgrade name for Pawnee upgrade
+	Pawnee = "Pawnee"
 )

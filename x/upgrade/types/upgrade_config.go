@@ -26,6 +26,9 @@ const (
 
 	// Ural is the upgrade name for Ural upgrade
 	Ural = types.Ural
+
+	// Pawnee is the upgrade name for Pawnee upgrade
+	Pawnee = types.Pawnee
 )
 
 // The default upgrade config for networks
