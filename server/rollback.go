@@ -14,16 +14,17 @@ import (
 
 // NewRollbackCmd creates a command to rollback tendermint and multistore state by one height.
 func NewRollbackCmd(appCreator types.AppCreator, defaultNodeHome string) *cobra.Command {
+	rollbackBlocks := uint(1)
 	var removeBlock bool
 
 	cmd := &cobra.Command{
 		Use:   "rollback",
-		Short: "rollback cosmos-sdk and tendermint state by one height",
+		Short: "rollback cosmos-sdk and tendermint state by blocks",
 		Long: `
 A state rollback is performed to recover from an incorrect application state transition,
 when Tendermint has persisted an incorrect app hash and is thus unable to make
-progress. Rollback overwrites a state at height n with the state at height n - 1.
-The application also rolls back to height n - 1. No blocks are removed, so upon
+progress. Rollback overwrites a state at height n with the state at height n - blocks.
+The application also rolls back to height n - blocks. No blocks are removed, so upon
 restarting Tendermint the transactions in block n will be re-executed against the
 application.
 `,
@@ -46,7 +47,7 @@ application.
 			}
 			app := appCreator(ctx.Logger, db, nil, genDoc.ChainID, &config, ctx.Viper)
 			// rollback CometBFT state
-			height, hash, err := cmtcmd.RollbackState(ctx.Config, removeBlock)
+			height, hash, err := cmtcmd.RollbackState(ctx.Config, removeBlock, int64(rollbackBlocks))
 			if err != nil {
 				return fmt.Errorf("failed to rollback tendermint state: %w", err)
 			}
@@ -62,6 +63,8 @@ application.
 	}
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
-	cmd.Flags().BoolVar(&removeBlock, "hard", false, "remove last block as well as state")
+	cmd.Flags().UintVar(&rollbackBlocks, "blocks", 1, "number of blocks to rollback")
+	cmd.Flags().BoolVar(&removeBlock, "hard", false, "remove last blocks as well as state")
+
 	return cmd
 }
