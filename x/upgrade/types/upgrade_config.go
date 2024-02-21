@@ -80,7 +80,7 @@ var (
 		Info:   "Hulunbeier hardfork",
 	}).SetPlan(&Plan{
 		Name:   Ural,
-		Height: 5733436,
+		Height: 5761391,
 		Info:   "Ural hardfork",
 	})
 )
