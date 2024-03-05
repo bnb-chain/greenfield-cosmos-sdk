@@ -29,6 +29,9 @@ const (
 
 	// Pawnee is the upgrade name for Pawnee upgrade
 	Pawnee = types.Pawnee
+
+	// Serengeti is the upgrade name for Serengeti upgrade
+	Serengeti = types.Serengeti
 )
 
 // The default upgrade config for networks
