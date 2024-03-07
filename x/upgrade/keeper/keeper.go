@@ -434,7 +434,7 @@ func (k Keeper) IsUpgraded(ctx sdk.Context, name string) bool {
 
 // InitUpgraded execute the upgrade initializer that the upgrade is already applied.
 func (k Keeper) InitUpgraded(ctx sdk.Context) error {
-	iter := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), []byte{types.DoneByte})
+	iter := storetypes.KVStorePrefixIterator(ctx.KVStoreWithZeroRead(k.storeKey), []byte{types.DoneByte})
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
