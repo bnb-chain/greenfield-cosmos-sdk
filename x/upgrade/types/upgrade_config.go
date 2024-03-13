@@ -58,6 +58,10 @@ var (
 		Name:   Ural,
 		Height: 5347231,
 		Info:   "Ural hardfork",
+	}).SetPlan(&Plan{
+		Name:   Pawnee,
+		Height: 6239520,
+		Info:   "Pawnee hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -85,6 +89,10 @@ var (
 		Name:   Ural,
 		Height: 5761391,
 		Info:   "Ural hardfork",
+	}).SetPlan(&Plan{
+		Name:   Pawnee,
+		Height: 6623127,
+		Info:   "Pawnee hardfork",
 	})
 )
 
