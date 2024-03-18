@@ -23,4 +23,7 @@ const (
 
 	// Pawnee is the upgrade name for Pawnee upgrade
 	Pawnee = "Pawnee"
+
+	// Serengeti is the upgrade name for Serengeti upgrade
+	Serengeti = "Serengeti"
 )
