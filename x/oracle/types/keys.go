@@ -12,4 +12,5 @@ const (
 	// RelayPackagesChannelId is not a communication channel actually, we just use it to record sequence.
 	RelayPackagesChannelName               = "relayPackages"
 	RelayPackagesChannelId   sdk.ChannelID = 0x00
+	MultiMessageChannelId    sdk.ChannelID = 0x08
 )

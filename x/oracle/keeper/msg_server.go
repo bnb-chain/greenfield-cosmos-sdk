@@ -2,13 +2,16 @@ package keeper
 
 import (
 	"context"
-	"encoding/hex"
-	"fmt"
-	"runtime/debug"
-
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+	"encoding/hex"
+	"fmt"
 	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+	"math/big"
+	"runtime/debug"
+	"strings"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -21,6 +24,34 @@ import (
 type msgServer struct {
 	Keeper
 }
+
+type CrossChainMessage struct {
+	ChannelId   uint8
+	MsgBytes    []byte
+	RelayFee    *big.Int
+	AckRelayFee *big.Int
+	Sender      common.Address
+}
+
+type MessagesType [][]byte
+
+var (
+	Uint8, _   = abi.NewType("uint8", "", nil)
+	Bytes, _   = abi.NewType("bytes", "", nil)
+	Uint256, _ = abi.NewType("uint256", "", nil)
+	Address, _ = abi.NewType("address", "", nil)
+
+	MessageTypeArgs = abi.Arguments{
+		{Name: "ChannelId", Type: Uint8},
+		{Name: "MsgBytes", Type: Bytes},
+		{Name: "RelayFee", Type: Uint256},
+		{Name: "AckRelayFee", Type: Uint256},
+		{Name: "Sender", Type: Address},
+	}
+
+	MessagesAbiDefinition = fmt.Sprintf(`[{ "name" : "method", "type": "function", "outputs": %s}]`, `[{"type": "bytes[]"}]`)
+	MessagesAbi, _        = abi.JSON(strings.NewReader(MessagesAbiDefinition))
+)
 
 // NewMsgServerImpl returns an implementation of the oracle MsgServer interface
 // for the provided Keeper.
@@ -166,6 +197,106 @@ func (k Keeper) distributeReward(ctx sdk.Context, relayer sdk.AccAddress, signed
 	return nil
 }
 
+func (k Keeper) handleMultiMessagePackage(
+	ctx sdk.Context,
+	pack *types.Package,
+	packageHeader *sdk.PackageHeader,
+	srcChainId uint32,
+) (crash bool, result sdk.ExecuteResult) {
+	out, err := MessagesAbi.Unpack("method", pack.Payload)
+	if err != nil {
+		return true, sdk.ExecuteResult{
+			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages unpack failed, payload=%v", pack.Payload),
+		}
+	}
+
+	unpacked := abi.ConvertType(out[0], MessagesType{})
+	messages, ok := unpacked.(MessagesType)
+	if !ok {
+		return true, sdk.ExecuteResult{
+			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages ConvertType failed, payload=%v", pack.Payload),
+		}
+	}
+
+	if len(messages) == 0 {
+		return true, sdk.ExecuteResult{
+			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "empty messages, payload=%v", pack.Payload),
+		}
+	}
+
+	crash = false
+	result = sdk.ExecuteResult{}
+	payloads := make([][]byte, len(messages))
+
+	for i, message := range messages {
+		unpacked, err := MessageTypeArgs.Unpack(message)
+		if err != nil || len(unpacked) != 5 {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode message error %d, message=%v, error: %s", i, message, err),
+			}
+		}
+
+		channelIdType := abi.ConvertType(unpacked[0], uint8(0))
+		msgBytesType := abi.ConvertType(unpacked[1], []byte{})
+		ackRelayFeeType := abi.ConvertType(unpacked[3], big.NewInt(0))
+
+		channelId, ok := channelIdType.(uint8)
+		if !ok {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode channelId error %d, message=%v, error: %v", i, message, err),
+			}
+		}
+
+		msgBytes, ok := msgBytesType.([]byte)
+		if !ok {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode msgBytes error %d, message=%v, error: %v", i, message, err),
+			}
+		}
+
+		ackRelayFee, ok := ackRelayFeeType.(*big.Int)
+		if !ok {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode ackRelayFee error %d, message=%v, error: %v", i, message, err),
+			}
+		}
+
+		crossChainApp := k.CrossChainKeeper.GetCrossChainApp(sdk.ChannelID(channelId))
+		if crossChainApp == nil {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrChannelNotRegistered, "message %d, channel %d not registered", i, channelId),
+			}
+		}
+
+		msgHeader := sdk.PackageHeader{
+			PackageType:   packageHeader.PackageType,
+			Timestamp:     packageHeader.Timestamp,
+			RelayerFee:    big.NewInt(0),
+			AckRelayerFee: ackRelayFee,
+		}
+
+		payload := append(make([]byte, sdk.SynPackageHeaderLength), msgBytes...)
+		crashSingleMsg, resultSingleMsg := executeClaim(ctx, crossChainApp, srcChainId, 0, payload, &msgHeader)
+		if crashSingleMsg {
+			return true, resultSingleMsg
+		}
+
+		payloads[i] = []byte{channelId}
+		ackRelayFeeBytes := bigIntToBytes32(ackRelayFee)
+		payloads[i] = append(payloads[i], ackRelayFeeBytes[:]...)
+		payloads[i] = append(payloads[i], resultSingleMsg.Payload...)
+	}
+
+	result.Payload, err = MessagesAbi.Pack("method", payloads)
+	if err != nil {
+		return true, sdk.ExecuteResult{
+			Err: sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", payloads, err),
+		}
+	}
+
+	return crash, result
+}
+
 func (k Keeper) handlePackage(
 	ctx sdk.Context,
 	pack *types.Package,
@@ -174,11 +305,6 @@ func (k Keeper) handlePackage(
 	timestamp uint64,
 ) (sdkmath.Int, *types.EventPackageClaim, error) {
 	logger := k.Logger(ctx)
-
-	crossChainApp := k.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
-	if crossChainApp == nil {
-		return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
-	}
 
 	sequence := k.CrossChainKeeper.GetReceiveSequence(ctx, sdk.ChainID(srcChainId), pack.ChannelId)
 	if sequence != pack.Sequence {
@@ -201,8 +327,20 @@ func (k Keeper) handlePackage(
 			"package type %d is invalid", packageHeader.PackageType)
 	}
 
+	crash := false
+	var result sdk.ExecuteResult
 	cacheCtx, write := ctx.CacheContext()
-	crash, result := executeClaim(cacheCtx, crossChainApp, srcChainId, sequence, pack.Payload, &packageHeader)
+
+	if pack.ChannelId == types.MultiMessageChannelId {
+		crash, result = k.handleMultiMessagePackage(cacheCtx, pack, &packageHeader, srcChainId)
+	} else {
+		crossChainApp := k.CrossChainKeeper.GetCrossChainApp(pack.ChannelId)
+		if crossChainApp == nil {
+			return sdkmath.ZeroInt(), nil, sdkerrors.Wrapf(types.ErrChannelNotRegistered, "channel %d not registered", pack.ChannelId)
+		}
+		crash, result = executeClaim(cacheCtx, crossChainApp, srcChainId, sequence, pack.Payload, &packageHeader)
+	}
+
 	if result.IsOk() {
 		write()
 	}
@@ -294,4 +432,12 @@ func executeClaim(
 		panic(fmt.Sprintf("receive unexpected package type %d", header.PackageType))
 	}
 	return crash, result
+}
+
+func bigIntToBytes32(x *big.Int) [32]byte {
+	var b [32]byte
+	xBytes := x.Bytes()
+	numPadding := 32 - len(xBytes)
+	copy(b[numPadding:], xBytes)
+	return b
 }
