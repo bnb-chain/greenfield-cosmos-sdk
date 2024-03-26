@@ -221,7 +221,7 @@ func (k Keeper) handleMultiMessagePackage(
 
 	crash = false
 	result = sdk.ExecuteResult{}
-	payloads := make([][]byte, len(messages))
+	ackMessages := make([][]byte, len(messages))
 	for i, message := range messages {
 		channelId, msgBytes, ackRelayFee, err := DecodeMessage(message)
 		if err != nil {
@@ -250,13 +250,13 @@ func (k Keeper) handleMultiMessagePackage(
 			return true, resultSingleMsg
 		}
 
-		payloads[i] = EncodeAckMessage(channelId, ackRelayFee, resultSingleMsg.Payload)
+		ackMessages[i] = EncodeAckMessage(channelId, ackRelayFee, resultSingleMsg.Payload)
 	}
 
-	result.Payload, err = MessagesAbi.Pack("method", payloads)
+	result.Payload, err = EncodeMultiAckMessage(ackMessages)
 	if err != nil {
 		return true, sdk.ExecuteResult{
-			Err: sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", payloads, err),
+			Err: sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", ackMessages, err),
 		}
 	}
 
@@ -464,4 +464,12 @@ func EncodeAckMessage(channelId uint8, ackRelayFee *big.Int, result []byte) (ack
 	}
 
 	return ackMessage
+}
+
+func EncodeMultiAckMessage(ackMessages [][]byte) (encoded []byte, err error) {
+	encoded, err = MessagesAbi.Pack("method", ackMessages)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", ackMessages, err)
+	}
+	return encoded, nil
 }
