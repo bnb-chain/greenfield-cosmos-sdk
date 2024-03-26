@@ -2,18 +2,18 @@ package keeper
 
 import (
 	"context"
-	sdkerrors "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	"encoding/hex"
 	"fmt"
-	proto "github.com/cosmos/gogoproto/proto"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"runtime/debug"
 	"strings"
 
+	sdkerrors "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"github.com/cosmos/cosmos-sdk/bsc/rlp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,16 +21,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 )
 
+const (
+	ChannelIdLength   = 1
+	AckRelayFeeLength = 32
+)
+
 type msgServer struct {
 	Keeper
-}
-
-type CrossChainMessage struct {
-	ChannelId   uint8
-	MsgBytes    []byte
-	RelayFee    *big.Int
-	AckRelayFee *big.Int
-	Sender      common.Address
 }
 
 type MessagesType [][]byte
@@ -49,7 +46,7 @@ var (
 		{Name: "Sender", Type: Address},
 	}
 
-	MessagesAbiDefinition = fmt.Sprintf(`[{ "name" : "method", "type": "function", "outputs": %s}]`, `[{"type": "bytes[]"}]`)
+	MessagesAbiDefinition = `[{ "name" : "method", "type": "function", "outputs": [{"type": "bytes[]"}]}]`
 	MessagesAbi, _        = abi.JSON(strings.NewReader(MessagesAbiDefinition))
 )
 
@@ -203,61 +200,33 @@ func (k Keeper) handleMultiMessagePackage(
 	packageHeader *sdk.PackageHeader,
 	srcChainId uint32,
 ) (crash bool, result sdk.ExecuteResult) {
-	out, err := MessagesAbi.Unpack("method", pack.Payload)
+	defer func() {
+		if r := recover(); r != nil {
+			log := fmt.Sprintf("recovered: %v\nstack:\n%v", r, string(debug.Stack()))
+			logger := ctx.Logger().With("module", "oracle")
+			logger.Error("execute handleMultiMessagePackage panic", "err_log", log)
+			crash = true
+			result = sdk.ExecuteResult{
+				Err: fmt.Errorf("execute handleMultiMessagePackage failed: %v", r),
+			}
+		}
+	}()
+
+	messages, err := decodeMultiMessage(pack.Payload)
 	if err != nil {
 		return true, sdk.ExecuteResult{
-			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages unpack failed, payload=%v", pack.Payload),
-		}
-	}
-
-	unpacked := abi.ConvertType(out[0], MessagesType{})
-	messages, ok := unpacked.(MessagesType)
-	if !ok {
-		return true, sdk.ExecuteResult{
-			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages ConvertType failed, payload=%v", pack.Payload),
-		}
-	}
-
-	if len(messages) == 0 {
-		return true, sdk.ExecuteResult{
-			Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "empty messages, payload=%v", pack.Payload),
+			Err: err,
 		}
 	}
 
 	crash = false
 	result = sdk.ExecuteResult{}
 	payloads := make([][]byte, len(messages))
-
 	for i, message := range messages {
-		unpacked, err := MessageTypeArgs.Unpack(message)
-		if err != nil || len(unpacked) != 5 {
+		channelId, msgBytes, ackRelayFee, err := decodeMessage(message)
+		if err != nil {
 			return true, sdk.ExecuteResult{
-				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode message error %d, message=%v, error: %s", i, message, err),
-			}
-		}
-
-		channelIdType := abi.ConvertType(unpacked[0], uint8(0))
-		msgBytesType := abi.ConvertType(unpacked[1], []byte{})
-		ackRelayFeeType := abi.ConvertType(unpacked[3], big.NewInt(0))
-
-		channelId, ok := channelIdType.(uint8)
-		if !ok {
-			return true, sdk.ExecuteResult{
-				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode channelId error %d, message=%v, error: %v", i, message, err),
-			}
-		}
-
-		msgBytes, ok := msgBytesType.([]byte)
-		if !ok {
-			return true, sdk.ExecuteResult{
-				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode msgBytes error %d, message=%v, error: %v", i, message, err),
-			}
-		}
-
-		ackRelayFee, ok := ackRelayFeeType.(*big.Int)
-		if !ok {
-			return true, sdk.ExecuteResult{
-				Err: sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode ackRelayFee error %d, message=%v, error: %v", i, message, err),
+				Err: err,
 			}
 		}
 
@@ -281,10 +250,7 @@ func (k Keeper) handleMultiMessagePackage(
 			return true, resultSingleMsg
 		}
 
-		payloads[i] = []byte{channelId}
-		ackRelayFeeBytes := bigIntToBytes32(ackRelayFee)
-		payloads[i] = append(payloads[i], ackRelayFeeBytes[:]...)
-		payloads[i] = append(payloads[i], resultSingleMsg.Payload...)
+		payloads[i] = encodeAckMessage(channelId, ackRelayFee, resultSingleMsg.Payload)
 	}
 
 	result.Payload, err = MessagesAbi.Pack("method", payloads)
@@ -434,10 +400,68 @@ func executeClaim(
 	return crash, result
 }
 
-func bigIntToBytes32(x *big.Int) [32]byte {
-	var b [32]byte
-	xBytes := x.Bytes()
-	numPadding := 32 - len(xBytes)
-	copy(b[numPadding:], xBytes)
-	return b
+func decodeMessage(message []byte) (channelId uint8, msgBytes []byte, ackRelayFee *big.Int, err error) {
+	unpacked, err := MessageTypeArgs.Unpack(message)
+	if err != nil || len(unpacked) != 5 {
+		return 0, nil, nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode message error, message=%v, error: %s", message, err)
+	}
+
+	channelIdType := abi.ConvertType(unpacked[0], uint8(0))
+	msgBytesType := abi.ConvertType(unpacked[1], []byte{})
+	ackRelayFeeType := abi.ConvertType(unpacked[3], big.NewInt(0))
+
+	channelId, ok := channelIdType.(uint8)
+	if !ok {
+		return 0, nil, nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode channelId error, message=%v, error: %v", message, err)
+	}
+
+	msgBytes, ok = msgBytesType.([]byte)
+	if !ok {
+		return 0, nil, nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode msgBytes error, message=%v, error: %v", message, err)
+	}
+
+	ackRelayFee, ok = ackRelayFeeType.(*big.Int)
+	if !ok {
+		return 0, nil, nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "decode ackRelayFee error, message=%v, error: %v", message, err)
+	}
+
+	if len(ackRelayFee.Bytes()) > 32 {
+		return 0, nil, nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "ackRelayFee too large, ackRelayFee=%v ", ackRelayFee.Bytes())
+	}
+
+	return channelId, msgBytes, ackRelayFee, nil
+}
+
+func decodeMultiMessage(multiMessagePayload []byte) (messages [][]byte, err error) {
+	out, err := MessagesAbi.Unpack("method", multiMessagePayload)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages unpack failed, payload=%v", multiMessagePayload)
+	}
+
+	unpacked := abi.ConvertType(out[0], MessagesType{})
+	messages, ok := unpacked.(MessagesType)
+	if !ok {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages ConvertType failed, payload=%v", multiMessagePayload)
+	}
+
+	if len(messages) == 0 {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "empty messages, payload=%v", multiMessagePayload)
+	}
+
+	return messages, nil
+}
+
+func encodeAckMessage(channelId uint8, ackRelayFee *big.Int, result []byte) (ackMessage []byte) {
+	resultPayloadLength := len(result)
+	ackMessage = make([]byte, ChannelIdLength+AckRelayFeeLength+resultPayloadLength)
+	ackMessage[0] = channelId
+
+	ackRelayFeeBytes := ackRelayFee.Bytes()
+	copy(ackMessage[ChannelIdLength+AckRelayFeeLength-len(ackRelayFeeBytes):], ackRelayFeeBytes)
+
+	if resultPayloadLength > 0 {
+		copy(ackMessage[ChannelIdLength+AckRelayFeeLength:], result)
+	}
+
+	return ackMessage
 }
