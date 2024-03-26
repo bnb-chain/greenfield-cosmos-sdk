@@ -17,8 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/oracle/testutil"
 	"github.com/cosmos/cosmos-sdk/x/oracle/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 type DummyCrossChainApp struct{}
@@ -209,33 +207,14 @@ func (s *TestSuite) TestMultiMessageDecode() {
 		encb, err := hex.DecodeString(test.packed)
 		s.Require().Nilf(err, "invalid hex %s: %v", test.packed, err)
 
-		out, err := keeper.MessagesAbi.Unpack("method", encb)
+		messages, err := keeper.DecodeMultiMessage(encb)
 		s.Require().Nilf(err, "test %d (%v) failed: %v", i, test.def, err)
-
-		unpacked := abi.ConvertType(out[0], keeper.MessagesType{})
-		messages, ok := unpacked.(keeper.MessagesType)
-		s.Require().Truef(ok, "ConvertType failed: %v", unpacked)
 
 		for _, message := range messages {
 			fmt.Println("message", hex.EncodeToString(message))
 
-			unpacked, err := keeper.MessageTypeArgs.Unpack(message)
+			channelId, msgBytes, ackRelayFee, err := keeper.DecodeMessage(message)
 			s.Require().Nil(err, "unpack error")
-
-			fmt.Println("unpacked", unpacked)
-
-			channelIdType := abi.ConvertType(unpacked[0], uint8(0))
-			msgBytesType := abi.ConvertType(unpacked[1], []byte{})
-			ackRelayFeeType := abi.ConvertType(unpacked[3], big.NewInt(0))
-
-			channelId, ok := channelIdType.(uint8)
-			s.Require().Truef(ok, "channelId unpacked failed")
-
-			msgBytes, ok := msgBytesType.([]byte)
-			s.Require().Truef(ok, "msgBytes unpacked failed")
-
-			ackRelayFee, ok := ackRelayFeeType.(*big.Int)
-			s.Require().Truef(ok, "ackRelayFee unpacked failed")
 
 			fmt.Println(channelId, msgBytes, ackRelayFee)
 		}
