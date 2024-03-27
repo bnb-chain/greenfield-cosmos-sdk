@@ -26,4 +26,7 @@ const (
 
 	// Serengeti is the upgrade name for Serengeti upgrade
 	Serengeti = "Serengeti"
+
+	// Erdos is the upgrade name for Erdos upgrade
+	Erdos = "Erdos"
 )

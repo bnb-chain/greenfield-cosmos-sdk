@@ -32,6 +32,9 @@ const (
 
 	// Serengeti is the upgrade name for Serengeti upgrade
 	Serengeti = types.Serengeti
+
+	// Erdos is the upgrade name for Erdos upgrade
+	Erdos = types.Erdos
 )
 
 // The default upgrade config for networks
