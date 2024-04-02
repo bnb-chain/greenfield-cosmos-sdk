@@ -1,4 +1,4 @@
-go 1.19
+go 1.20
 
 module github.com/cosmos/cosmos-sdk
 
@@ -172,7 +172,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.23.0
 
-	github.com/cometbft/cometbft => github.com/alexgao001/greenfield-cometbft v0.0.0-20240327024557-56355e59a791
+	github.com/cometbft/cometbft => github.com/bnb-chain/greenfield-cometbft v0.0.0-20240402065323-40677309d454
 	github.com/cometbft/cometbft-db => github.com/bnb-chain/greenfield-cometbft-db v0.8.1-alpha.1
 	github.com/cosmos/iavl => github.com/bnb-chain/greenfield-iavl v0.20.1
 
