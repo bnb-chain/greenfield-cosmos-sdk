@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	ChannelIdLength   = 1
-	AckRelayFeeLength = 32
+	ChannelIdLength        = 1
+	AckRelayFeeLength      = 32
+	SoliditySelectorLength = 4
 )
 
 type msgServer struct {
@@ -48,6 +49,9 @@ var (
 
 	MessagesAbiDefinition = `[{ "name" : "method", "type": "function", "outputs": [{"type": "bytes[]"}]}]`
 	MessagesAbi, _        = abi.JSON(strings.NewReader(MessagesAbiDefinition))
+
+	AckMessagesAbiDefinition = `[{ "name" : "method", "type": "function", "inputs": [{"type": "bytes[]"}]}]`
+	AckMessagesAbi, _        = abi.JSON(strings.NewReader(AckMessagesAbiDefinition))
 )
 
 // NewMsgServerImpl returns an implementation of the oracle MsgServer interface
@@ -212,7 +216,7 @@ func (k Keeper) handleMultiMessagePackage(
 		}
 	}()
 
-	messages, err := DecodeMultiMessage(pack.Payload)
+	messages, err := DecodeMultiMessage(pack.Payload[sdk.SynPackageHeaderLength+sdk.PackageTypeLength:])
 	if err != nil {
 		return true, sdk.ExecuteResult{
 			Err: err,
@@ -221,7 +225,7 @@ func (k Keeper) handleMultiMessagePackage(
 
 	crash = false
 	result = sdk.ExecuteResult{}
-	ackMessages := make([][]byte, len(messages))
+	ackMessages := make([][]byte, 0)
 	for i, message := range messages {
 		channelId, msgBytes, ackRelayFee, err := DecodeMessage(message)
 		if err != nil {
@@ -250,13 +254,17 @@ func (k Keeper) handleMultiMessagePackage(
 			return true, resultSingleMsg
 		}
 
-		ackMessages[i] = EncodeAckMessage(channelId, ackRelayFee, resultSingleMsg.Payload)
+		if len(resultSingleMsg.Payload) != 0 {
+			ackMessages = append(ackMessages, EncodeAckMessage(channelId, ackRelayFee, resultSingleMsg.Payload))
+		}
 	}
 
-	result.Payload, err = EncodeMultiAckMessage(ackMessages)
-	if err != nil {
-		return true, sdk.ExecuteResult{
-			Err: sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", ackMessages, err),
+	if len(ackMessages) > 0 {
+		result.Payload, err = EncodeMultiAckMessage(ackMessages)
+		if err != nil {
+			return true, sdk.ExecuteResult{
+				Err: sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", ackMessages, err),
+			}
 		}
 	}
 
@@ -403,7 +411,7 @@ func executeClaim(
 func DecodeMultiMessage(multiMessagePayload []byte) (messages [][]byte, err error) {
 	out, err := MessagesAbi.Unpack("method", multiMessagePayload)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages unpack failed, payload=%v", multiMessagePayload)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMultiMessage, "messages unpack failed, payload=%s", hex.EncodeToString(multiMessagePayload))
 	}
 
 	unpacked := abi.ConvertType(out[0], MessagesType{})
@@ -467,9 +475,10 @@ func EncodeAckMessage(channelId uint8, ackRelayFee *big.Int, result []byte) (ack
 }
 
 func EncodeMultiAckMessage(ackMessages [][]byte) (encoded []byte, err error) {
-	encoded, err = MessagesAbi.Pack("method", ackMessages)
+	encoded, err = AckMessagesAbi.Pack("method", ackMessages)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "messages result pack failed, payloads=%v, error=%s", ackMessages, err)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidMessagesResult, "ack messages pack failed, payloads=%v, error=%s", ackMessages, err)
 	}
-	return encoded, nil
+
+	return encoded[SoliditySelectorLength:], nil
 }
