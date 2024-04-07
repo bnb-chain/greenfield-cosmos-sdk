@@ -1,5 +1,22 @@
 # Changelog
 
+## V1.6.0
+This release introduces the Serengeti upgrade.
+
+Features:
+* [#400](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/400) feat: add upgrade Serengeti
+
+
+## V1.5.0
+This release introduces the Pawnee upgrade.
+
+Features:
+* [#396](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/396) feat: introduce Pawnee upgrade
+
+BUGFIX
+* [#401](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/401) fix: sync failed from genesis
+
+
 ## V1.4.0
 This release introduces the Ural upgrade.
 
