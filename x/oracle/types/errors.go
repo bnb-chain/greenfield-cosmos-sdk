@@ -18,4 +18,6 @@ var (
 	ErrInvalidDestChainId     = errors.Register(ModuleName, 14, "dest chain id is invalid")
 	ErrInvalidSrcChainId      = errors.Register(ModuleName, 15, "src chain id is invalid")
 	ErrInvalidAddress         = errors.Register(ModuleName, 16, "address is invalid")
+	ErrInvalidMultiMessage    = errors.Register(ModuleName, 17, "multi message is invalid")
+	ErrInvalidMessagesResult  = errors.Register(ModuleName, 18, "multi message result is invalid")
 )
