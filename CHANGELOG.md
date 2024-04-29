@@ -1,5 +1,15 @@
 # Changelog
 
+## V1.7.0
+This release introduces the Erdos upgrade
+
+Features:
+* [#417](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/417) feat: feat: add multi message support for greenfield crosschain app
+
+Fixes:
+* [#422](https://github.com/bnb-chain/greenfield-cosmos-sdk/pull/422) fix: fix the deps security
+
+
 ## V1.6.0
 This release introduces the Serengeti upgrade.
 
