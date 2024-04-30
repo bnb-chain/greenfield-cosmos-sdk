@@ -74,7 +74,7 @@ var (
 		Info:   "Serengeti hardfork",
 	}).SetPlan(&Plan{
 		Name:   Erdos,
-		Height: 7627845,
+		Height: 7861456,
 		Info:   "Erdos hardfork",
 	})
 
@@ -113,7 +113,7 @@ var (
 		Info:   "Serengeti hardfork",
 	}).SetPlan(&Plan{
 		Name:   Erdos,
-		Height: 8086093,
+		Height: 8285529,
 		Info:   "Erdos hardfork",
 	})
 )
