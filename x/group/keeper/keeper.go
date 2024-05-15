@@ -379,7 +379,7 @@ func (k Keeper) PruneProposals(ctx sdk.Context) error {
 			&group.EventProposalPruned{
 				ProposalId:  proposal.Id,
 				Status:      proposal.Status,
-				TallyResult: &proposal.FinalTallyResult,
+				TallyResult: &(proposal.FinalTallyResult),
 			}); err != nil {
 			return err
 		}
