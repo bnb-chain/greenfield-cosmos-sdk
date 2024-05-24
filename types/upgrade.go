@@ -29,4 +29,7 @@ const (
 
 	// Erdos is the upgrade name for Erdos upgrade
 	Erdos = "Erdos"
+
+	// Veld is the upgrade name for Veld upgrade
+	Veld = "Veld"
 )
