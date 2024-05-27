@@ -35,6 +35,9 @@ const (
 
 	// Erdos is the upgrade name for Erdos upgrade
 	Erdos = types.Erdos
+
+	// Veld is the upgrade name for Veld upgrade
+	Veld = types.Veld
 )
 
 // The default upgrade config for networks
@@ -76,6 +79,10 @@ var (
 		Name:   Erdos,
 		Height: 7861456,
 		Info:   "Erdos hardfork",
+	}).SetPlan(&Plan{
+		Name:   Veld,
+		Height: 9030588,
+		Info:   "Veld hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -115,6 +122,10 @@ var (
 		Name:   Erdos,
 		Height: 8116724,
 		Info:   "Erdos hardfork",
+	}).SetPlan(&Plan{
+		Name:   Veld,
+		Height: 9379516,
+		Info:   "Veld hardfork",
 	})
 )
 
