@@ -1,5 +1,8 @@
 # Changelog
 
+## V1.8.0
+This release introduces the Veld upgrade
+
 ## V1.7.0
 This release introduces the Erdos upgrade
 
