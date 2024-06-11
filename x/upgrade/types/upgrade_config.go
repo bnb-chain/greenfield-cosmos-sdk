@@ -81,7 +81,7 @@ var (
 		Info:   "Erdos hardfork",
 	}).SetPlan(&Plan{
 		Name:   Veld,
-		Height: 9030588,
+		Height: 9269910,
 		Info:   "Veld hardfork",
 	})
 
@@ -124,7 +124,7 @@ var (
 		Info:   "Erdos hardfork",
 	}).SetPlan(&Plan{
 		Name:   Veld,
-		Height: 9379516,
+		Height: 9581218,
 		Info:   "Veld hardfork",
 	})
 )
