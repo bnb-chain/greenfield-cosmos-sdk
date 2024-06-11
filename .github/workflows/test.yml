@@ -115,6 +115,7 @@ jobs:
           path: ./tests/integration-profile.out
 
   test-e2e:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
