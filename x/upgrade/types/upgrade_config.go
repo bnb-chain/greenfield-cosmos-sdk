@@ -38,6 +38,9 @@ const (
 
 	// Veld is the upgrade name for Veld upgrade
 	Veld = types.Veld
+
+	// Mongolian is the upgrade name for Mongolian upgrade
+	Mongolian = types.Mongolian
 )
 
 // The default upgrade config for networks
@@ -83,6 +86,10 @@ var (
 		Name:   Veld,
 		Height: 9269910,
 		Info:   "Veld hardfork",
+	}).SetPlan(&Plan{
+		Name: Mongolian,
+		// todo: height
+		Info: "Mongolian hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -126,6 +133,10 @@ var (
 		Name:   Veld,
 		Height: 9581218,
 		Info:   "Veld hardfork",
+	}).SetPlan(&Plan{
+		Name: Mongolian,
+		// todo: height
+		Info: "Mongolian hardfork",
 	})
 )
 
