@@ -87,9 +87,9 @@ var (
 		Height: 9269910,
 		Info:   "Veld hardfork",
 	}).SetPlan(&Plan{
-		Name: Mongolian,
-		// todo: height
-		Info: "Mongolian hardfork",
+		Name:   Mongolian,
+		Height: 10314605,
+		Info:   "Mongolian hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -134,9 +134,9 @@ var (
 		Height: 9581218,
 		Info:   "Veld hardfork",
 	}).SetPlan(&Plan{
-		Name: Mongolian,
-		// todo: height
-		Info: "Mongolian hardfork",
+		Name:   Mongolian,
+		Height: 10780238,
+		Info:   "Mongolian hardfork",
 	})
 )
 
