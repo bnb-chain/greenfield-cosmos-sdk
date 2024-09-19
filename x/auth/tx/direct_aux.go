@@ -68,3 +68,8 @@ func (signModeDirectAuxHandler) GetSignBytes(
 
 	return signDocDirectAux.Marshal()
 }
+
+// GetSignBytesRuntime implements SignModeHandler.GetSignBytesRuntime
+func (h signModeDirectAuxHandler) GetSignBytesRuntime(ctx sdk.Context, mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
+	return h.GetSignBytes(mode, data, tx)
+}

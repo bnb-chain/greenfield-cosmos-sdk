@@ -47,6 +47,11 @@ func (stdTxSignModeHandler) GetSignBytes(mode signingtypes.SignMode, data signin
 	), nil
 }
 
+// GetSignBytesRuntime implements SignModeHandler.GetSignBytesRuntime
+func (h stdTxSignModeHandler) GetSignBytesRuntime(ctx sdk.Context, mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
+	return h.GetSignBytes(mode, data, tx)
+}
+
 // SignatureDataToAminoSignature converts a SignatureData to amino-encoded signature bytes.
 // Only SIGN_MODE_LEGACY_AMINO_JSON is supported.
 func SignatureDataToAminoSignature(cdc *codec.LegacyAmino, data signingtypes.SignatureData) ([]byte, error) {
