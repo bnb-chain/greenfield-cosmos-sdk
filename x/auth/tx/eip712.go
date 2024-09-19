@@ -79,12 +79,12 @@ func getSignBytes(mode signingtypes.SignMode, signerData signing.SignerData, tx 
 
 	chainID, err := sdk.ParseChainID(signerData.ChainID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse chainID: %s", signerData.ChainID)
 	}
 
 	msgTypes, signDoc, err := GetMsgTypes(signerData, tx, chainID)
 	if err != nil {
-		return nil, err
+		return nil, errorsmod.Wrap(err, "failed to get msg types")
 	}
 
 	typedDataDomain := *domain
@@ -95,7 +95,7 @@ func getSignBytes(mode signingtypes.SignMode, signerData signing.SignerData, tx 
 
 	typedData, err := WrapTxToTypedData(signDoc, msgTypes, typedDataDomain)
 	if err != nil {
-		return nil, err
+		return nil, errorsmod.Wrap(err, "failed to pack tx data in EIP712 object")
 	}
 
 	return ComputeTypedDataHash(typedData)
