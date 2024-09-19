@@ -41,6 +41,9 @@ const (
 
 	// Mongolian is the upgrade name for Mongolian upgrade
 	Mongolian = types.Mongolian
+
+	// Altai is the upgrade name for Altai upgrade
+	Altai = types.Altai
 )
 
 // The default upgrade config for networks

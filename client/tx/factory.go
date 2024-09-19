@@ -8,10 +8,11 @@ import (
 	"os"
 	"strings"
 
-	"cosmossdk.io/math"
-	"github.com/spf13/pflag"
-
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/go-bip39"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/spf13/pflag"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -24,7 +25,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
 // Factory defines a client transaction factory that facilitates generating and
@@ -333,7 +333,7 @@ func (f Factory) BuildUnsignedTx(msgs ...sdk.Msg) (client.TxBuilder, error) {
 			return nil, errors.New("cannot provide both fees and gas prices")
 		}
 
-		glDec := math.LegacyNewDec(int64(f.gas))
+		glDec := sdkmath.LegacyNewDec(int64(f.gas))
 
 		// Derive the fees based on the provided gas prices, where
 		// fee = ceil(gasPrice * gasLimit).
@@ -434,7 +434,15 @@ func (f Factory) PrintEIP712MsgType(clientCtx client.Context, msgs ...sdk.Msg) e
 	if err != nil {
 		return fmt.Errorf("failed to get msg types: %s", err)
 	}
-	typedData, err := authtx.WrapTxToTypedData(chainID.Uint64(), signDoc, msgTypes)
+
+	typedDataDomain := apitypes.TypedDataDomain{
+		Name:              "Greenfield Tx",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),
+		VerifyingContract: "0x71e835aff094655dEF897fbc85534186DbeaB75d",
+		Salt:              "0",
+	}
+	typedData, err := authtx.WrapTxToTypedData(signDoc, msgTypes, typedDataDomain)
 	if err != nil {
 		return fmt.Errorf("failed to wrap tx to typedData: %s", err)
 	}
