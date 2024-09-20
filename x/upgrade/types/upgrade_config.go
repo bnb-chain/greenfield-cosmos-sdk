@@ -93,6 +93,10 @@ var (
 		Name:   Mongolian,
 		Height: 10314605,
 		Info:   "Mongolian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Altai,
+		Height: 11917971,
+		Info:   "Altai hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -140,6 +144,10 @@ var (
 		Name:   Mongolian,
 		Height: 10780238,
 		Info:   "Mongolian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Altai,
+		Height: 12513708,
+		Info:   "Altai hardfork",
 	})
 )
 
