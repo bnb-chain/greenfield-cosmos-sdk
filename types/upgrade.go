@@ -38,4 +38,7 @@ const (
 
 	// Altai is the upgrade name for Altai upgrade
 	Altai = "Altai"
+
+	// Savanna is the upgrade name for Savanna upgrade
+	Savanna = "Savanna"
 )
