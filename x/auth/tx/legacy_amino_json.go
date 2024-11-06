@@ -76,3 +76,8 @@ func (s signModeLegacyAminoJSONHandler) GetSignBytes(mode signingtypes.SignMode,
 		tx.GetMsgs(), protoTx.GetMemo(), tip,
 	), nil
 }
+
+// GetSignBytesRuntime implements SignModeHandler.GetSignBytesRuntime
+func (s signModeLegacyAminoJSONHandler) GetSignBytesRuntime(ctx sdk.Context, mode signingtypes.SignMode, data signing.SignerData, tx sdk.Tx) ([]byte, error) {
+	return s.GetSignBytes(mode, data, tx)
+}

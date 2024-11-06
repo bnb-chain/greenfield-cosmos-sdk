@@ -207,6 +207,11 @@ jobs:
             **/go.sum
             **/Makefile
             Makefile
+      - name: install Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          version: latest
+          legacy: true
       - name: start localnet
         if: env.GIT_DIFF
         run: |

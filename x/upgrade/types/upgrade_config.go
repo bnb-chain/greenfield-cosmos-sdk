@@ -38,6 +38,12 @@ const (
 
 	// Veld is the upgrade name for Veld upgrade
 	Veld = types.Veld
+
+	// Mongolian is the upgrade name for Mongolian upgrade
+	Mongolian = types.Mongolian
+
+	// Altai is the upgrade name for Altai upgrade
+	Altai = types.Altai
 )
 
 // The default upgrade config for networks
@@ -83,6 +89,14 @@ var (
 		Name:   Veld,
 		Height: 9269910,
 		Info:   "Veld hardfork",
+	}).SetPlan(&Plan{
+		Name:   Mongolian,
+		Height: 10314605,
+		Info:   "Mongolian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Altai,
+		Height: 11917971,
+		Info:   "Altai hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -126,6 +140,14 @@ var (
 		Name:   Veld,
 		Height: 9581218,
 		Info:   "Veld hardfork",
+	}).SetPlan(&Plan{
+		Name:   Mongolian,
+		Height: 10780238,
+		Info:   "Mongolian hardfork",
+	}).SetPlan(&Plan{
+		Name:   Altai,
+		Height: 12513708,
+		Info:   "Altai hardfork",
 	})
 )
 
