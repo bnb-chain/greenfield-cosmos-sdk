@@ -101,9 +101,9 @@ var (
 		Height: 11917971,
 		Info:   "Altai hardfork",
 	}).SetPlan(&Plan{
-		Name: Savanna,
-		// todo: height
-		Info: "Savanna hardfork",
+		Name:   Savanna,
+		Height: 14679048,
+		Info:   "Savanna hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -156,9 +156,9 @@ var (
 		Height: 12513708,
 		Info:   "Altai hardfork",
 	}).SetPlan(&Plan{
-		Name: Savanna,
-		// todo: height
-		Info: "Savanna hardfork",
+		Name:   Savanna,
+		Height: 14702349,
+		Info:   "Savanna hardfork",
 	})
 )
 
