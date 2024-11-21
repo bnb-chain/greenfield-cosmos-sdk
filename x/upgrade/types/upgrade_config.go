@@ -44,6 +44,9 @@ const (
 
 	// Altai is the upgrade name for Altai upgrade
 	Altai = types.Altai
+
+	// Savanna is the upgrade name for Savanna upgrade
+	Savanna = types.Savanna
 )
 
 // The default upgrade config for networks
@@ -97,6 +100,10 @@ var (
 		Name:   Altai,
 		Height: 11917971,
 		Info:   "Altai hardfork",
+	}).SetPlan(&Plan{
+		Name:   Savanna,
+		Height: 14667574,
+		Info:   "Savanna hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -148,6 +155,10 @@ var (
 		Name:   Altai,
 		Height: 12513708,
 		Info:   "Altai hardfork",
+	}).SetPlan(&Plan{
+		Name:   Savanna,
+		Height: 14691233,
+		Info:   "Savanna hardfork",
 	})
 )
 
