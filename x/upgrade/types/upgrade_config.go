@@ -102,7 +102,7 @@ var (
 		Info:   "Altai hardfork",
 	}).SetPlan(&Plan{
 		Name:   Savanna,
-		Height: 14679048,
+		Height: 14667574,
 		Info:   "Savanna hardfork",
 	})
 
@@ -157,7 +157,7 @@ var (
 		Info:   "Altai hardfork",
 	}).SetPlan(&Plan{
 		Name:   Savanna,
-		Height: 14702349,
+		Height: 14691233,
 		Info:   "Savanna hardfork",
 	})
 )
