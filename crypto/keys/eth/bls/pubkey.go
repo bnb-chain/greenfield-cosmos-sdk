@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	cmtcrypto "github.com/cometbft/cometbft/crypto"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )

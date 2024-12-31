@@ -8,7 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/stretchr/testify/require"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
