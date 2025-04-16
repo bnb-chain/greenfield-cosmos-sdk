@@ -356,8 +356,8 @@ func createTestSuite(t *testing.T, isCheckTx bool) (suite, sdk.Context) {
 		configurator.BankModule(),
 		configurator.StakingModule(),
 		configurator.ConsensusModule(),
-		configurator.GovModule(),
 		configurator.CrossChainModule(),
+		configurator.GovModule(),
 	), &res.AccountKeeper, &res.AuthzKeeper, &res.BankKeeper, &res.GovKeeper, &res.StakingKeeper, &res.CrossChainKeeper, &res.cdc)
 	require.NoError(t, err)
 

@@ -168,7 +168,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		NewTestnetCmd(simapp.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
-		pruning.PruningCmd(newApp),
+		pruning.Cmd(newApp, simapp.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
@@ -209,6 +209,7 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		rpc.QueryEventForTxCmd(),
 		authcmd.GetAccountCmd(),
 		rpc.ValidatorCommand(),
 		rpc.BlockCommand(),

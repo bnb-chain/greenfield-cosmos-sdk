@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
-	"github.com/prysmaticlabs/prysm/crypto/bls/blst"
-	blscmn "github.com/prysmaticlabs/prysm/crypto/bls/common"
+	"github.com/prysmaticlabs/prysm/v4/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v4/crypto/bls/blst"
+	blscmn "github.com/prysmaticlabs/prysm/v4/crypto/bls/common"
 )
 
 type Vote struct {

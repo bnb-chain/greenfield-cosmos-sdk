@@ -45,6 +45,26 @@ type (
 	}
 )
 
+func (it *immutableTree) Get(key []byte) ([]byte, error) {
+	return it.ImmutableTree.Get(key)
+}
+
+func (it *immutableTree) Has(key []byte) (bool, error) {
+	return it.ImmutableTree.Has(key)
+}
+
+func (it *immutableTree) Version() int64 {
+	return it.ImmutableTree.Version()
+}
+
+func (it *immutableTree) Hash() ([]byte, error) {
+	return it.ImmutableTree.Hash()
+}
+
+func (it *immutableTree) Iterator(start, end []byte, ascending bool) (types.Iterator, error) {
+	return it.ImmutableTree.Iterator(start, end, ascending)
+}
+
 func (it *immutableTree) Set(_, _ []byte) (bool, error) {
 	panic("cannot call 'Set' on an immutable IAVL tree")
 }

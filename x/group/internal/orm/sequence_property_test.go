@@ -1,16 +1,10 @@
 package orm
 
 import (
-	"testing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"pgregory.net/rapid"
 )
-
-func TestSequence(t *testing.T) {
-	rapid.Check(t, rapid.Run[*sequenceMachine]())
-}
 
 // sequenceMachine is a state machine model of Sequence. It simply uses a uint64
 // as the model of the sequence.

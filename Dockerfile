@@ -12,7 +12,7 @@
 #
 # This image is pushed to the GHCR as https://ghcr.io/cosmos/simapp
 
-FROM --platform=$BUILDPLATFORM golang:1.20-alpine AS build-env
+FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS build-env
 
 # Install minimum necessary dependencies
 ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev
@@ -43,6 +43,9 @@ EXPOSE 26656 26657 1317 9090
 CMD ["simd"]
 STOPSIGNAL SIGTERM
 WORKDIR /root
+
+# Install minimum necessary dependencies
+RUN apk add --no-cache curl make bash jq sed
 
 # Copy over binaries from the build-env
 COPY --from=build-env /go/src/github.com/cosmos/cosmos-sdk/build/simd /usr/bin/simd

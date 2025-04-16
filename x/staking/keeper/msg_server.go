@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/armon/go-metrics"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	metrics "github.com/hashicorp/go-metrics"
+	"github.com/prysmaticlabs/prysm/v4/crypto/bls"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -397,6 +397,7 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		sdk.NewEvent(
 			types.EventTypeDelegate,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
+			sdk.NewAttribute(types.AttributeKeyDelegator, msg.DelegatorAddress),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
 			sdk.NewAttribute(types.AttributeKeyNewShares, newShares.String()),
 		),
@@ -521,6 +522,7 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 			types.EventTypeUnbond,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+			sdk.NewAttribute(types.AttributeKeyDelegator, msg.DelegatorAddress),
 			sdk.NewAttribute(types.AttributeKeyCompletionTime, completionTime.Format(time.RFC3339)),
 		),
 	})

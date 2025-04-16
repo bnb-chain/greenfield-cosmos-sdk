@@ -18,7 +18,7 @@ const DefaultConfigTemplate = `# This is a TOML config file.
 
 # The minimum gas prices a validator is willing to accept for processing a
 # transaction. A transaction's fees must meet the minimum of any denomination
-# specified in this config (e.g. 0.25token1;0.0001token2).
+# specified in this config (e.g. 0.25token1,0.0001token2).
 minimum-gas-prices = "{{ .BaseConfig.MinGasPrices }}"
 
 # default: the last 362880 states are kept, pruning at 10 block intervals
@@ -87,8 +87,7 @@ iavl-lazy-loading = {{ .BaseConfig.IAVLLazyLoading }}
 
 # AppDBBackend defines the database backend type to use for the application and snapshots DBs.
 # An empty string indicates that a fallback will be used.
-# First fallback is the deprecated compile-time types.DBBackend value.
-# Second fallback (if the types.DBBackend also isn't set), is the db-backend value set in Tendermint's config.toml.
+# The fallback is the db_backend value set in Tendermint's config.toml.
 app-db-backend = "{{ .BaseConfig.AppDBBackend }}"
 
 # EnableUnsafeQuery enables or disables the unsafe queries.
@@ -264,7 +263,7 @@ fsync = "{{ .Streamers.File.Fsync }}"
 #
 # Note, this configuration only applies to SDK built-in app-side mempool
 # implementations.
-max-txs = "{{ .Mempool.MaxTxs }}"
+max-txs = {{ .Mempool.MaxTxs }}
 `
 
 var configTemplate *template.Template

@@ -1,6 +1,6 @@
 module cosmossdk.io/depinject
 
-go 1.19
+go 1.23.8
 
 require (
 	github.com/pkg/errors v0.9.1

@@ -84,8 +84,24 @@ func (c Context) IsEnableUnsafeQuery() bool {
 
 // clone the header before returning
 func (c Context) BlockHeader() tmproto.Header {
-	msg := proto.Clone(&c.header).(*tmproto.Header)
-	return *msg
+	// Create a new header and copy the fields manually
+	header := tmproto.Header{
+		Version:            c.header.Version,
+		ChainID:            c.header.ChainID,
+		Height:             c.header.Height,
+		Time:               c.header.Time,
+		LastBlockId:        c.header.LastBlockId,
+		LastCommitHash:     c.header.LastCommitHash,
+		DataHash:           c.header.DataHash,
+		ValidatorsHash:     c.header.ValidatorsHash,
+		NextValidatorsHash: c.header.NextValidatorsHash,
+		ConsensusHash:      c.header.ConsensusHash,
+		AppHash:            c.header.AppHash,
+		LastResultsHash:    c.header.LastResultsHash,
+		EvidenceHash:       c.header.EvidenceHash,
+		ProposerAddress:    c.header.ProposerAddress,
+	}
+	return header
 }
 
 // HeaderHash returns a copy of the header hash obtained during abci.RequestBeginBlock
