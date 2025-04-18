@@ -122,6 +122,7 @@ func createTestSuite(t *testing.T) suite {
 			configurator.BankModule(),
 			configurator.AuthzModule(),
 			configurator.GovModule(),
+			configurator.CrossChainModule(),
 			configurator.ConsensusModule(),
 		),
 		simtestutil.DefaultStartUpConfig(),
