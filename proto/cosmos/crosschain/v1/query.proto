@@ -46,7 +46,7 @@ message QueryCrossChainPackageRequest {
   // channel id of the cross chain package
   uint32 channel_id = 2;
   // sequence of the cross chain package
-  uint64 sequence   = 3;
+  uint64 sequence = 3;
 }
 
 // QueryCrossChainPackageResponse is the response type for the Query/CrossChainPackage RPC method.

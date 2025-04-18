@@ -32,21 +32,21 @@ message MsgClaim {
   option (gogoproto.goproto_getters) = false;
 
   // sender address of the msg
-  string           from_address     = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string from_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // source chain id
-  uint32           src_chain_id     = 2;
+  uint32 src_chain_id = 2;
   // destination chain id
-  uint32           dest_chain_id    = 3;
+  uint32 dest_chain_id = 3;
   // sequence of the oracle channel
-  uint64           sequence         = 4;
+  uint64 sequence = 4;
   // timestamp of the claim
-  uint64           timestamp        = 5;
+  uint64 timestamp = 5;
   // payload of the claim
-  bytes            payload          = 6;
+  bytes payload = 6;
   // bit map of the voted validators
   repeated fixed64 vote_address_set = 7;
   // bls signature of the claim
-  bytes            agg_signature    = 8;
+  bytes agg_signature = 8;
 }
 
 // MsgClaimResponse defines the Msg/Claim response type
@@ -56,7 +56,7 @@ message MsgClaimResponse {}
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
 
-  option (gogoproto.equal)           = false;
+  option (gogoproto.equal) = false;
 
   // authority is the address that controls the module (defaults to x/gov unless overwritten).
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];

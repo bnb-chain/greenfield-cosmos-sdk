@@ -8,7 +8,7 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/gashub/types";
 
 // Params defines the parameters for the gashub module.
 message Params {
-  option (amino.name) = "cosmos-sdk/x/gashub/Params";
+  option (amino.name)      = "cosmos-sdk/x/gashub/Params";
   option (gogoproto.equal) = true;
 
   // max_tx_size is the maximum size of a transaction's bytes.
@@ -46,7 +46,7 @@ message MsgGasParams {
     option (gogoproto.equal) = true;
 
     // fixed_gas is the base gas cost for a dynamic type msg
-    uint64 fixed_gas    = 1 [(gogoproto.customname) = "FixedGas"];
+    uint64 fixed_gas = 1 [(gogoproto.customname) = "FixedGas"];
     // gas_per_item is the gas cost for a dynamic type msg per item
     uint64 gas_per_item = 2 [(gogoproto.customname) = "GasPerItem"];
   }

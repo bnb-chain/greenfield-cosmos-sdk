@@ -78,8 +78,8 @@ message MsgImpeach {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string      from              = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string      validator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string from              = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string validator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgImpeachResponse defines the Msg/Impeach response type.

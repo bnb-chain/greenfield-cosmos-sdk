@@ -9,13 +9,13 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/crosschain/types";
 
 // Params holds parameters for the cross chain module.
 message Params {
-  option (amino.name)                 = "cosmos-sdk/x/crosschain/Params";
+  option (amino.name) = "cosmos-sdk/x/crosschain/Params";
 
   // initial balance to mint for crosschain module when the chain starts
   string init_module_balance = 1 [
-    (cosmos_proto.scalar) = "cosmos.Int",
+    (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable)   = false
   ];
 }
 
