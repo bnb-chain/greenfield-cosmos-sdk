@@ -746,38 +746,38 @@ func (s E2ETestSuite) TestGetBlockWithTxs_GRPC() {
 }
 
 func (s E2ETestSuite) TestGetBlockWithTxs_GRPCGateway() {
-	val := s.network.Validators[0]
 	testCases := []struct {
 		name      string
-		url       string
+		height    int64
 		expErr    bool
 		expErrMsg string
 	}{
 		{
 			"empty params",
-			fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/block/0", val.APIAddress),
+			0,
 			true, "height must not be less than 1 or greater than the current height",
 		},
 		{
 			"bad height",
-			fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/block/%d", val.APIAddress, 9999999),
+			9999999,
 			true, "height must not be less than 1 or greater than the current height",
 		},
 		{
 			"good request",
-			fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/block/%d", val.APIAddress, s.txHeight),
+			s.txHeight,
 			false, "",
 		},
 	}
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			res, err := testutil.GetRequest(tc.url)
-			s.Require().NoError(err)
+			res, err := s.queryClient.GetBlockWithTxs(context.Background(), &tx.GetBlockWithTxsRequest{
+				Height: tc.height,
+			})
+
 			if tc.expErr {
-				s.Require().Contains(string(res), tc.expErrMsg)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
 			} else {
-				var result tx.GetBlockWithTxsResponse
-				err = val.ClientCtx.Codec.UnmarshalJSON(res, &result)
+				result := res
 				s.Require().NoError(err)
 				s.Require().Equal("foobar", result.Txs[0].Body.Memo)
 				s.Require().Equal(result.Block.Header.Height, s.txHeight)
