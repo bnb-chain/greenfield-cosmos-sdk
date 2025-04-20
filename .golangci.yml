@@ -55,6 +55,16 @@ issues:
   max-same-issues: 10000
 
 linters-settings:
+  errcheck:
+    check-type-assertions: false
+  unused:
+    check-exported: false
+  govet:
+    enable:
+      - all
+    disable:
+      - shadow
+      - fieldalignment
   dogsled:
     max-blank-identifiers: 3
   maligned:
