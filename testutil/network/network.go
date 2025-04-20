@@ -84,7 +84,7 @@ type TestFixture struct {
 // in-process local testing network.
 type Config struct {
 	Codec             codec.Codec
-	LegacyAmino       *codec.LegacyAmino // TODO: Remove!
+	LegacyAmino       *codec.LegacyAmino // TODO: Remove!Codec
 	InterfaceRegistry codectypes.InterfaceRegistry
 
 	TxConfig         client.TxConfig
