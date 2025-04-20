@@ -2,20 +2,27 @@ run:
   tests: false
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 5m
-  issues-exit-code: 1
   skip-files:
     - server/grpc/gogoreflection/serverreflection.go
 
 linters:
   disable-all: true
   enable:
+    - dogsled
+    - exportloopref
+    - goconst
+    - gocritic
+    - gofumpt
+    - gosec
+    - gosimple
     - govet
-      - errcheck
-      - staticcheck
-      - gosimple
-      - structcheck
-      - unused
-      - deadcode
+    - ineffassign
+    - nolintlint
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unused
 
 issues:
   exclude-rules:
@@ -48,27 +55,11 @@ issues:
   max-same-issues: 10000
 
 linters-settings:
-  errcheck:
-    check-type-assertions: false
-  unused:
-    check-exported: false
-  govet:
-    enable:
-      - all
-    disable:
-      - shadow
-      - fieldalignment
   dogsled:
     max-blank-identifiers: 3
   maligned:
     # print struct with more effective memory layout or not, false by default
     suggest-new: true
-  gocritic:
-    disabled-checks:
-      - appendAssign
-      - unnecessaryDefer
-  staticcheck:
-    checks: [ 'all', '-ST1000', '-ST1003' ]
   nolintlint:
     allow-unused: false
     allow-leading-space: true
