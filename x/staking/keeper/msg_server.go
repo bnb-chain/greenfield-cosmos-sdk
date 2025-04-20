@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	metrics "github.com/armon/go-metrics"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	metrics "github.com/hashicorp/go-metrics"
 	"github.com/prysmaticlabs/prysm/v4/crypto/bls"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

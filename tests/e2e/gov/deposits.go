@@ -107,6 +107,8 @@ func (s *DepositTestSuite) TestQueryDepositsWithInitialDeposit() {
 	id := s.submitProposal(val, depositAmount, "TestQueryDepositsWithInitialDeposit")
 	proposalID := strconv.FormatUint(id, 10)
 
+	s.Require().NoError(s.network.WaitForNextBlock())
+
 	// query deposit
 	deposit := s.queryDeposit(val, proposalID, false, "")
 	s.Require().NotNil(deposit)

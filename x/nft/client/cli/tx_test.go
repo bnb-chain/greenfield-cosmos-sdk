@@ -23,9 +23,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft"
 	nftmodule "github.com/cosmos/cosmos-sdk/x/nft/module"
 
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/x/nft/client/cli"
 	nfttestutil "github.com/cosmos/cosmos-sdk/x/nft/testutil"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 const (

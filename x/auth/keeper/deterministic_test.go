@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"encoding/hex"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	"sort"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/suite"

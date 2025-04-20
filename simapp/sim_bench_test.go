@@ -2,9 +2,10 @@ package simapp
 
 import (
 	"fmt"
-	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	"os"
 	"testing"
+
+	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/require"

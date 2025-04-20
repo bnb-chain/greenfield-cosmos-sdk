@@ -11,9 +11,9 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/stretchr/testify/require"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 )
 
 func TestRollback(t *testing.T) {

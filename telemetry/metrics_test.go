@@ -2,10 +2,11 @@ package telemetry
 
 import (
 	"encoding/json"
-	"github.com/hashicorp/go-metrics"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/hashicorp/go-metrics"
 
 	"github.com/prometheus/common/expfmt"
 	"github.com/stretchr/testify/require"

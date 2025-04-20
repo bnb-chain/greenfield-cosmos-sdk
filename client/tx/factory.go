@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"os"
 	"strings"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 
 	sdkmath "cosmossdk.io/math"
 	bip39 "github.com/cosmos/go-bip39"

@@ -10,6 +10,7 @@ require (
 	cosmossdk.io/log v1.4.0
 	cosmossdk.io/math v1.0.1
 	github.com/99designs/keyring v1.2.1
+	github.com/armon/go-metrics v0.4.1
 	github.com/bgentry/speakeasy v0.1.1-0.20220910012023-760eaf8b6816
 	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
