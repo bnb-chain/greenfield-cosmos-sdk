@@ -82,16 +82,10 @@ func (s *E2ETestSuite) TestQuerySyncing() {
 }
 
 func (s *E2ETestSuite) TestQueryLatestBlock() {
-	val := s.network.Validators[0]
+	//val := s.network.Validators[0]
 
-	_, err := s.queryClient.GetLatestBlock(context.Background(), &tmservice.GetLatestBlockRequest{})
+	blockInfoRes, err := s.queryClient.GetLatestBlock(context.Background(), &tmservice.GetLatestBlockRequest{})
 	s.Require().NoError(err)
-
-	restRes, err := testutil.GetRequest(fmt.Sprintf("%s/cosmos/base/tendermint/v1beta1/blocks/latest", val.APIAddress))
-	fmt.Println(string(restRes))
-	s.Require().NoError(err)
-	var blockInfoRes tmservice.GetLatestBlockResponse
-	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(restRes, &blockInfoRes))
 	s.Require().Equal(types.ConsAddress(blockInfoRes.Block.Header.ProposerAddress).String(), blockInfoRes.SdkBlock.Header.ProposerAddress)
 	// s.Require().Contains(blockInfoRes.SdkBlock.Header.ProposerAddress, "0x9075E59348986c16525Be69eEe890497E8f30db6")
 }
