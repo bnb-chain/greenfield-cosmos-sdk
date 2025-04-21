@@ -13,7 +13,7 @@ require (
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
-	github.com/prysmaticlabs/prysm v0.0.0-20220124113610-e26cde5e091b
+	github.com/prysmaticlabs/prysm/v5 v5.0.3
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	github.com/willf/bitset v1.1.3 // indirect

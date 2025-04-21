@@ -24,9 +24,8 @@ import (
 	dbm "github.com/cometbft/cometbft-db"
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 	tmcfg "github.com/cometbft/cometbft/config"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
 	tmlog "github.com/cometbft/cometbft/libs/log"
-	"github.com/cometbft/cometbft/node"
-	tmstore "github.com/cometbft/cometbft/store"
 	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -162,11 +161,6 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate s
 		opts = append(opts, log.OutputJSONOption())
 	}
 
-	opts = append(opts,
-		log.ColorOption(!serverCtx.Viper.GetBool(flags.FlagLogNoColor)),
-		// We use CometBFT flag (cmtcli.TraceFlag) for trace logging.
-		log.TraceOption(serverCtx.Viper.GetBool(FlagTrace)))
-
 	// check and set filter level or keys for the logger if any
 	logLvlStr := serverCtx.Viper.GetString(flags.FlagLogLevel)
 	if logLvlStr != "" {
@@ -180,6 +174,10 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate s
 			}
 
 			opts = append(opts, log.FilterOption(filterFunc))
+		case serverCtx.Viper.GetBool(tmcli.TraceFlag):
+			// Check if the CometBFT flag for trace logging is set if it is then setup a tracing logger in this app as well.
+			// Note it overrides log level passed in `log_levels`.
+			opts = append(opts, log.LevelOption(zerolog.TraceLevel))
 		default:
 			opts = append(opts, log.LevelOption(logLvl))
 		}
@@ -397,7 +395,7 @@ func WaitForQuitSignals() ErrorCode {
 func GetAppDBBackend(opts types.AppOptions) dbm.BackendType {
 	rv := cast.ToString(opts.Get("app-db-backend"))
 	if len(rv) == 0 {
-		rv = cast.ToString(opts.Get("db_backend"))
+		rv = cast.ToString(opts.Get("db-backend"))
 	}
 	if len(rv) != 0 {
 		return dbm.BackendType(rv)
@@ -467,14 +465,13 @@ func DefaultBaseappOptions(appOpts types.AppOptions) []func(*baseapp.BaseApp) {
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 	chainID := cast.ToString(appOpts.Get(flags.FlagChainID))
 	if chainID == "" {
-		// read the chainID from home directory (either from comet or genesis).
-		dbBackend := cast.ToString(appOpts.Get("db_backend"))
-		chainId, err := readChainIdFromHome(homeDir, dbBackend)
+		// fallback to genesis chain-id
+		appGenesis, err := tmtypes.GenesisDocFromFile(filepath.Join(homeDir, "config", "genesis.json"))
 		if err != nil {
 			panic(err)
 		}
 
-		chainID = chainId
+		chainID = appGenesis.ChainID
 	}
 
 	snapshotStore, err := GetSnapshotStore(appOpts)
@@ -512,43 +509,10 @@ func DefaultBaseappOptions(appOpts types.AppOptions) []func(*baseapp.BaseApp) {
 	}
 }
 
-// readChainIdFromHome reads chain id from home directory.
-func readChainIdFromHome(homeDir string, dbBackend string) (string, error) {
-	cfg := tmcfg.DefaultConfig()
-	cfg.SetRoot(homeDir)
-	cfg.BaseConfig.DBBackend = dbBackend
-
-	// if the node's current height is not zero then try to read the chainID from comet db.
-	db, err := node.DefaultDBProvider(&node.DBContext{ID: "blockstore", Config: cfg})
-	if err != nil {
-		return "", err
-	}
-
-	blockStore := tmstore.NewBlockStore(db)
-	defer func() {
-		if err := blockStore.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	// if the blockStore.LoadBaseMeta() is nil (no blocks are created/synced so far), fallback to genesis chain-id.
-	baseMeta := blockStore.LoadBaseMeta()
-	if baseMeta != nil {
-		return baseMeta.Header.ChainID, nil
-	}
-
-	appGenesis, err := tmtypes.GenesisDocFromFile(filepath.Join(homeDir, "config", "genesis.json"))
-	if err != nil {
-		return "", err
-	}
-
-	return appGenesis.ChainID, nil
-}
-
 func GetSnapshotStore(appOpts types.AppOptions) (*snapshots.Store, error) {
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 	snapshotDir := filepath.Join(homeDir, "data", "snapshots")
-	if err := os.MkdirAll(snapshotDir, 0o744); err != nil {
+	if err := os.MkdirAll(snapshotDir, os.ModePerm); err != nil {
 		return nil, fmt.Errorf("failed to create snapshots directory: %w", err)
 	}
 

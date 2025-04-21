@@ -266,7 +266,7 @@ func (k Keeper) SlashRedelegation(ctx sdk.Context, srcValidator types.Validator,
 		}
 		// Handle undelegation after redelegation
 		// Prioritize slashing unbondingDelegation than delegation
-		unbondingDelegation, found := k.GetUnbondingDelegation(ctx, sdk.MustAccAddressFromBech32(redelegation.DelegatorAddress), validatorDstAddress)
+		unbondingDelegation, found := k.GetUnbondingDelegation(ctx, sdk.MustAccAddressFromBech32(redelegation.DelegatorAddress), sdk.AccAddress(validatorDstAddress))
 		if found {
 			for i, entry := range unbondingDelegation.Entries {
 				// slash with the amount of `slashAmount` if possible, else slash all unbonding token

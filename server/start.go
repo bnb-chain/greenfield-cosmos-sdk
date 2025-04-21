@@ -285,10 +285,6 @@ func startStandAlone(ctx *Context, clientCtx client.Context, appCreator types.Ap
 	defer func() {
 		_ = svr.Stop()
 		_ = app.Close()
-
-		if apiSrv != nil {
-			_ = apiSrv.Close()
-		}
 	}()
 
 	// Wait for SIGINT or SIGTERM signal
