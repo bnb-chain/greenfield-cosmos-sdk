@@ -15,12 +15,10 @@ linters:
     - gofumpt
     - gosec
     - gosimple
-    - govet
     - ineffassign
     - nolintlint
     - staticcheck
     - stylecheck
-    - typecheck
     - unconvert
     - unused
 

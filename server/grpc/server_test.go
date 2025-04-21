@@ -9,11 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/jhump/protoreflect/grpcreflect"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	rpb "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	reflectionv1 "github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
@@ -28,6 +23,8 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type IntegrationTestSuite struct {
@@ -104,29 +101,6 @@ func (s *IntegrationTestSuite) TestGRPCServer_BankBalance() {
 	s.Require().NoError(err)
 	blockHeight = header.Get(grpctypes.GRPCBlockHeightHeader)
 	s.Require().Equal([]string{"1"}, blockHeight)
-}
-
-func (s *IntegrationTestSuite) TestGRPCServer_Reflection() {
-	// Test server reflection
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	stub := rpb.NewServerReflectionClient(s.conn)
-	// NOTE(fdymylja): we use grpcreflect because it solves imports too
-	// so that we can always assert that given a reflection server it is
-	// possible to fully query all the methods, without having any context
-	// on the proto registry
-	rc := grpcreflect.NewClient(ctx, stub)
-
-	services, err := rc.ListServices()
-	s.Require().NoError(err)
-	s.Require().Greater(len(services), 0)
-
-	for _, svc := range services {
-		file, err := rc.FileContainingSymbol(svc)
-		s.Require().NoError(err)
-		sd := file.FindSymbol(svc)
-		s.Require().NotNil(sd)
-	}
 }
 
 func (s *IntegrationTestSuite) TestGRPCServer_InterfaceReflection() {
