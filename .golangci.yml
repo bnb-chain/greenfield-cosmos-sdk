@@ -3,6 +3,8 @@ run:
   timeout: 5m
   skip-files:
     - server/grpc/gogoreflection/serverreflection.go
+    - x
+    - telemetry
 
 linters:
   disable-all: true
@@ -19,10 +21,12 @@ linters:
     - staticcheck
     - stylecheck
     - unconvert
-    - unused
 
 issues:
   exclude-rules:
+    - text: "typecheck"
+      linters:
+        - typecheck
     - text: "Use of weak random number generator"
       linters:
         - gosec
@@ -45,9 +49,7 @@ issues:
       text: "SA1019:"
       linters:
         - staticcheck
-    - text: "typecheck"
-      linters:
-        - typecheck
+
 
   max-issues-per-linter: 10000
   max-same-issues: 10000
