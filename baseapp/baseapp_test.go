@@ -718,7 +718,7 @@ func TestDefaultProposalHandler_NoOpMempoolTxSelection(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, txBz, 103)
 
-	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil).
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil, nil).
 		WithConsensusParams(&tmproto.ConsensusParams{})
 
 	testCases := map[string]struct {
