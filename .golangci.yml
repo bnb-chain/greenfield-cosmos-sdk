@@ -5,6 +5,14 @@ run:
     - server/grpc/gogoreflection/serverreflection.go
     - x
     - telemetry
+    - runtime
+    - client
+    - crypto
+    - bsc
+    - baseapp
+    - types
+    - version
+    - stroe
 
 linters:
   disable-all: true
