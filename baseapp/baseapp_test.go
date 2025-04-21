@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
@@ -155,6 +156,41 @@ func NewBaseAppSuiteWithSnapshots(t *testing.T, cfg SnapshotsConfig, opts ...fun
 	}
 
 	return suite
+}
+
+func TestAnteHandlerGasMeter(t *testing.T) {
+	// run BeginBlock and assert that the gas meter passed into the first Txn's AnteHandlers is zeroed out
+	anteOpt := func(bapp *baseapp.BaseApp) {
+		bapp.SetAnteHandler(func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
+			gasMeter := ctx.BlockGasMeter()
+			require.NotNil(t, gasMeter)
+			require.Equal(t, sdk.Gas(0), gasMeter.GasConsumed())
+			return ctx, nil
+		})
+	}
+	// set the beginBlocker to use some gas
+	beginBlockerOpt := func(bapp *baseapp.BaseApp) {
+		bapp.SetBeginBlocker(func(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+			ctx.BlockGasMeter().ConsumeGas(1, "beginBlocker gas consumption")
+			return abci.ResponseBeginBlock{}
+		})
+	}
+
+	suite := NewBaseAppSuite(t, anteOpt, beginBlockerOpt)
+
+	_ = suite.baseApp.InitChain(abci.RequestInitChain{
+		ConsensusParams: &tmproto.ConsensusParams{},
+	})
+
+	// Run BeginBlock to consume some gas
+	header := tmproto.Header{Height: 1}
+	suite.baseApp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	// Run our first Tx (make sure the AnteHandler doesn't see gas consumed in BeginBlock
+	tx := newTxCounter(t, suite.txConfig, 0, 0)
+	txBytes, err := suite.txConfig.TxEncoder()(tx)
+	require.NoError(t, err)
+	suite.baseApp.DeliverTx(abci.RequestDeliverTx{Tx: txBytes})
 }
 
 func TestLoadVersion(t *testing.T) {
@@ -653,4 +689,92 @@ func TestLoadVersionPruning(t *testing.T) {
 	err = app.LoadLatestVersion()
 	require.Nil(t, err)
 	testLoadVersionHelper(t, app, int64(7), lastCommitID)
+}
+
+func TestDefaultProposalHandler_NoOpMempoolTxSelection(t *testing.T) {
+	// create a codec for marshaling
+	cdc := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
+	baseapptestutil.RegisterInterfaces(cdc.InterfaceRegistry())
+
+	// create a baseapp along with a tx config for tx generation
+	txConfig := authtx.NewTxConfig(cdc, authtx.DefaultSignModes)
+	app := baseapp.NewBaseApp(t.Name(), log.NewNopLogger(), dbm.NewMemDB(), txConfig.TxDecoder())
+
+	// create a proposal handler
+	ph := baseapp.NewDefaultProposalHandler(mempool.NoOpMempool{}, app)
+	handler := ph.PrepareProposalHandler()
+
+	// build a tx
+	builder := txConfig.NewTxBuilder()
+	require.NoError(t, builder.SetMsgs(
+		&baseapptestutil.MsgCounter{Counter: 0, FailOnHandler: false},
+	))
+	builder.SetGasLimit(100)
+	setTxSignature(t, builder, 0)
+
+	// encode the tx to be used in the proposal request
+	tx := builder.GetTx()
+	txBz, err := txConfig.TxEncoder()(tx)
+	require.NoError(t, err)
+	require.Len(t, txBz, 103)
+
+	ctx := sdk.NewContext(nil, tmproto.Header{}, false, nil).
+		WithConsensusParams(&tmproto.ConsensusParams{})
+
+	testCases := map[string]struct {
+		ctx         sdk.Context
+		req         abci.RequestPrepareProposal
+		expectedTxs int
+	}{
+		"small max tx bytes": {
+			ctx: ctx,
+			req: abci.RequestPrepareProposal{
+				Txs:        [][]byte{txBz, txBz, txBz, txBz, txBz},
+				MaxTxBytes: 10,
+			},
+			expectedTxs: 0,
+		},
+		"small max gas": {
+			ctx: ctx.WithConsensusParams(&tmproto.ConsensusParams{
+				Block: &tmproto.BlockParams{
+					MaxGas: 10,
+				},
+			}),
+			req: abci.RequestPrepareProposal{
+				Txs:        [][]byte{txBz, txBz, txBz, txBz, txBz},
+				MaxTxBytes: 309,
+			},
+			expectedTxs: 3,
+		},
+		"large max tx bytes": {
+			ctx: ctx,
+			req: abci.RequestPrepareProposal{
+				Txs:        [][]byte{txBz, txBz, txBz, txBz, txBz},
+				MaxTxBytes: 309,
+			},
+			expectedTxs: 3,
+		},
+		"max gas and tx bytes": {
+			ctx: ctx.WithConsensusParams(&tmproto.ConsensusParams{
+				Block: &tmproto.BlockParams{
+					MaxGas: 200,
+				},
+			}),
+			req: abci.RequestPrepareProposal{
+				Txs:        [][]byte{txBz, txBz, txBz, txBz, txBz},
+				MaxTxBytes: 309,
+			},
+			expectedTxs: 3,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			// iterate multiple times to ensure the tx selector is cleared each time
+			for i := 0; i < 5; i++ {
+				resp := handler(tc.ctx, tc.req)
+				require.Len(t, resp.Txs, tc.expectedTxs)
+			}
+		})
+	}
 }

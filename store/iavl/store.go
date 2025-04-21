@@ -240,10 +240,8 @@ func (st *Store) Has(key []byte) (exists bool) {
 // Implements types.KVStore.
 func (st *Store) Delete(key []byte) {
 	defer telemetry.MeasureSince(time.Now(), "store", "iavl", "delete")
-	st.tree.Remove(key)
-
-	if st.diff != nil {
-		st.diff[string(key)] = struct{}{}
+	if _, _, err := st.tree.Remove(key); err != nil {
+		panic(err)
 	}
 }
 
@@ -391,7 +389,8 @@ func (st *Store) Query(req abci.RequestQuery) (res abci.ResponseQuery) {
 		for ; iterator.Valid(); iterator.Next() {
 			pairs.Pairs = append(pairs.Pairs, kv.Pair{Key: iterator.Key(), Value: iterator.Value()})
 		}
-		iterator.Close()
+
+		_ = iterator.Close()
 
 		bz, err := pairs.Marshal()
 		if err != nil {

@@ -39,7 +39,6 @@ var (
 	_ tx.TipTx                   = &wrapper{}
 	_ ante.HasExtensionOptionsTx = &wrapper{}
 	_ ExtensionOptionsTxBuilder  = &wrapper{}
-	_ tx.TipTx                   = &wrapper{}
 )
 
 // ExtensionOptionsTxBuilder defines a TxBuilder that can also set extensions.
@@ -289,14 +288,20 @@ func (w *wrapper) SetSignatures(signatures ...signing.SignatureV2) error {
 	rawSigs := make([][]byte, n)
 
 	for i, sig := range signatures {
-		var modeInfo *tx.ModeInfo
+		var (
+			modeInfo *tx.ModeInfo
+			pubKey   *codectypes.Any
+			err      error
+		)
 		modeInfo, rawSigs[i] = SignatureDataToModeInfoAndSig(sig.Data)
-		any, err := codectypes.NewAnyWithValue(sig.PubKey)
-		if err != nil {
-			return err
+		if sig.PubKey != nil {
+			pubKey, err = codectypes.NewAnyWithValue(sig.PubKey)
+			if err != nil {
+				return err
+			}
 		}
 		signerInfos[i] = &tx.SignerInfo{
-			PublicKey: any,
+			PublicKey: pubKey,
 			ModeInfo:  modeInfo,
 			Sequence:  sig.Sequence,
 		}
