@@ -12,7 +12,7 @@ run:
     - baseapp
     - types
     - version
-    - stroe
+    - store
 
 linters:
   disable-all: true
