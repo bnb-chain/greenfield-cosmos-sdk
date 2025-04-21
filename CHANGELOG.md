@@ -169,6 +169,7 @@ This release introduces the Altai upgrade
 
 ## [v0.47.3](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.47.3) - 2023-06-08
 
+
 ## V1.8.0
 This release introduces the Veld upgrade
 
