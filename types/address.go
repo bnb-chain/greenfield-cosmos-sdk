@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -356,23 +355,7 @@ func ValAddressFromHex(address string) (addr ValAddress, err error) {
 
 // ValAddressFromBech32 creates a ValAddress from a Bech32 string.
 func ValAddressFromBech32(address string) (addr ValAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return ValAddress{}, errors.New("empty address string is not allowed")
-	}
-
-	bech32PrefixValAddr := GetConfig().GetBech32ValidatorAddrPrefix()
-
-	bz, err := GetFromBech32(address, bech32PrefixValAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	err = VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return ValAddress(bz), nil
+	panic("Deprecated method")
 }
 
 // Returns boolean for whether two ValAddresses are Equal

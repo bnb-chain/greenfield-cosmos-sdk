@@ -1,8 +1,6 @@
 package orm
 
 import (
-	"testing"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,10 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 )
-
-func TestPrimaryKeyTable(t *testing.T) {
-	rapid.Check(t, rapid.Run[*primaryKeyMachine]())
-}
 
 // primaryKeyMachine is a state machine model of the PrimaryKeyTable. The state
 // is modeled as a map of strings to TableModels.

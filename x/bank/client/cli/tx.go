@@ -40,7 +40,7 @@ func NewSendTxCmd() *cobra.Command {
 		Short: "Send funds from one account to another.",
 		Long: `Send funds from one account to another.
 Note, the '--from' flag is ignored as it is implied from [from_key_or_address].
-When using '--dry-run' a key name cannot be used, only a bech32 address.
+When using '--dry-run' a key name cannot be used, only a hex address.
 `,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -50,7 +50,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.
 				return err
 			}
 
-			toAddr, err := sdk.AccAddressFromBech32(args[1])
+			toAddr, err := sdk.AccAddressFromHexUnsafe(args[1])
 			if err != nil {
 				return err
 			}
@@ -115,7 +115,7 @@ When using '--dry-run' a key name cannot be used, only a bech32 address.`,
 
 			var output []types.Output
 			for _, arg := range args[1 : len(args)-1] {
-				toAddr, err := sdk.AccAddressFromBech32(arg)
+				toAddr, err := sdk.AccAddressFromHexUnsafe(arg)
 				if err != nil {
 					return err
 				}
