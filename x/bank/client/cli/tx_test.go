@@ -23,7 +23,7 @@ func (s *CLITestSuite) TestSendTxCmd() {
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("photon", sdk.NewInt(10))).String()),
-		fmt.Sprintf("--%s=test-chain", flags.FlagChainID),
+		fmt.Sprintf("--%s=greenfield_9000-1", flags.FlagChainID),
 	}
 
 	testCases := []struct {
@@ -106,7 +106,7 @@ func (s *CLITestSuite) TestMultiSendTxCmd() {
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin("photon", sdk.NewInt(10))).String()),
-		fmt.Sprintf("--%s=test-chain", flags.FlagChainID),
+		fmt.Sprintf("--%s=greenfield_9000-1", flags.FlagChainID),
 	}
 
 	testCases := []struct {
