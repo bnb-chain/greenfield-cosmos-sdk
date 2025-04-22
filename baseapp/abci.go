@@ -243,8 +243,8 @@ func (app *BaseApp) BeginBlock(req abci.RequestBeginBlock) (res abci.ResponseBeg
 	}
 
 	// Reset the gas meter so that the AnteHandlers aren't required to
-	gasMeter = app.getBlockGasMeter(app.deliverState.ctx)
-	app.deliverState.ctx = app.deliverState.ctx.WithBlockGasMeter(gasMeter)
+	//gasMeter = app.getBlockGasMeter(app.deliverState.ctx)
+	//app.deliverState.ctx = app.deliverState.ctx.WithBlockGasMeter(gasMeter)
 
 	return res
 }

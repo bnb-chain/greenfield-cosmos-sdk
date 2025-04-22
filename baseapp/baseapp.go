@@ -402,11 +402,6 @@ func (app *BaseApp) LastBlockHeight() int64 {
 	return app.cms.LastCommitID().Version
 }
 
-// Mempool returns the Mempool of the app.
-func (app *BaseApp) Mempool() mempool.Mempool {
-	return app.mempool
-}
-
 // Init initializes the app. It seals the app, preventing any
 // further modifications. In addition, it validates the app against
 // the earlier provided settings. Returns an error if validation fails.
@@ -765,7 +760,6 @@ func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []by
 		if r := recover(); r != nil {
 			recoveryMW := newOutOfGasRecoveryMiddleware(gasWanted, ctx, app.runTxRecoveryMiddleware)
 			err, result = processRecovery(r, recoveryMW), nil
-			ctx.Logger().Error("panic recovered in runTx", "err", err)
 		}
 
 		gInfo = sdk.GasInfo{GasWanted: gasWanted, GasUsed: ctx.GasMeter().GasConsumed(), MinGasPrice: gInfo.MinGasPrice, RwUsed: ctx.GasMeter().RwConsumed()}
@@ -850,12 +844,6 @@ func (app *BaseApp) runTxOnContext(ctx sdk.Context, mode runTxMode, txBytes []by
 		gasWanted = ctx.GasMeter().Limit()
 
 		if err != nil {
-			if mode == runTxModeReCheck {
-				// if the ante handler fails on recheck, we want to remove the tx from the mempool
-				if mempoolErr := app.mempool.Remove(tx); mempoolErr != nil {
-					return gInfo, nil, anteEvents, 0, fmt.Errorf("error: %v, mempool error: %w", err, mempoolErr)
-				}
-			}
 			return gInfo, nil, nil, 0, err
 		}
 
