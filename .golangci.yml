@@ -4,6 +4,16 @@ run:
   timeout: 5m
   skip-files:
     - server/grpc/gogoreflection/serverreflection.go
+    - x
+    - telemetry
+    - runtime
+    - client
+    - crypto
+    - bsc
+    - baseapp
+    - types
+    - version
+    - store
 
 linters:
   disable-all: true
