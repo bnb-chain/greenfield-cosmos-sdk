@@ -30,7 +30,6 @@ linters:
     - nolintlint
     - staticcheck
     - stylecheck
-    - typecheck
     - unconvert
     - unused
 
