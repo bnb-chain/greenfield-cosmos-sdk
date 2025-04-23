@@ -216,8 +216,3 @@ func TestNewModuleAddressOrHexAddress(t *testing.T) {
 	require.Equal(t, input, types.NewModuleAddressOrHexAddress(input).String())
 	require.Equal(t, "0x93354845030274cD4bf1686Abd60AB28EC52e1a7", types.NewModuleAddressOrHexAddress("distribution").String())
 }
-
-func TestModuleAccountValidateNilBaseAccount(t *testing.T) {
-	ma := &types.ModuleAccount{Name: "foo"}
-	_ = ma.Validate()
-}

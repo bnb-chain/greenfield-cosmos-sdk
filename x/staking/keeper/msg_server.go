@@ -397,7 +397,6 @@ func (k msgServer) Delegate(goCtx context.Context, msg *types.MsgDelegate) (*typ
 		sdk.NewEvent(
 			types.EventTypeDelegate,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
-			sdk.NewAttribute(types.AttributeKeyDelegator, msg.DelegatorAddress),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
 			sdk.NewAttribute(types.AttributeKeyNewShares, newShares.String()),
 		),
@@ -522,7 +521,6 @@ func (k msgServer) Undelegate(goCtx context.Context, msg *types.MsgUndelegate) (
 			types.EventTypeUnbond,
 			sdk.NewAttribute(types.AttributeKeyValidator, msg.ValidatorAddress),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
-			sdk.NewAttribute(types.AttributeKeyDelegator, msg.DelegatorAddress),
 			sdk.NewAttribute(types.AttributeKeyCompletionTime, completionTime.Format(time.RFC3339)),
 		),
 	})

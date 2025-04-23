@@ -65,7 +65,6 @@ The SIGN_MODE_DIRECT sign mode is not supported.'
 	cmd.Flags().String(flags.FlagOutputDocument, "", "The document is written to the given file instead of STDOUT")
 	cmd.Flags().Bool(flagAmino, false, "Generate Amino-encoded JSON suitable for submitting to the txs REST endpoint")
 	flags.AddTxFlagsToCmd(cmd)
-	_ = cmd.Flags().MarkHidden(flags.FlagOutput)
 
 	return cmd
 }
@@ -189,15 +188,27 @@ func makeMultiSignCmd() func(cmd *cobra.Command, args []string) (err error) {
 			}
 		}
 
-		closeFunc, err := setOutputFile(cmd)
+		outputDoc, _ := cmd.Flags().GetString(flags.FlagOutputDocument)
+		if outputDoc == "" {
+			cmd.Printf("%s\n", json)
+			return
+		}
+
+		fp, err := os.OpenFile(outputDoc, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 		if err != nil {
 			return err
 		}
 
-		defer closeFunc()
+		defer func() {
+			err2 := fp.Close()
+			if err == nil {
+				err = err2
+			}
+		}()
 
-		cmd.Printf("%s\n", json)
-		return nil
+		err = clientCtx.PrintBytes(json)
+
+		return
 	}
 }
 
@@ -232,7 +243,6 @@ The SIGN_MODE_DIRECT sign mode is not supported.'
 	)
 	cmd.Flags().String(flags.FlagOutputDocument, "", "The document is written to the given file instead of STDOUT")
 	flags.AddTxFlagsToCmd(cmd)
-	_ = cmd.Flags().MarkHidden(flags.FlagOutput) // signing makes sense to output only json
 
 	return cmd
 }

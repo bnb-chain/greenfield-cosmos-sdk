@@ -65,7 +65,6 @@ require (
 	github.com/willf/bitset v1.1.3
 	golang.org/x/crypto v0.22.0
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
-	golang.org/x/sync v0.6.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
 	google.golang.org/grpc v1.62.1
@@ -81,6 +80,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/wealdtech/go-eth2-types/v2 v2.8.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
 )
 
 require (

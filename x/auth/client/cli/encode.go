@@ -42,7 +42,6 @@ If you supply a dash (-) argument in place of an input filename, the command rea
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-	_ = cmd.Flags().MarkHidden(flags.FlagOutput) // encoding makes sense to output only json
 
 	return cmd
 }

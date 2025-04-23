@@ -1,8 +1,6 @@
 package types
 
 import (
-	"errors"
-
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -44,10 +42,6 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 }
 
 func (msg MsgUpdateParams) ToProtoConsensusParams() tmproto.ConsensusParams {
-	if msg.Evidence == nil || msg.Block == nil || msg.Validator == nil {
-		panic(errors.New("all parameters must be present"))
-	}
-
 	return tmproto.ConsensusParams{
 		Block: &tmproto.BlockParams{
 			MaxBytes: msg.Block.MaxBytes,

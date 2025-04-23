@@ -4,8 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// ormCodespace is the codespace for all errors defined in orm package
-const ormCodespace = "legacy_orm"
+// mathCodespace is the codespace for all errors defined in orm package
+const ormCodespace = "orm"
 
 var (
 	// ErrORMIteratorDone defines an error when an iterator is done

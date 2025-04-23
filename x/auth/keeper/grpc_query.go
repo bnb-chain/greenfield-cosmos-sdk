@@ -33,7 +33,7 @@ func (ak AccountKeeper) AccountAddressByID(c context.Context, req *types.QueryAc
 	ctx := sdk.UnwrapSDKContext(c)
 	address := ak.GetAccountAddressByID(ctx, accId)
 	if len(address) == 0 {
-		return nil, status.Errorf(codes.NotFound, "account address not found with account number %d", accId)
+		return nil, status.Errorf(codes.NotFound, "account address not found with account number %d", req.Id)
 	}
 
 	return &types.QueryAccountAddressByIDResponse{AccountAddress: address}, nil
@@ -224,14 +224,9 @@ func (ak AccountKeeper) AccountInfo(goCtx context.Context, req *types.QueryAccou
 		return nil, status.Errorf(codes.NotFound, "account %s not found", req.Address)
 	}
 
-	// if there is no public key, avoid serializing the nil value
-	pubKey := account.GetPubKey()
-	var pkAny *codectypes.Any
-	if pubKey != nil {
-		pkAny, err = codectypes.NewAnyWithValue(account.GetPubKey())
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, err.Error())
-		}
+	pkAny, err := codectypes.NewAnyWithValue(account.GetPubKey())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &types.QueryAccountInfoResponse{

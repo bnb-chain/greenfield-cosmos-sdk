@@ -178,10 +178,6 @@ func (k Keeper) UpdateGroupMembers(goCtx context.Context, req *group.MsgUpdateGr
 				return err
 			}
 		}
-		// ensure that group has one or more members
-		if totalWeight.IsZero() {
-			return errors.ErrInvalid.Wrap("group must not be empty")
-		}
 		// Update group in the groupTable.
 		g.TotalWeight = totalWeight.String()
 		g.Version++
@@ -686,40 +682,33 @@ func (k Keeper) Vote(goCtx context.Context, req *group.MsgVote) (*group.MsgVoteR
 // doTallyAndUpdate performs a tally, and, if the tally result is final, then:
 // - updates the proposal's `Status` and `FinalTallyResult` fields,
 // - prune all the votes.
-func (k Keeper) doTallyAndUpdate(ctx sdk.Context, proposal *group.Proposal, electorate group.GroupInfo, policyInfo group.GroupPolicyInfo) error {
+func (k Keeper) doTallyAndUpdate(ctx sdk.Context, p *group.Proposal, electorate group.GroupInfo, policyInfo group.GroupPolicyInfo) error {
 	policy, err := policyInfo.GetDecisionPolicy()
 	if err != nil {
 		return err
 	}
 
-	var result group.DecisionPolicyResult
-	tallyResult, err := k.Tally(ctx, *proposal, policyInfo.GroupId)
-	if err == nil {
-		result, err = policy.Allow(tallyResult, electorate.TotalWeight)
-	}
+	tallyResult, err := k.Tally(ctx, *p, policyInfo.GroupId)
 	if err != nil {
-		if err := k.pruneVotes(ctx, proposal.Id); err != nil {
-			return err
-		}
-		proposal.Status = group.PROPOSAL_STATUS_REJECTED
-		return ctx.EventManager().EmitTypedEvents(
-			&group.EventTallyError{
-				ProposalId:   proposal.Id,
-				ErrorMessage: err.Error(),
-			})
+		return err
+	}
+
+	result, err := policy.Allow(tallyResult, electorate.TotalWeight)
+	if err != nil {
+		return sdkerrors.Wrap(err, "policy allow")
 	}
 
 	// If the result was final (i.e. enough votes to pass) or if the voting
 	// period ended, then we consider the proposal as final.
-	if isFinal := result.Final || ctx.BlockTime().After(proposal.VotingPeriodEnd); isFinal {
-		if err := k.pruneVotes(ctx, proposal.Id); err != nil {
+	if isFinal := result.Final || ctx.BlockTime().After(p.VotingPeriodEnd); isFinal {
+		if err := k.pruneVotes(ctx, p.Id); err != nil {
 			return err
 		}
-		proposal.FinalTallyResult = tallyResult
+		p.FinalTallyResult = tallyResult
 		if result.Allow {
-			proposal.Status = group.PROPOSAL_STATUS_ACCEPTED
+			p.Status = group.PROPOSAL_STATUS_ACCEPTED
 		} else {
-			proposal.Status = group.PROPOSAL_STATUS_REJECTED
+			p.Status = group.PROPOSAL_STATUS_REJECTED
 		}
 
 	}
