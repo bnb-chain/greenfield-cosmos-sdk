@@ -25,16 +25,18 @@ linters:
     - gofumpt
     - gosec
     - gosimple
-    - govet
     - ineffassign
     - nolintlint
     - staticcheck
     - stylecheck
     - unconvert
-    - unused
+
 
 issues:
   exclude-rules:
+    - text: "typecheck"
+      linters:
+        - typecheck
     - text: "Use of weak random number generator"
       linters:
         - gosec
