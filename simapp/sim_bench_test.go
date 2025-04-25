@@ -44,7 +44,6 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	app := NewSimApp(logger, db, nil, true, SimAppChainID, serverconfig.DefaultConfig(), appOptions, interBlockCacheOpt())
-
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
 		b,

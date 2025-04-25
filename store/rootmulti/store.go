@@ -338,7 +338,7 @@ func deleteKVStore(kv types.KVStore) error {
 		keys = append(keys, itr.Key())
 		itr.Next()
 	}
-	itr.Close()
+	_ = itr.Close()
 
 	for _, k := range keys {
 		kv.Delete(k)
@@ -354,7 +354,7 @@ func moveKVStoreData(oldDB, newDB types.KVStore) error {
 		newDB.Set(itr.Key(), itr.Value())
 		itr.Next()
 	}
-	itr.Close()
+	_ = itr.Close()
 
 	// then delete the old store
 	return deleteKVStore(oldDB)
@@ -1163,7 +1163,9 @@ func (rs *Store) GetCommitInfo(ver int64) (*types.CommitInfo, error) {
 func (rs *Store) flushMetadata(db dbm.DB, version int64, cInfo *types.CommitInfo) {
 	rs.logger.Debug("flushing metadata", "height", version)
 	batch := db.NewBatch()
-	defer batch.Close()
+	defer func() {
+		_ = batch.Close()
+	}()
 
 	if cInfo != nil {
 		flushCommitInfo(batch, version, cInfo)
@@ -1263,7 +1265,10 @@ func flushCommitInfo(batch dbm.Batch, version int64, cInfo *types.CommitInfo) {
 	}
 
 	cInfoKey := fmt.Sprintf(commitInfoKeyFmt, version)
-	batch.Set([]byte(cInfoKey), bz)
+
+	if err := batch.Set([]byte(cInfoKey), bz); err != nil {
+		panic(err)
+	}
 }
 
 func flushLatestVersion(batch dbm.Batch, version int64) {
@@ -1272,7 +1277,9 @@ func flushLatestVersion(batch dbm.Batch, version int64) {
 		panic(err)
 	}
 
-	batch.Set([]byte(latestVersionKey), bz)
+	if err := batch.Set([]byte(latestVersionKey), bz); err != nil {
+		panic(err)
+	}
 }
 
 // MigrateCommitInfos will migrate commit infos to another db.

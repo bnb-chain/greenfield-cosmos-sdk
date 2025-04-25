@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto"
 

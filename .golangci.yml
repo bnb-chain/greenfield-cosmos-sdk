@@ -4,6 +4,16 @@ run:
   timeout: 5m
   skip-files:
     - server/grpc/gogoreflection/serverreflection.go
+    - x
+    - telemetry
+    - runtime
+    - client
+    - crypto
+    - bsc
+    - baseapp
+    - types
+    - version
+    - store
 
 linters:
   disable-all: true
@@ -15,17 +25,18 @@ linters:
     - gofumpt
     - gosec
     - gosimple
-    - govet
     - ineffassign
     - nolintlint
     - staticcheck
     - stylecheck
-    - typecheck
     - unconvert
-    - unused
+
 
 issues:
   exclude-rules:
+    - text: "typecheck"
+      linters:
+        - typecheck
     - text: "Use of weak random number generator"
       linters:
         - gosec

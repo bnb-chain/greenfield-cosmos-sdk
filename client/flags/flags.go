@@ -87,8 +87,9 @@ const (
 	FlagOutput = tmcli.OutputFlag
 
 	// Tendermint logging flags
-	FlagLogLevel  = "log_level"
-	FlagLogFormat = "log_format"
+	FlagLogLevel   = "log_level"
+	FlagLogFormat  = "log_format"
+	FlagLogNoColor = "log_no_color"
 
 	FlagPrintEIP712MsgType = "print-eip712-msg-type"
 )
