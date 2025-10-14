@@ -47,6 +47,9 @@ const (
 
 	// Savanna is the upgrade name for Savanna upgrade
 	Savanna = types.Savanna
+
+	// Tundra is the upgrade name for Tundra upgrade
+	Tundra = types.Tundra
 )
 
 // The default upgrade config for networks
@@ -104,6 +107,10 @@ var (
 		Name:   Savanna,
 		Height: 14667574,
 		Info:   "Savanna hardfork",
+	}).SetPlan(&Plan{
+		Name:   Tundra,
+		Height: 25213033,
+		Info:   "Tundra hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -159,6 +166,10 @@ var (
 		Name:   Savanna,
 		Height: 14691233,
 		Info:   "Savanna hardfork",
+	}).SetPlan(&Plan{
+		Name:   Tundra,
+		Height: 24007800,
+		Info:   "Tundra hardfork",
 	})
 )
 
