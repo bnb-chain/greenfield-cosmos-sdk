@@ -109,7 +109,7 @@ var (
 		Info:   "Savanna hardfork",
 	}).SetPlan(&Plan{
 		Name:   Tundra,
-		Height: 24002835,
+		Height: 25213033,
 		Info:   "Tundra hardfork",
 	})
 
@@ -168,7 +168,7 @@ var (
 		Info:   "Savanna hardfork",
 	}).SetPlan(&Plan{
 		Name:   Tundra,
-		Height: 25213033,
+		Height: 24002835,
 		Info:   "Tundra hardfork",
 	})
 )
