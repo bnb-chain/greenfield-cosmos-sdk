@@ -18,7 +18,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 	"github.com/stretchr/testify/suite"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"

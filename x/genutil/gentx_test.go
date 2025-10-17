@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/eth/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/testutil"

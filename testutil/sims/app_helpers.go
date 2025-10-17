@@ -38,7 +38,7 @@ const DefaultGenTxGas = 10000000
 var DefaultConsensusParams = &tmproto.ConsensusParams{
 	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
-		MaxGas:   2000000,
+		MaxGas:   100_000_000,
 		MaxTxs:   2000,
 	},
 	Evidence: &tmproto.EvidenceParams{
@@ -108,6 +108,21 @@ func SetupAtGenesis(appConfig depinject.Config, extraOutputs ...interface{}) (*r
 	cfg := DefaultStartUpConfig()
 	cfg.AtGenesis = true
 	return SetupWithConfiguration(appConfig, cfg, extraOutputs...)
+}
+
+// NextBlock starts a new block.
+func NextBlock(app *runtime.App, ctx sdk.Context, jumpTime time.Duration) sdk.Context {
+	app.EndBlock(abci.RequestEndBlock{Height: ctx.BlockHeight()})
+
+	app.Commit()
+
+	newBlockTime := ctx.BlockTime().Add(jumpTime)
+	nextHeight := ctx.BlockHeight() + 1
+	newHeader := tmproto.Header{Height: nextHeight, Time: newBlockTime}
+
+	app.BeginBlock(abci.RequestBeginBlock{Header: newHeader})
+
+	return app.NewUncachedContext(false, newHeader)
 }
 
 // SetupWithConfiguration initializes a new runtime.App. A Nop logger is set in runtime.App.

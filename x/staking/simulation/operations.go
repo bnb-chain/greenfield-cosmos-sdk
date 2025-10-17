@@ -6,7 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/prysmaticlabs/prysm/crypto/bls"
+	"github.com/prysmaticlabs/prysm/v5/crypto/bls"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
