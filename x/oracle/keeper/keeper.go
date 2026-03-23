@@ -205,6 +205,9 @@ func (k Keeper) getInturnRelayer(ctx sdk.Context, relayerInterval uint64, claimS
 	validators := historicalInfo.Valset
 
 	validatorsSize := len(validators)
+	if validatorsSize == 0 {
+		return nil, nil, sdkerrors.Wrapf(types.ErrValidatorSet, "empty validator set in historical info")
+	}
 
 	// totalIntervals is sum of intervals from all relayers
 	totalIntervals := relayerInterval * uint64(validatorsSize)
