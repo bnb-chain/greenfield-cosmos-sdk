@@ -50,6 +50,9 @@ const (
 
 	// Tundra is the upgrade name for Tundra upgrade
 	Tundra = types.Tundra
+
+	// Prairie is the upgrade name for Prairie upgrade
+	Prairie = types.Prairie
 )
 
 // The default upgrade config for networks
