@@ -44,4 +44,7 @@ const (
 
 	// Tundra is the upgrade name for Tundra upgrade
 	Tundra = "Tundra"
+
+	// Prairie is the upgrade name for Prairie upgrade
+	Prairie = "Prairie"
 )
