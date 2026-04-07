@@ -114,6 +114,10 @@ var (
 		Name:   Tundra,
 		Height: 25213033,
 		Info:   "Tundra hardfork",
+	}).SetPlan(&Plan{
+		Name:   Prairie,
+		Height: 31432100,
+		Info:   "Prairie hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -173,6 +177,10 @@ var (
 		Name:   Tundra,
 		Height: 24007800,
 		Info:   "Tundra hardfork",
+	}).SetPlan(&Plan{
+		Name:   Prairie,
+		Height: 29798400,
+		Info:   "Prairie hardfork",
 	})
 )
 
