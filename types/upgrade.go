@@ -47,4 +47,7 @@ const (
 
 	// Prairie is the upgrade name for Prairie upgrade
 	Prairie = "Prairie"
+
+	// Taiga is the upgrade name for Taiga upgrade
+	Taiga = "Taiga"
 )
