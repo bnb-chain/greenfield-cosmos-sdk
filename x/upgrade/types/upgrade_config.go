@@ -53,6 +53,9 @@ const (
 
 	// Prairie is the upgrade name for Prairie upgrade
 	Prairie = types.Prairie
+
+	// Taiga is the upgrade name for Taiga upgrade
+	Taiga = types.Taiga
 )
 
 // The default upgrade config for networks
@@ -118,6 +121,10 @@ var (
 		Name:   Prairie,
 		Height: 31432100,
 		Info:   "Prairie hardfork",
+	}).SetPlan(&Plan{
+		Name:   Taiga,
+		Height: math.MaxInt64,
+		Info:   "Taiga hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -181,6 +188,10 @@ var (
 		Name:   Prairie,
 		Height: 29798400,
 		Info:   "Prairie hardfork",
+	}).SetPlan(&Plan{
+		Name:   Taiga,
+		Height: math.MaxInt64,
+		Info:   "Taiga hardfork",
 	})
 )
 
