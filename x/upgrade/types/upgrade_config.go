@@ -123,7 +123,7 @@ var (
 		Info:   "Prairie hardfork",
 	}).SetPlan(&Plan{
 		Name:   Taiga,
-		Height: math.MaxInt64,
+		Height: 31877400,
 		Info:   "Taiga hardfork",
 	})
 
@@ -190,7 +190,7 @@ var (
 		Info:   "Prairie hardfork",
 	}).SetPlan(&Plan{
 		Name:   Taiga,
-		Height: math.MaxInt64,
+		Height: 30310800,
 		Info:   "Taiga hardfork",
 	})
 )
