@@ -50,4 +50,7 @@ const (
 
 	// Taiga is the upgrade name for Taiga upgrade
 	Taiga = "Taiga"
+
+	// Steppe is the upgrade name for Steppe upgrade
+	Steppe = "Steppe"
 )

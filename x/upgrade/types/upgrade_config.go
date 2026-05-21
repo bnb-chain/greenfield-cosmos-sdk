@@ -56,6 +56,9 @@ const (
 
 	// Taiga is the upgrade name for Taiga upgrade
 	Taiga = types.Taiga
+
+	// Steppe is the upgrade name for Steppe upgrade
+	Steppe = types.Steppe
 )
 
 // The default upgrade config for networks
@@ -125,6 +128,10 @@ var (
 		Name:   Taiga,
 		Height: 31877400,
 		Info:   "Taiga hardfork",
+	}).SetPlan(&Plan{
+		Name:   Steppe,
+		Height: 32755700,
+		Info:   "Steppe hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -192,6 +199,10 @@ var (
 		Name:   Taiga,
 		Height: 30310800,
 		Info:   "Taiga hardfork",
+	}).SetPlan(&Plan{
+		Name:   Steppe,
+		Height: 31275600,
+		Info:   "Steppe hardfork",
 	})
 )
 
