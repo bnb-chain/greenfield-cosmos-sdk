@@ -27,8 +27,24 @@ func VerifySignature(ctx sdk.Context, pubKey cryptotypes.PubKey, signerData Sign
 				return errorsmod.Wrap(sdkerrors.ErrorInvalidSigner, "signature length doesn't match typical [R||S||V] signature 65 bytes")
 			}
 
+			// before Steppe: use signature cache to skip re-verification
+			if !ctx.IsUpgraded(sdk.Steppe) {
+				if ctx.SigCache() != nil && ctx.TxBytes() != nil {
+					if _, known := ctx.SigCache().Get(string(ctx.TxBytes())); known {
+						return nil
+					}
+				}
+			}
+
 			// verify signature
-			return verifyEip712SignatureWithFallback(ctx, pubKey, data.Signature, handler, signerData, tx)
+			err := verifyEip712SignatureWithFallback(ctx, pubKey, data.Signature, handler, signerData, tx)
+
+			if !ctx.IsUpgraded(sdk.Steppe) {
+				if err == nil && ctx.SigCache() != nil && ctx.TxBytes() != nil {
+					ctx.SigCache().Add(string(ctx.TxBytes()), tx)
+				}
+			}
+			return err
 		} else {
 			// original cosmos-sdk signature verification
 			signBytes, err := handler.GetSignBytes(data.SignMode, signerData, tx)
