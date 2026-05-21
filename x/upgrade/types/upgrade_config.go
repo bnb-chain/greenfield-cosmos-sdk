@@ -130,7 +130,7 @@ var (
 		Info:   "Taiga hardfork",
 	}).SetPlan(&Plan{
 		Name:   Steppe,
-		Height: 32718900,
+		Height: 32755700,
 		Info:   "Steppe hardfork",
 	})
 
@@ -201,7 +201,7 @@ var (
 		Info:   "Taiga hardfork",
 	}).SetPlan(&Plan{
 		Name:   Steppe,
-		Height: 31278400,
+		Height: 31275600,
 		Info:   "Steppe hardfork",
 	})
 )
