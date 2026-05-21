@@ -28,23 +28,10 @@ func VerifySignature(ctx sdk.Context, pubKey cryptotypes.PubKey, signerData Sign
 			}
 
 			// before Steppe: use signature cache to skip re-verification
-			if !ctx.IsUpgraded(sdk.Steppe) {
-				if ctx.SigCache() != nil && ctx.TxBytes() != nil {
-					if _, known := ctx.SigCache().Get(string(ctx.TxBytes())); known {
-						return nil
-					}
-				}
+			if !ctx.IsUpgraded(sdk.Cerrado) {
+				return verifyEip712SignatureWithFallback(ctx, pubKey, data.Signature, handler, signerData, tx)
 			}
-
-			// verify signature
-			err := verifyEip712SignatureWithFallback(ctx, pubKey, data.Signature, handler, signerData, tx)
-
-			if !ctx.IsUpgraded(sdk.Steppe) {
-				if err == nil && ctx.SigCache() != nil && ctx.TxBytes() != nil {
-					ctx.SigCache().Add(string(ctx.TxBytes()), tx)
-				}
-			}
-			return err
+			return verifyEip712SignatureWithFallback(ctx, pubKey, data.Signature, handler, signerData, tx)
 		} else {
 			// original cosmos-sdk signature verification
 			signBytes, err := handler.GetSignBytes(data.SignMode, signerData, tx)

@@ -59,6 +59,9 @@ const (
 
 	// Steppe is the upgrade name for Steppe upgrade
 	Steppe = types.Steppe
+
+	// Cerrado is the upgrade name for Cerrado upgrade
+	Cerrado = types.Cerrado
 )
 
 // The default upgrade config for networks
@@ -130,8 +133,12 @@ var (
 		Info:   "Taiga hardfork",
 	}).SetPlan(&Plan{
 		Name:   Steppe,
-		Height: 32755700,
+		Height: 32750500,
 		Info:   "Steppe hardfork",
+	}).SetPlan(&Plan{
+		Name:   Cerrado,
+		Height: 32752300,
+		Info:   "Cerrado hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -203,6 +210,10 @@ var (
 		Name:   Steppe,
 		Height: 31275600,
 		Info:   "Steppe hardfork",
+	}).SetPlan(&Plan{
+		Name:   Cerrado,
+		Height: 31279400,
+		Info:   "Cerrado hardfork",
 	})
 )
 

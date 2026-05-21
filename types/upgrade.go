@@ -53,4 +53,7 @@ const (
 
 	// Steppe is the upgrade name for Steppe upgrade
 	Steppe = "Steppe"
+
+	// Cerrado is the upgrade name for Cerrado upgrade
+	Cerrado = "Cerrado"
 )
