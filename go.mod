@@ -1,4 +1,4 @@
-go 1.21
+go 1.25.0
 
 module github.com/cosmos/cosmos-sdk
 
@@ -63,9 +63,9 @@ require (
 	github.com/tidwall/btree v1.6.0
 	github.com/wealdtech/go-eth2-util v1.6.3
 	github.com/willf/bitset v1.1.3
-	golang.org/x/crypto v0.22.0
+	golang.org/x/crypto v0.52.0
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80
 	google.golang.org/grpc v1.62.1
 	google.golang.org/protobuf v1.33.0
@@ -80,7 +80,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/wealdtech/go-eth2-types/v2 v2.8.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 )
 
 require (
@@ -171,9 +171,9 @@ require (
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.9 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/term v0.19.0 // indirect; indirectÏ
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect; indirectÏ
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
