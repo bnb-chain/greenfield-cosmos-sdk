@@ -144,7 +144,7 @@ var (
 		Info:   "Cerrado hardfork",
 	}).SetPlan(&Plan{
 		Name:   Sahel,
-		Height: math.MaxInt64,
+		Height: 34904000, // 2026-07-24 ~14:26 CST
 		Info:   "Sahel hardfork",
 	})
 
@@ -223,7 +223,7 @@ var (
 		Info:   "Cerrado hardfork",
 	}).SetPlan(&Plan{
 		Name:   Sahel,
-		Height: math.MaxInt64,
+		Height: 33312000, // 2026-07-20 ~11:15 CST
 		Info:   "Sahel hardfork",
 	})
 )
