@@ -56,4 +56,7 @@ const (
 
 	// Cerrado is the upgrade name for Cerrado upgrade
 	Cerrado = "Cerrado"
+
+	// Sahel is the upgrade name for Sahel upgrade
+	Sahel = "Sahel"
 )

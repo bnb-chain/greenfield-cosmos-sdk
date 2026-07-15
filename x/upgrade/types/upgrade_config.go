@@ -62,6 +62,9 @@ const (
 
 	// Cerrado is the upgrade name for Cerrado upgrade
 	Cerrado = types.Cerrado
+
+	// Sahel is the upgrade name for Sahel upgrade
+	Sahel = types.Sahel
 )
 
 // The default upgrade config for networks
@@ -139,6 +142,10 @@ var (
 		Name:   Cerrado,
 		Height: 32752300,
 		Info:   "Cerrado hardfork",
+	}).SetPlan(&Plan{
+		Name:   Sahel,
+		Height: math.MaxInt64,
+		Info:   "Sahel hardfork",
 	})
 
 	TestnetChainID = "greenfield_5600-1"
@@ -214,6 +221,10 @@ var (
 		Name:   Cerrado,
 		Height: 31279400,
 		Info:   "Cerrado hardfork",
+	}).SetPlan(&Plan{
+		Name:   Sahel,
+		Height: math.MaxInt64,
+		Info:   "Sahel hardfork",
 	})
 )
 
