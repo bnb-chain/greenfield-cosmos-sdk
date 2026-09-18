@@ -20,7 +20,7 @@ func testInterfaceMarshaling(require *require.Assertions, cdc interfaceMarshaler
 	_, err := cdc.marshal(nil)
 	require.Error(err, "can't marshal a nil value")
 
-	dog := &testdata.Dog{Name: "rufus"}
+	dog := &testdata.Dog{Name: "fitz"}
 	var dogI testdata.Animal = dog
 	bz, err := cdc.marshal(dogI)
 	require.NoError(err)
@@ -88,19 +88,19 @@ func testMarshalingTestCase(require *require.Assertions, tc testCase, m mustMars
 }
 
 func testMarshaling(t *testing.T, cdc codec.Codec) {
-	any, err := types.NewAnyWithValue(&testdata.Dog{Name: "rufus"})
+	any, err := types.NewAnyWithValue(&testdata.Dog{Name: "fitz"})
 	require.NoError(t, err)
 
 	testCases := []testCase{
 		{
 			"valid encoding and decoding",
-			&testdata.Dog{Name: "rufus"},
+			&testdata.Dog{Name: "fitz"},
 			&testdata.Dog{},
 			false,
 			false,
 		}, {
 			"invalid decode type",
-			&testdata.Dog{Name: "rufus"},
+			&testdata.Dog{Name: "fitz"},
 			&testdata.Cat{},
 			false,
 			true,
