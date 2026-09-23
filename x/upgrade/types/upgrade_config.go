@@ -144,7 +144,7 @@ var (
 		Info:   "Cerrado hardfork",
 	}).SetPlan(&Plan{
 		Name:   Sahel,
-		Height: 34904000, // 2026-07-24 ~14:26 CST
+		Height: 38598200, // 2026-11-08 ~14:26 CST (estimated)
 		Info:   "Sahel hardfork",
 	})
 
@@ -223,7 +223,7 @@ var (
 		Info:   "Cerrado hardfork",
 	}).SetPlan(&Plan{
 		Name:   Sahel,
-		Height: 33312000, // 2026-07-20 ~11:15 CST
+		Height: 36828400, // 2026-11-01 ~11:15 CST (estimated)
 		Info:   "Sahel hardfork",
 	})
 )
